@@ -1,148 +1,65 @@
-# Guardrails
+# Aurelius · M2 · the Water
 
-Redacta claves, tokens, IPs privadas y rutas locales de un texto **antes** de que
-salga de tu máquina hacia un modelo externo. Un fichero, un interruptor, sin
-dependencias fuera de la librería estándar de Python.
+> Your memory, in one file you can carry. It starts empty and says so.
 
-## Qué hace
+Aurelius wakes up with no memory. Instead of pretending otherwise, it tells you
+what it does not have and asks you to help build it. What you write stays on
+your machine, in a single file, in your own words.
 
-Recibe texto y devuelve dos cosas: el texto ya redactado y un contador de qué
-clases apareció y cuántas veces.
+## What it does
 
-```python
-from guardrails import redactar_salida
+- Starts in one of three honest states: **no schema**, **empty**, or **with data**. Those are three different things and it never confuses them.
+- Guides you through a memory field by field: `what`, `why`, `where`, `learned`. Each question shows the field it is filling.
+- Writes `NO_DATA` where you have no answer, and shows it. Never a blank cell.
+- Shows your memory three ways: a table, an indented tree of links, and a count of how many gaps are left.
+- Exports to markdown **redacted at the border**.
 
-texto, hallazgos = redactar_salida('export API_KEY=sk-live-9aB7cD5eF3gH1iJ2kL4')
-# texto      -> 'export [REDACTED:API_KEY]'
-# hallazgos  -> [{'policy': 'API_KEY', 'count': 1}]
-```
+## What it does not do
 
-El contador nunca lleva el texto encontrado: solo **clase y cantidad**. Es lo que
-se puede enseñar en pantalla sin volver a exponer aquello que acabas de tapar.
+- It does **not** redact what you store. Your machine, your data, your words. Redaction happens only when something leaves.
+- It does **not** delete. Archiving is a column, not a folder.
+- It does **not** need the network, a GPU, or any dependency beyond Python 3 and its standard library.
+- It does **not** search yet. With a handful of memories, search is a solution to a problem you do not have.
 
-### Políticas duras (Core) — siempre activas
-
-| Policy | Qué tapa |
-|---|---|
-| `API_KEY` | Tokens de API por forma conocida (`sk-…`, `ghp_…`, `xox…`, `AKIA…`, `AIza…`) y por asignación (`…_API_KEY=`, `Bearer …`) |
-| `PRIVATE_KEY` | Bloques `-----BEGIN … PRIVATE KEY-----` completos |
-| `SSH_PUBLIC_KEY` | Claves públicas SSH con su comentario final |
-| `ASSIGNED_SECRET` | Contraseñas y secretos asignados (`…_password=`, `client_secret:`), credenciales en URL (`esquema://usuario:clave@`) y JWT |
-
-No se apagan desde la configuración. Un fichero `policies.json` que intente
-tocarlas es un fichero inválido, y un fichero inválido bloquea el envío.
-
-### Políticas blandas (Custom) — se ajustan en `policies.json`
-
-| Policy | Qué tapa |
-|---|---|
-| `PRIVATE_IP` | Rangos privados y de enlace local (10/8, 172.16/12, 192.168/16, 100.64/10, 169.254/16, ULA y link-local de IPv6) |
-| `HOME_PATH` | Rutas absolutas bajo `/home` `/mnt` `/srv` `/opt` `/var` `/media` |
-| `NODE_PATH` | Los nombres de máquina **que tú declares**. Nace vacía: sin nombres declarados no busca nada |
-
-```json
-{
-  "PRIVATE_IP": { "activa": true },
-  "HOME_PATH":  { "activa": true },
-  "NODE_PATH":  { "activa": true, "nombres": ["mi-portatil", "servidor-casa"] }
-}
-```
-
-## Qué NO hace
-
-- **No es un detector de PII de propósito general.** No busca nombres de persona,
-  correos, teléfonos, tarjetas ni números de identidad.
-- **No entiende el texto.** Son expresiones regulares sobre formas conocidas. Un
-  secreto con forma inédita pasa; un token que no parece token, pasa.
-- **No hay exención por directorio.** Ninguna ruta compra una excepción: si un
-  secreto aparece, se tapa, viva donde viva.
-- **No cifra, no anonimiza de forma reversible, no guarda un mapa.** Lo redactado
-  se sustituye por una máscara y no se puede recuperar desde la salida.
-- **No intercepta nada por su cuenta.** No es un proxy ni un hook: es una función
-  que tienes que llamar tú antes de enviar.
-- **No cubre `/Users` ni rutas de Windows** todavía. Ver más abajo.
-- **No es una garantía.** Reduce la superficie de fuga; no la elimina.
-
-## Uso mínimo
-
-```python
-from guardrails import preparar_envio, EnvioBloqueado
-
-try:
-    respuesta = preparar_envio(prompt_del_usuario)
-except EnvioBloqueado:
-    ...  # no se envía nada: ni el original, ni un "por si acaso"
-
-enviar_al_modelo(respuesta["texto"])
-mostrar_contador(respuesta["hallazgos"])   # [{'policy': …, 'count': …}]
-```
-
-`preparar_envio` devuelve `{estado, texto, hallazgos, policy_hash}`. Ese contador
-es el valor de retorno: la interfaz lo muestra, no lo recalcula.
-
-**Fail-closed.** Si el motor falla, o `policies.json` falta o está corrupto,
-`preparar_envio` lanza `EnvioBloqueado` y no devuelve texto. Un fallo del filtro
-nunca se interpreta como «no había nada que redactar».
-
-**`POLICY_HASH`** es la huella del conjunto de patrones de las políticas duras.
-Sirve para comparar dos instalaciones. Cubre solo las duras a propósito: si
-cubriera las blandas, cambiaría en cuanto alguien personalizase su configuración
-y dejaría de significar nada.
-
-Tests (sin dependencias):
+## Use
 
 ```
-python3 -m unittest -v test_guardrails
+python3 aurelius.py                # the seven-step session
+python3 aurelius.py --view         # just look
+python3 aurelius.py --export       # markdown, redacted
 ```
 
-## El corpus
+Default location: `~/.aurelius/memory.db`. Change it with `--db RUTA`. Copy that
+file and your memory comes with you.
 
-`corpus/muestras.json` son **36 muestras** con la forma que tienen de verdad los
-ficheros de configuración, los logs y las trazas — `.env`, `docker-compose.yml`,
-manifiestos, `.netrc`, `.npmrc`, trazas de Python y de Node, salidas de `mount` y
-`journalctl` — más **12 límites declarados**: textos que hoy **no** se redactan,
-con el motivo escrito al lado.
+## Border: redaction is required, not optional
 
-Todo su contenido es inventado. Un test comprueba que el corpus no contenga
-nada de la máquina donde corre.
+`--export` looks for a `guardrails` module providing `redactar_salida(text) ->
+(text, [{policy, count}])`. **If it is not there, export is blocked** and
+nothing is printed. Failing closed is deliberate: a filter that breaks and lets
+the text through is worse than no filter, because you would believe you were
+protected.
 
-Los límites se prueban igual que los casos: si uno empieza a dispararse, el test
-cae y alguien tiene que mover la línea a mano. Una cobertura que crece sin que
-nadie se entere no es cobertura, es azar.
+The findings report **class and count only** — `API_KEY x1` — never the matched
+value. A report that echoed the secret would put it back in the place the
+redaction just removed it from.
 
-Un detalle que el corpus fijó: `password caducó ayer` **no** se redacta. Cuando
-entre la palabra clave y el valor solo hay un espacio, el valor tiene que
-parecer un secreto — llevar un dígito, un signo, o pasar de doce letras. Con
-`:` o `=` de por medio no hace falta: ahí la asignación es explícita. Un filtro
-que muerde la prosa acaba apagado, y un filtro apagado no protege nada.
+## Status (real, not aspirational)
 
-## Estado real
+- [x] Three states, distinguished and tested
+- [x] Round-trip byte-identical, accents and newlines included
+- [x] `NO_DATA` stored, shown and counted
+- [x] Table, tree and gap count
+- [x] Archive without delete
+- [x] WAL journal: an interrupted write leaves no half rows
+- [x] Store raw / export redacted, tested in both directions
+- [x] Export blocked with no filter
+- [ ] `guardrails` module shipped in this folder — comes from the product, injected not copied
+- [ ] Full-text search — out of M2 on purpose
+- [ ] Manifest signature — belongs to the close of M2
 
-**Fase 0.** Es una función y su suite de tests, y nada más. No hay servidor, no
-hay endpoint, no hay interruptor en pantalla, no hay paquete instalable, no hay
-integración con ningún cliente. Lo que existe está probado; lo que no aparece en
-la tabla de políticas, no existe.
+12/12 tests green: `python3 test_memory.py`
 
-Huecos declarados, no olvidados:
+## License
 
-- `/Users` (macOS) y `C:\` (Windows) **no** están cubiertos. Entran cuando tengan
-  su test explícito, y `C:\` con su propio caso de escapado de la barra invertida.
-  Hay un test que hoy fija esa ausencia: caerá el día que se cubran, que es
-  justo lo que se quiere de él.
-- La configuración se relee en cada llamada. Es correcto y es lento; con textos
-  grandes o en bucle, hay que medirlo antes de usarlo en caliente.
-
-## Por qué `/tmp` queda fuera
-
-`HOME_PATH` cubre seis prefijos (`/home` `/mnt` `/srv` `/opt` `/var` `/media`) y
-deja `/tmp` fuera **por decisión firmada**, no por descuido.
-
-`/tmp` es el sitio donde todo el mundo —el sistema, el editor, el navegador, el
-propio intérprete— deja ficheros de paso con nombres generados. Casi ninguno dice
-nada de quien los escribió. Incluirlo llenaría el contador de hallazgos que no
-son hallazgos, y un contador que siempre marca alto es un contador que se deja
-de mirar: el coste no es el ruido, es que la señal deje de creerse.
-
-La decisión se revisa con datos, no con opiniones: hace falta medir en uso real
-qué proporción de rutas `/tmp` contienen algo identificable. Hasta que ese dato
-exista, `/tmp` no entra.
+Apache-2.0.
