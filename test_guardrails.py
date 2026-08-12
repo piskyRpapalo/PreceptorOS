@@ -9,11 +9,15 @@ Sin dependencias externas: librería estándar. Se ejecuta con
 """
 
 import ast
+import hashlib
 import inspect
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -579,5 +583,137 @@ class CC_CorpusDeFalsosNegativos(unittest.TestCase):
                 self.assertNotIn(sospechoso, contenido, "el corpus nombra esta máquina")
 
 
+# --- modo sabotaje · el rojo también se prueba ----------------------------
+# Una suite verde solo demuestra que el código pasa la suite. Que la suite
+# DETECTE la rotura es otra afirmación distinta. Comprobarla a mano una vez no
+# deja registro y nadie la repite; este modo la vuelve mecánica.
+#
+# Por cada invariante: se copia el árbol a un temporal, se rompe la invariante
+# EN LA COPIA, se corre la suite contra esa copia y se exige que falle. El
+# módulo original no se toca nunca, y su sha256 se compara al cerrar.
+#
+# Si la suite pasa con una invariante rota, ESE es el fallo: ese test no vale.
+
+# (nombre, fichero, ancla exacta, sustitución). El ancla debe aparecer UNA vez:
+# un ancla que ya no aplica dejaría la copia sana, la suite verde y produciría
+# la conclusión falsa de "invariante no detectada". Se verifica antes de romper.
+SABOTAJES = (
+    (
+        "política dura desactivada · API_KEY sale del orden de aplicación",
+        "guardrails.py",
+        '    "API_KEY",\n    "ASSIGNED_SECRET",',
+        '    "ASSIGNED_SECRET",',
+    ),
+    (
+        "parámetro de ruta reintroducido en la firma pública",
+        "guardrails.py",
+        "def redactar_salida(texto):",
+        "def redactar_salida(texto, ruta_politicas=None):",
+    ),
+    (
+        "los hallazgos devuelven el texto coincidente",
+        "guardrails.py",
+        "        texto, veces = _aplicar(nombre, patron, texto)\n"
+        "        if veces:\n"
+        '            hallazgos.append({"policy": nombre, "count": veces})',
+        "        encontrados = re.findall(patron, texto)\n"
+        "        texto, veces = _aplicar(nombre, patron, texto)\n"
+        "        if veces:\n"
+        '            hallazgos.append({"policy": nombre, "count": veces,\n'
+        '                              "match": encontrados})',
+    ),
+)
+
+VIGILADOS = ("guardrails.py", "policies.json", "lexico_prohibido.txt")
+
+
+def _sha256(ruta):
+    return hashlib.sha256(Path(ruta).read_bytes()).hexdigest()
+
+
+def _copia_del_arbol():
+    """Copia de trabajo, siempre bajo un temporal recién creado."""
+    destino = Path(tempfile.mkdtemp(prefix="sabotaje_gr_")) / "arbol"
+    shutil.copytree(
+        RAIZ, destino, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".git")
+    )
+    return destino
+
+
+def _romper(destino, fichero, ancla, sustitucion):
+    """Aplica la rotura en la copia. Devuelve None, o el motivo del rechazo."""
+    ruta = destino / fichero
+    fuente = ruta.read_text(encoding="utf-8")
+    veces = fuente.count(ancla)
+    if veces != 1:
+        return (
+            f"el ancla aparece {veces} veces en {fichero}; el código cambió y "
+            "este sabotaje ya no rompe nada"
+        )
+    ruta.write_text(fuente.replace(ancla, sustitucion), encoding="utf-8")
+    return None
+
+
+def _lineas_rojas(salida):
+    return [l.strip() for l in salida.splitlines() if l.startswith(("FAIL:", "ERROR:"))]
+
+
+def main_sabotaje():
+    print("── FASE 0 · MODO SABOTAJE · se EXIGE que la suite se ponga roja ───────")
+    print(f"   original: {RAIZ}")
+    print("   se rompe una copia temporal; el original no se toca\n")
+    huella_antes = {f: _sha256(RAIZ / f) for f in VIGILADOS}
+    no_detectados = []
+
+    for nombre, fichero, ancla, sustitucion in SABOTAJES:
+        destino = _copia_del_arbol()
+        try:
+            motivo = _romper(destino, fichero, ancla, sustitucion)
+            if motivo is not None:
+                no_detectados.append((nombre, motivo))
+                print(f"  SIN ROMPER · {nombre}\n               -> {motivo}")
+                continue
+            r = subprocess.run(
+                [sys.executable, str(destino / Path(__file__).name)],
+                cwd=destino,
+                capture_output=True,
+                text=True,
+            )
+            salida = r.stderr + r.stdout
+            if r.returncode == 0:
+                no_detectados.append((nombre, "la suite quedó VERDE con la invariante rota"))
+                print(f"  NO DETECTADO · {nombre}")
+                print("                 -> la suite quedó VERDE con la invariante rota")
+                continue
+            rojas = _lineas_rojas(salida)
+            print(f"  roja  · {nombre}")
+            for l in rojas:
+                print(f"          detectado por: {l}")
+            resumen = [l for l in salida.splitlines() if l.startswith(("Ran ", "FAILED"))]
+            print(f"          {' · '.join(resumen)} (exit {r.returncode})")
+        finally:
+            shutil.rmtree(destino.parent, ignore_errors=True)
+
+    huella_despues = {f: _sha256(RAIZ / f) for f in VIGILADOS}
+    intacto = huella_antes == huella_despues
+    print(
+        f"\nMODULO ORIGINAL {'INTACTO' if intacto else 'ALTERADO'} "
+        f"(sha256 guardrails.py {huella_despues['guardrails.py'][:16]}…)"
+    )
+    if not intacto:
+        print("  CRÍTICO: el modo sabotaje escribió en el árbol original")
+
+    total = len(SABOTAJES)
+    print(f"\nRESULTADO SABOTAJE: {total - len(no_detectados)}/{total} roturas detectadas")
+    for nombre, motivo in no_detectados:
+        print(f"  NO DETECTADA · {nombre}\n                 -> {motivo}")
+    if no_detectados:
+        print("\n  PARADA: una invariante rota que la suite no ve significa que ese")
+        print("  test no vale. Hay que reescribirlo antes de seguir.")
+    return 1 if (no_detectados or not intacto) else 0
+
+
 if __name__ == "__main__":
+    if "--sabotaje" in sys.argv[1:]:
+        sys.exit(main_sabotaje())
     unittest.main(verbosity=2)
