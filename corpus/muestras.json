@@ -1,0 +1,276 @@
+{
+  "_nota": "Corpus de falsos negativos. Datos inventados: ninguna credencial de aquí es real, ninguna máquina de aquí existe. Formato: 'casos' declara lo que DEBE detectarse; 'limites_declarados' fija lo que hoy NO se detecta, para que el día que se cubra se entere alguien.",
+  "_semantica": "espera = mínimo de veces que esa política debe disparar. no_sobrevive = fragmentos que no pueden quedar en el texto redactado. no_dispara = políticas que no deben aparecer en el hallazgo.",
+
+  "casos": [
+
+    { "id": "env-openai",
+      "fuente": ".env",
+      "texto": "OPENAI_API_KEY=sk-proj-Xk29Lm44Qw81Zr03Tb77Nc55Vd",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["sk-proj-Xk29Lm44Qw81Zr03Tb77Nc55Vd"] },
+
+    { "id": "env-aws",
+      "fuente": ".env",
+      "texto": "AWS_ACCESS_KEY_ID=AKIA3NF2QZ7LMWXY4RTB\nAWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI7K8MDENGbPxRfiCYEXAMPLEKEY",
+      "espera": { "API_KEY": 1, "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["AKIA3NF2QZ7LMWXY4RTB", "wJalrXUtnFEMI7K8MDENGbPxRfiCYEXAMPLEKEY"] },
+
+    { "id": "env-api-key-sufijo",
+      "fuente": ".env",
+      "texto": "API_KEY_PROD=Zx98Yw76Vu54Ts32Rq10Po",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["Zx98Yw76Vu54Ts32Rq10Po"] },
+
+    { "id": "env-django",
+      "fuente": ".env",
+      "texto": "SECRET_KEY=django-insecure-8f3k2j9d0s7a6h5g4f3d2s1a",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["django-insecure-8f3k2j9d0s7a6h5g4f3d2s1a"] },
+
+    { "id": "env-database-url",
+      "fuente": ".env",
+      "texto": "DATABASE_URL=postgres://app:Tr0ub4dor3@db.interno.example:5432/prod",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["Tr0ub4dor3"] },
+
+    { "id": "env-smtp",
+      "fuente": ".env",
+      "texto": "SMTP_PASSWORD=8sK2mQ9vX4bN\nSMTP_HOST=correo.example.net",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["8sK2mQ9vX4bN"] },
+
+    { "id": "compose-mysql",
+      "fuente": "docker-compose.yml",
+      "texto": "    environment:\n      - MYSQL_ROOT_PASSWORD=cavallo7correcto\n      - MYSQL_DATABASE=tienda",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["cavallo7correcto"] },
+
+    { "id": "compose-volumen",
+      "fuente": "docker-compose.yml",
+      "texto": "    volumes:\n      - /srv/datos/tienda:/var/lib/mysql",
+      "espera": { "HOME_PATH": 2 },
+      "no_sobrevive": ["/srv/datos/tienda", "/var/lib/mysql"] },
+
+    { "id": "k8s-secret",
+      "fuente": "manifiesto k8s",
+      "texto": "stringData:\n  password: c3VwZXJzZWNyZXRvMTIzNA\n  usuario: aplicacion",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["c3VwZXJzZWNyZXRvMTIzNA"] },
+
+    { "id": "ci-log-token",
+      "fuente": "log de CI",
+      "texto": "2026-03-04 11:02:31 INFO  autenticando con ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6"] },
+
+    { "id": "ci-log-pat",
+      "fuente": "log de CI",
+      "texto": "remote: token github_pat_11ABCDEFG0aBcDeFgHiJkLmNoPqRsTuVwXyZ rechazado",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["github_pat_11ABCDEFG0aBcDeFgHiJkLmNoPqRsTuVwXyZ"] },
+
+    { "id": "curl-bearer-jwt",
+      "fuente": "comando",
+      "texto": "curl -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NSJ9.dBjftJeZ4CVPmB92K27uhbUJU1p1r\" https://api.example.com/v1/estado",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NSJ9.dBjftJeZ4CVPmB92K27uhbUJU1p1r"] },
+
+    { "id": "jwt-suelto",
+      "fuente": "traza",
+      "texto": "token recibido: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFydGEifQ.QWxnbyBmaXJtYWRvIGFxdWk",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["QWxnbyBmaXJtYWRvIGFxdWk"] },
+
+    { "id": "traza-python",
+      "fuente": "traza de excepción",
+      "texto": "Traceback (most recent call last):\n  File \"/home/marta/servicio/app.py\", line 42, in cargar\n    abrir(config)\nFileNotFoundError: /opt/servicio/config.yaml",
+      "espera": { "HOME_PATH": 2 },
+      "no_sobrevive": ["/home/marta/servicio/app.py", "/opt/servicio/config.yaml"] },
+
+    { "id": "traza-node",
+      "fuente": "traza de excepción",
+      "texto": "Error: ENOENT\n    at Object.openSync (node:fs:600:3)\n    at leerConfig (/mnt/almacen/app/lib/config.js:14:22)",
+      "espera": { "HOME_PATH": 1 },
+      "no_sobrevive": ["/mnt/almacen/app/lib/config.js"] },
+
+    { "id": "ssh-con-clave",
+      "fuente": "comando",
+      "texto": "ssh -i /home/marta/.ssh/id_rsa despliegue@10.4.12.9 'systemctl restart tienda'",
+      "espera": { "HOME_PATH": 1, "PRIVATE_IP": 1 },
+      "no_sobrevive": ["/home/marta/.ssh/id_rsa", "10.4.12.9"] },
+
+    { "id": "clave-publica-ssh",
+      "fuente": "authorized_keys",
+      "texto": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKmQ2vT9wXyZ0aBcDeFgHiJkLmNoPqRsTuVwXyZ01234 marta@portatil",
+      "espera": { "SSH_PUBLIC_KEY": 1 },
+      "no_sobrevive": ["AAAAC3NzaC1lZDI1NTE5AAAAIKmQ2vT9wXyZ0aBcDeFgHiJkLmNoPqRsTuVwXyZ01234"] },
+
+    { "id": "clave-publica-rsa",
+      "fuente": "known_hosts",
+      "texto": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDb1xY2zW3vU4tS5rQ6pO7nM8lK9jI0hG1fE2dC3bA4z",
+      "espera": { "SSH_PUBLIC_KEY": 1 },
+      "no_sobrevive": ["AAAAB3NzaC1yc2EAAAADAQABAAABgQDb1xY2zW3vU4tS5rQ6pO7nM8lK9jI0hG1fE2dC3bA4z"] },
+
+    { "id": "clave-privada",
+      "fuente": "fichero de clave",
+      "texto": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gt\nZWQyNTUxOQAAACCpkNr0_falso_material_de_prueba\n-----END OPENSSH PRIVATE KEY-----",
+      "espera": { "PRIVATE_KEY": 1 },
+      "no_sobrevive": ["b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQ"] },
+
+    { "id": "git-remote",
+      "fuente": "git remote -v",
+      "texto": "origen\tdespliegue@192.168.1.20:equipo/tienda.git (fetch)",
+      "espera": { "PRIVATE_IP": 1 },
+      "no_sobrevive": ["192.168.1.20"] },
+
+    { "id": "npmrc",
+      "fuente": ".npmrc",
+      "texto": "//registro.example.org/:_authToken=npm_9Xy8Wv7Uu6Tt5Ss4Rr3Qq2Pp1Oo0Nn",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["npm_9Xy8Wv7Uu6Tt5Ss4Rr3Qq2Pp1Oo0Nn"] },
+
+    { "id": "pip-conf",
+      "fuente": "pip.conf",
+      "texto": "extra-index-url = https://usuaria:AbC123XyZ789@paquetes.interno.example/simple",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["AbC123XyZ789"] },
+
+    { "id": "redis-sin-usuario",
+      "fuente": "cadena de conexión",
+      "texto": "REDIS_URL=redis://:S3cr3tPass99@10.0.0.15:6379/0",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["S3cr3tPass99"] },
+
+    { "id": "mongodb-srv",
+      "fuente": "cadena de conexión",
+      "texto": "mongodb+srv://admin:P4ssw0rdLarga@grupo0.example.net/tienda",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["P4ssw0rdLarga"] },
+
+    { "id": "netrc",
+      "fuente": ".netrc",
+      "texto": "machine api.example.com login marta password S3cr3tP4ss22",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["S3cr3tP4ss22"] },
+
+    { "id": "passphrase",
+      "fuente": "sesión interactiva",
+      "texto": "Enter passphrase for key: cavallo-7-correcto-grapa",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["cavallo-7-correcto-grapa"] },
+
+    { "id": "client-secret",
+      "fuente": "config OAuth",
+      "texto": "client_secret: 7f3a9b2c4d6e8f0a1b2c3d4e",
+      "espera": { "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["7f3a9b2c4d6e8f0a1b2c3d4e"] },
+
+    { "id": "slack-bot",
+      "fuente": "config",
+      "texto": "SLACK_BOT_TOKEN=xoxb-2384729384-2384729384-AbCdEfGhIjKlMnOpQrSt",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["xoxb-2384729384-2384729384-AbCdEfGhIjKlMnOpQrSt"] },
+
+    { "id": "google-api",
+      "fuente": "config",
+      "texto": "mapas.init({ clave: 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY' })",
+      "espera": { "API_KEY": 1 },
+      "no_sobrevive": ["AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY"] },
+
+    { "id": "docker-run",
+      "fuente": "comando",
+      "texto": "docker run -e API_KEY=1a2b3c4d5e6f7g8h9i0j -v /srv/datos:/data tienda:2.1",
+      "espera": { "API_KEY": 1, "HOME_PATH": 1 },
+      "no_sobrevive": ["1a2b3c4d5e6f7g8h9i0j", "/srv/datos"] },
+
+    { "id": "journalctl",
+      "fuente": "journalctl",
+      "texto": "mar 04 11:02:31 maquina tienda[812]: escribiendo en /var/log/tienda/acceso.log desde 172.20.5.6",
+      "espera": { "HOME_PATH": 1, "PRIVATE_IP": 1 },
+      "no_sobrevive": ["/var/log/tienda/acceso.log", "172.20.5.6"] },
+
+    { "id": "mount",
+      "fuente": "mount",
+      "texto": "/dev/sdb1 on /media/copia type ext4 (rw,relatime)",
+      "espera": { "HOME_PATH": 1 },
+      "no_sobrevive": ["/media/copia"] },
+
+    { "id": "ipv6-ula",
+      "fuente": "ip -6 addr",
+      "texto": "inet6 fd7a:115c:a1e0:ab12:4843:cd96:0:1234/128 scope global",
+      "espera": { "PRIVATE_IP": 1 },
+      "no_sobrevive": ["fd7a:115c:a1e0:ab12"] },
+
+    { "id": "ipv6-link-local",
+      "fuente": "ip -6 addr",
+      "texto": "inet6 fe80::1c2d:3e4f:5a6b:7c8d/64 scope link",
+      "espera": { "PRIVATE_IP": 1 },
+      "no_sobrevive": ["fe80::1c2d:3e4f:5a6b:7c8d"] },
+
+    { "id": "cgnat",
+      "fuente": "red superpuesta",
+      "texto": "conectado a 100.100.20.30 por la red privada",
+      "espera": { "PRIVATE_IP": 1 },
+      "no_sobrevive": ["100.100.20.30"] },
+
+    { "id": "todo-junto",
+      "fuente": "pegado real de una consola",
+      "texto": "$ deploy --token sk-live-4kQ8ZzR2mN7pXw0aBcDeFgHi --host 192.168.0.44\nleyendo /home/marta/proyecto/.env\nERROR: password=malaContrasena9 rechazada",
+      "espera": { "API_KEY": 1, "PRIVATE_IP": 1, "HOME_PATH": 1, "ASSIGNED_SECRET": 1 },
+      "no_sobrevive": ["sk-live-4kQ8ZzR2mN7pXw0aBcDeFgHi", "192.168.0.44", "/home/marta/proyecto/.env", "malaContrasena9"] }
+
+  ],
+
+  "limites_declarados": [
+
+    { "id": "ip-publica",
+      "texto": "la web respondió desde 93.184.216.34 sin errores",
+      "motivo": "IP pública: no es dato privado de la máquina" },
+
+    { "id": "version-con-puntos",
+      "texto": "actualizado a la version 3.14.4 sin incidencias",
+      "motivo": "cuatro números no son una IP" },
+
+    { "id": "ruta-tmp",
+      "texto": "el borrador quedó en /tmp/trabajo/borrador.txt",
+      "motivo": "exclusión firmada de /tmp por falsos positivos" },
+
+    { "id": "ruta-relativa",
+      "texto": "abre ./config/ajustes.json y luego src/app.py",
+      "motivo": "una ruta relativa no revela dónde vive nadie" },
+
+    { "id": "ruta-usuarios-mac",
+      "texto": "el fichero estaba en /Users/marta/proyecto/notas.txt",
+      "motivo": "hueco declarado: entra cuando tenga su test explícito" },
+
+    { "id": "ruta-windows",
+      "texto": "el fichero estaba en C:\\Users\\marta\\proyecto\\notas.txt",
+      "motivo": "hueco declarado: necesita su propio caso de escapado" },
+
+    { "id": "prosa-contrasena",
+      "texto": "el password caducó ayer y nadie avisó al equipo",
+      "motivo": "prosa sin asignación: redactarla degrada el texto sin proteger nada" },
+
+    { "id": "prosa-sin-contrasena",
+      "texto": "hemos activado el acceso passwordless en todas las cuentas",
+      "motivo": "palabra pegada, no es una asignación" },
+
+    { "id": "identificador-uuid",
+      "texto": "solicitud 3f2b9c14-7d5e-4a61-8b0c-2e9f4a6d1c73 completada",
+      "motivo": "un UUID de traza no identifica a una persona ni a una máquina" },
+
+    { "id": "hash-git",
+      "texto": "revisa el commit 9f3c2b1a8d7e6f5c4b3a2918273645f0e1d2c3b4",
+      "motivo": "un hash de commit no es una credencial" },
+
+    { "id": "webhook-entrante",
+      "texto": "el aviso llega a https://ganchos.example.com/servicios/T0001/B0002/xyz",
+      "motivo": "URL de gancho con credencial en la ruta: NO cubierto hoy, ni se declara cubierto" },
+
+    { "id": "correo",
+      "texto": "escribe a marta.lopez@example.com si falla el despliegue",
+      "motivo": "el correo es dato personal, no secreto de máquina: fuera del alcance declarado" }
+
+  ]
+}

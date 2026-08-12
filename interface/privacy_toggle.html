@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Toggle — four states</title>
+<link rel="stylesheet" href="privacy_toggle.css">
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Privacy Toggle</h1>
+  <p>Visual spec, four states. Static mock: every counter below is rendered from
+     the payload shown beside it, exactly as the endpoint returned it. The
+     interface never counts anything itself.</p>
+</header>
+
+<!-- state 1 · on, with findings -->
+<section class="state">
+  <h2>1 · On, findings</h2>
+
+  <div class="card">
+    <div class="switch-row">
+      <span class="switch is-on" role="img" aria-label="Redaction on"><i></i></span>
+      <span class="switch-label">Redaction on</span>
+      <span class="badge badge-ok">4 redacted</span>
+    </div>
+    <ul class="findings">
+      <li><span class="policy">API_KEY</span><span class="count">2</span></li>
+      <li><span class="policy">HOME_PATH</span><span class="count">1</span></li>
+      <li><span class="policy">PRIVATE_IP</span><span class="count">1</span></li>
+    </ul>
+    <p class="foot">Nothing above is the matched text. Class and quantity only.</p>
+  </div>
+
+  <pre class="payload">{
+  "estado": "ok",
+  "hallazgos": [
+    {"policy": "API_KEY",    "count": 2},
+    {"policy": "HOME_PATH",  "count": 1},
+    {"policy": "PRIVATE_IP", "count": 1}
+  ]
+}</pre>
+</section>
+
+<!-- state 2 · off -->
+<section class="state">
+  <h2>2 · Off</h2>
+
+  <div class="card is-off">
+    <div class="switch-row">
+      <span class="switch" role="img" aria-label="Redaction off"><i></i></span>
+      <span class="switch-label">Redaction off</span>
+      <span class="badge badge-warn">Text leaves as typed</span>
+    </div>
+    <p class="foot">
+      No counter is shown, because none was produced. An empty list here would
+      read as &ldquo;nothing found&rdquo;, and nothing was looked for.
+    </p>
+  </div>
+
+  <pre class="payload">(no call is made)</pre>
+</section>
+
+<!-- state 3 · on, declared empty -->
+<section class="state">
+  <h2>3 · On, nothing found</h2>
+
+  <div class="card">
+    <div class="switch-row">
+      <span class="switch is-on" role="img" aria-label="Redaction on"><i></i></span>
+      <span class="switch-label">Redaction on</span>
+      <span class="badge badge-ok">Nothing redacted</span>
+    </div>
+    <p class="empty">Nothing redacted &mdash; the text was already clean.</p>
+    <p class="foot">
+      Declared, never blank. A silent panel looks the same whether the filter
+      ran and found nothing or never ran at all.
+    </p>
+  </div>
+
+  <pre class="payload">{
+  "estado": "ok",
+  "hallazgos": []
+}</pre>
+</section>
+
+<!-- state 4 · error, fail-closed -->
+<section class="state">
+  <h2>4 · Error, fail-closed</h2>
+
+  <div class="card is-blocked">
+    <div class="switch-row">
+      <span class="switch is-on" role="img" aria-label="Redaction on"><i></i></span>
+      <span class="switch-label">Redaction on</span>
+      <span class="badge badge-stop">Send blocked</span>
+    </div>
+    <p class="blocked">
+      The filter could not finish, so nothing was sent.
+    </p>
+    <p class="foot">
+      The send button stays disabled until the filter runs clean. No retry
+      without it, no &ldquo;send anyway&rdquo;: a failed filter is not the same
+      as a clean text, and the interface never lets the two look alike.
+    </p>
+    <button class="send" type="button" disabled>Send</button>
+  </div>
+
+  <pre class="payload">(no payload: the call raised, no text was returned)</pre>
+</section>
+
+</body>
+</html>

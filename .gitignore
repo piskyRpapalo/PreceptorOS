@@ -1,0 +1,10 @@
+# Léxico local de términos vigilados: no forma parte del producto.
+lexico_prohibido.txt
+
+# Entregables internos. Viven en disco para su firma, no en la historia de este
+# repo: llevan léxico propio, y lo que entra en la historia no se saca sin
+# reescribirla. El árbol versionado se mantiene publicable tal cual está.
+docs/
+
+__pycache__/
+*.pyc
