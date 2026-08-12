@@ -24,7 +24,16 @@ from unittest import mock
 
 RAIZ = Path(__file__).resolve().parent
 FUENTE = RAIZ / "guardrails.py"
-LEXICO = Path(os.environ.get("GUARDRAILS_LEXICO") or (RAIZ / "lexico_prohibido.txt"))
+NOMBRE_LEXICO = "lexico_prohibido.txt"
+LEXICO = Path(os.environ.get("GUARDRAILS_LEXICO") or (RAIZ / NOMBRE_LEXICO))
+
+# Subconjunto sintético declarado: los únicos términos vigilados que este
+# fichero puede escribir. Tres nombres inventados que no corresponden a ninguna
+# máquina, persona ni servicio. Su trabajo es probar el MECANISMO anti-fuga, no
+# su contenido: una suite que probara el mecanismo con los términos reales los
+# publicaría con solo escribirlos, que es exactamente la fuga que estos casos
+# existen para impedir. El léxico real vive fuera de la historia del repo.
+LEXICO_SINTETICO = ("nodo-de-prueba", "maquina-ficticia", "host-inventado")
 
 # Credenciales falsas, inventadas para los tests. No corresponden a nada real.
 TOKEN_A = "sk-live-4kQ8ZzR2mN7pXw0aBcDeFgHiJkLmNoPq"
@@ -74,20 +83,37 @@ def fuente(caso):
     return FUENTE.read_text(encoding="utf-8")
 
 
+def cargar_lexico_para_test():
+    """Devuelve (términos, procedencia), procedencia ∈ {"real", "sintetico"}.
+
+    Con el fichero de léxico vigilado delante se usa ése: el árbol privado
+    comprueba lo que de verdad le importa. Sin él —clon limpio, cualquiera que
+    pase por aquí— se usa el subconjunto sintético declarado, y la suite sigue
+    probando el mecanismo en vez de quedarse sin probar nada.
+
+    Esta caída a lo sintético es de la SUITE y solo de la suite. En producción
+    la falta de una lista es frontera cerrada, jamás una lista de repuesto: lo
+    afirma el primer caso L, y es ese caso el que hace legítima la asimetría.
+    """
+    if LEXICO.exists():
+        terminos = []
+        for linea in LEXICO.read_text(encoding="utf-8").splitlines():
+            linea = linea.strip()
+            if linea and not linea.startswith("#"):
+                terminos.append(linea.lower())
+        if terminos:
+            return terminos, "real"
+    return [t.lower() for t in LEXICO_SINTETICO], "sintetico"
+
+
 def lexico(caso):
-    """Lee el léxico vigilado. Su ausencia es rojo, nunca un aprobado."""
-    if not LEXICO.exists():
+    """Términos vigilados para los casos anti-fuga. Nunca una lista vacía."""
+    terminos, _ = cargar_lexico_para_test()
+    if not terminos:
         caso.fail(
-            "falta el fichero de léxico vigilado: sin lista no se puede afirmar "
+            "no hay ni un término que comprobar: sin lista no se puede afirmar "
             "que no hay fugas (fail-closed)"
         )
-    terminos = []
-    for linea in LEXICO.read_text(encoding="utf-8").splitlines():
-        linea = linea.strip()
-        if linea and not linea.startswith("#"):
-            terminos.append(linea.lower())
-    if not terminos:
-        caso.fail("el fichero de léxico vigilado está vacío")
     return terminos
 
 
@@ -583,6 +609,108 @@ class CC_CorpusDeFalsosNegativos(unittest.TestCase):
                 self.assertNotIn(sospechoso, contenido, "el corpus nombra esta máquina")
 
 
+class L_BlindajeDelLexicoDePrueba(unittest.TestCase):
+    """L · la suite puede caer a lo sintético; el producto no puede.
+
+    Los cuatro casos anti-fuga (F, G, G2, CC) ya no se ponen rojos por la
+    ausencia del léxico real, y esa comodidad hay que pagarla. Estos tres casos
+    son el precio: uno sostiene la asimetría producción/test, otro impide que
+    la lista publicable se contamine con la vigilada, y el tercero comprueba
+    que la vigilada nunca entró en la historia del repo.
+    """
+
+    def test_produccion_sin_lexico_cierra_la_frontera_y_nunca_usa_la_sintetica(self):
+        # La asimetría firmada, en tres afirmaciones sobre el módulo real.
+        g = cargar(self)
+        codigo = fuente(self).lower()
+
+        # 1 · el producto no lleva escrita la lista de la suite.
+        for termino in LEXICO_SINTETICO:
+            self.assertNotIn(
+                termino.lower(), codigo,
+                f"el módulo lleva un término de la lista de pruebas: {termino}",
+            )
+
+        # 2 · ni la lleva de repuesto por dentro. Con la configuración tal cual
+        # se publica, un nombre de máquina no dispara nada: los nombres los pone
+        # quien usa el filtro, no el filtro. Si esto redactara, existiría una
+        # lista oculta — y una lista oculta es la fuga que se quiere impedir.
+        muestra = " y ".join(LEXICO_SINTETICO)
+        redactado, hallazgos = g.redactar_salida(muestra)
+        self.assertEqual(redactado, muestra, "el módulo redactó por una lista propia")
+        self.assertEqual(hallazgos, [], f"hallazgos de una lista que no se declaró: {hallazgos}")
+
+        # 3 · y sin configuración legible no hay salida. La suite, sin léxico,
+        # sigue probando; el producto, sin políticas, se cierra. Ahí está la
+        # diferencia entre un subconjunto declarado y un default silencioso.
+        with mock.patch.object(g, "POLICIES_PATH", RAIZ / "no_existe_policies.json"):
+            with self.assertRaises(g.EnvioBloqueado):
+                g.preparar_envio(muestra)
+
+    def test_la_lista_sintetica_no_lleva_ni_un_termino_del_lexico_real(self):
+        # Se afirma primero lo que se puede afirmar SIEMPRE: la lista publicada
+        # es exactamente la declarada. Sin esto, en un clon limpio este caso se
+        # quedaría sin comparar nada y pasaría por vacío, que es peor que rojo.
+        self.assertEqual(
+            LEXICO_SINTETICO, ("nodo-de-prueba", "maquina-ficticia", "host-inventado"),
+            "la lista publicable cambió: cualquier término nuevo hay que declararlo",
+        )
+        sinteticos = [t.lower() for t in LEXICO_SINTETICO]
+        self.assertEqual(len(set(sinteticos)), len(sinteticos), "la lista repite términos")
+
+        terminos, procedencia = cargar_lexico_para_test()
+        if procedencia != "real":
+            self.skipTest("sin léxico vigilado en el árbol: no hay contra qué comparar")
+
+        # Ni iguales ni contenidos: `nodo-de-prueba` no puede llevar dentro un
+        # nombre vigilado, ni al revés. La igualdad sola dejaría pasar la fuga
+        # por trozos, que es la forma en que de verdad se escapan estas cosas.
+        for s in sinteticos:
+            for real in terminos:
+                self.assertNotEqual(s, real, "un término vigilado está publicado en la suite")
+                self.assertNotIn(real, s, "un término vigilado está dentro de uno publicado")
+                self.assertNotIn(s, real, "un término publicado está dentro de uno vigilado")
+
+    def test_el_lexico_vigilado_no_esta_en_la_historia_del_repo(self):
+        # Se pregunta a git, no a .gitignore. El fichero de exclusiones dice lo
+        # que NO se añadirá a partir de ahora; no dice nada de lo que ya está
+        # dentro. Un fichero seguido sigue seguido aunque se le añada la línea,
+        # y esa confusión es justo la que deja un léxico publicado.
+        def correr(*args):
+            try:
+                return subprocess.run(
+                    ["git", *args], cwd=RAIZ, capture_output=True, text=True, timeout=30
+                )
+            except (OSError, subprocess.SubprocessError) as e:
+                self.fail(f"no se pudo preguntar a git ({type(e).__name__}): sin respuesta "
+                          "no se puede afirmar que el léxico está fuera (fail-closed)")
+
+        def git(*args):
+            r = correr(*args)
+            if r.returncode != 0:
+                self.fail(f"git {' '.join(args)} falló: {r.stderr.strip() or r.returncode}")
+            return r.stdout
+
+        # Un árbol que no es un repositorio no tiene historia en la que colarse:
+        # aquí no hay nada que auditar, y se dice. Se separa a propósito del caso
+        # anterior — git ausente es «no he podido mirar» y eso es rojo; un árbol
+        # sin repositorio es «no hay dónde mirar», que es otra cosa. El modo
+        # sabotaje corre sobre copias sin .git: sin esta distinción, este caso se
+        # pondría rojo en TODAS las roturas y firmaría detecciones que no son suyas.
+        if correr("rev-parse", "--is-inside-work-tree").returncode != 0:
+            self.skipTest("el árbol no es un repositorio git: no hay historia que auditar")
+
+        seguidos = [l for l in git("ls-files").splitlines() if NOMBRE_LEXICO in l]
+        self.assertEqual(seguidos, [], f"el léxico vigilado está seguido por git: {seguidos}")
+
+        # Ni ahora ni antes: un fichero que entró y se sacó sigue en la historia,
+        # y de ahí no se saca sin reescribirla.
+        historia = git("log", "--all", "--format=%H", "--", NOMBRE_LEXICO).split()
+        self.assertEqual(
+            historia, [], f"el léxico vigilado aparece en {len(historia)} commit(s)"
+        )
+
+
 # --- modo sabotaje · el rojo también se prueba ----------------------------
 # Una suite verde solo demuestra que el código pasa la suite. Que la suite
 # DETECTE la rotura es otra afirmación distinta. Comprobarla a mano una vez no
@@ -611,6 +739,18 @@ SABOTAJES = (
         "def redactar_salida(texto, ruta_politicas=None):",
     ),
     (
+        "término vigilado escrito en el módulo como ejemplo de uso",
+        # La fuga real no llega nunca como un volcado de la lista: llega como un
+        # comentario que documenta la función con un nombre de máquina de verdad.
+        # En el árbol privado la suite compara contra el léxico REAL, así que un
+        # término de la lista sintética no lo ve ninguno de los cuatro casos
+        # anti-fuga: lo ve el caso L y solo el caso L. Por eso está aquí.
+        "guardrails.py",
+        'CUSTOM_POLICIES = ("PRIVATE_IP", "HOME_PATH", "NODE_PATH")',
+        'CUSTOM_POLICIES = ("PRIVATE_IP", "HOME_PATH", "NODE_PATH")\n'
+        '# ejemplo de uso: NODE_PATH con nombres ["nodo-de-prueba"]',
+    ),
+    (
         "los hallazgos devuelven el texto coincidente",
         "guardrails.py",
         "        texto, veces = _aplicar(nombre, patron, texto)\n"
@@ -624,11 +764,17 @@ SABOTAJES = (
     ),
 )
 
-VIGILADOS = ("guardrails.py", "policies.json", "lexico_prohibido.txt")
+VIGILADOS = ("guardrails.py", "policies.json", NOMBRE_LEXICO)
 
 
 def _sha256(ruta):
-    return hashlib.sha256(Path(ruta).read_bytes()).hexdigest()
+    """Huella del fichero, o su ausencia declarada. En un clon limpio el léxico
+    vigilado NO está, y eso es lo correcto: se compara ausencia contra ausencia.
+    Si el modo sabotaje lo creara o lo borrara, la comparación lo vería igual."""
+    ruta = Path(ruta)
+    if not ruta.exists():
+        return "(ausente)"
+    return hashlib.sha256(ruta.read_bytes()).hexdigest()
 
 
 def _copia_del_arbol():
