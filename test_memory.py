@@ -41,7 +41,7 @@ def caso(nombre):
     return deco
 
 
-# --- criterio 3 · va primero, por orden del Soberano ----------------------
+# --- criterio 3 · va primero, por orden de quien firma ----------------------
 
 @caso("3 · ida y vuelta byte a byte, con acentos y saltos de linea")
 def t3():
