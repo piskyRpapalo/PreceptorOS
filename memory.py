@@ -22,6 +22,13 @@ import sqlite3
 AUSENTE = "NO_DATA"          # marca visible de ausencia declarada
 CAMPOS_HUECO = ("why", "where_ref", "learned")
 
+# El marco, que no es contenido. Donde corre Aurelius y como quiere la persona
+# que la llamen no son recuerdos: un recuerdo es algo que le paso y decidio
+# escribir. Guardarlos como engramas metería dos filas que nadie escribio en el
+# recuento de huecos, y daria la mision por cumplida sin que la persona hubiera
+# escrito nada suyo. Por eso viven en una tabla aparte, clave-valor.
+CLAVES_PERFIL = ("device", "name")
+
 ESQUEMA = """
 create table if not exists engrams (
     id         integer primary key autoincrement,
@@ -42,6 +49,18 @@ create table if not exists links (
     to_engram   integer not null references engrams(id),
     label       text not null default 'NO_DATA',
     created_at  text not null default (datetime('now'))
+);
+"""
+
+# Se declara aparte del resto del esquema a proposito: es lo unico que puede
+# faltarle a una base creada antes de que el perfil existiera, y es lo unico
+# que hace falta anadir. Crear la tabla que falta no es migrar: engrams no se
+# toca, no se copia y no se recrea, asi que sus CHECK siguen siendo los suyos.
+ESQUEMA_PERFIL = """
+create table if not exists profile (
+    key        text primary key,
+    value      text not null default 'NO_DATA',
+    updated_at text not null default (datetime('now'))
 );
 """
 
@@ -95,7 +114,7 @@ def crear(ruta):
     carpeta = os.path.dirname(os.path.abspath(ruta))
     os.makedirs(carpeta, exist_ok=True)
     with abrir(ruta) as c:
-        c.executescript(ESQUEMA)
+        c.executescript(ESQUEMA + ESQUEMA_PERFIL)
     return ruta
 
 
@@ -161,6 +180,51 @@ def desarchivar(c, ident):
               "updated_at=datetime('now') where id=?", (ident,))
 
 
+# --- componente 3b · el perfil --------------------------------------------
+
+def _hay_perfil(c):
+    return c.execute("select name from sqlite_master where type='table' "
+                     "and name='profile'").fetchone() is not None
+
+
+def leer_perfil(c, clave=None):
+    """Con clave, su valor; sin clave, el perfil entero como diccionario.
+
+    Nunca devuelve celda en blanco ni None: lo que no se contesto sale como
+    NO_DATA, igual que en un recuerdo. Y nunca escribe: una base creada antes
+    de que el perfil existiera se puede mirar sin que mirarla la modifique.
+    """
+    if not _hay_perfil(c):
+        return AUSENTE if clave else {k: AUSENTE for k in CLAVES_PERFIL}
+    guardado = {r["key"]: r["value"] for r in c.execute("select key, value from profile")}
+    if clave:
+        return guardado.get(clave) or AUSENTE
+    perfil = {k: guardado.get(k) or AUSENTE for k in CLAVES_PERFIL}
+    for k in sorted(set(guardado) - set(CLAVES_PERFIL)):
+        perfil[k] = guardado[k]
+    return perfil
+
+
+def escribir_perfil(c, clave, valor):
+    """Guarda una respuesta del perfil. Contestar dos veces corrige en sitio.
+
+    La tabla se crea aqui si falta: es el unico sitio que la necesita, y asi la
+    actualizacion del esquema ocurre cuando la persona contesta, no al abrir.
+    Corregir es actualizar la fila, no borrarla y volver a escribirla: la regla
+    de cero DELETE no tiene una excepcion para cuando es una sola fila.
+    """
+    if clave is None or str(clave).strip() == "":
+        raise ValueError("una clave de perfil vacia no identifica nada")
+    # execute y no executescript: executescript confirma lo que hubiera pendiente
+    # antes de correr, y aqui no toca decidir por la transaccion de quien llama.
+    c.execute(ESQUEMA_PERFIL)
+    c.execute("insert into profile (key, value) values (?, ?) "
+              "on conflict(key) do update set value=excluded.value, "
+              "updated_at=datetime('now')",
+              (str(clave).strip(), _o_ausente(valor)))
+    return {"key": str(clave).strip(), "value": leer_perfil(c, str(clave).strip())}
+
+
 # --- componente 4 · memory_view -------------------------------------------
 
 def _filas(c, incluir_archivados=False):
@@ -170,11 +234,27 @@ def _filas(c, incluir_archivados=False):
     return [dict(r) for r in c.execute(q + " order by id")]
 
 
+def vista_perfil(c):
+    """Cabecera de una linea: el marco de esta memoria, huecos incluidos.
+
+    Las claves sin contestar se muestran en NO_DATA en vez de esconderse. Una
+    cabecera que solo ensenara lo relleno mentiria por omision: nadie echa de
+    menos una pregunta que no sabe que existe.
+    """
+    perfil = leer_perfil(c)
+    return "profile · " + " · ".join(f"{k}: {v}" for k, v in perfil.items())
+
+
+def _con_perfil(c, cuerpo):
+    """Toda vista se lee bajo su cabecera: quien es y donde, antes del que."""
+    return f"{vista_perfil(c)}\n\n{cuerpo}"
+
+
 def vista_tabla(c, incluir_archivados=False):
     """Una fila por recuerdo. NO_DATA escrito, nunca celda en blanco."""
     filas = _filas(c, incluir_archivados)
     if not filas:
-        return "(no memories yet)"
+        return _con_perfil(c, "(no memories yet)")
     cols = ("id", "what", "why", "where_ref", "learned", "origin", "status")
     ancho = {k: max(len(k), *(len(str(f[k]) or "") for f in filas)) for k in cols}
     ancho["what"] = min(ancho["what"], 40)
@@ -188,7 +268,7 @@ def vista_tabla(c, incluir_archivados=False):
     cab = " | ".join(k.upper().ljust(ancho[k]) for k in cols)
     sep = "-+-".join("-" * ancho[k] for k in cols)
     cuerpo = "\n".join(" | ".join(celda(f[k], k) for k in cols) for f in filas)
-    return f"{cab}\n{sep}\n{cuerpo}"
+    return _con_perfil(c, f"{cab}\n{sep}\n{cuerpo}")
 
 
 def vista_arbol(c):
@@ -196,7 +276,7 @@ def vista_arbol(c):
     Un recuerdo sin enlaces aparece como raiz suelta, y eso es informacion."""
     filas = {f["id"]: f for f in _filas(c)}
     if not filas:
-        return "(no memories yet)"
+        return _con_perfil(c, "(no memories yet)")
     enlaces = [dict(r) for r in c.execute("select * from links order by id")]
     hijos = {}
     for e in enlaces:
@@ -209,7 +289,7 @@ def vista_arbol(c):
             destino = filas.get(e["to_engram"])
             nombre = destino["what"] if destino else AUSENTE
             salida.append(f"  --({e['label']})--> {nombre}")
-    return "\n".join(salida)
+    return _con_perfil(c, "\n".join(salida))
 
 
 def recuento_huecos(c):
@@ -231,7 +311,7 @@ def vista_recuento(c):
     lineas = [f"memories: {r['engrams']}", f"links:    {l}", "gaps (NO_DATA):"]
     lineas += [f"  {k:<10} {r[k]}" for k in CAMPOS_HUECO]
     lineas.append(f"  {'total':<10} {r['total']}")
-    return "\n".join(lineas)
+    return _con_perfil(c, "\n".join(lineas))
 
 
 def mision_completa(c):

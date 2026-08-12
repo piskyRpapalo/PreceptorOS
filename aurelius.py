@@ -69,15 +69,63 @@ def paso1_declaracion(ruta):
     return True
 
 
+def paso0_presentacion(c):
+    """Dos preguntas antes de la primera: donde estoy y como te llamo.
+
+    Van antes del bucle a proposito. Preguntarlas despues seria pedirle a la
+    persona que se presente a alguien que ya le ha sacado un recuerdo. Y no se
+    guardan como recuerdos: son el marco, no lo que le paso a nadie.
+    """
+    perfil = M.leer_perfil(c)
+    sabidas = {k: v for k, v in perfil.items() if v != M.AUSENTE}
+    # Lo ya contestado no se vuelve a preguntar. Volver a pedirle el nombre a
+    # quien ya lo dio es exactamente la amnesia que esto viene a arreglar, y
+    # ademas pisaria su respuesta con la de hoy.
+    if sabidas:
+        print("\n" + " · ".join(f"{k}: {v}" for k, v in sabidas.items()))
+    faltan = [k for k in M.CLAVES_PERFIL if perfil.get(k) == M.AUSENTE]
+    if not faltan:
+        return
+
+    print("\n--- first, two questions that are not memories " + "-" * 12)
+    print("I keep two things apart: who you are and where I am (this part),")
+    print("and what you remember (everything after). Neither answer is")
+    print(f"required. Press enter and it stays as {M.AUSENTE} — which is an")
+    print("answer too: it says nobody told me, instead of me pretending.\n")
+
+    preguntas = {
+        "device": "Where am I?  (the machine I'm running on, in your words)  ",
+        "name": "How should I call you?  ",
+    }
+    for clave in faltan:
+        M.escribir_perfil(c, clave, preguntar(preguntas[clave]))
+
+    print(f"\n{M.vista_perfil(c)}")
+    if M.AUSENTE in M.vista_perfil(c):
+        print(f"({M.AUSENTE} is not a blank cell: it is a question nobody")
+        print(" answered. Nothing is lost by leaving it that way.)")
+
+
 def paso2_primer_recuerdo(c):
-    print("\n--- a memory, field by field " + "-" * 30)
-    what = preguntar("what happened / what is it?  ", permitir_vacio=False)
+    print("\n--- now a memory, one field at a time " + "-" * 20)
+    print("A memory here is just something that happened to you and that you")
+    print("decided was worth keeping. It does not have to be important.\n")
+    print("  e.g.  the printer finally worked after I changed one cable")
+    print("        I broke the database and got it back from a copy")
+    print("        someone explained DNS to me and this time I got it\n")
+
+    what = preguntar("So — what happened?  ", permitir_vacio=False)
     if what is None:
-        print("Without a 'what' there is no memory. Nothing written.")
+        print("Without a 'what' there is no memory. Nothing written,")
+        print("and nothing wrong: come back when there is something.")
         return None
-    why = preguntar("why does it matter?  (enter = NO_DATA)  ")
-    where = preguntar("where is the thing that backs it?  (enter = NO_DATA)  ")
-    learned = preguntar("what did you learn?  (enter = leave for later)  ")
+
+    print(f"\nThe next three can stay empty. Enter leaves them as {M.AUSENTE},")
+    print("and a memory with declared gaps is still a memory — it is more")
+    print("honest than one where I guessed the parts you did not tell me.\n")
+    why = preguntar("Why does it matter to you?  (enter = NO_DATA)  ")
+    where = preguntar("Is there a file, a photo, a note that backs it?  (enter = NO_DATA)  ")
+    learned = preguntar("Did you learn anything you'd tell someone else?  (enter = for later)  ")
     fila = M.escribir_engrama(c, what=what, why=why or None,
                               where_ref=where or None, learned=learned or "")
     print("\nSaved, exactly as you wrote it:")
@@ -131,6 +179,7 @@ def sesion(ruta):
     if not paso1_declaracion(ruta):
         return 0
     with M.abrir(ruta) as c:
+        paso0_presentacion(c)
         while True:
             paso2_primer_recuerdo(c)
             n = c.execute("select count(*) from engrams "

@@ -262,6 +262,138 @@ def t10b():
         assert M.mision_completa(c) is False
 
 
+# --- perfil · quien eres y donde estoy, que NO son recuerdos ---------------
+# Dispositivo y nombre no son engramas. Un recuerdo es algo que a la persona le
+# paso y decidio escribir; el aparato donde corre Aurelius y como quiere que la
+# llamen son el marco, no el contenido. Meterlos en engrams contaminaria el
+# recuento de huecos con dos filas que la persona nunca escribio, y la mision
+# ("con UN recuerdo basta") se daria por cumplida sola. Tabla aparte.
+
+ESQUEMA_VIEJO = """
+create table if not exists engrams (
+    id         integer primary key autoincrement,
+    what       text not null check (length(trim(what)) > 0),
+    why        text not null default 'NO_DATA',
+    where_ref  text not null default 'NO_DATA',
+    learned    text not null default '',
+    origin     text not null default 'persona'
+               check (origin in ('persona', 'intencion', 'importado')),
+    status     text not null default 'activo'
+               check (status in ('activo', 'archivado')),
+    created_at text not null default (datetime('now')),
+    updated_at text not null default (datetime('now'))
+);
+create table if not exists links (
+    id          integer primary key autoincrement,
+    from_engram integer not null references engrams(id),
+    to_engram   integer not null references engrams(id),
+    label       text not null default 'NO_DATA',
+    created_at  text not null default (datetime('now'))
+);
+"""
+
+
+@caso("11 · el perfil guarda clave-valor; lo que no se dijo queda en NO_DATA")
+def t11():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        # Antes de decir nada, el perfil no esta vacio: esta declarado ausente.
+        assert M.leer_perfil(c, "device") == M.AUSENTE, "un perfil sin decir no da NO_DATA"
+        assert M.leer_perfil(c) == {k: M.AUSENTE for k in M.CLAVES_PERFIL}
+        M.escribir_perfil(c, "device", "el portatil de la cocina")
+        assert M.leer_perfil(c, "device") == "el portatil de la cocina"
+        # El resto sigue ausente: contestar una pregunta no rellena las otras.
+        assert M.leer_perfil(c, "name") == M.AUSENTE
+        # Enter en la pregunta es ausencia declarada, igual que en un recuerdo.
+        M.escribir_perfil(c, "name", "")
+        assert M.leer_perfil(c, "name") == M.AUSENTE, "el vacio se guardo como celda en blanco"
+        # El perfil no es un recuerdo: no toca engrams ni el recuento.
+        assert c.execute("select count(*) from engrams").fetchone()[0] == 0, \
+            "el perfil escribio en engrams"
+        assert M.mision_completa(c) is False, "el perfil dio la mision por cumplida"
+
+
+@caso("12 · la cabecera de perfil sale en las TRES vistas, NO_DATA incluido")
+def t12():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="un recuerdo cualquiera")
+        M.escribir_perfil(c, "device", "el portatil de la cocina")
+        vistas = {"tabla": M.vista_tabla(c), "arbol": M.vista_arbol(c),
+                  "recuento": M.vista_recuento(c)}
+    for nombre, v in vistas.items():
+        assert "el portatil de la cocina" in v, f"la vista {nombre} no lleva el dispositivo"
+        # Lo que no se contesto se VE que no se contesto. Una cabecera que solo
+        # muestra lo relleno miente por omision: la persona no puede echar de
+        # menos una pregunta que nadie le enseño que existia.
+        assert M.AUSENTE in v, f"la vista {nombre} esconde la clave sin contestar"
+
+
+@caso("13 · un esquema viejo se actualiza sin perder ni un recuerdo")
+def t13():
+    # El caso que protege la memoria REAL que ya existe en disco. Una base
+    # creada antes de que el perfil existiera no tiene esa tabla: si el codigo
+    # nuevo la exigiera al abrir, o si "actualizar" significara recrear engrams,
+    # el primer recuerdo de verdad se perderia. Se exige lo contrario: la tabla
+    # aparece sola y engrams no se toca.
+    ruta = tmp_ruta("vieja.db")
+    con = sqlite3.connect(ruta)
+    con.executescript(ESQUEMA_VIEJO)
+    con.execute("insert into engrams (what, why) values (?, ?)",
+                ("Hoy publique algo que funciona", "es la primera vez"))
+    con.commit()
+    tablas_antes = {r[0] for r in con.execute(
+        "select name from sqlite_master where type='table'")}
+    con.close()
+    assert "profile" not in tablas_antes, "la base de prueba ya traia perfil: no prueba nada"
+
+    est, rec = M.estado(ruta)
+    assert est == "CON_DATOS" and rec["engrams"] == 1, f"la base vieja no se lee: {est}"
+
+    with M.abrir(ruta) as c:
+        # Leer no exige la tabla: una base vieja se mira sin escribirle nada.
+        assert M.leer_perfil(c, "device") == M.AUSENTE, "leer el perfil rompe en base vieja"
+        assert "Hoy publique algo que funciona" in M.vista_tabla(c)
+        M.escribir_perfil(c, "device", "la misma maquina de siempre")
+
+    with M.abrir(ruta) as c:
+        fila = M.leer_engrama(c, 1)
+        assert fila["what"] == "Hoy publique algo que funciona", "el recuerdo cambio"
+        assert fila["why"] == "es la primera vez", "el motivo se perdio"
+        assert c.execute("select count(*) from engrams").fetchone()[0] == 1, \
+            "engrams tiene otro numero de filas tras la actualizacion"
+        assert M.leer_perfil(c, "device") == "la misma maquina de siempre"
+        # engrams sigue siendo la tabla de antes, con sus CHECK intactos: no se
+        # recreo ni se copio. Si se hubiera migrado a mano, esto pasaria.
+        fallo = False
+        try:
+            c.execute("insert into engrams (what, origin) values ('x', 'inventado')")
+        except sqlite3.IntegrityError:
+            fallo = True
+        assert fallo, "los CHECK de engrams se perdieron al actualizar el esquema"
+
+
+@caso("14 · contestar dos veces corrige en sitio: ni duplica ni borra")
+def t14():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_perfil(c, "name", "Davi")
+        M.escribir_perfil(c, "name", "David")   # se corrige la errata
+        assert M.leer_perfil(c, "name") == "David", "la correccion no se guardo"
+        n = c.execute("select count(*) from profile where key='name'").fetchone()[0]
+    assert n == 1, f"la clave quedo duplicada: {n} filas para el mismo nombre"
+    # Cero DELETE tambien aqui: corregir es actualizar, no borrar y volver a
+    # escribir. La regla no admite una excepcion "pero si es una sola fila".
+    import re
+    fuente = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "memory.py"), encoding="utf-8").read()
+    sentencias = re.findall(r"delete\s+from\s+\w+", fuente, re.IGNORECASE)
+    assert not sentencias, f"memory.py ejecuta DELETE: {sentencias}"
+
+
 # --- modo sabotaje · el rojo tambien se prueba ----------------------------
 # Una suite verde solo demuestra que el codigo pasa la suite. Que la suite
 # DETECTE la rotura es otra afirmacion distinta, y hasta ahora se comprobo a
