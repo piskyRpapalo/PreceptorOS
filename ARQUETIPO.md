@@ -132,16 +132,43 @@ no haya pedido.
 
 ### `lector` · para quien disfruta leyendo
 
+**El `lector` no toca el prompt. Lo añade el programa.** El modelo contesta con
+el mismo carácter y el mismo filtro `rapido`; después, el programa pega debajo
+una pieza de `LORE.md`, **literal, tal como está escrita y revisada**.
+
 ```
-This person likes to read. After your answer, you may add one short paragraph:
-where the practice comes from, who did it first, what it cost them. History, not
-decoration. Never instead of the answer, and never more than one paragraph.
+(sin texto de prompt: el filtro lector no cambia lo que se le pide al modelo)
 ```
-```
-A esta persona le gusta leer. Después de tu respuesta puedes añadir un párrafo
-corto: de dónde viene esa práctica, quién la hizo primero, qué le costó.
-Historia, no adorno. Nunca en lugar de la respuesta, y nunca más de un párrafo.
-```
+
+### Por qué, con la medida delante
+
+Se probó de las dos formas que parecían obvias, y las dos fallaron contra el
+modelo pequeño. Queda escrito porque el próximo que lo lea va a tener la misma
+idea que tuve yo.
+
+**Intento 1 — pedirle la historia.** «A esta persona le gusta leer… de dónde
+viene esa práctica, quién la hizo primero.» El modelo tomó *la lectura* como
+tema de todas las respuestas, y **se inventó la historia con aplomo**: en tres
+respuestas seguidas dijo que la lectura empezó en una cabaña del norte de
+Grecia, en unas tallas de piedra de la antigüedad, y entre monjes del siglo
+XVII. Tres orígenes incompatibles, ninguno cierto, todos con el mismo tono
+seguro.
+
+**Intento 2 — darle el material y pedirle que lo resuma.** Con un bloque
+marcado `CONTEXTO`, el modelo **aprendió a imitar la etiqueta**: escribía
+«CONTEXTO:» como si fuera un apartado, copiaba el bloque a medias en vez de
+reformularlo, y —lo peor— **cuando no había bloque se inventaba uno**. Nombrar
+un marcador le enseña a producir el marcador.
+
+**La conclusión, que vale más que el filtro.** Un modelo de 4B no puede ser
+quien añada la historia: pedírsela es pedirle que la fabrique. La historia ya
+está escrita y comprobada en `LORE.md`, así que la pega el programa, sin pasar
+por el modelo. Cero invención posible, cero párrafos de más, y el texto que lee
+la persona es exactamente el que alguien revisó.
+
+Es una desviación declarada de «los filtros son modificadores de prompt»:
+`rapido` sí lo es y funciona; `lector` no puede serlo. Lo dice la medida, no la
+preferencia.
 
 **Por qué el `lector` va después y limitado a un párrafo.** El material que
 alimenta ese párrafo está en `LORE.md`, es público, y tiene el gusto de la casa:

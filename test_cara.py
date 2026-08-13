@@ -342,6 +342,56 @@ def t17():
             assert termino not in bajo, f"{nombre} nombra {termino!r}"
 
 
+@caso("18 · toda clave del lore apunta a una pieza que existe de verdad")
+def t18():
+    import lore as L
+    disponibles = L.piezas()
+    assert len(disponibles) >= 8, f"solo se leyeron {len(disponibles)} piezas"
+    faltan = [t for t in L.CLAVES if t not in disponibles]
+    # Esta errata ya ocurrio: un titulo sin tilde no casaba con LORE.md y esa
+    # pieza no salia nunca, en silencio. El silencio es el problema.
+    assert not faltan, f"claves que no apuntan a ninguna pieza: {faltan}"
+    for titulo, textos in disponibles.items():
+        for idioma in ("en", "es"):
+            assert textos.get(idioma), f"{titulo} no tiene version {idioma}"
+
+
+@caso("19 · el lore no se fuerza, no se repite, y sale literal del fichero")
+def t19():
+    import lore as L
+    assert L.elegir("háblame de gatos", "es") is None, \
+        "se forzo una pieza donde no venia a cuento"
+    primera = L.elegir("¿por qué guardar una copia en otro sitio?", "es")
+    assert primera, "no eligio pieza para un tema que si esta cubierto"
+    titulo, texto = primera
+    # Literal: lo que lee la persona es lo que alguien reviso, sin pasar por
+    # ningun modelo. Esa es toda la razon de que este modulo exista.
+    assert texto == L.piezas()[titulo]["es"], "la pieza salio alterada"
+    otra = L.elegir("¿por qué guardar una copia en otro sitio?", "es",
+                    usadas={titulo})
+    assert otra is None or otra[0] != titulo, "repitio la pieza ya usada"
+
+
+@caso("20 · la cara acepta turnos reales del residente, con su voz y sin red")
+def t20():
+    ruta = base_con_recuerdos()
+    turnos = [{"tu": "¿y si se me rompe el disco?",
+               "el": "Entonces no la tendrías ahí. Pero sí en otro sitio.",
+               "audio": "data:audio/wav;base64,UklGRiQAAABXQVZF",
+               "lore": "El banco de semillas de Svalbard existe porque…"}]
+    ruta_turnos = os.path.join(tmp_dir(), "turnos.json")
+    with open(ruta_turnos, "w", encoding="utf-8") as fh:
+        json.dump(turnos, fh, ensure_ascii=False)
+    html, _ = generar(ruta, extra=("--turnos", ruta_turnos, "--sin-voz"))
+    assert turnos[0]["el"] in html, "la cara no muestra la respuesta real"
+    assert turnos[0]["lore"] in html, "la cara pierde el párrafo del lector"
+    assert "reproduce(turno.audio)" in html, \
+        "el botón no reproduce el audio del turno real"
+    for patron in RED:
+        assert not re.findall(patron, html, re.I), \
+            f"la cara con turnos llama a la red: {patron}"
+
+
 def main():
     fallos = 0
     print("── M2 · LA CARA " + "─" * 50)

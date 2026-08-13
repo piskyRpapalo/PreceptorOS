@@ -250,7 +250,7 @@ def limpia(texto):
                   flags=re.I | re.S).strip()
 
 
-def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None):
+def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None, turnos=None):
     """El HTML entero, como cadena. No escribe nada: quien llama decide donde."""
     estado = M.formulario(c)
     guardado = estado["profile"].get("language", M.AUSENTE)
@@ -264,6 +264,9 @@ def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None):
         "ruta": ruta_db,
         "ausente": M.AUSENTE,
         "camino": progreso_camino(c, ruta_db),
+        # Los turnos REALES que produjo el hijo residente, con su voz ya
+        # sintetizada. La cara no los genera ni los inventa: los muestra.
+        "turnos": turnos or [],
     }
     # La voz firmada es es_ES: solo se graban las lineas españolas. En ingles el
     # boton sigue estando y dice por que no suena — una funcion que existe a
@@ -530,12 +533,20 @@ var hablaViva = false;
 var sonando = null;
 
 function hayVoz(clave) { return idioma === "es" && !!AUDIO[clave]; }
-function algunaVoz() { return Object.keys(AUDIO).length > 0; }
+function algunaVoz() {
+  return Object.keys(AUDIO).length > 0 ||
+         DATOS.turnos.some(function (t) { return !!t.audio; });
+}
 
 function suena(clave) {
   if (!hablaViva || !hayVoz(clave)) { return; }
+  reproduce(AUDIO[clave]);
+}
+
+function reproduce(uri) {
+  if (!hablaViva || !uri) { return; }
   callar();
-  sonando = new Audio(AUDIO[clave]);
+  sonando = new Audio(uri);
   sonando.play().catch(function () { /* sin permiso de sonido: el texto basta */ });
 }
 function callar() {
@@ -871,8 +882,31 @@ el("lang").onchange = function () {
 rotular();
 dormido();
 cola = guion();
+/* Si el hijo residente dejo turnos, la cara los muestra tal cual: la pregunta
+   de la persona y la respuesta REAL del modelo, con su voz ya sintetizada. La
+   cara sigue sin lanzar procesos ni abrir sockets — solo ensena y reproduce lo
+   que el residente dejo escrito aqui dentro. */
+function pintarTurnos(hecho) {
+  var i = 0;
+  (function paso() {
+    if (i >= DATOS.turnos.length) { hecho(); return; }
+    var turno = DATOS.turnos[i++];
+    burbuja("de-ti", turno.tu);
+    var ultimo = i >= DATOS.turnos.length;
+    if (ultimo && turno.audio) { reproduce(turno.audio); }
+    dice(turno.el, function () {
+      if (turno.lore) { burbuja("de-el", turno.lore); }
+      paso();
+    });
+  })();
+}
+
 window.setTimeout(function () {
   despertar(function () {
+    if (DATOS.turnos.length) {
+      pintarTurnos(function () { cola = []; esperando = null; });
+      return;
+    }
     var clave = DATOS.engrams.length ? "saludo_vuelta" : "saludo";
     dice(t(clave), siguiente, clave);
   });
@@ -898,6 +932,8 @@ def main(argv=None):
                     help="path to the signed voice model (.onnx)")
     ap.add_argument("--sin-voz", action="store_true",
                     help="generate without recording any audio")
+    ap.add_argument("--turnos", metavar="FILE",
+                    help="real turns produced by the resident child (json)")
     a = ap.parse_args(argv)
 
     est, rec = M.estado(a.db)
@@ -909,8 +945,13 @@ def main(argv=None):
 
     piper = None if a.sin_voz else a.piper
     voz = None if a.sin_voz else a.voz
+    turnos = None
+    if a.turnos:
+        with open(a.turnos, encoding="utf-8") as fh:
+            turnos = json.load(fh)
     with M.abrir(a.db) as c:
-        html = generar(c, a.db, a.idioma, piper=piper, modelo_voz=voz)
+        html = generar(c, a.db, a.idioma, piper=piper, modelo_voz=voz,
+                       turnos=turnos)
     with open(a.out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"Face: {a.out}")
