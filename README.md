@@ -33,6 +33,21 @@ AURELIUS_RITMO=0 python3 aurelius.py   # same session, no pauses
 Default location: `~/.aurelius/memory.db`. Change it with `--db RUTA`. Copy that
 file and your memory comes with you.
 
+## Install, from nothing
+
+```
+git clone https://github.com/piskyRpapalo/aurelius.git && cd aurelius && python3 aurelius.py
+```
+
+That is the whole installation. There is no package to add, no service to start
+and no account to make: Python 3 and its standard library are the only
+requirements, and both are already on most machines. The first run asks your
+language, then offers to create your memory — nothing is written before you say
+so.
+
+Voice is optional and separate. Without it, everything works and the Speak
+button says plainly that this copy has no voice.
+
 ## The face
 
 ```

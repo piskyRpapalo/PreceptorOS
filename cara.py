@@ -71,10 +71,26 @@ CARA_TEXTOS = {
         "pz_aplicar": "To write it into your memory, run this in your terminal:",
         "pz_col": ("id", "what", "why", "where", "learned"),
         "cm_titulo": "The Path",
-        "cm_intro": "Eight steps. You are on the second one.",
+        "cm_intro": "Eight steps. This is where you actually are — measured, not guessed.",
         "cm_nota": "Nothing here is downloaded. This page is the whole thing.",
         "fin": "That is everything. Open the Slate to take it with you.",
         "idioma": "Language",
+        "voz_hablar": "Speak",
+        "voz_callar": "Mute",
+        "voz_no_hay": "No voice in this copy",
+        "voz_solo_es": "The voice speaks Spanish only",
+        "voz_nota": ("The text is always here. The button only decides whether "
+                     "it is also said out loud."),
+        "cm_hecho": "done",
+        "cm_empezado": "started",
+        "cm_sin_empezar": "not started",
+        "cm_no_medible": "not measurable from here",
+        "cm_prueba_M0": "the two questions that are not memories: {perfil}/2 answered",
+        "cm_prueba_M1": "the brain does not live inside this file, so this page cannot check it",
+        "cm_prueba_M2": "{recuerdos} memories written · seal: {sello}",
+        "cm_pendiente": "no way to measure this one yet — it will not be shown as progress until there is",
+        "cm_refrescar": ("This page is a snapshot. To bring it up to date, "
+                         "regenerate it — it reads your memory and your seal as they are now:"),
     },
     "es": {
         "titulo": "Aurelius",
@@ -94,10 +110,26 @@ CARA_TEXTOS = {
         "pz_aplicar": "Para escribirlo en tu memoria, ejecuta esto en tu terminal:",
         "pz_col": ("id", "qué", "por qué", "dónde", "aprendido"),
         "cm_titulo": "El Camino",
-        "cm_intro": "Ocho peldaños. Estás en el segundo.",
+        "cm_intro": "Ocho peldaños. Esto es dónde estás de verdad — medido, no supuesto.",
         "cm_nota": "Aquí no se descarga nada. Esta página es todo.",
         "fin": "Eso es todo. Abre la Pizarra para llevártelo.",
         "idioma": "Idioma",
+        "voz_hablar": "Hablar",
+        "voz_callar": "Silencio",
+        "voz_no_hay": "Esta copia no lleva voz",
+        "voz_solo_es": "La voz solo habla español",
+        "voz_nota": ("El texto está siempre. El botón solo decide si además se "
+                     "dice en voz alta."),
+        "cm_hecho": "hecho",
+        "cm_empezado": "empezado",
+        "cm_sin_empezar": "sin empezar",
+        "cm_no_medible": "no medible desde aquí",
+        "cm_prueba_M0": "las dos preguntas que no son recuerdos: {perfil}/2 contestadas",
+        "cm_prueba_M1": "el cerebro no vive dentro de este fichero, así que esta página no puede comprobarlo",
+        "cm_prueba_M2": "{recuerdos} recuerdos escritos · sello: {sello}",
+        "cm_pendiente": "todavía no hay forma de medir este — no se pintará como progreso hasta que la haya",
+        "cm_refrescar": ("Esta página es una foto. Para ponerla al día, "
+                         "regenérala — lee tu memoria y tu sello tal como están ahora:"),
     },
 }
 
@@ -111,6 +143,81 @@ CAMINO = {
            ("M3", "El Refugio"), ("M4", "La Señal"), ("M5", "El Pacto"),
            ("M6", "El Bastión de Cobre"), ("M7", "La Tierra")],
 }
+
+
+# --- el camino · progreso medido, nunca decorado --------------------------
+
+# Los ocho peldanos. `prueba` dice QUE lo da por hecho: si no hay forma de
+# comprobarlo desde la memoria, el peldano lo declara y no se pinta a medias.
+# Un camino que muestra progreso que no puede medir es una barra de carga
+# falsa, y el producto entero existe para no hacer eso.
+PELDANOS = ("M0", "M1", "M2", "M3", "M4", "M5", "M6", "M7")
+
+
+def progreso_camino(c, ruta_db):
+    """El estado real de los ocho peldanos. En instalacion limpia, todo a cero."""
+    perfil = M.leer_perfil(c)
+    contestadas = sum(1 for k in ("device", "name")
+                      if perfil.get(k, M.AUSENTE) != M.AUSENTE)
+    recuerdos = c.execute(
+        "select count(*) from engrams where status='activo'").fetchone()[0]
+    sello = os.path.exists(os.path.join(
+        os.path.dirname(os.path.abspath(ruta_db)), "manifest-latest.txt"))
+
+    estado = {}
+    estado["M0"] = ("hecho" if contestadas == 2 else
+                    "empezado" if contestadas else "sin_empezar")
+    # El cerebro no vive dentro del producto, asi que el producto no puede
+    # decir si esta. Decirlo es mas honesto que suponerlo en cualquier sentido.
+    estado["M1"] = "no_medible"
+    estado["M2"] = ("hecho" if recuerdos and sello else
+                    "empezado" if recuerdos else "sin_empezar")
+    for p in ("M3", "M4", "M5", "M6", "M7"):
+        estado[p] = "sin_empezar"
+    return {
+        "estado": estado,
+        "cifras": {"perfil": contestadas, "recuerdos": recuerdos,
+                   "sello": bool(sello)},
+    }
+
+
+# --- la voz · sintetizada al generar, por proceso hijo (D75) --------------
+
+def voz_datauri(texto, piper=None, modelo_voz=None):
+    """Un WAV incrustado, hablado por el proceso hijo. None si no hay voz.
+
+    Se sintetiza AL GENERAR, no al abrir: la cara es un fichero suelto sin red
+    ni servidor, y no puede lanzar procesos. Asi la voz firmada suena en la
+    cara sin abrir un socket (D75) y sin pedirle nada a la red (D68).
+    """
+    import subprocess
+    import wave
+    if not (piper and modelo_voz):
+        return None
+    try:
+        crudo = subprocess.run(
+            [piper, "-m", modelo_voz, "-s", "0", "--output-raw"],
+            input=texto.encode("utf-8"), capture_output=True, timeout=120).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if not crudo:
+        return None
+    import io
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(22050)
+        w.writeframes(crudo)
+    return "data:audio/wav;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+# Lo que la cara dice en voz alta. Solo las lineas fijas: lo que lleva un hueco
+# ({n}) cambia en cada sesion y no se puede grabar de antemano. Se declara en
+# vez de fingir que se dijo.
+CLAVES_HABLADAS = ("saludo", "saludo_vuelta", "perfil_device", "perfil_name",
+                   "recuerdo_que", "recuerdo_porque", "recuerdo_donde",
+                   "recuerdo_aprendido", "otro_pregunta", "fin")
 
 
 def dato_uri(nombre):
@@ -135,7 +242,15 @@ def textos_cara(idioma):
     return tabla
 
 
-def generar(c, ruta_db, idioma=None):
+def limpia(texto):
+    """Quita el parentesis de ayuda antes de decir la frase en voz alta.
+    '(enter = NO_DATA)' es una instruccion de teclado: leerla no ayuda a nadie."""
+    import re
+    return re.sub(r"\s*\((enter|escribe|type).*$", "", texto,
+                  flags=re.I | re.S).strip()
+
+
+def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None):
     """El HTML entero, como cadena. No escribe nada: quien llama decide donde."""
     estado = M.formulario(c)
     guardado = estado["profile"].get("language", M.AUSENTE)
@@ -148,13 +263,27 @@ def generar(c, ruta_db, idioma=None):
         "recuento": estado["recuento"],
         "ruta": ruta_db,
         "ausente": M.AUSENTE,
+        "camino": progreso_camino(c, ruta_db),
     }
+    # La voz firmada es es_ES: solo se graban las lineas españolas. En ingles el
+    # boton sigue estando y dice por que no suena — una funcion que existe a
+    # medias se declara, no se esconde.
+    audio = {}
+    if piper and modelo_voz:
+        for clave in CLAVES_HABLADAS:
+            uri = voz_datauri(limpia(TX.TEXTOS["es"].get(clave)
+                                     or CARA_TEXTOS["es"][clave]),
+                              piper, modelo_voz)
+            if uri:
+                audio[clave] = uri
     return (PLANTILLA
             .replace("__TALKS__", dato_uri("aurelius-talks.png"))
             .replace("__UP__", dato_uri("aurelius-up.png"))
             .replace("__IDIOMA__", inicial)
             .replace("__TEXTOS__", _json({i: textos_cara(i) for i in ("en", "es")}))
             .replace("__CAMINO__", _json(CAMINO))
+            .replace("__PELDANOS__", _json(list(PELDANOS)))
+            .replace("__AUDIO__", _json(audio))
             .replace("__DATOS__", _json(datos)))
 
 
@@ -266,6 +395,8 @@ PLANTILLA = r"""<!DOCTYPE html>
   .peldano { display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--losa-700); }
   .peldano .n { color:var(--vena); font:600 13px/1.6 ui-monospace, monospace; width:38px; flex:0 0 auto; }
   .peldano[data-aqui="si"] .n { color:var(--losa-900); background:var(--vena); border-radius:6px; text-align:center; }
+  .peldano[data-estado="hecho"] .n { color:var(--losa-900); background:#7dd3a0; border-radius:6px; text-align:center; }
+  .peldano[data-estado="sin_empezar"] .n, .peldano[data-estado="no_medible"] .n { color:var(--tenue); }
   .nota { color:var(--tenue); font-size:13px; margin-top:16px; }
   [hidden] { display:none !important; }
   @media (prefers-reduced-motion: reduce) { .sprite { transition:none; } }
@@ -278,6 +409,7 @@ PLANTILLA = r"""<!DOCTYPE html>
   <div class="titulo"><h1 id="t-titulo">Aurelius</h1><span class="sub" id="t-sub"></span></div>
   <div class="huecos"></div>
   <select id="lang" aria-label="Language"><option value="en">EN</option><option value="es">ES</option></select>
+  <button type="button" class="boton" id="b-voz" aria-pressed="false"></button>
   <button type="button" class="boton" id="b-pizarra"></button>
   <button type="button" class="boton" id="b-camino"></button>
 </header>
@@ -327,6 +459,8 @@ var CAMINO = __CAMINO__;
 var DATOS = __DATOS__;
 
 var HOJAS = { talks: "__TALKS__", up: "__UP__" };
+var AUDIO = __AUDIO__;
+var PELDANOS = __PELDANOS__;
 var idioma = IDIOMA_INICIAL;
 var AUSENTE = DATOS.ausente;
 var FORMULARIO = { language: "", profile: {}, engrams: [] };
@@ -387,9 +521,31 @@ function burbuja(clase, texto) {
   return d;
 }
 
-function dice(texto, hecho) {
+/* ── la voz · estado local, sonido ya incrustado ───────────────────────────
+   La voz se grabo al generar esta pagina, con el proceso hijo que la sintetiza.
+   Aqui solo se reproduce un fichero que ya viaja dentro: ni red, ni socket, ni
+   proceso lanzado desde el navegador. El texto se muestra SIEMPRE; el boton
+   decide unicamente si ademas suena.                                        */
+var hablaViva = false;
+var sonando = null;
+
+function hayVoz(clave) { return idioma === "es" && !!AUDIO[clave]; }
+function algunaVoz() { return Object.keys(AUDIO).length > 0; }
+
+function suena(clave) {
+  if (!hablaViva || !hayVoz(clave)) { return; }
+  callar();
+  sonando = new Audio(AUDIO[clave]);
+  sonando.play().catch(function () { /* sin permiso de sonido: el texto basta */ });
+}
+function callar() {
+  if (sonando) { sonando.pause(); sonando = null; }
+}
+
+function dice(texto, hecho, clave) {
   var d = burbuja("de-el", "");
   hablando();
+  if (clave) { suena(clave); }
   if (quieto()) { d.textContent = texto; reposo(); if (hecho) hecho(); return; }
   var i = 0;
   var esc = setInterval(function () {
@@ -439,16 +595,17 @@ function siguiente() {
         .replace("{nombre_r}", t(n === 1 ? "palabra_recuerdo" : "palabra_recuerdos"))
         .trim(), siguiente);
     } else {
-      dice(t("recuerdo_sin_que"), siguiente);
+      dice(t("recuerdo_sin_que"), siguiente, "recuerdo_sin_que");
     }
     return;
   }
   if (paso.otro) { return preguntaOtro(); }
   esperando = paso;
-  dice(limpia(t(paso.clave)), function () { el("campo").focus(); });
+  dice(limpia(t(paso.clave)), function () { el("campo").focus(); }, paso.clave);
 }
 
 function preguntaOtro() {
+  suena("otro_pregunta");
   dice(limpia(t("otro_pregunta")), function () {
     var caja = document.createElement("div");
     caja.className = "opciones";
@@ -470,7 +627,7 @@ function preguntaOtro() {
 
 function cerrar() {
   esperando = null;
-  dice(t("fin"));
+  dice(t("fin"), null, "fin");
 }
 
 function responder(texto) {
@@ -585,17 +742,51 @@ function pintarCamino() {
   var intro = document.createElement("p");
   intro.className = "nota"; intro.textContent = t("cm_intro");
   cuerpo.appendChild(intro);
+  var estado = DATOS.camino.estado, cifras = DATOS.camino.cifras;
   CAMINO[idioma].forEach(function (par) {
+    var id = par[0], como = estado[id] || "sin_empezar";
     var d = document.createElement("div");
     d.className = "peldano";
-    if (par[0] === "M2") { d.setAttribute("data-aqui", "si"); }
+    d.setAttribute("data-estado", como);
+    if (como === "empezado") { d.setAttribute("data-aqui", "si"); }
+
     var n = document.createElement("span");
-    n.className = "n"; n.textContent = par[0];
-    var nom = document.createElement("span");
-    nom.textContent = par[1];
-    d.appendChild(n); d.appendChild(nom);
+    n.className = "n"; n.textContent = id;
+
+    var caja = document.createElement("span");
+    var nom = document.createElement("div");
+    nom.textContent = par[1] + " · " + t("cm_" + como);
+    caja.appendChild(nom);
+
+    // La prueba: QUE lo da por hecho. Un peldaño verde sin prueba al lado es
+    // decoracion, y en cuanto la persona lo descubre deja de creerse el resto.
+    var prueba = document.createElement("div");
+    prueba.className = "nota"; prueba.style.margin = "2px 0 0";
+    if (id === "M0") {
+      prueba.textContent = t("cm_prueba_M0").replace("{perfil}", cifras.perfil);
+    } else if (id === "M1") {
+      prueba.textContent = t("cm_prueba_M1");
+    } else if (id === "M2") {
+      prueba.textContent = t("cm_prueba_M2")
+        .replace("{recuerdos}", cifras.recuerdos)
+        .replace("{sello}", cifras.sello ? "✓" : DATOS.ausente);
+    } else {
+      prueba.textContent = t("cm_pendiente");
+    }
+    caja.appendChild(prueba);
+
+    d.appendChild(n); d.appendChild(caja);
     cuerpo.appendChild(d);
   });
+
+  var refrescar = document.createElement("p");
+  refrescar.className = "nota"; refrescar.textContent = t("cm_refrescar");
+  cuerpo.appendChild(refrescar);
+  var orden = document.createElement("div");
+  orden.className = "orden";
+  orden.textContent = "python3 cara.py --db " + DATOS.ruta;
+  cuerpo.appendChild(orden);
+
   var nota = document.createElement("p");
   nota.className = "nota"; nota.textContent = t("cm_nota");
   cuerpo.appendChild(nota);
@@ -620,6 +811,25 @@ document.addEventListener("keydown", function (e) {
 });
 
 /* ── el idioma · cambia las cadenas, no la memoria ───────────────────────── */
+function rotularVoz() {
+  var b = el("b-voz");
+  if (!algunaVoz()) {
+    b.textContent = t("voz_no_hay"); b.disabled = true;
+    b.title = t("voz_nota");
+    return;
+  }
+  if (idioma !== "es") {
+    b.textContent = t("voz_solo_es"); b.disabled = true;
+    b.title = t("voz_nota");
+    callar();
+    return;
+  }
+  b.disabled = false;
+  b.textContent = hablaViva ? t("voz_callar") : t("voz_hablar");
+  b.setAttribute("aria-pressed", hablaViva ? "true" : "false");
+  b.title = t("voz_nota");
+}
+
 function rotular() {
   el("t-sub").textContent = t("sub");
   el("campo").placeholder = t("campo");
@@ -632,7 +842,21 @@ function rotular() {
     b.textContent = t("cerrar");
   });
   document.documentElement.lang = idioma;
+  rotularVoz();
 }
+
+el("b-voz").onclick = function () {
+  hablaViva = !hablaViva;
+  if (!hablaViva) { callar(); }
+  // Viaja en el formulario, como el idioma: una preferencia que hay que volver
+  // a poner en cada arranque no es una preferencia.
+  FORMULARIO.profile.voice = hablaViva ? "on" : "off";
+  rotularVoz();
+};
+
+// La preferencia de voz se recupera del perfil. Si nadie la eligio, queda
+// callado: una voz que arranca sola sorprende, y sorprender no es un permiso.
+hablaViva = (DATOS.profile.voice === "on") && algunaVoz() && idioma === "es";
 
 el("lang").value = idioma;
 el("lang").onchange = function () {
@@ -649,7 +873,8 @@ dormido();
 cola = guion();
 window.setTimeout(function () {
   despertar(function () {
-    dice(DATOS.engrams.length ? t("saludo_vuelta") : t("saludo"), siguiente);
+    var clave = DATOS.engrams.length ? "saludo_vuelta" : "saludo";
+    dice(t(clave), siguiente, clave);
   });
 }, 500);
 </script>
@@ -665,6 +890,14 @@ def main(argv=None):
     ap.add_argument("--aplicar", metavar="FILE",
                     help="write into the memory what the face collected")
     ap.add_argument("--idioma", choices=("en", "es"))
+    # La voz es opcional por diseño. Si no está, la cara se genera igual y su
+    # botón lo declara: una copia sin voz sigue siendo una copia entera.
+    ap.add_argument("--piper", default=os.environ.get("AURELIUS_PIPER"),
+                    help="path to the piper binary (child process, no socket)")
+    ap.add_argument("--voz", default=os.environ.get("AURELIUS_VOZ"),
+                    help="path to the signed voice model (.onnx)")
+    ap.add_argument("--sin-voz", action="store_true",
+                    help="generate without recording any audio")
     a = ap.parse_args(argv)
 
     est, rec = M.estado(a.db)
@@ -674,13 +907,17 @@ def main(argv=None):
     if a.aplicar:
         return aplicar(a.db, a.aplicar)
 
+    piper = None if a.sin_voz else a.piper
+    voz = None if a.sin_voz else a.voz
     with M.abrir(a.db) as c:
-        html = generar(c, a.db, a.idioma)
+        html = generar(c, a.db, a.idioma, piper=piper, modelo_voz=voz)
     with open(a.out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"Face: {a.out}")
     print(f"  one file, {len(html) // 1024} KB, opens with a double click")
     print("  no network: the sprites, both languages and your memories are inside it")
+    print("  voice: " + ("recorded into the page" if (piper and voz)
+                         else "not recorded — the button says so"))
     return 0
 
 

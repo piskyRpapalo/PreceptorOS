@@ -38,7 +38,7 @@ CAMPOS_HUECO = ("why", "where_ref", "learned")
 # El idioma vive aqui por la misma razon: no es un recuerdo, es el marco en el
 # que se cuentan. Y se declara ausente como cualquier otra clave — quien no lo
 # eligio no queda registrado como si hubiera elegido ingles (D74).
-CLAVES_PERFIL = ("device", "name", "language")
+CLAVES_PERFIL = ("device", "name", "language", "voice")
 
 ESQUEMA = """
 create table if not exists engrams (

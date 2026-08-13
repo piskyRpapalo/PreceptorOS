@@ -13,6 +13,7 @@ Ninguna prueba toca la memoria real: todas pasan --db a una base temporal.
 from __future__ import annotations
 
 import os
+import json
 import re
 import shutil
 import subprocess
@@ -244,6 +245,101 @@ def t11():
     for inventado in ("la impresora", "lorem ipsum", "example memory"):
         assert inventado not in html.lower(), \
             f"la cara trae un recuerdo de ejemplo: {inventado!r}"
+
+
+@caso("12 · el botón de audio está desde el primer arranque, con voz o sin ella")
+def t12():
+    # Sin voz grabada: el botón EXISTE igual y declara que esta copia no habla.
+    # Un control que aparece solo cuando la función está disponible enseña a la
+    # persona que el producto cambia de forma, y deja de poder confiarse de él.
+    html, _ = generar(base_con_recuerdos())
+    assert 'id="b-voz"' in html, "no hay botón de audio en la cara"
+    for idioma in ("en", "es"):
+        assert TX.TEXTOS.get(idioma) is not None
+    for clave in ("voz_hablar", "voz_callar", "voz_no_hay"):
+        assert clave in html, f"el botón no trae el rótulo {clave}"
+    assert 'aria-pressed' in html, "el botón no dice si está pulsado"
+
+
+@caso("13 · el texto se ve siempre; el botón solo decide si además suena")
+def t13():
+    html, _ = generar(base_con_recuerdos())
+    # La función que escribe la burbuja no puede depender del estado de la voz.
+    cuerpo = re.search(r"function dice\(texto, hecho, clave\) \{(.*?)\n\}",
+                       html, re.S)
+    assert cuerpo, "no se encuentra la función que escribe lo que se dice"
+    assert "hablaViva" not in cuerpo.group(1), \
+        "escribir el texto depende del botón de voz: el texto debe estar siempre"
+    assert "suena(clave)" in cuerpo.group(1), "el sonido no está enganchado"
+
+
+@caso("14 · en instalación limpia el Camino está a cero y no finge progreso")
+def t14():
+    ruta = os.path.join(tmp_dir(), "memory.db")
+    M.crear(ruta)                       # base recién hecha: nadie ha contestado
+    html, _ = generar(ruta)
+    estado = json.loads(re.search(r"var DATOS = (\{.*?\});\n", html, re.S).group(1))
+    camino = estado["camino"]
+    assert camino["cifras"] == {"perfil": 0, "recuerdos": 0, "sello": False}, \
+        f"una instalación limpia declara {camino['cifras']}"
+    hechos = [p for p, e in camino["estado"].items() if e == "hecho"]
+    assert not hechos, f"en limpio ya hay peldaños dados por hechos: {hechos}"
+    assert camino["estado"]["M1"] == "no_medible", \
+        "el peldaño que no se puede medir no se declara como tal"
+    assert all(camino["estado"][p] == "sin_empezar"
+               for p in ("M3", "M4", "M5", "M6", "M7")), \
+        "hay peldaños futuros con estado inventado"
+
+
+@caso("15 · cada peldaño enseña QUÉ lo da por hecho, y cómo refrescar")
+def t15():
+    html, _ = generar(base_con_recuerdos())
+    for clave in ("cm_prueba_M0", "cm_prueba_M1", "cm_prueba_M2",
+                  "cm_pendiente", "cm_refrescar"):
+        assert clave in html, f"el Camino no trae {clave}"
+    # Y el progreso se mueve con la memoria, no con el calendario.
+    estado = json.loads(re.search(r"var DATOS = (\{.*?\});\n", html, re.S).group(1))
+    assert estado["camino"]["cifras"]["recuerdos"] == 2, \
+        "el Camino no cuenta los recuerdos que hay"
+    assert estado["camino"]["estado"]["M2"] == "empezado", \
+        "con recuerdos y sin sello, el Agua debería estar empezada, no hecha"
+
+
+@caso("16 · la voz viaja incrustada y sigue sin abrir un socket")
+def t16():
+    import shutil as _sh
+    piper = os.path.expanduser("~/aurelius-m1/venv/bin/piper")
+    voz = os.path.expanduser("~/aurelius-m1/voces/es_ES-sharvard-medium.onnx")
+    if not (os.path.exists(piper) and os.path.exists(voz)):
+        return          # sin voz instalada no hay nada que comprobar aquí
+    ruta = base_con_recuerdos()
+    salida = os.path.join(tmp_dir(), "cara.html")
+    proc = subprocess.run(
+        [sys.executable, "cara.py", "--db", ruta, "--out", salida,
+         "--piper", piper, "--voz", voz],
+        cwd=AQUI, capture_output=True, text=True, timeout=600)
+    assert proc.returncode == 0, f"cara.py con voz falló: {proc.stderr[-400:]}"
+    html = open(salida, encoding="utf-8").read()
+    assert "data:audio/wav;base64," in html, "la voz no viajó dentro del fichero"
+    for patron in RED:
+        assert not re.findall(patron, html, re.I), \
+            f"la cara con voz llama a la red: {patron}"
+
+
+@caso("17 · los dos filtros existen y el lore pasa los dos guardianes")
+def t17():
+    arq = open(os.path.join(AQUI, "ARQUETIPO.md"), encoding="utf-8").read()
+    for filtro in ("`rapido`", "`lector`"):
+        assert filtro in arq, f"el arquetipo no declara el filtro {filtro}"
+    assert "read aloud" in arq and "en voz alta" in arq, \
+        "el arquetipo no dice que lo leen en voz alta"
+    lore = open(os.path.join(AQUI, "LORE.md"), encoding="utf-8").read()
+    for doc, nombre in ((arq, "ARQUETIPO.md"), (lore, "LORE.md")):
+        bajo = doc.lower()
+        assert not [p for p in LEXICO_PRIVADO if p in bajo], \
+            f"{nombre} lleva vocabulario de la casa"
+        for termino in ("temple", "ollama", "gguf"):
+            assert termino not in bajo, f"{nombre} nombra {termino!r}"
 
 
 def main():
