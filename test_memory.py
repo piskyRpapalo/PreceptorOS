@@ -394,6 +394,189 @@ def t14():
     assert not sentencias, f"memory.py ejecuta DELETE: {sentencias}"
 
 
+# --- la puerta · durabilidad. Devolver es prometer -------------------------
+# El §6.2 del plan —«Saved solo tras commit»— no se prueba mirando la salida:
+# un test en la MISMA conexion ve la fila aunque no este confirmada, asi que
+# comprobaria exactamente el error. La unica prueba que separa durabilidad de
+# visibilidad local es una SEGUNDA conexion.
+
+
+@caso("15 · la fila es visible desde otra conexion antes de cerrar")
+def test_la_fila_es_visible_desde_otra_conexion_antes_de_cerrar():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="visible desde fuera o no esta escrito")
+        # Sin salir del bloque: la sesion de la persona sigue abierta, que es
+        # justo el momento en el que el producto ya imprimio "Saved".
+        otra = sqlite3.connect(ruta)
+        try:
+            n = otra.execute("select count(*) from engrams").fetchone()[0]
+            dentro = c.execute("select count(*) from engrams").fetchone()[0]
+        finally:
+            otra.close()
+    assert dentro == 1, "ni la propia conexion ve la fila: el insert no corrio"
+    assert n == 1, (
+        f"otra conexion ve {n} filas: la escritura vive solo en la transaccion "
+        "de la sesion. 'Saved' es verdad dentro y mentira fuera")
+
+
+@caso("16 · la escritura sobrevive a una interrupcion en mitad de la sesion")
+def test_la_escritura_sobrevive_a_una_interrupcion():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    interrumpio = False
+    try:
+        with M.abrir(ruta) as c:
+            M.escribir_engrama(c, what="recuerdo uno")
+            M.escribir_engrama(c, what="recuerdo dos")
+            # Ctrl+C en "Add another?": para la persona esto no es un fallo,
+            # es el modo normal de salir de una conversacion.
+            raise KeyboardInterrupt
+    except KeyboardInterrupt:
+        interrumpio = True
+    # La interrupcion tiene que SALIR del bloque. Un gestor que se la traga
+    # deja a la persona dentro de una sesion de la que pidio salir.
+    assert interrumpio, "abrir() se trago el KeyboardInterrupt en vez de relanzarlo"
+
+    with M.abrir(ruta) as c:      # CONEXION NUEVA: lo unico que prueba disco
+        filas = [r["what"] for r in c.execute(
+            "select what from engrams order by id")]
+    assert filas == ["recuerdo uno", "recuerdo dos"], \
+        f"tras la interrupcion quedan {filas}: la sesion entera era una transaccion"
+
+
+@caso("17 · devolver es prometer: si la escritura devuelve, otra conexion la ve")
+def test_saved_no_se_imprime_sin_durabilidad():
+    # La invariante en una linea. Se comprueba en los CINCO puntos de escritura,
+    # no solo en el primero: un punto sin prueba es un punto que puede volver
+    # a prometer sin cumplir.
+    ruta = tmp_ruta()
+    M.crear(ruta)
+
+    def fuera(sql):
+        otra = sqlite3.connect(ruta)
+        try:
+            return otra.execute(sql).fetchone()[0]
+        finally:
+            otra.close()
+
+    with M.abrir(ruta) as c:
+        fila = M.escribir_engrama(c, what="lo que la persona acaba de escribir")
+        assert fuera("select count(*) from engrams where id=%d" % fila["id"]) == 1, \
+            "escribir_engrama devolvio la fila y fuera no existe: 'Saved' miente"
+        otra_fila = M.escribir_engrama(c, what="la segunda")
+        M.escribir_enlace(c, fila["id"], otra_fila["id"], "lleva a")
+        assert fuera("select count(*) from links") == 1, \
+            "escribir_enlace devolvio y el enlace no esta en disco"
+        M.archivar(c, otra_fila["id"])
+        assert fuera("select count(*) from engrams where status='archivado'") == 1, \
+            "archivar devolvio y el cambio no esta en disco"
+        M.desarchivar(c, otra_fila["id"])
+        assert fuera("select count(*) from engrams where status='archivado'") == 0, \
+            "desarchivar devolvio y el cambio no esta en disco"
+
+
+@caso("18 · una escritura invalida no arrastra a las validas")
+def test_una_escritura_invalida_no_arrastra_a_las_validas():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    try:
+        with M.abrir(ruta) as c:
+            M.escribir_engrama(c, what="la primera, valida")
+            try:
+                M.escribir_engrama(c, what="   ")      # invalida: what vacio
+            except ValueError:
+                pass
+            M.escribir_engrama(c, what="la segunda, valida")
+            raise KeyboardInterrupt
+    except KeyboardInterrupt:
+        pass
+    with M.abrir(ruta) as c:
+        filas = [r["what"] for r in c.execute(
+            "select what from engrams order by id")]
+    # Con transaccion de sesion esto perdia las tres: la valida, la invalida y
+    # la que vino despues. El rollback solo debe alcanzar a la que fallo.
+    assert filas == ["la primera, valida", "la segunda, valida"], \
+        f"quedan {filas}: el rollback de una escritura se llevo por delante a las otras"
+
+
+@caso("19 · el perfil tambien sobrevive: device y name no se evaporan")
+def test_el_perfil_tambien_sobrevive():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    try:
+        with M.abrir(ruta) as c:
+            M.escribir_perfil(c, "device", "el portatil de la cocina")
+            M.escribir_perfil(c, "name", "David")
+            raise KeyboardInterrupt
+    except KeyboardInterrupt:
+        pass
+    with M.abrir(ruta) as c:
+        assert M.leer_perfil(c, "device") == "el portatil de la cocina", \
+            "el dispositivo se evaporo con la interrupcion"
+        assert M.leer_perfil(c, "name") == "David", \
+            "el nombre se evaporo con la interrupcion"
+
+
+# --- el respaldo · lo que un `cp` del .db no copia -------------------------
+
+@caso("20 · el respaldo se lleva lo que aun vive en el WAL; un cp del .db no")
+def test_el_respaldo_incluye_lo_que_vive_en_el_wal():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="el recuerdo que el cp perdia")
+        M.escribir_perfil(c, "name", "David")
+        # Con la sesion ABIERTA, como estaria al hacer el respaldo de verdad.
+        ingenuo = ruta + ".cp-solo-db"
+        shutil.copyfile(ruta, ingenuo)
+        destino, rec = M.respaldar(ruta)
+
+    # El cp del .db a secas: valido, legible y vacio. Es el respaldo que hubo.
+    con = sqlite3.connect(ingenuo)
+    perdidos = con.execute("select count(*) from engrams").fetchone()[0]
+    con.close()
+    assert perdidos == 0, \
+        (f"el cp del .db ya trae {perdidos} filas: en esta maquina el WAL se "
+         "consolido solo y el test no esta midiendo lo que dice medir")
+
+    assert rec["engrams"] == 1 and rec["profile"] == 1, \
+        f"el respaldo dice llevar {rec}"
+    # Y se comprueba desde fuera, sin pasar por el codigo que lo escribio.
+    con = sqlite3.connect(destino)
+    filas = [r[0] for r in con.execute("select what from engrams")]
+    nombre = con.execute("select value from profile where key='name'").fetchone()
+    con.close()
+    assert filas == ["el recuerdo que el cp perdia"], f"la copia lleva {filas}"
+    assert nombre and nombre[0] == "David", "la copia perdio el perfil"
+    # Un solo fichero: si el respaldo dejara su propio -wal fuera, la copia
+    # tendria el mismo problema que vino a arreglar.
+    assert not os.path.exists(destino + "-wal"), "el respaldo dejo un -wal suelto"
+
+
+@caso("21 · un respaldo no pisa a otro, y sin memoria no inventa un fichero")
+def test_el_respaldo_no_pisa_ni_inventa():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="algo")
+    destino, _ = M.respaldar(ruta)
+    fallo = False
+    try:
+        M.respaldar(ruta, destino)      # el mismo nombre, otra vez
+    except FileExistsError:
+        fallo = True
+    assert fallo, "un respaldo sobrescribio a otro: la copia buena se perdio"
+
+    fallo = False
+    try:
+        M.respaldar(tmp_ruta("no_existe.db"))
+    except FileNotFoundError:
+        fallo = True
+    assert fallo, "respaldar una memoria que no existe devolvio un fichero"
+
+
 # --- modo sabotaje · el rojo tambien se prueba ----------------------------
 # Una suite verde solo demuestra que el codigo pasa la suite. Que la suite
 # DETECTE la rotura es otra afirmacion distinta, y hasta ahora se comprobo a
@@ -434,6 +617,50 @@ SABOTAJES = (
         "memory.py",
         '        con.execute("pragma journal_mode=wal")',
         '        con.execute("pragma journal_mode=delete")',
+    ),
+    # --- las tres de la puerta (M-D64) ---------------------------------------
+    # La sustitucion no puede ser `con.commit = lambda: None`: el atributo es de
+    # solo lectura en sqlite3.Connection. Se anula por subclase, que es la forma
+    # exacta de dejar la base como estaba antes del arreglo: las escrituras no
+    # confirman y el unico commit real vuelve a ser el del final de la sesion.
+    (
+        "durabilidad · el commit vuelve al final de abrir()",
+        "memory.py",
+        '    con = sqlite3.connect(ruta)\n'
+        '    con.row_factory = sqlite3.Row\n'
+        '    try:\n'
+        '        con.execute("pragma journal_mode=wal")\n'
+        '        con.execute("pragma foreign_keys=on")\n'
+        '        yield con\n'
+        '        con.commit()',
+        '    class _SoloAlFinal(sqlite3.Connection):\n'
+        '        def commit(self):\n'
+        '            pass\n'
+        '    con = sqlite3.connect(ruta, factory=_SoloAlFinal)\n'
+        '    con.row_factory = sqlite3.Row\n'
+        '    try:\n'
+        '        con.execute("pragma journal_mode=wal")\n'
+        '        con.execute("pragma foreign_keys=on")\n'
+        '        yield con\n'
+        '        sqlite3.Connection.commit(con)',
+    ),
+    (
+        "durabilidad · escribir_engrama devuelve sin confirmar",
+        "memory.py",
+        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))\n'
+        '    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco\n'
+        '    return leer_engrama(c, cur.lastrowid)',
+        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))\n'
+        '    return leer_engrama(c, cur.lastrowid)',
+    ),
+    (
+        "salida limpia · la interrupcion se traga en vez de relanzarse",
+        "memory.py",
+        '    except BaseException:\n'
+        '        con.rollback()\n'
+        '        raise',
+        '    except BaseException:\n'
+        '        con.rollback()',
     ),
 )
 

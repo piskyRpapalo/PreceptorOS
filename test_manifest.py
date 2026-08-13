@@ -234,6 +234,34 @@ def main_sabotaje():
     return 1 if no_detectados else 0
 
 
+@caso("9 · el sello firma con el nombre del perfil, no como anonimo")
+def t9():
+    # M-D64. `manifest --sign` leia la clave de perfil "called_you", que es como
+    # se llamaba en la propuesta y que NADIE escribe: M-D60 la nombro "name". La
+    # lectura no fallaba, devolvia NO_DATA — asi que quien habia dado su nombre
+    # veia su sello firmado como anonimo y no habia forma de notarlo desde el
+    # producto. Un nombre mal escrito no rompe: miente en silencio.
+    ruta = con_recuerdos(1)
+    with M.abrir(ruta) as c:
+        M.escribir_perfil(c, "name", "David")
+    destino = os.path.join(os.path.dirname(ruta), "manifest-firmado.txt")
+    codigo = MF.main(["--db", ruta, "--sign", "--out", destino])
+    assert codigo == 0, f"firmar devolvio codigo {codigo}"
+    texto = open(destino, encoding="utf-8").read()
+    assert MF.firmante(texto) == "David", \
+        (f"signed_by es {MF.firmante(texto)!r} y la persona dio su nombre: "
+         "el sello se firma con una clave de perfil que nadie escribe")
+
+    # Y la clase entera del fallo, no solo su instancia: toda clave que
+    # manifest.py pida al perfil tiene que ser una clave que el perfil tenga.
+    fuente = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "manifest.py"), encoding="utf-8").read()
+    pedidas = set(re.findall(r"leer_perfil\(\s*\w+\s*,\s*[\"'](\w+)[\"']", fuente))
+    fantasmas = pedidas - set(M.CLAVES_PERFIL)
+    assert not fantasmas, \
+        f"manifest.py lee claves de perfil que nadie escribe: {sorted(fantasmas)}"
+
+
 def _sha_fichero(ruta):
     import hashlib
     return hashlib.sha256(open(ruta, "rb").read()).hexdigest()

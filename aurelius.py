@@ -5,6 +5,7 @@ sistema: MVP · solo biblioteca estandar. Sin red, sin dependencias.
 Uso:  python3 aurelius.py [--db RUTA]
       python3 aurelius.py --view [--db RUTA]     solo mirar
       python3 aurelius.py --export [--db RUTA]   markdown redactado
+      python3 aurelius.py --backup [FICHERO]     copia entera y comprobada
 
 Cada pregunta abre el campo real que va a rellenar. Nada se pregunta en
 abstracto, y ningun campo se rellena por la persona: si no sabe, NO_DATA.
@@ -206,6 +207,26 @@ def paso8_sello(c, ruta):
     return destino
 
 
+def respaldo(ruta, destino=None):
+    """Una copia que se puede llevar a otro disco, y que se ha leido entera.
+
+    No se copia el .db con `cp`: con diario WAL eso puede producir un fichero
+    valido y vacio. Se usa la copia de SQLite, que consolida el WAL, y se
+    cuentan las filas EN LA COPIA antes de anunciarla.
+    """
+    try:
+        destino, rec = M.respaldar(ruta, destino)
+    except (FileNotFoundError, FileExistsError, M.RespaldoNoVerificado) as e:
+        print(f"NOT BACKED UP · {e}", file=sys.stderr)
+        return 2
+    print(f"Backup: {destino}")
+    print(f"  read back from the copy: {rec['engrams']} memories, "
+          f"{rec['links']} links, {rec['profile']} profile entries")
+    print("  one file, nothing left in a journal beside it")
+    print("Keep it on another disk: a copy next to the original is lost with it.")
+    return 0
+
+
 def sesion(ruta):
     if not paso1_declaracion(ruta):
         return 0
@@ -232,9 +253,16 @@ def main():
     ap.add_argument("--db", default=RUTA_DEFECTO)
     ap.add_argument("--view", action="store_true")
     ap.add_argument("--export", action="store_true")
+    ap.add_argument("--backup", nargs="?", const="", metavar="FILE",
+                    help="verified copy of the whole memory, WAL included")
     a = ap.parse_args()
 
     est, rec = M.estado(a.db)
+    if a.backup is not None:
+        if est == "SIN_ESQUEMA":
+            print(M.mensaje_estado(est, rec))
+            return 1
+        return respaldo(a.db, a.backup or None)
     if a.view or a.export:
         if est == "SIN_ESQUEMA":
             print(M.mensaje_estado(est, rec))

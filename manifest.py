@@ -216,7 +216,10 @@ def main(argv):
     with M.abrir(a.db) as c:
         nombre = None
         try:
-            v = M.leer_perfil(c, "called_you")
+            # "name", no "called_you": asi la nombro M-D60 al crear el perfil.
+            # El literal de la propuesta no fallaba, devolvia NO_DATA — y quien
+            # habia dado su nombre veia su sello firmado como anonimo.
+            v = M.leer_perfil(c, "name")
             nombre = None if v == M.AUSENTE else v
         except AttributeError:
             nombre = None      # base sin tabla de perfil: se firma anonimo

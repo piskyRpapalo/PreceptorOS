@@ -9,6 +9,10 @@ Tres invariantes que este modulo no negocia:
   2. La redaccion ocurre en la FRONTERA (exportar), jamas al escribir en disco.
      La memoria guarda las palabras de la persona tal cual: es su maquina.
   3. Archivar es una columna, no una carpeta. Cero DELETE en este fichero.
+  4. Devolver es prometer: si una escritura devuelve, esta en disco. Cada
+     escritura es su propia transaccion y confirma ANTES del return. La sesion
+     entera fue una sola transaccion hasta M-D64, y eso convertia Ctrl+C -el
+     modo normal de salir de una conversacion- en un borrado completo.
 
 Los textos visibles para la persona van en ingles de industria (Canon §4).
 Los comentarios y nombres internos, en espanol, porque su lector es el equipo.
@@ -18,6 +22,7 @@ from __future__ import annotations
 import contextlib
 import os
 import sqlite3
+from datetime import datetime, timezone
 
 AUSENTE = "NO_DATA"          # marca visible de ausencia declarada
 CAMPOS_HUECO = ("why", "where_ref", "learned")
@@ -67,6 +72,10 @@ create table if not exists profile (
 
 class FronteraSinFiltro(Exception):
     """Se intento exportar sin filtro de redaccion. Falla cerrado."""
+
+
+class RespaldoNoVerificado(Exception):
+    """La copia se hizo pero no cuadra con el original. No se da por buena."""
 
 
 # --- componente 1 · memory_state ------------------------------------------
@@ -120,7 +129,13 @@ def crear(ruta):
 
 @contextlib.contextmanager
 def abrir(ruta):
-    """Conexion con diario WAL: un corte de luz no corrompe el fichero."""
+    """Conexion con diario WAL: un corte de luz no corrompe el fichero.
+
+    El rollback se queda. Con una transaccion por escritura solo puede alcanzar
+    a una escritura incompleta, que es su proposito legitimo. Lo que se elimino
+    no fue la red de seguridad: fue que la red abarcara la sesion entera, de
+    modo que una interrupcion descartaba todo lo escrito en ella.
+    """
     con = sqlite3.connect(ruta)
     con.row_factory = sqlite3.Row
     try:
@@ -153,6 +168,7 @@ def escribir_engrama(c, what, why=None, where_ref=None, learned="",
         "insert into engrams (what, why, where_ref, learned, origin) "
         "values (?, ?, ?, ?, ?)",
         (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))
+    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
     return leer_engrama(c, cur.lastrowid)
 
 
@@ -166,6 +182,7 @@ def escribir_enlace(c, desde, hacia, label=None):
     cur = c.execute(
         "insert into links (from_engram, to_engram, label) values (?, ?, ?)",
         (desde, hacia, _o_ausente(label)))
+    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
     return cur.lastrowid
 
 
@@ -173,11 +190,13 @@ def archivar(c, ident):
     """Sale de la vista por defecto. Sigue en la tabla. No se borra nada."""
     c.execute("update engrams set status='archivado', "
               "updated_at=datetime('now') where id=?", (ident,))
+    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
 
 
 def desarchivar(c, ident):
     c.execute("update engrams set status='activo', "
               "updated_at=datetime('now') where id=?", (ident,))
+    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
 
 
 # --- componente 3b · el perfil --------------------------------------------
@@ -222,6 +241,7 @@ def escribir_perfil(c, clave, valor):
               "on conflict(key) do update set value=excluded.value, "
               "updated_at=datetime('now')",
               (str(clave).strip(), _o_ausente(valor)))
+    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
     return {"key": str(clave).strip(), "value": leer_perfil(c, str(clave).strip())}
 
 
@@ -318,6 +338,68 @@ def mision_completa(c):
     """Con UN recuerdo basta. Si la persona paro en uno, funciono."""
     return c.execute(
         "select count(*) from engrams where status='activo'").fetchone()[0] >= 1
+
+
+# --- componente 6 · el respaldo -------------------------------------------
+# Un `cp` del .db no es un respaldo. Con diario WAL, lo escrito y aun no
+# consolidado vive en el fichero -wal: la copia del .db a secas puede salir
+# vacia, y salio — `memory.db.antes-de-p0` era el respaldo de nada, y nadie lo
+# supo hasta que hizo falta. Aqui se usa la API de respaldo de SQLite, que
+# consolida el WAL en un fichero unico, y despues se vuelve a abrir la copia
+# para contar: un respaldo que nadie ha leido no es un respaldo, es un fichero.
+
+def _recuento_verificable(c):
+    """Lo que tiene que salir identico en la copia. El perfil tambien."""
+    return {
+        "engrams": c.execute("select count(*) from engrams").fetchone()[0],
+        "links": c.execute("select count(*) from links").fetchone()[0],
+        "profile": (c.execute("select count(*) from profile").fetchone()[0]
+                    if _hay_perfil(c) else 0),
+    }
+
+
+def ruta_respaldo(ruta, cuando=None):
+    """Nombre con marca de tiempo UTC: dos respaldos nunca se pisan."""
+    marca = cuando or datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%SZ")
+    return f"{ruta}.backup-{marca}.db"
+
+
+def respaldar(ruta, destino=None):
+    """Copia entera y comprobada. Devuelve (destino, recuentos de la COPIA).
+
+    Los recuentos se leen de la copia, no del original: son la prueba de que
+    lo que hay en el fichero nuevo es lo que habia, y no una promesa sobre el
+    fichero viejo.
+    """
+    if not os.path.exists(ruta):
+        raise FileNotFoundError(
+            f"there is no memory to back up at {ruta}. "
+            "Nothing was copied, and nothing is wrong: nothing exists yet.")
+    destino = destino or ruta_respaldo(ruta)
+    if os.path.exists(destino):
+        # Un respaldo jamas pisa un respaldo: el fichero que sobrescribiria
+        # puede ser la unica copia buena que queda.
+        raise FileExistsError(
+            f"{destino} already exists. A backup never overwrites a backup.")
+    origen = sqlite3.connect(ruta)
+    copia = sqlite3.connect(destino)
+    try:
+        origen.backup(copia)
+        antes = _recuento_verificable(origen)
+        despues = _recuento_verificable(copia)
+    finally:
+        copia.close()
+        origen.close()
+    if antes != despues:
+        # No se borra: se marca. Borrar seria decidir por la persona sobre un
+        # fichero que quiza contiene algo. Pero no puede quedarse con nombre de
+        # respaldo bueno, porque el dia que haga falta se cogera este.
+        roto = destino + ".INCOMPLETO"
+        os.replace(destino, roto)
+        raise RespaldoNoVerificado(
+            f"the copy does not match the original ({antes} vs {despues}). "
+            f"It was renamed to {roto} and must not be trusted as a backup.")
+    return destino, despues
 
 
 # --- componente 5 · la frontera -------------------------------------------
