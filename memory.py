@@ -322,6 +322,68 @@ def vista_arbol(c):
     return _con_perfil(c, "\n".join(salida))
 
 
+# --- modo formulario · el puente con la cara, sin nadie en medio -----------
+
+def formulario(c):
+    """El estado que la cara necesita para dibujarse, en un diccionario.
+
+    Se lee entero de una vez y se entrega. No hay servidor entre la cara y
+    esto: quien la genera ya tiene la conexion abierta, y quien la mira solo
+    recibe el resultado. Un intermediario aqui seria una pieza mas que puede
+    mentir sobre lo que hay escrito.
+    """
+    return {
+        "profile": leer_perfil(c),
+        "engrams": [dict(r) for r in c.execute(
+            "select id, what, why, where_ref, learned, origin, created_at "
+            "from engrams where status='activo' order by id")],
+        "links": [dict(r) for r in c.execute(
+            "select from_engram, to_engram, label from links order by id")],
+        "recuento": recuento_huecos(c),
+    }
+
+
+def aplicar_formulario(c, datos):
+    """Escribe lo que la cara recogio. Solo anade.
+
+    Tres reglas, y las tres son la misma regla mirada desde tres sitios:
+
+      · Un formulario nunca reemplaza. Lo que ya estaba escrito sigue estando,
+        con su id y su fecha. La cara propone recuerdos nuevos; no tiene
+        permiso para opinar sobre los viejos.
+      · Un formulario vacio no cambia nada. Recibir cero recuerdos no es la
+        orden de vaciar la memoria: es que no habia nada que anadir.
+      · Una fila sin `what` no es un recuerdo y no se escribe. Igual que en la
+        conversacion: sin un que, no hay nada que guardar.
+
+    Devuelve el recuento de lo que SI se escribio, para que quien llame pueda
+    decirselo a la persona en cifras y no en adjetivos.
+    """
+    resumen = {"engrams": 0, "profile": 0, "language": False}
+
+    idioma = (datos.get("language") or "").strip()
+    if idioma:
+        escribir_perfil(c, "language", idioma)
+        resumen["language"] = True
+
+    for clave, valor in (datos.get("profile") or {}).items():
+        if clave in CLAVES_PERFIL and str(valor).strip():
+            escribir_perfil(c, clave, valor)
+            resumen["profile"] += 1
+
+    for fila in (datos.get("engrams") or []):
+        what = str(fila.get("what") or "").strip()
+        if not what:
+            continue
+        escribir_engrama(c, what=what,
+                         why=(fila.get("why") or "").strip() or None,
+                         where_ref=(fila.get("where_ref") or "").strip() or None,
+                         learned=(fila.get("learned") or "").strip(),
+                         origin=fila.get("origin") or "persona")
+        resumen["engrams"] += 1
+    return resumen
+
+
 def recuento_huecos(c):
     """Cuantos campos quedan en NO_DATA. La cifra que mide el avance real."""
     filas = _filas(c)

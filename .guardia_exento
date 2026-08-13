@@ -2,3 +2,5 @@ corpus/muestras.json
 test_guardrails.py
 guardrails.py:87
 test_tono.py:150
+test_cara.py:42
+ASSETS.md:10

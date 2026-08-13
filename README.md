@@ -33,6 +33,28 @@ AURELIUS_RITMO=0 python3 aurelius.py   # same session, no pauses
 Default location: `~/.aurelius/memory.db`. Change it with `--db RUTA`. Copy that
 file and your memory comes with you.
 
+## The face
+
+```
+python3 cara.py                     # writes cara.html from your memory
+python3 cara.py --aplicar aurelius-formulario.json
+```
+
+`cara.py` reads your memory and writes **one HTML file**: the sprites, both
+languages and your own memories are inside it. Open it with a double click —
+there is no server to start, and it makes no network calls at all. Copy it to a
+USB stick and it says exactly the same thing on a machine with no cable.
+
+That forces one honest asymmetry, worth stating out loud: the face **reads**
+your memory at the moment it is generated, and to **write** it hands you a form
+file that you save and apply yourself. Nothing is written from the browser
+behind your back — you can open the form and read it before it touches
+anything.
+
+Inside: the Slate (everything your memory holds, gaps declared, and two ways to
+take it with you) and the Path (the eight steps). Frame maps and the animation
+contract are in [ASSETS.md](ASSETS.md).
+
 ## Language / Idioma
 
 The first question of the session is which language to speak — English or

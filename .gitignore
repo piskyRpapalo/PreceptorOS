@@ -8,3 +8,10 @@ docs/
 
 __pycache__/
 *.pyc
+
+# La cara se GENERA desde la memoria de quien la ejecuta: el HTML lleva sus
+# recuerdos dentro. Versionarlo sería publicar la memoria de alguien. Lo que
+# se versiona es cara.py, que la produce.
+cara.html
+aurelius-formulario.json
+aurelius-recuerdos.txt
