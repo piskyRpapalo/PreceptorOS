@@ -27,10 +27,29 @@ your machine, in a single file, in your own words.
 python3 aurelius.py                # the seven-step session
 python3 aurelius.py --view         # just look
 python3 aurelius.py --export       # markdown, redacted
+AURELIUS_RITMO=0 python3 aurelius.py   # same session, no pauses
 ```
 
 Default location: `~/.aurelius/memory.db`. Change it with `--db RUTA`. Copy that
 file and your memory comes with you.
+
+## Pace: `AURELIUS_RITMO`
+
+Aurelius speaks with a cadence — it types at a readable speed and pauses at
+punctuation. That is a default, not a requirement. Set `AURELIUS_RITMO=0` and
+every wait disappears; `1.0` is the normal pace, and any number in between
+scales it.
+
+```
+AURELIUS_RITMO=0 python3 aurelius.py
+```
+
+Turn it off if you are in a hurry, driving Aurelius from a script, or reading
+with a screen reader — a pause that helps one person is noise to another. **The
+text is identical in both modes.** Cadence can change *when* something is said,
+never *what* is said; a tone that alters the content is not tone. The pace also
+switches itself off when output is not a terminal, so piping and scripting are
+byte-for-byte reproducible without setting anything.
 
 ## Border: redaction is required, not optional
 

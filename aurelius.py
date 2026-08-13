@@ -17,6 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import memory as M
+import tono as T
 
 RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
 
@@ -54,14 +55,16 @@ def si_no(texto):
 
 def paso1_declaracion(ruta):
     est, rec = M.estado(ruta)
-    print(f"\n{M.mensaje_estado(est, rec)}\n")
+    T.despertar(M.mensaje_estado(est, rec))
     print("What I know about myself, without any memory at all:")
     print(f"  - a memory has 4 fields: what, why, where, learned")
     print(f"  - absence is written as {M.AUSENTE}, never left blank")
     print(f"  - my memory would live in: {ruta}")
     print(f"  - nothing leaves this machine unless you export it\n")
     if est == "SIN_ESQUEMA":
-        if not si_no("Create my memory now?"):
+        if T.eleccion("Create my memory now?",
+                      [("si", "Yes, create it"),
+                       ("no", "No, not yet")]) != "si":
             print("\nNothing created. I keep no record of this session.")
             return False
         M.crear(ruta)
@@ -175,6 +178,34 @@ def paso7_cierre(c, ruta):
         print("Saved as an intention. It orients the next mission.")
 
 
+def paso8_sello(c, ruta):
+    """Ofrece sellar el estado de la memoria. Opcional siempre."""
+    try:
+        import manifest as MF
+    except ImportError:
+        T.ofrecer_sello(disponible=False)
+        return None
+    if not T.ofrecer_sello(disponible=True):
+        return None
+    nombre = None
+    try:
+        # La clave del perfil es "name": M-D60 nombro asi lo que la propuesta
+        # llamaba "called_you". Se aplica el equivalente, no el literal.
+        v = M.leer_perfil(c, "name")
+        nombre = None if v == M.AUSENTE else v
+    except AttributeError:
+        pass
+    texto = MF.firmar(MF.generar(c), nombre=nombre)
+    destino = os.path.join(os.path.dirname(os.path.abspath(ruta)),
+                           "manifest-latest.txt")
+    with open(destino, "w", encoding="utf-8") as fh:
+        fh.write(texto)
+    T.despacio(f"Sealed: {destino}")
+    T.despacio("Keep a copy somewhere else: a seal next to what it certifies "
+               "is lost with it.")
+    return destino
+
+
 def sesion(ruta):
     if not paso1_declaracion(ruta):
         return 0
@@ -190,6 +221,7 @@ def sesion(ruta):
         paso5_enlace(c)
         paso6_vista(c)
         paso7_cierre(c, ruta)
+        paso8_sello(c, ruta)
         print("\nMission M2 complete: "
               + ("yes" if M.mision_completa(c) else "no — nothing was written"))
     return 0
