@@ -18,6 +18,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import memory as M
+import textos as TX
 import tono as T
 
 RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
@@ -47,33 +48,100 @@ def preguntar(texto, permitir_vacio=True):
     return r
 
 
-def si_no(texto):
-    r = preguntar(f"{texto} [y/N] ").lower()
-    return r in ("y", "yes", "s", "si", "sí")
+def tx(idioma, clave, **kw):
+    return TX.texto(idioma, clave, **kw)
+
+
+def elegir(pregunta, opciones, idioma=TX.DEFECTO, ayuda=None, rechazo=None,
+           reintentos=8):
+    """Pregunta numerada. Devuelve la CLAVE elegida, nunca el indice.
+
+    Se aceptan numeros, y solo numeros. La version anterior tambien admitia la
+    clave interna ("si"), lo que producia una pregunta que aceptaba "si" y
+    rechazaba "yes" sin decir por que: el carbono escribio "yes" tres veces
+    antes de entender que se esperaba un "1". Una gramatica sola y dicha en el
+    enunciado vale mas que dos gramaticas y ninguna explicada.
+
+    Tres reglas que vienen de `tono` y no se tocan:
+      · Enter en vacio no elige. Volver a preguntar es respetar a quien duda.
+      · Lo que no es una opcion se declara Y se dice que numeros valen.
+      · Fin de entrada devuelve None. Nadie elige en nombre de nadie.
+    """
+    numeros = TX.lista_numeros(len(opciones), idioma)
+    for _ in range(reintentos):
+        T.despacio(pregunta)
+        for i, (_clave, texto) in enumerate(opciones, 1):
+            print(f"  {i}) {texto}")
+        if ayuda:
+            print(f"  ({ayuda})")
+        try:
+            linea = input("  > ").strip()
+        except EOFError:
+            print()
+            return None
+        if not linea:
+            continue
+        if linea.isdigit() and 1 <= int(linea) <= len(opciones):
+            return opciones[int(linea) - 1][0]
+        print("  " + ((rechazo or tx(idioma, "rechazo",
+                                     entrada="{entrada}", numeros=numeros))
+                      .format(entrada=linea)))
+    return None
+
+
+# --- paso 0 · el idioma, antes que nada -----------------------------------
+
+def paso_idioma(ruta):
+    """La primera pregunta de la sesion (D74). Devuelve el codigo o None.
+
+    Se hace en los dos idiomas porque todavia no hay uno elegido, y va antes
+    de la de crear: preguntar en un idioma que nadie eligio ya es elegirlo.
+    Un idioma ya contestado no se vuelve a preguntar — misma regla que el
+    resto del perfil.
+    """
+    est, _ = M.estado(ruta)
+    if est != "SIN_ESQUEMA":
+        with M.abrir(ruta) as c:
+            guardado = M.leer_perfil(c, "language")
+        if guardado != M.AUSENTE:
+            return guardado
+    return elegir(TX.PREGUNTA_IDIOMA, TX.IDIOMAS, ayuda=TX.AYUDA_IDIOMA,
+                  rechazo=TX.RECHAZO_IDIOMA)
+
+
+def recordar_idioma(c, idioma):
+    """Guarda lo elegido. No elegir no se guarda: se queda en NO_DATA.
+
+    Escribir "en" porque nadie contesto convertiria una ausencia en una
+    respuesta, y el perfil dejaria de distinguir a quien eligio ingles de
+    quien no eligio nada.
+    """
+    if idioma:
+        M.escribir_perfil(c, "language", idioma)
 
 
 # --- los siete pasos -------------------------------------------------------
 
-def paso1_declaracion(ruta):
+def paso1_declaracion(ruta, idioma=TX.DEFECTO):
     est, rec = M.estado(ruta)
-    T.despertar(M.mensaje_estado(est, rec))
-    print("What I know about myself, without any memory at all:")
-    print(f"  - a memory has 4 fields: what, why, where, learned")
-    print(f"  - absence is written as {M.AUSENTE}, never left blank")
-    print(f"  - my memory would live in: {ruta}")
-    print(f"  - nothing leaves this machine unless you export it\n")
+    T.despertar(M.mensaje_estado(est, rec, idioma))
+    print(tx(idioma, "sabe_de_mi"))
+    print(tx(idioma, "bullet_campos"))
+    print(tx(idioma, "bullet_ausencia", ausente=M.AUSENTE))
+    print(tx(idioma, "bullet_vive", ruta=ruta))
+    print(tx(idioma, "bullet_frontera") + "\n")
     if est == "SIN_ESQUEMA":
-        if T.eleccion("Create my memory now?",
-                      [("si", "Yes, create it"),
-                       ("no", "No, not yet")]) != "si":
-            print("\nNothing created. I keep no record of this session.")
+        if elegir(tx(idioma, "crear_pregunta"),
+                  [("si", tx(idioma, "crear_si")),
+                   ("no", tx(idioma, "crear_no"))], idioma) != "si":
+            print(tx(idioma, "nada_creado"))
             return False
         M.crear(ruta)
-        print(f"\nCreated: {ruta}")
+        print(tx(idioma, "creado", ruta=ruta))
     return True
 
 
-def paso0_presentacion(c):
+def paso0_presentacion(c, idioma=TX.DEFECTO):
     """Dos preguntas antes de la primera: donde estoy y como te llamo.
 
     Van antes del bucle a proposito. Preguntarlas despues seria pedirle a la
@@ -87,106 +155,139 @@ def paso0_presentacion(c):
     # ademas pisaria su respuesta con la de hoy.
     if sabidas:
         print("\n" + " · ".join(f"{k}: {v}" for k, v in sabidas.items()))
-    faltan = [k for k in M.CLAVES_PERFIL if perfil.get(k) == M.AUSENTE]
+    # El idioma es del perfil pero no se pregunta aqui: ya se contesto antes de
+    # que existiera la base. Se filtra por las preguntas que este paso sabe
+    # hacer, no por la lista de claves, para que anadir una clave manana no
+    # reviente este bucle con un KeyError.
+    preguntas = {
+        "device": tx(idioma, "perfil_device"),
+        "name": tx(idioma, "perfil_name"),
+    }
+    faltan = [k for k in M.CLAVES_PERFIL
+              if perfil.get(k) == M.AUSENTE and k in preguntas]
     if not faltan:
         return
 
-    print("\n--- first, two questions that are not memories " + "-" * 12)
-    print("I keep two things apart: who you are and where I am (this part),")
-    print("and what you remember (everything after). Neither answer is")
-    print(f"required. Press enter and it stays as {M.AUSENTE} — which is an")
-    print("answer too: it says nobody told me, instead of me pretending.\n")
+    print(tx(idioma, "perfil_cabecera") + "-" * 12)
+    print(tx(idioma, "perfil_intro", ausente=M.AUSENTE))
 
-    preguntas = {
-        "device": "Where am I?  (the machine I'm running on, in your words)  ",
-        "name": "How should I call you?  ",
-    }
     for clave in faltan:
         M.escribir_perfil(c, clave, preguntar(preguntas[clave]))
 
     print(f"\n{M.vista_perfil(c)}")
     if M.AUSENTE in M.vista_perfil(c):
-        print(f"({M.AUSENTE} is not a blank cell: it is a question nobody")
-        print(" answered. Nothing is lost by leaving it that way.)")
+        print(tx(idioma, "perfil_nota", ausente=M.AUSENTE))
 
 
-def paso2_primer_recuerdo(c):
-    print("\n--- now a memory, one field at a time " + "-" * 20)
-    print("A memory here is just something that happened to you and that you")
-    print("decided was worth keeping. It does not have to be important.\n")
-    print("  e.g.  the printer finally worked after I changed one cable")
-    print("        I broke the database and got it back from a copy")
-    print("        someone explained DNS to me and this time I got it\n")
+def paso2_primer_recuerdo(c, idioma=TX.DEFECTO):
+    print(tx(idioma, "recuerdo_cabecera") + "-" * 20)
+    print(tx(idioma, "recuerdo_intro"))
+    print(tx(idioma, "recuerdo_ejemplos"))
 
-    what = preguntar("So — what happened?  ", permitir_vacio=False)
+    what = preguntar(tx(idioma, "recuerdo_que"), permitir_vacio=False)
     if what is None:
-        print("Without a 'what' there is no memory. Nothing written,")
-        print("and nothing wrong: come back when there is something.")
+        print(tx(idioma, "recuerdo_sin_que"))
         return None
 
-    print(f"\nThe next three can stay empty. Enter leaves them as {M.AUSENTE},")
-    print("and a memory with declared gaps is still a memory — it is more")
-    print("honest than one where I guessed the parts you did not tell me.\n")
-    why = preguntar("Why does it matter to you?  (enter = NO_DATA)  ")
-    where = preguntar("Is there a file, a photo, a note that backs it?  (enter = NO_DATA)  ")
-    learned = preguntar("Did you learn anything you'd tell someone else?  (enter = for later)  ")
+    print(tx(idioma, "recuerdo_opcionales", ausente=M.AUSENTE))
+    why = preguntar(tx(idioma, "recuerdo_porque", ausente=M.AUSENTE))
+    where = preguntar(tx(idioma, "recuerdo_donde", ausente=M.AUSENTE))
+    learned = preguntar(tx(idioma, "recuerdo_aprendido"))
     fila = M.escribir_engrama(c, what=what, why=why or None,
                               where_ref=where or None, learned=learned or "")
-    print("\nSaved, exactly as you wrote it:")
+    print(tx(idioma, "recuerdo_guardado"))
+    vacio = tx(idioma, "recuerdo_vacio")
     for k in ("id", "what", "why", "where_ref", "learned"):
-        print(f"  {k:<10} {fila[k] if fila[k] != '' else '(empty, for later)'}")
+        print(f"  {k:<10} {fila[k] if fila[k] != '' else vacio}")
     return fila
 
 
-def paso5_enlace(c):
+def paso5_enlace(c, idioma=TX.DEFECTO):
     filas = [dict(r) for r in c.execute(
         "select id, what from engrams where status='activo' order by id")]
     if len(filas) < 2:
         return
-    if not si_no("\nAre two of these related?"):
+    if elegir(tx(idioma, "enlace_pregunta"),
+              [("si", tx(idioma, "enlace_si")),
+               ("no", tx(idioma, "enlace_no"))], idioma) != "si":
         return
     for f in filas:
         print(f"  {f['id']}: {f['what'][:60]}")
-    a = preguntar("from id:  ")
-    b = preguntar("to id:  ")
-    label = preguntar("in your own words, how?  (enter = NO_DATA)  ")
+    a = preguntar(tx(idioma, "enlace_desde"))
+    b = preguntar(tx(idioma, "enlace_hasta"))
+    label = preguntar(tx(idioma, "enlace_como", ausente=M.AUSENTE))
     if a.isdigit() and b.isdigit():
         M.escribir_enlace(c, int(a), int(b), label or None)
-        print("Link saved.")
+        print(tx(idioma, "enlace_guardado"))
 
 
-def paso6_vista(c):
-    print("\n=== TABLE " + "=" * 52)
+def paso6_vista(c, idioma=TX.DEFECTO):
+    print(tx(idioma, "vista_tabla") + "=" * 52)
     print(M.vista_tabla(c))
-    print("\n=== TREE " + "=" * 53)
+    print(tx(idioma, "vista_arbol") + "=" * 53)
     print(M.vista_arbol(c))
-    print("\n=== COUNT " + "=" * 52)
+    print(tx(idioma, "vista_recuento") + "=" * 52)
     print(M.vista_recuento(c))
 
 
-def paso7_cierre(c, ruta):
-    print("\n--- honest closing " + "-" * 40)
+def paso7_cierre(c, ruta, idioma=TX.DEFECTO):
+    print(tx(idioma, "cierre_cabecera") + "-" * 40)
     r = M.recuento_huecos(c)
-    print(f"I have {r['engrams']} memories and {r['total']} declared gaps.")
-    print(f"They live in {ruta}. You can copy that file and take it with you.")
+    print(tx(idioma, "cierre_recuento",
+             engrams=r["engrams"], huecos=r["total"],
+             nombre_r=TX.plural(idioma, r["engrams"], "palabra_recuerdo",
+                                "palabra_recuerdos"),
+             nombre_h=TX.plural(idioma, r["total"], "palabra_hueco",
+                                "palabra_huecos")))
+    print(tx(idioma, "cierre_viven", ruta=ruta))
     red = cargar_redactor()
-    print("Redaction at the border: "
-          + ("ready" if red else "NOT AVAILABLE — export is blocked"))
-    resp = preguntar("\nWhich piece do you want to understand first?  ")
+    print(tx(idioma, "cierre_frontera")
+          + tx(idioma, "cierre_frontera_ok" if red else "cierre_frontera_no"))
+    resp = preguntar(tx(idioma, "cierre_pregunta"))
     if resp:
-        M.escribir_engrama(c, what=resp, why="the next thing I want to learn",
+        M.escribir_engrama(c, what=resp,
+                           why=tx(idioma, "cierre_intencion_why"),
                            origin="intencion")
-        print("Saved as an intention. It orients the next mission.")
+        print(tx(idioma, "cierre_intencion"))
 
 
-def paso8_sello(c, ruta):
+def ofrecer_sello(idioma=TX.DEFECTO, disponible=True):
+    """La oferta de sellar, en el idioma de la sesion.
+
+    Es `tono.ofrecer_sello` con el texto traido al producto. La cadencia sigue
+    siendo de `tono` —regla, despacio, latido— y `tono.py` no se toca: su texto
+    estaba en un solo idioma porque cuando se escribio el producto hablaba uno.
+    El tono es CUANDO se dice algo; QUE se dice es del producto, y desde D74 el
+    producto lo dice en dos idiomas.
+
+    Devuelve True solo si la persona lo pide y el mecanismo existe. Si no
+    existe, se dice y se sigue: una oferta que no se puede cumplir se declara.
+    """
+    T.regla()
+    if not disponible:
+        T.despacio(tx(idioma, "sello_no_hay"))
+        T.despacio(tx(idioma, "sello_no_hay_2"))
+        return False
+    T.despacio(tx(idioma, "sello_intro"))
+    T.despacio(tx(idioma, "sello_intro_2"))
+    if elegir(tx(idioma, "sello_pregunta"),
+              [("si", tx(idioma, "sello_si")),
+               ("no", tx(idioma, "sello_no"))], idioma) == "si":
+        T.despacio(tx(idioma, "sello_sellando"))
+        T.latido()
+        return True
+    T.despacio(tx(idioma, "sello_no_sellado"))
+    return False
+
+
+def paso8_sello(c, ruta, idioma=TX.DEFECTO):
     """Ofrece sellar el estado de la memoria. Opcional siempre."""
     try:
         import manifest as MF
     except ImportError:
-        T.ofrecer_sello(disponible=False)
+        ofrecer_sello(idioma, disponible=False)
         return None
-    if not T.ofrecer_sello(disponible=True):
+    if not ofrecer_sello(idioma, disponible=True):
         return None
     nombre = None
     try:
@@ -201,9 +302,8 @@ def paso8_sello(c, ruta):
                            "manifest-latest.txt")
     with open(destino, "w", encoding="utf-8") as fh:
         fh.write(texto)
-    T.despacio(f"Sealed: {destino}")
-    T.despacio("Keep a copy somewhere else: a seal next to what it certifies "
-               "is lost with it.")
+    T.despacio(tx(idioma, "sello_escrito", destino=destino))
+    T.despacio(tx(idioma, "sello_copia"))
     return destino
 
 
@@ -228,23 +328,32 @@ def respaldo(ruta, destino=None):
 
 
 def sesion(ruta):
-    if not paso1_declaracion(ruta):
+    # El idioma es lo primero que se pregunta y lo primero que se sabe: todo lo
+    # que viene despues se dice en el, incluido el mensaje de estado.
+    idioma = paso_idioma(ruta)
+    lengua = TX.normalizar(idioma)
+    if not paso1_declaracion(ruta, lengua):
         return 0
     with M.abrir(ruta) as c:
-        paso0_presentacion(c)
+        recordar_idioma(c, idioma)
+        paso0_presentacion(c, lengua)
         while True:
-            paso2_primer_recuerdo(c)
+            paso2_primer_recuerdo(c, lengua)
             n = c.execute("select count(*) from engrams "
                           "where status='activo'").fetchone()[0]
-            print(f"\n{n} memories. Three is a good start — not a requirement.")
-            if not si_no("Add another?"):
+            print(tx(lengua, "bucle_recuento", n=n,
+                     nombre_r=TX.plural(lengua, n, "palabra_recuerdo",
+                                        "palabra_recuerdos")))
+            if elegir(tx(lengua, "otro_pregunta"),
+                      [("si", tx(lengua, "otro_si")),
+                       ("no", tx(lengua, "otro_no"))], lengua) != "si":
                 break
-        paso5_enlace(c)
-        paso6_vista(c)
-        paso7_cierre(c, ruta)
-        paso8_sello(c, ruta)
-        print("\nMission M2 complete: "
-              + ("yes" if M.mision_completa(c) else "no — nothing was written"))
+        paso5_enlace(c, lengua)
+        paso6_vista(c, lengua)
+        paso7_cierre(c, ruta, lengua)
+        paso8_sello(c, ruta, lengua)
+        print(tx(lengua, "final")
+              + tx(lengua, "final_si" if M.mision_completa(c) else "final_no"))
     return 0
 
 
@@ -269,7 +378,10 @@ def main():
             return 1
         with M.abrir(a.db) as c:
             if a.view:
-                paso6_vista(c)
+                # Mirar no es una sesion, asi que aqui no se pregunta nada: se
+                # usa el idioma que la persona ya eligio. Si no eligio ninguno,
+                # NO_DATA cae al de por defecto sin decir una palabra.
+                paso6_vista(c, TX.normalizar(M.leer_perfil(c, "language")))
                 return 0
             try:
                 texto, hallazgos = M.exportar(c, redactor=cargar_redactor())

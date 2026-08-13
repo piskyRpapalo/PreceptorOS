@@ -33,6 +33,18 @@ AURELIUS_RITMO=0 python3 aurelius.py   # same session, no pauses
 Default location: `~/.aurelius/memory.db`. Change it with `--db RUTA`. Copy that
 file and your memory comes with you.
 
+## Language / Idioma
+
+The first question of the session is which language to speak — English or
+Español — and it is asked in both, because at that point you have not chosen
+yet. Everything after it, including the questions, the views and the closing,
+is in the language you picked.
+
+The answer is kept in your profile next to `device` and `name`, so a second
+session does not ask again. Not answering is an answer too: it stays `NO_DATA`
+and the session runs in English. `NO_DATA` here means *nobody chose*, which is
+a different thing from *chose English* — the profile keeps them apart.
+
 ## Pace: `AURELIUS_RITMO`
 
 Aurelius speaks with a cadence — it types at a readable speed and pauses at

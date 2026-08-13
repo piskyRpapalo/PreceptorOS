@@ -14,8 +14,9 @@ Tres invariantes que este modulo no negocia:
      entera fue una sola transaccion hasta M-D64, y eso convertia Ctrl+C -el
      modo normal de salir de una conversacion- en un borrado completo.
 
-Los textos visibles para la persona van en ingles de industria (Canon §4).
-Los comentarios y nombres internos, en espanol, porque su lector es el equipo.
+Los textos visibles para la persona salen de `textos.py`, en los dos idiomas
+que el producto habla (D74). Los comentarios y nombres internos, en espanol,
+porque su lector es el equipo.
 """
 from __future__ import annotations
 
@@ -23,6 +24,8 @@ import contextlib
 import os
 import sqlite3
 from datetime import datetime, timezone
+
+import textos as TX
 
 AUSENTE = "NO_DATA"          # marca visible de ausencia declarada
 CAMPOS_HUECO = ("why", "where_ref", "learned")
@@ -32,7 +35,10 @@ CAMPOS_HUECO = ("why", "where_ref", "learned")
 # escribir. Guardarlos como engramas metería dos filas que nadie escribio en el
 # recuento de huecos, y daria la mision por cumplida sin que la persona hubiera
 # escrito nada suyo. Por eso viven en una tabla aparte, clave-valor.
-CLAVES_PERFIL = ("device", "name")
+# El idioma vive aqui por la misma razon: no es un recuerdo, es el marco en el
+# que se cuentan. Y se declara ausente como cualquier otra clave — quien no lo
+# eligio no queda registrado como si hubiera elegido ingles (D74).
+CLAVES_PERFIL = ("device", "name", "language")
 
 ESQUEMA = """
 create table if not exists engrams (
@@ -102,18 +108,22 @@ def estado(ruta):
     return ("VACIA" if total == 0 else "CON_DATOS"), recuentos
 
 
-def mensaje_estado(est, recuentos):
-    """Texto visible. Ausente y vacia dicen cosas distintas, a proposito."""
+def mensaje_estado(est, recuentos, idioma=TX.DEFECTO):
+    """Texto visible. Ausente y vacia dicen cosas distintas, a proposito.
+
+    El idioma es un parametro con valor por defecto: quien llamaba a esto antes
+    de que el producto hablara dos idiomas sigue recibiendo lo mismo, byte a
+    byte. Una firma que cambia de conducta sin avisar rompe a sus llamantes en
+    silencio, y aqui los llamantes son el manifiesto y las tres vistas.
+    """
     if est == "SIN_ESQUEMA":
-        return ("I have no memory yet. Nothing has been created on this machine. "
-                "I can create it now, if you say so.")
+        return TX.texto(idioma, "estado_sin_esquema")
     if est == "VACIA":
-        return ("My memory exists and it is empty. 0 memories. "
-                "Nothing is missing: nothing has been written yet.")
+        return TX.texto(idioma, "estado_vacia")
     n, a, l = recuentos["engrams"], recuentos["archivados"], recuentos["links"]
-    return (f"{n} memories, {l} links"
-            + (f", {a} archived" if a else "")
-            + ". Everything shown comes from what you wrote.")
+    return (TX.texto(idioma, "estado_con_datos", n=n, l=l)
+            + (TX.texto(idioma, "estado_archivados", a=a) if a else "")
+            + TX.texto(idioma, "estado_cola"))
 
 
 # --- componente 2 · memory_init -------------------------------------------
