@@ -392,6 +392,24 @@ def t20():
             f"la cara con turnos llama a la red: {patron}"
 
 
+@caso("21 · lo que se oye se limpia; lo que se muestra no se toca")
+def t21():
+    import cara as C
+    crudo = "Por si se borra.  \n  Por si la pierdes.  \n\n  *Por si* la quieres."
+    dicho = C.para_voz(crudo)
+    assert "\n" not in dicho and "*" not in dicho, f"quedan marcas de página: {dicho!r}"
+    assert "  " not in dicho, "quedan dobles espacios, que la voz lee como pausa"
+    # Y no se pierde ni se añade una palabra: la limpieza es de marcas, no de
+    # contenido. Un filtro de voz que edita lo dicho deja de ser un filtro.
+    palabras = lambda t: [w for w in re.sub(r"[*_`#>]", " ", t).split() if w]
+    assert palabras(dicho) == palabras(crudo), \
+        f"la limpieza cambió las palabras: {palabras(crudo)} -> {palabras(dicho)}"
+    # Lo mostrado sale del texto original, no del limpiado.
+    html, _ = generar(base_con_recuerdos())
+    assert "para_voz" not in re.search(r"function dice\(.*?\n\}", html, re.S).group(0), \
+        "la burbuja pasa por la limpieza de voz: el texto mostrado debe ser el original"
+
+
 def main():
     fallos = 0
     print("── M2 · LA CARA " + "─" * 50)

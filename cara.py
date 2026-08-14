@@ -183,6 +183,26 @@ def progreso_camino(c, ruta_db):
 
 # --- la voz · sintetizada al generar, por proceso hijo (D75) --------------
 
+def para_voz(texto):
+    """El mismo contenido, preparado para el oido. NO toca lo que se muestra.
+
+    El modelo devuelve el texto con la puntuacion de una pantalla: dos espacios
+    al final de linea para forzar un salto, saltos dentro de una misma frase,
+    y de vez en cuando un asterisco. Eso en una pagina no se ve; dicho en voz
+    alta produce pausas donde no las hay y silencios a mitad de idea.
+
+    La regla es la del tono: la cadencia puede cambiar CUANDO se dice algo,
+    nunca QUE se dice. Aqui no se quita ni se anade una palabra — solo se
+    deshacen las marcas que existian para los ojos.
+    """
+    import re
+    t = re.sub(r"[*_`#>]+", " ", texto or "")     # marcas de pagina, no de voz
+    t = re.sub(r"\s*\n\s*", " ", t)               # los saltos no son pausas
+    t = re.sub(r"[ \t]{2,}", " ", t)              # el doble espacio era un salto
+    t = re.sub(r"\s+([,.;:!?])", r"\1", t)        # no se respira antes de una coma
+    return t.strip()
+
+
 def voz_datauri(texto, piper=None, modelo_voz=None):
     """Un WAV incrustado, hablado por el proceso hijo. None si no hay voz.
 
@@ -197,7 +217,8 @@ def voz_datauri(texto, piper=None, modelo_voz=None):
     try:
         crudo = subprocess.run(
             [piper, "-m", modelo_voz, "-s", "0", "--output-raw"],
-            input=texto.encode("utf-8"), capture_output=True, timeout=120).stdout
+            input=para_voz(texto).encode("utf-8"),
+            capture_output=True, timeout=120).stdout
     except (OSError, subprocess.SubprocessError):
         return None
     if not crudo:
