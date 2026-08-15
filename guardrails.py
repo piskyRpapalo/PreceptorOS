@@ -96,7 +96,7 @@ PATRONES_CUSTOM = {
     # decisión firmada: es el sitio donde todo el mundo deja ficheros de paso y
     # su tasa de falso positivo ahogaría el contador. Se revisa con datos.
     # Los dos puntos cortan la ruta: separan pares en un volumen de contenedor
-    # (`/srv/datos:/data`) y la línea en una traza (`app.py:14`). Sin ese corte,
+    # (ejemplo: `/ruta/a:/ruta/b`) y la línea en una traza (ejemplo: `archivo.py:14`). Sin ese corte,
     # dos rutas seguidas se cuentan como una y el contador miente por defecto.
     "HOME_PATH": (
         r"(?<![\w.])/(?:home|mnt|srv|opt|var|media)/[^\s\"'<>|;,()\[\]:]+"
