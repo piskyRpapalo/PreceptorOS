@@ -370,6 +370,10 @@ def respaldo(ruta, destino=None):
 
 def arranque(ruta):
     """Flujo de arranque del Preceptor §6. Se ejecuta ANTES de sesion()."""
+    # Si estamos en modo test, saltar el arranque completo
+    if os.environ.get("AURELIUS_TEST") == "1":
+        return {"ritual_firmado": False, "cerebro_descargado": False, "voz_descargada": False}
+    
     # 1. Casa
     try:
         _casa.asegurar()
