@@ -65,9 +65,19 @@ def correr(entradas, ruta=None, extra=()):
 
     El ritmo va a 0: una suite que espera a que el tono termine de escribir se
     deja de correr, y un mecanismo que no se corre no protege nada.
+
+    AURELIUS_TEST=1 no es un interruptor de conveniencia: `arranque()` (D75) se
+    ejecuta ANTES de `sesion()` y pregunta por el cerebro y por la voz. Sin la
+    bandera, esas dos preguntas se comen las dos primeras lineas del guion —
+    la sesion recibe el guion desplazado y el idioma nunca se contesta. Este
+    fichero prueba la SESION, no el arranque: el arranque tiene su suite en
+    test_descarga.py y test_estado.py. Y ademas cierra el caso 0: sin la
+    bandera, `arranque()` llama a `casa.asegurar()`, que escribe estado.json
+    en el ~/.aurelius de la persona.
     """
     ruta = ruta or tmp_ruta()
-    entorno = dict(os.environ, AURELIUS_RITMO="0", PYTHONIOENCODING="utf-8")
+    entorno = dict(os.environ, AURELIUS_RITMO="0", PYTHONIOENCODING="utf-8",
+                   AURELIUS_TEST="1")
     proc = subprocess.run(
         [sys.executable, "aurelius.py", "--db", ruta, *extra],
         input="\n".join(entradas) + "\n", cwd=AQUI, env=entorno,

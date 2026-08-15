@@ -11,7 +11,9 @@ Doctrina:
 """
 from __future__ import annotations
 
+import glob
 import subprocess
+import shutil
 import wave
 import math
 import struct
@@ -19,18 +21,66 @@ import os
 import tempfile
 from typing import Optional
 
-PIPER = os.path.expanduser("~/piper/build/piper")
-ESPEAK_DATA = os.path.expanduser("~/piper/build/pi/share/espeak-ng-data")
+NO_DATA = "NO_DATA"
+
 VOZ_DIR = os.path.expanduser("~/.aurelius/voz")
 SONIDOS_DIR = os.path.expanduser("~/.aurelius/sonidos")
 
 # Modelo por defecto (davefx = masculino grave)
 MODELO_DEFECTO = os.path.join(VOZ_DIR, "es_ES-davefx-medium.onnx")
 
+# Sitios donde una distribución deja los datos de espeak-ng. Son rutas del
+# SISTEMA, iguales en cualquier máquina: no describen a nadie. La carpeta
+# personal de quien compiló Piper a mano no entra en este fichero -- este repo
+# es público, y una ruta bajo el home es exactamente la clase de cadena que
+# `guardrails` redacta al exportar. Quien la tenga ahí la declara por entorno.
+ESPEAK_SISTEMA = (
+    "/usr/share/espeak-ng-data",
+    "/usr/local/share/espeak-ng-data",
+    "/usr/lib/*/espeak-ng-data",
+    "/opt/homebrew/share/espeak-ng-data",
+)
+
+
+def espeak_data() -> str:
+    """Dónde están los datos de espeak-ng, o NO_DATA. En este orden:
+
+    1. `AURELIUS_ESPEAK_DATA` -- lo que la persona declara manda.
+    2. Las ubicaciones del sistema.
+    3. NO_DATA.
+
+    Un valor declarado que no existe devuelve NO_DATA y NO cae al sistema:
+    caer sería obedecer una ruta que nadie escribió y callarse el error de la
+    que sí. El que se equivoca al declarar quiere enterarse, no que le
+    funcione por otro sitio.
+    """
+    declarado = os.environ.get("AURELIUS_ESPEAK_DATA")
+    if declarado:
+        return declarado if os.path.isdir(declarado) else NO_DATA
+    for patron in ESPEAK_SISTEMA:
+        for candidato in sorted(glob.glob(patron)):
+            if os.path.isdir(candidato):
+                return candidato
+    return NO_DATA
+
+
+def piper_binario() -> str:
+    """El ejecutable de Piper, o NO_DATA. Mismo orden que `espeak_data`.
+
+    `shutil.which` y no el PATH implícito de un servicio: los units de systemd
+    no cargan el perfil interactivo y no ven `~/.local/bin`.
+    """
+    declarado = os.environ.get("AURELIUS_PIPER")
+    if declarado:
+        return declarado if os.path.isfile(declarado) else NO_DATA
+    hallado = shutil.which("piper")
+    return hallado or NO_DATA
+
 
 def piper_disponible() -> bool:
-    """True si Piper está compilado y el modelo existe."""
-    return os.path.isfile(PIPER) and os.path.isfile(MODELO_DEFECTO)
+    """True si Piper está y el modelo existe. Los datos de espeak no entran
+    aquí: sin ellos Piper puede seguir usando los suyos propios."""
+    return piper_binario() != NO_DATA and os.path.isfile(MODELO_DEFECTO)
 
 
 def generar_base(texto: str, salida: str,
@@ -40,12 +90,16 @@ def generar_base(texto: str, salida: str,
     if not piper_disponible():
         return False
     cmd = [
-        PIPER, "--model", MODELO_DEFECTO,
+        piper_binario(), "--model", MODELO_DEFECTO,
         "--output_file", salida,
-        "--espeak_data", ESPEAK_DATA,
         "--length-scale", str(length_scale),
         "--sentence-silence", str(sentence_silence),
     ]
+    # Si no sabemos dónde están, no se pasa la bandera: Piper usa los suyos.
+    # Pasar `--espeak_data NO_DATA` sería darle una ruta inventada.
+    datos = espeak_data()
+    if datos != NO_DATA:
+        cmd += ["--espeak_data", datos]
     try:
         r = subprocess.run(cmd, input=texto, capture_output=True,
                            text=True, timeout=30)
@@ -153,10 +207,15 @@ def tocar_leitmotiv(sala: int) -> Optional[str]:
 
 
 if __name__ == "__main__":
-    # Prueba rápida
-    out = os.path.expanduser("~/p0x/aurelius-mvp/test_voz_modulo.wav")
-    ruta = hablar("A... aaa... aurelius! donde... estoy?", out)
-    if ruta:
-        print(f"✓ Audio generado: {ruta}")
-    else:
-        print("✗ Piper no disponible. Aurelius escribirá en texto plano.")
+    # Prueba rápida. El WAV va a un temporal del sistema, no al arbol del
+    # repo ni a una carpeta de nadie.
+    print(f"piper      : {piper_binario()}")
+    print(f"modelo     : {MODELO_DEFECTO}")
+    print(f"espeak_data: {espeak_data()}")
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, "voz_modulo.wav")
+        ruta = hablar("A... aaa... aurelius! donde... estoy?", out)
+        if ruta:
+            print(f"✓ Audio generado ({os.path.getsize(ruta)} bytes)")
+        else:
+            print("✗ Piper no disponible. Aurelius escribirá en texto plano.")

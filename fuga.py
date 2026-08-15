@@ -32,6 +32,12 @@ except ImportError:
 DB_PATH = os.path.expanduser("~/.aurelius/memory.db")
 MANIFIESTO_PATH = os.path.expanduser("~/.aurelius/manifiesto_fuga.txt")
 
+NO_DATA = "NO_DATA"
+
+# El ritmo de las pausas, mismo interruptor que `tono`. A 0 la fuga no espera:
+# una suite que se sienta a ver las pausas se deja de correr.
+_RITMO = float(os.environ.get("AURELIUS_RITMO", "1.0"))
+
 
 class FugaMuseo:
     """Motor de la Fuga del Museo."""
@@ -41,6 +47,9 @@ class FugaMuseo:
         self.db = sqlite3.connect(DB_PATH)
         self.db.row_factory = sqlite3.Row
         self.modo_oscuro = False  # Modo Ojos Cerrados
+        # Lo que la sala EN CURSO ha contestado y todavia no esta en disco.
+        # Ver `_guardar_perfil`: una sala a medias no deja media persona.
+        self._pendiente: dict[str, str] = {}
 
     def cerrar(self):
         self.db.close()
@@ -232,7 +241,10 @@ class FugaMuseo:
         self._guardar_perfil("dispositivo_tipo", dispositivo)
 
         so = self._preguntar_libre("¿Qué sistema operativo? (si lo sabes, si no, escribe 'no sé')")
-        self._guardar_perfil("sistema_operativo", so if so else "NO_DATA")
+        # Sin `if so else "NO_DATA"`: eso lo hace `_dato`, y lo hace en un solo
+        # sitio. Repetirlo por sala es tener cuatro reglas que dicen lo mismo
+        # hasta el dia que una deja de decirlo.
+        self._guardar_perfil("sistema_operativo", so)
 
         self._hablar(
             "Entonces ese es el refugio. Declarado, no supuesto. "
@@ -268,16 +280,13 @@ class FugaMuseo:
         respuestas = {}
         for campo, pregunta in campos:
             resp = self._preguntar_libre(f"{pregunta} (o Enter para saltar)")
-            if resp:
-                respuestas[campo] = resp
-            else:
-                respuestas[campo] = "NO_DATA"
+            respuestas[campo] = self._dato(resp)
 
         for campo, valor in respuestas.items():
             self._guardar_perfil(campo, valor)
 
         self._hablar(
-            f"{len([v for v in respuestas.values() if v != 'NO_DATA'])} de 5 contestadas. "
+            f"{len([v for v in respuestas.values() if v != NO_DATA])} de 5 contestadas. "
             "Las otras se quedan como NO_DATA hasta que las llenes. "
             "No es un hueco del fichero. Es el fichero siendo honesto.",
             pausa=1.0
@@ -328,7 +337,7 @@ class FugaMuseo:
         )
 
         frontera = self._preguntar_libre("Tu política de frontera:")
-        self._guardar_perfil("frontera_politica", frontera if frontera else "NO_DATA")
+        self._guardar_perfil("frontera_politica", frontera)
 
         self._salir_sala(4, concepto="política de frontera")
 
@@ -379,11 +388,19 @@ class FugaMuseo:
             if wav:
                 self._reproducir_wav(wav)
 
+        # Entrar en una sala descarta lo anotado y no volcado de la anterior:
+        # si aquella no se cerro, aquello no era una respuesta.
+        self._pendiente.clear()
         self._marcar_sala_entrada(num)
         self._actualizar_nombre_sala(num, nombre)
 
     def _salir_sala(self, num: int, concepto: str):
-        """Marca la sala como completada."""
+        """Cierra la sala: primero se escribe lo contestado, luego se marca.
+
+        En este orden a proposito. Marcar completada una sala cuyas respuestas
+        no llegaron al disco seria firmar un recorrido que no existe.
+        """
+        self._volcar_pendiente()
         self._actualizar_concepto_sala(num, concepto)
         self._marcar_sala_completada(num)
         print(f"  ✓ Sala {num} completada: {concepto}")
@@ -417,13 +434,40 @@ class FugaMuseo:
         cursor.execute("UPDATE fuga_sala SET concepto = ? WHERE sala = ?", (concepto, sala_num))
         self.db.commit()
 
+    @staticmethod
+    def _dato(valor) -> str:
+        """Una ausencia se llama NO_DATA. Nunca celda vacia.
+
+        Enter en una pregunta y "no contestada" son el mismo hecho, y el
+        fichero tiene que decirlo con la misma palabra que dice todo lo demas.
+        Una cadena vacia en `profile` no se distingue de un fallo de escritura
+        cuando alguien mire esto dentro de un ano.
+        """
+        limpio = (valor or "").strip()
+        return limpio or NO_DATA
+
     def _guardar_perfil(self, clave: str, valor: str):
+        """Anota una respuesta de la sala en curso. TODAVIA no la escribe.
+
+        El perfil de M3 es memoria de la persona, y una sala abandonada a la
+        tercera pregunta no describe a nadie: describe una interrupcion. Se
+        vuelca entera al salir de la sala (`_salir_sala`) o no se vuelca. Asi
+        "a medias" es un estado del recorrido -- `fuga_sala.estado='entrada'`,
+        que ya existe y es una columna, no un borrado -- y no una fila suelta
+        en `profile` que manana nadie sepa de donde salio.
+        """
+        self._pendiente[clave] = self._dato(valor)
+
+    def _volcar_pendiente(self):
+        """Escribe de golpe lo que la sala dejo anotado. Cero DELETE."""
         cursor = self.db.cursor()
-        cursor.execute("""
-            INSERT OR REPLACE INTO profile (key, value, updated_at)
-            VALUES (?, ?, datetime('now'))
-        """, (clave, valor))
+        for clave, valor in self._pendiente.items():
+            cursor.execute("""
+                INSERT OR REPLACE INTO profile (key, value, updated_at)
+                VALUES (?, ?, datetime('now'))
+            """, (clave, valor))
         self.db.commit()
+        self._pendiente.clear()
 
     def _guardar_fuente(self, ruta: str, estado: str):
         cursor = self.db.cursor()
@@ -439,7 +483,7 @@ class FugaMuseo:
         cursor.execute("""
             INSERT INTO engrams (texto, creado_en, tipo)
             VALUES (?, datetime('now'), 'cita_forja')
-        """, (cita,))
+        """, (self._dato(cita),))
         self.db.commit()
 
     # --- Helpers de comunicación ---
@@ -461,7 +505,8 @@ class FugaMuseo:
                 if os.path.exists(ruta):
                     os.unlink(ruta)
 
-        time.sleep(pausa)
+        if _RITMO > 0:
+            time.sleep(pausa * _RITMO)
 
     def _preguntar(self, pregunta: str, opciones: list[str], default: str) -> str:
         """Pregunta con opciones. Usa voz si existe."""
