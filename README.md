@@ -1,5 +1,9 @@
 # Aurelius · M2 · the Water
 
+> **Sin un modelo local instalado, Aurelius no conversa: pregunta y recuerda.**
+> Esa es la descripción honesta. El cerebro y la voz se descargan en el primer arranque, con tu consentimiento.
+
+
 > Your memory, in one file you can carry. It starts empty and says so.
 
 Aurelius wakes up with no memory. Instead of pretending otherwise, it tells you
@@ -131,3 +135,11 @@ redaction just removed it from.
 ## License
 
 Apache-2.0.
+
+## Verificación
+
+Para comprobar que todo funciona en tu máquina:
+
+    python3 -m unittest discover
+
+Esto corre las 8 suites (145 pruebas) y verifica la integridad del producto.

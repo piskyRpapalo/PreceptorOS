@@ -14,9 +14,21 @@ redactar". Los hallazgos declaran clase y cantidad; jamás el texto encontrado.
 import hashlib
 import json
 import re
+import shutil
 from pathlib import Path
 
-POLICIES_PATH = Path(__file__).resolve().parent / "policies.json"
+import casa as _casa
+
+# El molde viaja con el producto; la configuracion efectiva vive en la casa de
+# la persona. Nunca al reves: escribir sus ajustes junto al script publicaria
+# sus nombres de maquina el dia que empujase el repositorio.
+DEFECTO_PATH = Path(__file__).resolve().parent / "policies.default.json"
+
+# None significa "usa la casa". Se deja como variable, y no como constante
+# calculada al importar, por dos motivos: importar un modulo no debe crear
+# directorios ni copiar ficheros, y una prueba necesita poder apuntar a otra
+# ruta sin tocar el disco de quien la ejecuta.
+POLICIES_PATH = None
 
 
 class PoliticasInvalidas(RuntimeError):
@@ -128,10 +140,40 @@ _CLAVES_POR_POLITICA = {
 }
 
 
+
+
+def ruta_politicas():
+    """Devuelve la configuración efectiva, sembrándola del molde la primera vez.
+
+    Si POLICIES_PATH está fijado, manda: es la puerta de las pruebas.
+    Si no, la configuración es policies.json en tu carpeta personal. Tres desenlaces y
+    ninguno inventa nada: existe y se lee; no existe y se copia del molde; no
+    hay molde y se para. Si la copia no tiene permiso, se para también -- el
+    plan B sería escribir junto al script, y eso es cruzar la frontera hacia
+    el producto.
+    """
+    if POLICIES_PATH is not None:
+        return Path(POLICIES_PATH)
+    try:
+        base = _casa.asegurar()
+    except _casa.CasaInaccesible as e:
+        raise PoliticasInvalidas(str(e)) from None
+    destino = base / "policies.json"
+    if destino.exists():
+        return destino
+    if not DEFECTO_PATH.is_file():
+        raise PoliticasInvalidas("falta el molde de políticas del producto")
+    try:
+        shutil.copy2(DEFECTO_PATH, destino)
+    except OSError:
+        raise PoliticasInvalidas(f"no tengo permiso para escribir en {destino}") from None
+    return destino
+
+
 def _cargar_politicas():
     """Lee y valida la configuración. Cualquier duda es un error, no un default."""
     try:
-        crudo = Path(POLICIES_PATH).read_text(encoding="utf-8")
+        crudo = ruta_politicas().read_text(encoding="utf-8")
     except OSError:
         raise PoliticasInvalidas("configuración de políticas ausente o ilegible") from None
     try:

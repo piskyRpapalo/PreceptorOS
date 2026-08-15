@@ -56,7 +56,7 @@ FORMA_ID_REGLA = re.compile(r"\b[A-Z]\d{1,3}\b")
 # Rutas absolutas que jamás deben viajar en un mensaje mostrado al usuario.
 RUTA_EN_MENSAJE = re.compile(r"/(?:home|mnt|srv|opt|var|media|Users)/")
 
-IMPORTS_PERMITIDOS = {"re", "json", "hashlib", "pathlib", "typing", "dataclasses"}
+IMPORTS_PERMITIDOS = {"re", "json", "hashlib", "pathlib", "typing", "dataclasses", "shutil", "casa"}
 
 # Vocabulario de exención. Ni el módulo ni su configuración pueden usarlo.
 FORMA_EXENCION = re.compile(
@@ -178,7 +178,7 @@ class C_SinExencionPorDirectorio(unittest.TestCase):
 
     def test_la_configuracion_no_admite_exenciones(self):
         g = cargar(self)
-        datos = json.loads(Path(g.POLICIES_PATH).read_text(encoding="utf-8"))
+        datos = json.loads(g.ruta_politicas().read_text(encoding="utf-8"))
         pendientes = [("", datos)]
         while pendientes:
             _, nodo = pendientes.pop()
@@ -294,7 +294,7 @@ class G_InterfazVisibleLimpia(unittest.TestCase):
         visibles = []
         visibles += list(g.CORE_POLICIES) + list(g.CUSTOM_POLICIES)
         visibles += [str(v) for v in g.MASCARAS.values()]
-        visibles += list(json.loads(Path(g.POLICIES_PATH).read_text(encoding="utf-8")).keys())
+        visibles += list(json.loads(g.ruta_politicas().read_text(encoding="utf-8")).keys())
         visibles.append(g.__doc__ or "")
         visibles.append(g.redactar_salida.__doc__ or "")
         visibles.append(g.preparar_envio.__doc__ or "")

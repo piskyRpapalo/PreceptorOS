@@ -1,0 +1,5 @@
+{
+  "PRIVATE_IP": { "activa": true },
+  "HOME_PATH": { "activa": true },
+  "NODE_PATH": { "activa": true, "nombres": [] }
+}

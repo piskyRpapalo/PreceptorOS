@@ -21,7 +21,30 @@ import memory as M
 import textos as TX
 import tono as T
 
+import casa as _casa
+import descarga as _descarga
+import estado as _estado
+
 RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
+
+# --- catálogo de piezas · URLs y hashes pendientes de confirmación ---
+CEREBRO = _descarga.Pieza(
+    nombre="Qwen3-4B-Instruct-2507 Q4_K_M",
+    url="https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507-GGUF/resolve/main/qwen3-4b-instruct-2507-Q4_K_M.gguf",
+    sha256="PENDIENTE_CONFIRMAR_POR_EL_SOBERANO",
+    bytes=None,
+    licencia="Apache-2.0",
+    destino="modelos/qwen3-4b-instruct-2507-Q4_K_M.gguf",
+)
+
+VOZ = _descarga.Pieza(
+    nombre="Piper es_ES-sharvard speaker_0",
+    url="https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx",
+    sha256="PENDIENTE_CONFIRMAR_POR_EL_SOBERANO",
+    bytes=None,
+    licencia="MIT",
+    destino="voz/es_ES-sharvard-medium.onnx",
+)
 
 
 # --- guardrails: se inyecta, no se copia ----------------------------------
@@ -121,6 +144,23 @@ def recordar_idioma(c, idioma):
 
 
 # --- los siete pasos -------------------------------------------------------
+
+
+def ritual(c, idioma=TX.DEFECTO):
+    """Primer contacto. Escribe en profile (memoria SQLite), no en estado.json."""
+    print(tx(idioma, "final"))
+    nombre = preguntar("¿Cómo te llamas? (Enter para NO_DATA) ")
+    if nombre:
+        M.escribir_perfil(c, "name", nombre)
+    lengua = elegir("Idioma / Language", [("es", "español"), ("en", "english")],
+                    idioma, ayuda="Escribe 1 o 2")
+    if lengua:
+        M.escribir_perfil(c, "language", lengua)
+    ritmo = preguntar("Ritmo de respuesta (0-9, Enter para NO_DATA) ")
+    if ritmo and ritmo.isdigit():
+        M.escribir_perfil(c, "ritmo", ritmo)
+    print("Ritual completado. Tu perfil está en la memoria.")
+
 
 def paso1_declaracion(ruta, idioma=TX.DEFECTO):
     est, rec = M.estado(ruta)
@@ -327,6 +367,62 @@ def respaldo(ruta, destino=None):
     return 0
 
 
+
+def arranque(ruta):
+    """Flujo de arranque del Preceptor §6. Se ejecuta ANTES de sesion()."""
+    # 1. Casa
+    try:
+        _casa.asegurar()
+    except _casa.CasaInaccesible as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+    # 2. Reconciliar banderas con el disco
+    banderas, mentian = _estado.reconciliar({
+        "cerebro_descargado": lambda: _descarga.presente(CEREBRO),
+        "voz_descargada": lambda: _descarga.presente(VOZ),
+    })
+    if mentian:
+        print(f"Tenía anotado que {', '.join(mentian)} estaba(n) y no lo(s) encuentro.")
+
+    # 3. Abrir memoria para el ritual (perfil vive en SQLite)
+    with M.abrir(ruta) as c:
+        if not banderas["ritual_firmado"]:
+            ritual(c)
+            _estado.fijar("ritual_firmado", True)
+            banderas["ritual_firmado"] = True
+
+    # 4. Cerebro
+    if not banderas["cerebro_descargado"]:
+        _descarga.anunciar(CEREBRO)
+        respuesta = preguntar("¿Descargar el cerebro? [s/N] ", permitir_vacio=False)
+        if respuesta and respuesta.lower() in ("s", "si", "sí", "y", "yes"):
+            try:
+                _descarga.descargar(CEREBRO)
+                _estado.fijar("cerebro_descargado", True)
+                banderas["cerebro_descargado"] = True
+            except _descarga.DescargaFallida as e:
+                print(f"Descarga fallida: {e}")
+        else:
+            print("Modo solo memoria: sin cerebro, pregunto y recuerdo.")
+
+    # 5. Voz
+    if not banderas["voz_descargada"]:
+        _descarga.anunciar(VOZ)
+        respuesta = preguntar("¿Descargar la voz? [s/N] ", permitir_vacio=False)
+        if respuesta and respuesta.lower() in ("s", "si", "sí", "y", "yes"):
+            try:
+                _descarga.descargar(VOZ)
+                _estado.fijar("voz_descargada", True)
+                banderas["voz_descargada"] = True
+            except _descarga.DescargaFallida as e:
+                print(f"Descarga fallida: {e}")
+        else:
+            print("Sin voz: escribiré en vez de hablar.")
+
+    return banderas
+
+
 def sesion(ruta):
     # El idioma es lo primero que se pregunta y lo primero que se sabe: todo lo
     # que viene despues se dice en el, incluido el mensaje de estado.
@@ -395,6 +491,7 @@ def main():
             print("\n<!-- redacted: {} items · {} -->".format(
                 total, detalle or "none"))
             return 0
+    banderas = arranque(a.db)
     return sesion(a.db)
 
 
