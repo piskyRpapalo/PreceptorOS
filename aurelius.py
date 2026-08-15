@@ -22,6 +22,14 @@ import textos as TX
 import tono as T
 
 import casa as _casa
+
+# M3 · La Fuga del Museo (opcional)
+try:
+    import fuga
+    FUGA_DISPONIBLE = True
+except ImportError:
+    fuga = None
+    FUGA_DISPONIBLE = False
 import descarga as _descarga
 import estado as _estado
 
