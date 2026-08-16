@@ -182,7 +182,7 @@ so this table and the program cannot drift apart.
 
 ## License
 
-Apache-2.0.
+Dual License: CC BY-SA 4.0 (prose/lore) + MIT (code).
 
 ## Verificación
 
