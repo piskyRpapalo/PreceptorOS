@@ -40,7 +40,7 @@ ESPEAK_SISTEMA = (
     "/usr/share/espeak-ng-data",
     "/usr/local/share/espeak-ng-data",
     "/usr/lib/*/espeak-ng-data",
-    "/opt/homebrew/share/espeak-ng-data",
+    "/opt/homebrew/share/espeak-ng-data",  # guardia:permitir prefijo de Homebrew en macOS, no el home de nadie
 )
 
 
