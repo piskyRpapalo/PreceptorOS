@@ -64,11 +64,28 @@ existe para no hacer.
 
 ## c) El rojo del 2026-08-16
 
-En una tanda de esa madrugada, **7 pruebas fallaron**. Correlación exacta: las
-7 son exactamente las que tocan un fichero de 18.000 bytes. La aritmética es
-correcta y el hallazgo es bueno.
+El acta, en el texto acordado:
 
-**La hipótesis de falta de espacio está desmentida.** En esa MISMA tanda,
+> *Rojo observado una vez el 2026-08-16 en `bin/pruebas`, sobre un clon limpio,
+> con `salida=1`. Cayeron `test_descarga` (7 de 18) y `test_fuga` (35 de 35).
+> El reparto correlaciona exactamente con escribir o leer un fichero de 18.000
+> bytes. **La hipótesis de agotamiento de espacio no se sostiene:** en la misma
+> tanda `test_leitmotivs` escribió y hasheó 661.764 bytes en el mismo
+> directorio temporal y pasó. Mecanismo: sin determinar. No reproducido desde
+> entonces.*
+
+Lo que sigue desarrolla ese párrafo. Va entero y con sus dos mitades a
+propósito: con la correlación sola, quien herede esto persigue el espacio
+durante una tarde; con el `NO_DATA` solo, pierde la mejor pista que hay.
+
+**La correlación, que sigue en pie.** El reparto 7/11 correlaciona exactamente
+con «toca un fichero de ~18.000 bytes»: las que fallaron son las que lo
+escriben o lo leen; las que pasaron son las puras, las que escriben 100 bytes,
+o las que paran antes de escribir. 7 + 11 = 18, y el reparto sale del fichero,
+no de la intuición. Es un hecho del fichero y es la mejor pista disponible.
+
+**La hipótesis de falta de espacio está desmentida, y por evidencia que ya
+estaba en la misma pantalla.** En esa MISMA tanda,
 `test_leitmotivs` salió `ok` habiendo escrito 6 WAV de 110.294 B —**661.764
 bytes**, 36 veces más datos— en un `tempfile.TemporaryDirectory`, el mismo
 sitio, y habiendo calculado el sha256 de cada uno. Misma operación, mismo
