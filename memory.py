@@ -234,24 +234,55 @@ def leer_perfil(c, clave=None):
     return perfil
 
 
-def escribir_perfil(c, clave, valor):
-    """Guarda una respuesta del perfil. Contestar dos veces corrige en sitio.
+def guardar_perfil(c, pares, commit=True):
+    """Escribe pares del perfil. El UNICO sitio del arbol con SQL de `profile`.
 
-    La tabla se crea aqui si falta: es el unico sitio que la necesita, y asi la
-    actualizacion del esquema ocurre cuando la persona contesta, no al abrir.
-    Corregir es actualizar la fila, no borrarla y volver a escribirla: la regla
-    de cero DELETE no tiene una excepcion para cuando es una sola fila.
+    `ON CONFLICT(key) DO UPDATE`, jamas `INSERT OR REPLACE`. Lo segundo borra
+    la fila entera y mete otra, asi que toda columna que la fila tuviera y la
+    sentencia no nombre vuelve a su DEFAULT: es un DELETE con otro nombre, y la
+    regla de cero DELETE no tiene una excepcion para cuando es una sola fila.
+
+    La diferencia NO se ve con una clave nueva -- ahi las dos formas escriben
+    lo mismo. Solo aparece al reescribir una clave que YA EXISTE, que es el
+    caso que ocurre de verdad: corregir una errata, volver a una sala. Una
+    prueba montada sobre una clave nueva no distingue las dos y da verde con
+    la mala dentro.
+
+    `commit=False` para quien escribe un lote y confirma una sola vez al final.
+    La Fuga vuelca el perfil de una sala entero o no lo vuelca: un commit por
+    clave convertiria esa promesa en media sala escrita.
+
+    La tabla se crea aqui si falta: asi el esquema se actualiza cuando la
+    persona contesta, no al abrir.
     """
-    if clave is None or str(clave).strip() == "":
-        raise ValueError("una clave de perfil vacia no identifica nada")
+    # Las claves se validan TODAS antes de escribir ninguna. Validarlas sobre
+    # la marcha dejaria escritas las anteriores y sin escribir las siguientes:
+    # exactamente la media escritura que este modulo existe para no hacer.
+    limpio = []
+    for clave, valor in dict(pares).items():
+        if clave is None or str(clave).strip() == "":
+            raise ValueError("una clave de perfil vacia no identifica nada")
+        limpio.append((str(clave).strip(), _o_ausente(valor)))
     # execute y no executescript: executescript confirma lo que hubiera pendiente
     # antes de correr, y aqui no toca decidir por la transaccion de quien llama.
     c.execute(ESQUEMA_PERFIL)
-    c.execute("insert into profile (key, value) values (?, ?) "
-              "on conflict(key) do update set value=excluded.value, "
-              "updated_at=datetime('now')",
-              (str(clave).strip(), _o_ausente(valor)))
-    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
+    for clave, valor in limpio:
+        c.execute("insert into profile (key, value) values (?, ?) "
+                  "on conflict(key) do update set value=excluded.value, "
+                  "updated_at=datetime('now')", (clave, valor))
+    if commit:
+        c.commit()  # durabilidad ANTES de devolver: si se devuelve, esta en disco
+    return [k for k, _ in limpio]
+
+
+def escribir_perfil(c, clave, valor):
+    """Guarda UNA respuesta del perfil. Contestar dos veces corrige en sitio.
+
+    La pareja de `leer_perfil` para el caso de una clave sola. El SQL no vive
+    aqui: lo pone `guardar_perfil`, para que haya un solo escritor de `profile`
+    en todo el arbol y no dos que puedan separarse con el tiempo.
+    """
+    guardar_perfil(c, {clave: valor})
     return {"key": str(clave).strip(), "value": leer_perfil(c, str(clave).strip())}
 
 

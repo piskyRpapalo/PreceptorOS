@@ -142,7 +142,7 @@ Para comprobar que todo funciona en tu máquina:
 
     bin/pruebas
 
-Corre las 12 suites — **217 pruebas** — y los dos modos de sabotaje. Imprime
+Corre las 12 suites — **218 pruebas** — y los dos modos de sabotaje. Imprime
 el desglose por suite, así que el número se puede comprobar en vez de creer.
 
 No uses `python3 -m unittest discover` para esto. Ve 7 de las 12 suites: las

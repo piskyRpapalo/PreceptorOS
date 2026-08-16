@@ -795,14 +795,20 @@ class FugaMuseo:
         self._pendiente[clave] = self._dato(valor)
 
     def _volcar_pendiente(self):
-        """Escribe de golpe lo que la sala dejo anotado. Cero DELETE."""
-        cursor = self.db.cursor()
-        for clave, valor in self._pendiente.items():
-            cursor.execute("""
-                INSERT OR REPLACE INTO profile (key, value, updated_at)
-                VALUES (?, ?, datetime('now'))
-            """, (clave, valor))
-        self.db.commit()
+        """Escribe de golpe lo que la sala dejo anotado. Cero DELETE.
+
+        El SQL ya no vive aqui: lo pone `memory.guardar_perfil`, unico escritor
+        de `profile` en el arbol. Lo que habia era un `INSERT OR REPLACE`, que
+        borra la fila entera para meter otra -- el dia que `profile` gane una
+        columna que esta sentencia no nombre, reescribir una clave ya existente
+        se la lleva por delante y la devuelve a su DEFAULT. Es el mismo motivo
+        por el que `_marcar_sala_entrada` no lo usa; faltaba aplicarlo aqui.
+
+        Un solo commit para el lote entero, como antes: el perfil de una sala
+        se vuelca entero o no se vuelca.
+        """
+        import memory as _memory
+        _memory.guardar_perfil(self.db, self._pendiente)
         self._pendiente.clear()
 
     def _guardar_fuente(self, ruta: str, estado: str):

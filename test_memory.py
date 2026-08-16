@@ -577,6 +577,62 @@ def test_el_respaldo_no_pisa_ni_inventa():
     assert fallo, "respaldar una memoria que no existe devolvio un fichero"
 
 
+@caso("22 · reescribir una clave que YA EXISTE no borra el resto de su fila")
+def test_guardar_perfil_actualiza_en_sitio_sin_borrar_la_fila():
+    # Este caso existe para separar `ON CONFLICT DO UPDATE` de `INSERT OR
+    # REPLACE`, y las dos condiciones de abajo son las dos que hacen falta:
+    #
+    #   1. la clave tiene que EXISTIR ya. Con una clave nueva no hay conflicto,
+    #      las dos sentencias hacen el mismo INSERT y el caso da verde con la
+    #      mala dentro -- un test que pasa con el bug dentro no es un test.
+    #   2. la fila tiene que llevar una columna que la sentencia NO nombre, y
+    #      con un valor distinto de su DEFAULT. Si vale su DEFAULT, el borrado
+    #      de INSERT OR REPLACE la repone al mismo valor y no se nota.
+    #
+    # Medido: con INSERT OR REPLACE, `extra` sale 'x' -- el DEFAULT, es decir,
+    # el dato de la persona perdido sin un solo DELETE a la vista. Con ON
+    # CONFLICT sale 'personalizado'.
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        c.execute("alter table profile add column extra text default 'x'")
+        M.guardar_perfil(c, {"test": "v1"})
+        c.execute("update profile set extra='personalizado' where key='test'")
+        c.commit()
+
+        M.guardar_perfil(c, {"test": "v2"})
+
+        fila = c.execute("select value, extra from profile where key='test'").fetchone()
+        assert fila["value"] == "v2", f"la reescritura no actualizo el valor: {fila['value']}"
+        assert fila["extra"] == "personalizado", (
+            f"la columna que la sentencia no nombra volvio a su DEFAULT ({fila['extra']}): "
+            "la fila se borro y se reescribio, que es INSERT OR REPLACE con otro nombre")
+        n = c.execute("select count(*) from profile where key='test'").fetchone()[0]
+        assert n == 1, f"la clave quedo duplicada: {n} filas"
+
+    # Y el producto entero: ningun modulo puede escribir `profile` con INSERT
+    # OR REPLACE. El caso de arriba prueba `guardar_perfil`; este prueba que
+    # nadie se lo salta con su propio SQL, que es como llego a estar mal --
+    # `fuga.py` lo hacia, y `guardar_perfil` no existia para que lo usara.
+    #
+    # Solo modulos de producto: en las suites, un INSERT OR REPLACE es un
+    # montaje de estado (test_fuga arma ahi el permiso del gerente) o el
+    # PAYLOAD de un sabotaje, que precisamente inyecta la version mala para
+    # exigir que la suite se ponga roja. Prohibirlo ahi romperia el sabotaje.
+    import glob
+    import re
+    aqui = os.path.dirname(os.path.abspath(__file__))
+    culpables = []
+    for f in sorted(glob.glob(os.path.join(aqui, "*.py"))):
+        if os.path.basename(f).startswith("test_"):
+            continue
+        fuente = open(f, encoding="utf-8").read()
+        for m in re.finditer(r"insert\s+or\s+replace\s+into\s+profile",
+                             fuente, re.IGNORECASE):
+            culpables.append(f"{os.path.basename(f)}:{fuente[:m.start()].count(chr(10)) + 1}")
+    assert not culpables, f"INSERT OR REPLACE sobre profile en: {culpables}"
+
+
 # --- modo sabotaje · el rojo tambien se prueba ----------------------------
 # Una suite verde solo demuestra que el codigo pasa la suite. Que la suite
 # DETECTE la rotura es otra afirmacion distinta, y hasta ahora se comprobo a
