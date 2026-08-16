@@ -16,12 +16,21 @@ import os
 import tempfile
 from typing import Optional
 
+import silencio as _silencio
+
 WHISPER_CLI = os.path.expanduser("~/whisper.cpp/build/bin/whisper-cli")
 WHISPER_MODEL = os.path.expanduser("~/whisper.cpp/models/ggml-tiny.bin")
 
 
 def oido_disponible() -> bool:
-    """True si whisper-cli y el modelo existen."""
+    """True si whisper-cli y el modelo existen y el microfono no esta vetado.
+
+    El veto va PRIMERO y en esta funcion, que es la unica puerta: si estuviera
+    en quien llama, bastaria un llamante nuevo para volver a abrir el
+    microfono sin querer. Ver `silencio.py`.
+    """
+    if _silencio.apagado():
+        return False
     return os.path.isfile(WHISPER_CLI) and os.path.isfile(WHISPER_MODEL)
 
 
@@ -49,7 +58,16 @@ def transcribir(ruta_wav: str, idioma: str = "es") -> Optional[str]:
 
 
 def grabar_y_transcribir(duracion_seg: int = 5, idioma: str = "es") -> Optional[str]:
-    """Graba del micrófono y transcribe. Devuelve None si falla."""
+    """Graba del micrófono y transcribe. Devuelve None si falla.
+
+    La comprobación va ANTES de grabar, y no la tenía: se abría `arecord`
+    cinco segundos, se grababa la habitación, y sólo entonces `transcribir`
+    miraba si whisper existía y devolvía None. Grabar a alguien para acabar
+    tirando la grabación no es un desperdicio de tiempo: es abrirle el
+    micrófono sin usarlo para nada, que es peor que no abrirlo.
+    """
+    if not oido_disponible():
+        return None
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         ruta = tmp.name
     try:

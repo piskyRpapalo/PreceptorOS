@@ -9,8 +9,12 @@ que ya funcionaba. Aqui se llama a `fuga.py`: cada caso arranca una sala de
 verdad, le habla por teclado con un guion, y mira lo que la sala dejo escrito.
 
 La prueba de que estos casos prueban algo esta en `--sabotaje`: se rompe
-`fuga.py` de tres maneras concretas en una COPIA del arbol y se exige que la
+`fuga.py` de seis maneras concretas en una COPIA del arbol y se exige que la
 suite se ponga roja. Un caso que sigue verde con el modulo roto no es un caso.
+
+Tampoco se fabrica el esquema. Lo ponen `memory.crear` (M2) y
+`FugaMuseo.__init__` (M3), como en casa de la persona -- ver el comentario de
+abajo, que cuenta lo que la copia inventada estuvo tapando.
 
 Nada toca ~/.aurelius: cada caso trae su HOME temporal y lo devuelve al salir.
 """
@@ -19,6 +23,7 @@ from __future__ import annotations
 import builtins
 import contextlib
 import hashlib
+import io
 import os
 import shutil
 import sqlite3
@@ -37,41 +42,16 @@ sys.path.insert(0, str(AQUI))
 os.environ["AURELIUS_TEST"] = "1"
 os.environ["AURELIUS_RITMO"] = "0"
 
-import fuga  # noqa: E402
+import fuga     # noqa: E402
+import memory   # noqa: E402
 
 
-ESQUEMA = """
-    CREATE TABLE IF NOT EXISTS profile (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL DEFAULT 'NO_DATA',
-        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS fuga_sala (
-        sala INTEGER PRIMARY KEY CHECK (sala BETWEEN 1 AND 6),
-        nombre TEXT NOT NULL,
-        entrado_en TEXT NOT NULL DEFAULT (datetime('now')),
-        salido_en TEXT NOT NULL DEFAULT 'NO_DATA',
-        minutos INTEGER NOT NULL DEFAULT 0,
-        estado TEXT NOT NULL DEFAULT 'entrada'
-            CHECK (estado IN ('entrada', 'completada', 'pausada')),
-        concepto TEXT NOT NULL DEFAULT 'NO_DATA'
-    );
-    CREATE TABLE IF NOT EXISTS fuentes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ruta_o_url TEXT NOT NULL DEFAULT 'NO_DATA',
-        sha256 TEXT NOT NULL DEFAULT 'NO_DATA',
-        tipo TEXT NOT NULL DEFAULT 'NO_DATA',
-        equipada_en TEXT NOT NULL DEFAULT (datetime('now')),
-        estado TEXT NOT NULL DEFAULT 'sin_declarar'
-            CHECK (estado IN ('sin_declarar', 'equipada', 'declarada', 'retirada'))
-    );
-    CREATE TABLE IF NOT EXISTS engrams (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        texto TEXT NOT NULL,
-        creado_en TEXT NOT NULL DEFAULT (datetime('now')),
-        tipo TEXT NOT NULL DEFAULT 'recuerdo'
-    );
-"""
+# Aqui NO hay esquema. Lo habia -- una copia entera de las cuatro tablas en el
+# setUp -- y esa copia era el problema: la suite fabricaba las tablas que iba a
+# comprobar, asi que no podia notar que `fuga.py` no las creaba en ningun sitio.
+# En una maquina limpia M3 reventaba con "no such table: fuga_sala", y la suite
+# estaba verde. Ahora `memory.crear` pone las de M2 y `FugaMuseo.__init__` pone
+# las de M3, que es exactamente lo que pasa en casa de la persona.
 
 
 class Abandono(BaseException):
@@ -130,9 +110,8 @@ class BaseFuga(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp(prefix="fuga_")
         self.db_path = Path(self.tmpdir) / "memory.db"
 
-        conn = sqlite3.connect(str(self.db_path))
-        conn.executescript(ESQUEMA)
-        conn.close()
+        # Las tablas de M2 las hace M2. Las de M3 las hace M3, al conectarse.
+        memory.crear(str(self.db_path))
 
         # Se guarda TODO lo que se pisa y se devuelve en tearDown. Una suite
         # que deja el HOME apuntando a un temporal borrado le rompe la
@@ -206,36 +185,79 @@ class BaseFuga(unittest.TestCase):
         conn = sqlite3.connect(str(self.db_path))
         try:
             return [tuple(f) for f in conn.execute(
-                "SELECT texto, tipo FROM engrams ORDER BY id")]
+                "SELECT what, origin FROM engrams ORDER BY id")]
         finally:
             conn.close()
 
 
 class TestFuga(BaseFuga):
-    """Los 10 criterios."""
+    """Los 10 criterios del Soberano, y lo que hizo falta para sostenerlos:
+    D1 (parar al acabar cada sala), el permiso del gerente, la gramatica de
+    las preguntas numeradas por voz, y el recorrido entero de punta a punta."""
 
     def test_01_reanudar_de_verdad(self):
-        """Criterio 1: se reanuda en la sala 3 sin repetir la 1 ni la 2."""
-        conn = sqlite3.connect(str(self.db_path))
-        conn.execute("""
-            INSERT INTO fuga_sala (sala, nombre, estado)
-            VALUES (1, 'PROHAIRESIS', 'completada'),
-                   (2, 'SAFEHOUSE', 'completada'),
-                   (3, 'HORME', 'entrada')
-        """)
-        conn.commit()
-        conn.close()
+        """Criterio 1: se reanuda en la sala 3 sin repetir la 1 ni la 2.
 
+        Las dos primeras salas se recorren DE VERDAD, no se insertan a mano.
+        Un `INSERT` que fabrica el estado que luego se comprueba prueba que
+        SQLite guarda lo que le metes; lo que hay que saber es si las salas
+        dejan ese estado, y si al volver se entra por donde toca.
+        """
         f = self.fuga_mod.FugaMuseo()
         try:
-            self.assertEqual(f._detectar_reanudacion(), 3,
-                             "no se reanudo por la sala 3")
+            with guion("Carlos", "1"):
+                f._sala_prohairesis()
+            with guion("2", "Debian"):
+                f._sala_safehouse()
+            # Se muere entrando en la 3.
+            with guion(abandonar=True):
+                with self.assertRaises(Abandono):
+                    f._sala_horme()
         finally:
             f.cerrar()
 
-        # Y reanudar no puede pisar lo que ya estaba cerrado.
+        # Otra sesion, otra conexion: como volver al dia siguiente.
+        f2 = self.fuga_mod.FugaMuseo()
+        try:
+            self.assertEqual(f2._detectar_reanudacion(), 3,
+                             "no se reanudo por la sala 3")
+        finally:
+            f2.cerrar()
+
+        # Y reanudar no pisa lo que ya estaba cerrado.
         self.assertEqual(self.salas()[1], "completada")
         self.assertEqual(self.salas()[2], "completada")
+        self.assertEqual(self.perfil().get("como_llamarte"), "Carlos")
+
+    def test_01b_las_tablas_de_m3_las_crea_m3(self):
+        """En una base de M2 recien hecha, M3 no revienta: se hace su sitio.
+
+        Este caso es el que faltaba. `fuga.py` no creaba estas tablas en
+        ninguna parte -- funcionaba solo donde alguien las habia hecho a mano
+        -- y la suite no lo veia porque las fabricaba ella en el setUp.
+        """
+        limpia = Path(self.tmpdir) / "recien_hecha.db"
+        memory.crear(str(limpia))
+        conn = sqlite3.connect(str(limpia))
+        tablas = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        conn.close()
+        self.assertNotIn("fuga_sala", tablas, "M2 ya no deberia crear tablas de M3")
+
+        self.fuga_mod.DB_PATH = str(limpia)
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("Carlos", "1"):
+                f._sala_prohairesis()      # no puede levantar
+        finally:
+            f.cerrar()
+
+        conn = sqlite3.connect(str(limpia))
+        tablas = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        conn.close()
+        self.assertIn("fuga_sala", tablas)
+        self.assertIn("fuentes", tablas)
 
     def test_02_nada_a_medias(self):
         """Criterio 2: una sala abandonada no deja media persona en profile."""
@@ -466,8 +488,11 @@ class TestFuga(BaseFuga):
 
             @staticmethod
             def grabar_y_transcribir(duracion_seg=5, idioma="es"):
-                return "Carlos"
+                # El nombre es pregunta abierta: vale cualquier cosa.
+                # El tono es numerada: por voz tambien se dice un numero.
+                return next(dichos, None)
 
+        dichos = iter(["Carlos", "dos"])
         self.fuga_mod.oido = OidoFalso
         f = self.fuga_mod.FugaMuseo()
         try:
@@ -478,7 +503,342 @@ class TestFuga(BaseFuga):
 
         self.assertEqual(self.perfil().get("como_llamarte"), "Carlos",
                          "lo dicho en voz alta no llego al perfil")
+        self.assertEqual(self.perfil().get("como_hablar"), "formal",
+                         "el numero dicho en voz alta no eligio la opcion")
         self.assertEqual(self.salas().get(1), "completada")
+
+    # --- D1 · se ofrece parar al acabar cada sala -------------------------
+
+    def test_13_los_minutos_son_medidos_o_son_menos_uno(self):
+        """`minutos` es una medida. -1 es 'no medido', no 'cero minutos'."""
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            f._marcar_sala_entrada(2)          # entrada, nunca cerrada
+            with guion("Carlos", "1"):
+                f._sala_prohairesis()          # cerrada y medida
+            filas = {r["sala"]: r["minutos"] for r in f.db.execute(
+                "SELECT sala, minutos FROM fuga_sala")}
+        finally:
+            f.cerrar()
+        self.assertEqual(filas[2], -1,
+                         "una sala sin cerrar trae un tiempo que nadie midio")
+        self.assertGreaterEqual(filas[1], 0,
+                                "una sala cerrada no dejo medida")
+
+    def test_14_sin_dos_medidas_no_se_habla_de_minutos(self):
+        """D76 literal: no se muestra lo que no se puede medir.
+
+        Nadie ha cruzado las seis salas. Con cero o una sala medida no hay
+        media que dar, y lo que se dice es lo unico que se sabe: cuantas
+        quedan.
+        """
+        for medidas in ([], [3]):
+            frase = self.fuga_mod.texto_progreso(medidas, [4, 5, 6])
+            self.assertIn("Quedan 3 salas", frase)
+            self.assertNotIn("minuto", frase,
+                             f"con {len(medidas)} medida(s) se hablo de tiempo: {frase!r}")
+
+    def test_15_desde_la_tercera_el_tiempo_sale_de_sus_propias_salas(self):
+        frase = self.fuga_mod.texto_progreso([2, 4], [4, 5, 6])
+        self.assertIn("unos 3 minutos por sala", frase,
+                      f"la media de 2 y 4 no salio como 3: {frase!r}")
+        self.assertIn("Quedan 3 salas", frase)
+        # Y sale de SUS salas: otra persona con otros tiempos oye otra cosa.
+        self.assertIn("unos 9 minutos",
+                      self.fuga_mod.texto_progreso([8, 10], [6]))
+
+    def test_16_la_sala_larga_se_avisa_aparte(self):
+        con = self.fuga_mod.texto_progreso([2, 4], [3, 4, 5, 6])
+        sin = self.fuga_mod.texto_progreso([2, 4], [4, 5, 6])
+        self.assertIn("La 3 es la larga", con)
+        self.assertNotIn("La 3 es la larga", sin,
+                         "se aviso de la sala 3 cuando ya estaba hecha")
+
+    def test_17_parar_deja_la_siguiente_pausada_y_se_reanuda_por_ella(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("Carlos", "1"):
+                f._sala_prohairesis()
+            with guion("2"):                  # 2 = "lo dejo por hoy"
+                sigue = f._ofrecer_continuar(1)
+        finally:
+            f.cerrar()
+
+        self.assertFalse(sigue, "dijo que paraba y la fuga siguio")
+        self.assertEqual(self.salas().get(1), "completada",
+                         "parar deshizo la sala que ya estaba cerrada")
+        self.assertEqual(self.salas().get(2), "pausada")
+
+        f2 = self.fuga_mod.FugaMuseo()
+        try:
+            self.assertEqual(f2._detectar_reanudacion(), 2,
+                             "al volver no se entra por la sala pausada")
+        finally:
+            f2.cerrar()
+
+    def test_18_seguir_no_marca_nada_ni_pierde_lo_hecho(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("Carlos", "1"):
+                f._sala_prohairesis()
+            with guion("1"):                  # 1 = "seguimos"
+                sigue = f._ofrecer_continuar(1)
+        finally:
+            f.cerrar()
+        self.assertTrue(sigue)
+        self.assertNotIn("pausada", self.salas().values())
+        self.assertEqual(self.perfil().get("como_llamarte"), "Carlos")
+
+    # --- el permiso del gerente -------------------------------------------
+
+    def test_19_fila_ausente_es_no_y_no_es_un_error(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            self.assertFalse(self.fuga_mod.permiso_concedido(f.db),
+                             "sin fila, el permiso no salio 'no'")
+            with self.assertRaises(self.fuga_mod.SinPermiso):
+                self.fuga_mod.perfil_para_gerente(f.db)
+        finally:
+            f.cerrar()
+
+    def test_20_solo_un_si_explicito_abre_la_puerta(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            for valor, esperado in (("no", False), ("NO_DATA", False),
+                                    ("", False), ("quiza", False),
+                                    ("si", True), ("sí", True), ("SI", True)):
+                f.db.execute("INSERT OR REPLACE INTO profile (key, value) "
+                             "VALUES (?, ?)",
+                             (self.fuga_mod.PERMISO_GERENTE, valor))
+                f.db.commit()
+                self.assertIs(self.fuga_mod.permiso_concedido(f.db), esperado,
+                              f"{valor!r} se interpreto mal")
+        finally:
+            f.cerrar()
+
+    def test_21_salir_de_la_sala_3_sin_contestar_deja_un_no(self):
+        """El defecto prometido al entrar tiene que ser el que se cumple."""
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("", "", "", "", ""):    # cinco en blanco, luego EOF
+                f._sala_horme()
+        finally:
+            f.cerrar()
+        self.assertEqual(self.perfil().get(self.fuga_mod.PERMISO_GERENTE), "no")
+
+    def test_22_un_si_en_la_sala_3_abre_la_puerta_y_entrega_el_perfil(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("un compilador", "", "", "", "", "2"):
+                f._sala_horme()               # 2 = "sí, puede leerlo"
+            self.assertEqual(self.perfil().get(self.fuga_mod.PERMISO_GERENTE), "si")
+            perfil = self.fuga_mod.perfil_para_gerente(f.db)
+        finally:
+            f.cerrar()
+        self.assertEqual(perfil.get("proyecto_vital"), "un compilador")
+        self.assertEqual(perfil.get("triunfo_deseado"), "NO_DATA",
+                         "la ausencia tambien es del perfil y se entrega")
+        self.assertNotIn(self.fuga_mod.PERMISO_GERENTE, perfil,
+                         "el permiso no es un dato de la persona, es la puerta")
+
+    def test_23_abandonar_la_sala_3_no_deja_un_permiso_suelto(self):
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion("un compilador", "", "", "", "", abandonar=True):
+                with self.assertRaises(Abandono):
+                    f._sala_horme()
+            self.assertEqual(self.perfil(), {},
+                             "una sala 3 abandonada dejo algo escrito")
+            with self.assertRaises(self.fuga_mod.SinPermiso):
+                self.fuga_mod.perfil_para_gerente(f.db)
+        finally:
+            f.cerrar()
+
+    def test_24_la_comprobacion_vive_dentro_del_camino_de_lectura(self):
+        """No se puede saltar porque no hay por donde: la unica funcion que
+        devuelve el perfil llama ella misma al permiso.
+
+        Se mira el arbol sintactico. Si manana alguien saca la comprobacion a
+        quien llama, este caso se pone rojo -- que es justo el dia en que un
+        llamante nuevo se la olvidaria.
+        """
+        import ast
+        with open(AQUI / "fuga.py", encoding="utf-8") as fh:
+            arbol = ast.parse(fh.read())
+        fn = next((n for n in ast.walk(arbol)
+                   if isinstance(n, ast.FunctionDef)
+                   and n.name == "perfil_para_gerente"), None)
+        self.assertIsNotNone(fn, "perfil_para_gerente desaparecio")
+        llamadas = {n.func.id for n in ast.walk(fn)
+                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
+        self.assertIn("permiso_concedido", llamadas,
+                      "el camino de lectura ya no comprueba el permiso el mismo")
+
+    # --- D74 · numeros, y solo numeros, tambien por voz --------------------
+
+    def test_25_numero_dicho_acepta_digitos_y_palabras_y_rechaza_lo_demas(self):
+        n = self.fuga_mod.numero_dicho
+        for texto, esperado in (
+                ("1", 1), ("  3 ", 3), ("el 2", 2), ("dos", 2), ("Tres.", 3),
+                ("opción cuatro", 4), ("two", 2),
+                ("Carlos", None), ("", None), ("sí", None),
+                ("cercano", None), ("7", None), ("siete", None),
+                ("tengo 3 hijos y 2 gatos", None)):
+            self.assertEqual(n(texto, 4), esperado, f"{texto!r}")
+
+    def test_26_una_respuesta_hablada_que_no_es_numero_se_rechaza_en_voz_alta(self):
+        """El bug visto en la salida de test_12.
+
+        Decir "Carlos" en "¿cómo quieres que te hable?" caia a 'cercano' sin
+        una palabra. Ahora se rechaza, el rechazo NOMBRA los numeros que
+        valen, y se vuelve a preguntar.
+        """
+        dichos = iter(["Carlos", "Carlos", "dos"])
+
+        class OidoTerco:
+            @staticmethod
+            def oido_disponible():
+                return True
+
+            @staticmethod
+            def grabar_y_transcribir(duracion_seg=5, idioma="es"):
+                return next(dichos, None)
+
+        self.fuga_mod.oido = OidoTerco
+        salida = io.StringIO()
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with contextlib.redirect_stdout(salida):
+                elegido = f._preguntar("¿Cómo quieres que te hable?",
+                                       opciones=["cercano", "formal",
+                                                 "técnico", "poético"],
+                                       default="cercano")
+        finally:
+            f.cerrar()
+
+        texto = salida.getvalue()
+        self.assertEqual(elegido, "formal",
+                         "el numero dicho al tercer intento no se acepto")
+        rechazos = [l for l in texto.splitlines() if "no es un número" in l]
+        self.assertEqual(len(rechazos), 2,
+                         f"se esperaban dos rechazos, hubo {len(rechazos)}")
+        for linea in rechazos:
+            for num in ("1", "2", "3", "4"):
+                self.assertIn(num, linea,
+                              f"el rechazo no nombra el {num}: {linea!r}")
+
+    def test_27_por_teclado_rige_la_misma_gramatica(self):
+        """Escribir el texto de la opcion tampoco vale. Una sola gramatica.
+
+        Antes por teclado colaba "cercano" y por voz no: dos gramaticas, y
+        ninguna dicha en el enunciado. Es el bug de D74 otra vez, en otra
+        pregunta.
+        """
+        salida = io.StringIO()
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with contextlib.redirect_stdout(salida):
+                with guion("cercano", "2"):
+                    elegido = f._preguntar("¿Cómo quieres que te hable?",
+                                           opciones=["cercano", "formal"],
+                                           default="cercano")
+        finally:
+            f.cerrar()
+        self.assertEqual(elegido, "formal")
+        self.assertIn("no es un número", salida.getvalue(),
+                      "escribir el texto de la opcion se acepto sin rechistar")
+
+    def test_28_agotados_los_intentos_el_defecto_se_dice(self):
+        class OidoRuido:
+            @staticmethod
+            def oido_disponible():
+                return True
+
+            @staticmethod
+            def grabar_y_transcribir(duracion_seg=5, idioma="es"):
+                return "Carlos"
+
+        self.fuga_mod.oido = OidoRuido
+        salida = io.StringIO()
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with contextlib.redirect_stdout(salida):
+                elegido = f._preguntar("¿Sí o no?", opciones=["sí", "no"],
+                                       default="no")
+        finally:
+            f.cerrar()
+        self.assertEqual(elegido, "no")
+        self.assertIn("Me quedo con «no»", salida.getvalue(),
+                      "el defecto se tomo en silencio tras agotar los intentos")
+
+    # --- el cierre · la cita se guarda en la memoria de verdad -------------
+
+    def test_29_la_cita_se_guarda_como_recuerdo_de_m2(self):
+        """El bug que el esquema fabricado tapaba durante toda su vida.
+
+        `_guardar_cita` escribia en una `engrams (texto, creado_en, tipo)` que
+        no existe: la de verdad tiene `what`, `why`, `origin`. Solo funcionaba
+        contra la tabla inventada por el setUp de esta misma suite. Nadie
+        habia llegado nunca al final de M3 con una base real.
+        """
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            f._guardar_cita("el martes a las siete")
+        finally:
+            f.cerrar()
+        self.assertEqual(self.engramas(),
+                         [("el martes a las siete", "intencion")])
+
+    def test_30_una_cita_en_blanco_no_inventa_un_recuerdo(self):
+        """NO_DATA es una ausencia, no el texto de un recuerdo."""
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            self.assertIsNone(f._guardar_cita(""))
+            self.assertIsNone(f._guardar_cita("   "))
+        finally:
+            f.cerrar()
+        self.assertEqual(self.engramas(), [],
+                         "una cita que nadie dio quedo escrita como recuerdo")
+
+    def test_31_la_fuga_entera_de_punta_a_punta(self):
+        """Nadie habia ejecutado `ejecutar()` completo. Ahora lo ejecuta esto.
+
+        Las salas sueltas pasaban una a una y el recorrido entero reventaba en
+        el ultimo paso. Un caso por sala no es un caso del recorrido.
+        """
+        libreto = [
+            "2",                          # ritual de entrada: linterna
+            "Carlos", "1",                # sala 1
+            "1",                          # seguimos
+            "2", "Debian",                # sala 2
+            "1",                          # seguimos
+            "un compilador", "", "", "", "", "2",   # sala 3 + permiso si
+            "1",                          # seguimos
+            "2", "no saco nada fuera",    # sala 4
+            "1",                          # seguimos
+            "el manual de Epicteto",      # sala 5
+            "1",                          # seguimos
+            "la vigilia", "el martes",    # sala 6 + ritual de salida
+        ]
+        f = self.fuga_mod.FugaMuseo()
+        try:
+            with guion(*libreto):
+                completa = f.ejecutar()
+            perfil_gerente = self.fuga_mod.perfil_para_gerente(f.db)
+        finally:
+            f.cerrar()
+
+        self.assertTrue(completa, "la fuga no llego al final")
+        self.assertEqual(sorted(self.salas()), [1, 2, 3, 4, 5, 6])
+        self.assertEqual(set(self.salas().values()), {"completada"})
+        self.assertEqual(perfil_gerente.get("proyecto_vital"), "un compilador")
+        self.assertEqual(self.engramas(), [("el martes", "intencion")])
+        self.assertEqual(self.fuentes(),
+                         [("el manual de Epicteto", "declarada")])
+        self.assertTrue(Path(self.fuga_mod.MANIFIESTO_PATH).is_file(),
+                        "la fuga acabo sin manifiesto")
+        self.assertFalse(self.fuga_mod.hay_fuga_pendiente(str(self.db_path)),
+                         "una fuga terminada sigue diciendo que esta pendiente")
 
     def test_11_la_suite_no_toca_la_memoria_real(self):
         """La salvaguarda, como en test_idioma: se declara y se comprueba."""
@@ -507,6 +867,18 @@ SABOTAJES = (
      "fuga.py",
      "        limpio = (valor or \"\").strip()\n        return limpio or NO_DATA",
      "        limpio = (valor or \"\").strip()\n        return limpio"),
+    ("el gerente lee el perfil sin permiso",
+     "fuga.py",
+     "    if not permiso_concedido(db):",
+     "    if False:"),
+    ("una respuesta hablada que no es numero cae al defecto en silencio",
+     "fuga.py",
+     "            print(f\"  {rechazo}\")\n            self._decir_en_voz(rechazo)",
+     "            return default"),
+    ("se estima el tiempo sin haber medido ninguna sala",
+     "fuga.py",
+     "    if len(medidas) >= MINIMO_PARA_ESTIMAR:",
+     "    if True:\n        medidas = medidas or [3]"),
 )
 
 

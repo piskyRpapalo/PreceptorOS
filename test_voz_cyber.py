@@ -32,7 +32,8 @@ import wave
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
 
-import voz  # noqa: E402
+import silencio  # noqa: E402
+import voz       # noqa: E402
 
 
 def wav_sintetico(ruta, hz=220, segundos=0.25, framerate=22050, amplitud=12000):
@@ -210,6 +211,15 @@ class TestVozReal(unittest.TestCase):
     """La unica mitad que puede saltarse. Y si se salta, dice por que."""
 
     def test_14_piper_genera_audio_de_verdad(self):
+        # Este es el unico caso que quiere hardware, y lo enciende para el
+        # solo. Sintetizar escribe un WAV en un temporal -- no abre el
+        # microfono ni saca nada por el altavoz -- asi que no es del ruido que
+        # `silencio.py` viene a apagar. Se devuelve el interruptor al salir.
+        antes_silencio = os.environ.pop(silencio.VARIABLE, None)
+        self.addCleanup(
+            lambda: os.environ.__setitem__(silencio.VARIABLE, antes_silencio)
+            if antes_silencio is not None else None)
+
         if voz.piper_binario() == voz.NO_DATA:
             self.skipTest("no hay ejecutable de Piper: ni AURELIUS_PIPER ni "
                           "'piper' en el PATH. La voz es opcional por doctrina; "

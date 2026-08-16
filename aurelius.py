@@ -355,6 +355,42 @@ def paso8_sello(c, ruta, idioma=TX.DEFECTO):
     return destino
 
 
+def ofrecer_m3(ruta, idioma=TX.DEFECTO):
+    """Ofrece M3 al cerrar M2. Devuelve True si se entro en la Fuga.
+
+    Existe porque hasta D79 `FUGA_DISPONIBLE` se asignaba en dos lineas y no
+    se leia en ninguna: M3 estaba en el arbol y no habia forma de llegar a
+    ella sin ejecutar `fuga.py` a mano. Un modulo importado y nunca llamado es
+    codigo muerto con buena conciencia.
+
+    Se ofrece, no se encadena. Quien acaba de contar sus recuerdos puede no
+    tener cuerpo para seis salas mas hoy, y M3 sabe reanudar.
+    """
+    if not FUGA_DISPONIBLE:
+        return False
+    try:
+        fuga.DB_PATH = ruta
+        pendiente = fuga.hay_fuga_pendiente(ruta)
+    except Exception:
+        # M3 es opcional de verdad: si no se puede ni mirar, M2 cierra bien.
+        return False
+
+    T.regla()
+    T.despacio(tx(idioma, "m3_reanudar" if pendiente else "m3_intro"))
+    if elegir(tx(idioma, "m3_pregunta"),
+              [("si", tx(idioma, "m3_si")),
+               ("no", tx(idioma, "m3_no"))], idioma) != "si":
+        T.despacio(tx(idioma, "m3_luego"))
+        return False
+
+    juego = fuga.FugaMuseo(idioma=idioma)
+    try:
+        juego.ejecutar()
+    finally:
+        juego.cerrar()
+    return True
+
+
 def respaldo(ruta, destino=None):
     """Una copia que se puede llevar a otro disco, y que se ha leido entera.
 
@@ -462,6 +498,10 @@ def sesion(ruta):
         paso8_sello(c, ruta, lengua)
         print(tx(lengua, "final")
               + tx(lengua, "final_si" if M.mision_completa(c) else "final_no"))
+    # Fuera del `with`: M3 abre su propia conexion a la misma base, y dos
+    # conexiones escribiendo a la vez sobre el mismo fichero es como se
+    # consigue un "database is locked" que nadie sabe explicar.
+    ofrecer_m3(ruta, lengua)
     return 0
 
 

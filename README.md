@@ -140,6 +140,20 @@ Apache-2.0.
 
 Para comprobar que todo funciona en tu máquina:
 
-    python3 -m unittest discover
+    bin/pruebas
 
-Esto corre las 8 suites (145 pruebas) y verifica la integridad del producto.
+Corre las 12 suites — **217 pruebas** — y los dos modos de sabotaje. Imprime
+el desglose por suite, así que el número se puede comprobar en vez de creer.
+
+No uses `python3 -m unittest discover` para esto. Ve 7 de las 12 suites: las
+otras cinco traen corredor propio y `discover` no las encuentra, así que dice
+`OK` habiendo corrido poco más de la mitad. Un OK que cubre la mitad no es un
+OK, y por eso existe `bin/pruebas`.
+
+Los dos sabotajes (`test_idioma.py --sabotaje`, `test_fuga.py --sabotaje`)
+rompen el producto a propósito en una copia del árbol y **exigen que las
+pruebas se pongan rojas**. Es lo que separa una suite que prueba algo de una
+que acompaña: 4/4 y 6/6 roturas detectadas.
+
+Las pruebas no tocan tu `~/.aurelius/`, no abren el micrófono y no sacan nada
+por el altavoz — ver `silencio.py`.

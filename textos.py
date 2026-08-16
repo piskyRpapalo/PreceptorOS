@@ -133,6 +133,17 @@ TEXTOS = {
         "final_si": "yes",
         "final_no": "no — nothing was written",
 
+        # --- la oferta de M3 · la Fuga del Museo
+        "m3_intro": ("There is a second thing, and it is a game. Six rooms, "
+                     "and a bust that wants out of a museum."),
+        "m3_reanudar": ("You left a museum halfway through. It is still there, "
+                        "exactly where you stopped."),
+        "m3_pregunta": "Go into the Escape from the Museum?",
+        "m3_si": "yes, let's go",
+        "m3_no": "not today",
+        "m3_luego": ("It keeps. It is a file, not an appointment: nothing "
+                     "there expires."),
+
         # --- gramatica de las preguntas numeradas
         "rechazo": "{entrada!r} is not one of them. Type the number: {numeros}.",
         "o": "or",
@@ -249,6 +260,17 @@ TEXTOS = {
         "final": "\nMisión M2 completa: ",
         "final_si": "sí",
         "final_no": "no — no se escribió nada",
+
+        # --- la oferta de M3 · la Fuga del Museo
+        "m3_intro": ("Hay una segunda cosa, y es un juego. Seis salas, y un "
+                     "busto que quiere salir de un museo."),
+        "m3_reanudar": ("Dejaste un museo a medias. Sigue ahí, exactamente "
+                        "donde lo dejaste."),
+        "m3_pregunta": "¿Entramos en la Fuga del Museo?",
+        "m3_si": "sí, vamos",
+        "m3_no": "hoy no",
+        "m3_luego": ("Se guarda. Es un fichero, no una cita: nada de eso "
+                     "caduca."),
 
         # --- gramatica de las preguntas numeradas
         "rechazo": "{entrada!r} no es ninguna de ellas. Escribe el número: {numeros}.",

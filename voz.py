@@ -21,6 +21,8 @@ import os
 import tempfile
 from typing import Optional
 
+import silencio as _silencio
+
 NO_DATA = "NO_DATA"
 
 VOZ_DIR = os.path.expanduser("~/.aurelius/voz")
@@ -79,7 +81,12 @@ def piper_binario() -> str:
 
 def piper_disponible() -> bool:
     """True si Piper está y el modelo existe. Los datos de espeak no entran
-    aquí: sin ellos Piper puede seguir usando los suyos propios."""
+    aquí: sin ellos Piper puede seguir usando los suyos propios.
+
+    Si la máquina declara el hardware apagado (`silencio.py`), no hay voz -- y
+    se comprueba aquí, en la única puerta, no en cada llamante."""
+    if _silencio.apagado():
+        return False
     return piper_binario() != NO_DATA and os.path.isfile(MODELO_DEFECTO)
 
 

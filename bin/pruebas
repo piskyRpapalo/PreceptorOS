@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# El numero de pruebas de Aurelius sale de AQUI, y de un solo sitio.
+#
+# Por que existe: `python3 -m unittest discover` dice OK habiendo corrido la
+# mitad de la suite, porque cinco ficheros traen corredor propio y discover no
+# los ve. Un OK que solo cubre el 55% no es un OK: es media medida presentada
+# como entera. Este script corre TODOS los corredores y da el desglose, para
+# que el numero del README se pueda comprobar en vez de recordarse.
+#
+# Uso:  bin/pruebas            los corredores + los sabotajes
+#       bin/pruebas --rapido   sin sabotajes (copian el arbol; tardan)
+#
+# Salida 0 solo si todo esta verde.
+
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 2
+
+RAPIDO=0
+[ "${1:-}" = "--rapido" ] && RAPIDO=1
+
+rojo=$'\033[31m'; verde=$'\033[32m'; ambar=$'\033[33m'; gris=$'\033[90m'; fin=$'\033[0m'
+[ -t 1 ] || { rojo=""; verde=""; ambar=""; gris=""; fin=""; }
+
+TOTAL=0
+FALLOS=0
+LINEAS=()
+
+# Ni microfono, ni sintesis, ni altavoz, en toda la tanda y en los procesos
+# hijo que arranquen las suites. Ver `silencio.py`. Sin esto, en una maquina
+# con whisper.cpp instalado la tanda graba la habitacion.
+export AURELIUS_SIN_HARDWARE=1
+# Y el ritmo del relato a cero: las pausas son para la persona, no para el CI.
+export AURELIUS_RITMO=0
+
+# --- el aviso que va PRIMERO ------------------------------------------------
+# Un verde sobre trabajo sin commitear es un verde que un `git checkout` borra.
+# No se falla por ello -- se trabaja sin commitear todo el rato -- pero no se
+# deja pasar en silencio.
+SUCIO="$(git --no-optional-locks status --porcelain 2>/dev/null)"
+if [ -n "$SUCIO" ]; then
+  echo "${ambar}AVISO · hay trabajo sin commitear. Este numero no esta guardado:${fin}"
+  echo "$SUCIO" | sed 's/^/    /'
+  echo
+fi
+
+# --- corredor 1 · las suites unittest, una a una ----------------------------
+# Una a una y no con `discover`, porque discover da un solo total y lo que
+# hace falta es el desglose: si manana una suite desaparece del arbol, un
+# total agregado baja sin que nadie sepa cual falta.
+suite_unittest() {
+  local nombre="$1" informe n codigo extra=""
+  # El informe de unittest va por stderr y lo que imprimen los casos por
+  # stdout. Mezclarlos con `2>&1` parece comodo y no lo es: stdout sale con
+  # bufer y stderr sin el, asi que el "OK" final aparece PEGADO a media linea
+  # de otro sitio y un `grep '^OK'` no lo encuentra. Se separan los dos
+  # canales, y el veredicto lo da el codigo de salida, que no se puede partir.
+  informe="$(timeout 600 python3 -m unittest "$nombre" 2>&1 >/dev/null)"
+  codigo=$?
+  n="$(printf '%s' "$informe" | sed -n 's/^Ran \([0-9]*\) test.*/\1/p' | tail -1)"
+  n="${n:-0}"
+  TOTAL=$((TOTAL + n))
+  if [ "$codigo" = "0" ]; then
+    printf '%s' "$informe" | grep -qE '^OK \(' && \
+      extra=" $gris($(printf '%s' "$informe" | sed -n 's/^OK (\(.*\))/\1/p'))$fin"
+    LINEAS+=("  ${verde}ok${fin}    ${nombre}.py $(printf '%*s' $((26 - ${#nombre})) '')${n}${extra}")
+  else
+    FALLOS=$((FALLOS + 1))
+    LINEAS+=("  ${rojo}FALLO${fin} ${nombre}.py $(printf '%*s' $((26 - ${#nombre})) '')${n}")
+    LINEAS+=("$(printf '%s' "$informe" | grep -E '^(FAIL|ERROR):' | sed 's/^/          /')")
+  fi
+}
+
+# --- corredores 2-6 · las suites con main() propio ---------------------------
+suite_propia() {
+  local nombre="$1" salida linea ok n codigo
+  salida="$(timeout 600 python3 "test_${nombre}.py" 2>&1)"
+  codigo=$?
+  linea="$(printf '%s' "$salida" | grep -E '^RESULTADO:' | tail -1)"
+  ok="$(printf '%s' "$linea" | sed -n 's#^RESULTADO: \([0-9]*\)/\([0-9]*\).*#\1#p')"
+  n="$(printf '%s' "$linea" | sed -n 's#^RESULTADO: \([0-9]*\)/\([0-9]*\).*#\2#p')"
+  ok="${ok:-0}"; n="${n:-0}"
+  TOTAL=$((TOTAL + n))
+  # Dos condiciones y hacen falta las dos: el recuento que imprime la suite Y
+  # su codigo de salida. Si divergen, es que la suite miente en una de las
+  # dos, y eso ya es un fallo.
+  if [ "$codigo" = "0" ] && [ "$ok" = "$n" ] && [ "$n" != "0" ]; then
+    LINEAS+=("  ${verde}ok${fin}    test_${nombre}.py $(printf '%*s' $((21 - ${#nombre})) '')${n}")
+  else
+    FALLOS=$((FALLOS + 1))
+    LINEAS+=("  ${rojo}FALLO${fin} test_${nombre}.py $(printf '%*s' $((21 - ${#nombre})) '')${ok}/${n}")
+    LINEAS+=("$(printf '%s' "$salida" | grep -E '^ +(FALLO|ERROR) ·' | sed 's/^/        /')")
+  fi
+}
+
+echo "── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────"
+echo
+
+# El reparto. Si anades una suite, va aqui: es la unica lista.
+UNITTEST=(test_descarga test_estado test_fuga test_guardrails test_leitmotivs
+          test_silencio test_voz_cyber)
+PROPIAS=(cara idioma manifest memory tono)
+
+for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
+for s in "${PROPIAS[@]}"; do suite_propia "$s"; done
+
+printf '%s\n' "${LINEAS[@]}"
+echo
+echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 corredores"
+
+# --- los sabotajes · la prueba de que las pruebas prueban algo --------------
+if [ "$RAPIDO" = "0" ]; then
+  echo
+  echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
+  for s in idioma fuga; do
+    salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
+    linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
+    det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"
+    tot="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\2#p')"
+    if [ -n "$det" ] && [ "$det" = "$tot" ]; then
+      echo "  ${verde}ok${fin}    test_${s}.py --sabotaje       ${det}/${tot} detectadas"
+    else
+      FALLOS=$((FALLOS + 1))
+      echo "  ${rojo}FALLO${fin} test_${s}.py --sabotaje       ${det:-0}/${tot:-?} detectadas"
+      printf '%s' "$salida" | grep -E 'VERDE|CRITICO|AVISO' | sed 's/^/        /'
+    fi
+  done
+fi
+
+echo
+if [ "$FALLOS" = "0" ]; then
+  echo "${verde}VERDE · ${TOTAL}/${TOTAL}${fin}"
+  [ -n "$SUCIO" ] && echo "${ambar}...sobre trabajo sin commitear. Guardalo.${fin}"
+  exit 0
+fi
+echo "${rojo}ROJO · ${FALLOS} corredor(es) en fallo de $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} + 2 ))${fin}"
+exit 1
