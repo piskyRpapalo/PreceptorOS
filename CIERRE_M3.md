@@ -3,8 +3,9 @@
 Acta de cierre de la tercera misión: **La Fuga del Museo**. Qué se construyó,
 qué se verifica, qué no se verifica, y qué queda debiendo M4.
 
-Estado: **PROPUESTA · pendiente de firma del Soberano.**
-Árbol: `fd518b6` · 224/224 en `bin/pruebas`, salida 0, en Python 3.14.4 y 3.10.12.
+Estado: **FIRMADA** · Pisky · Soberano · 2026-08-16. **M3 está cerrado.**
+Árbol al firmar: `0c7e230` · 224/224. Estado hoy: 225/225 en `bin/pruebas`,
+salida 0, en cinco intérpretes (3.10.12 · 3.11.16 · 3.12.13 · 3.13.15 · 3.14.4).
 
 Este documento no sustituye a [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md):
 allí está el detalle de qué demuestra cada criterio y el acta del rojo del
@@ -86,7 +87,7 @@ los procesos hijo.
 
 ## 2 · ESTADO DE LOS 10 CRITERIOS
 
-**10 de 10 pasan.** Verificados uno a uno sobre `fd518b6`:
+**10 de 10 pasan.** Verificados uno a uno, no solo dentro de la tanda:
 
 ```
 Criterio 1: se reanuda en la sala 3 sin repetir la 1 ni la 2.          ... ok
@@ -103,20 +104,32 @@ Criterio 10: M3 se completa con un solo dato real y el resto NO_DATA.  ... ok
 Ran 10 tests · OK
 ```
 
-### Trampa de lectura, escrita aquí para que nadie la pise
+### Trampa de lectura · detectada y cerrada (M-D80e)
 
-**Los nombres de los tests y los números de criterio no coinciden en cuatro
-casos.** No es un error tipográfico y no se renombra sin motivo:
+**Estuvo así y se arregla; queda escrito porque la cicatriz vale más que la
+superficie lisa.** Los nombres de los tests y los números de criterio **no
+coincidían en cuatro casos**:
 
-| Criterio | Test que lo cubre |
-|---|---|
-| 7 · manifiesto | `test_08_manifiesto_se_comporta` |
-| 8 · sin voz ni oído | `test_07_sin_oidos_sin_voz_funciona` |
-| 9 · leitmotiv | `test_10_toda_confirmacion_tiene_sonido` |
-| 10 · misión completa | `test_09_mision_completa_con_un_dato` |
+| Criterio | Cubierto por (antes) | Ahora |
+|---|---|---|
+| 7 · manifiesto | `test_08_manifiesto_se_comporta` | `test_07_manifiesto_se_comporta` |
+| 8 · sin voz ni oído | `test_07_sin_oidos_sin_voz_funciona` | `test_08_sin_oidos_sin_voz_funciona` |
+| 9 · leitmotiv | `test_10_toda_confirmacion_tiene_sonido` | `test_09_toda_confirmacion_tiene_sonido` |
+| 10 · misión completa | `test_09_mision_completa_con_un_dato` | `test_10_mision_completa_con_un_dato` |
 
-Quien audite por el número del test y no por su docstring concluirá que faltan
+**Nada fallaba por eso, y por eso duró.** Los diez pasaban. Solo se ve
+auditando, y quien auditase por el número del método concluiría que faltan
 criterios que están.
+
+Renombrar no basta: volvería a torcerse. `test_00_el_numero_del_test_es_el_del_criterio`
+lo comprueba **por introspección** —lee el número del método y el que declara
+su docstring, y exige que sean el mismo— y además exige que estén los diez, para
+que una renumeración que borrase uno no deje la comprobación en verde con nueve.
+No se usa una lista escrita a mano: una lista es otra cosa más que se puede
+desincronizar del árbol, y sería el mismo fallo con un fichero más.
+
+Verificado en los dos sentidos: la guarda pasa sobre el árbol arreglado y
+**falla** sobre una copia donde se deshace el arreglo.
 
 ### Ninguno falla · tres cambiaron de sostén
 
@@ -148,7 +161,7 @@ afirmación sobre la suite, no sobre el código.
 
 ### Cobertura alrededor de los 10
 
-`test_fuga.py` tiene **35 casos**, no 10. Los otros 25 son las condiciones que
+`test_fuga.py` tiene **36 casos**, no 10. Los otros 26 son las condiciones que
 hicieron falta para que los 10 significaran algo: que las tablas de M3 las cree
 M3 y no el `setUp` de la suite, que una sala cerrada sí escriba, que el permiso
 no quede suelto al abandonar la sala 3, la gramática de las preguntas numeradas
@@ -197,9 +210,11 @@ excluye.
   el remoto, cronometrar y exigir verde. Es el único test que mediría lo único
   que el producto promete —que te lo llevas y vuelve— y solo se ha hecho por
   accidente, nunca a propósito.
-- **El rango de intérpretes tiene dos puntos, no un intervalo.** 3.10.12 y
-  3.14.4 corridos; 3.11, 3.12 y 3.13 **inferidos**. El README lo dice y el
-  programa lo declara al arrancar; nadie ha corrido la suite ahí.
+- ~~**El rango de intérpretes tiene dos puntos, no un intervalo.**~~
+  **CERRADO (M-D80e).** Los cinco puntos están corridos: 3.10.12, 3.11.16,
+  3.12.13, 3.13.15 y 3.14.4, todos 225/225 con `uv run --python X.Y
+  ./bin/pruebas`. Lo que sigue sin cubrir es la **distribución**: las cuatro
+  medidas con `uv` fijan el intérprete y corrieron en una sola máquina.
 - **Verificación independiente: solo hasta `5a86cc6`.** El Preceptor reprodujo
   224/224 en otra máquina sobre ese árbol. `fd518b6` está verificado únicamente
   en el Soberano, en dos intérpretes.
@@ -244,7 +259,9 @@ cuanto la persona lo descubre deja de creerse el resto de la pantalla (D76).
 
 ### La condición de entrada
 
-**M4 no empieza hasta que este acta esté firmada.** Abrir un frente nuevo con el
+**Este acta está firmada** (Soberano, 2026-08-16), así que esa condición está
+cumplida. Quedan las otras dos que el Soberano puso al firmar: `p0x` en jetson,
+y la deuda técnica de arriba cerrada. Abrir un frente nuevo con el
 anterior sin acta es lo que este proyecto lleva un mes evitando: código sin
 acta, y después nadie sabe qué se decidió ni por qué.
 
@@ -256,21 +273,24 @@ acta, y después nadie sabe qué se decidió ni por qué.
 ── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────
   Python 3.14.4 · /usr/bin/python3
   [...]
-  224 pruebas · 13 suites · 6 corredores
+  225 pruebas · 13 suites · 6 corredores
 
 ── SABOTAJES · se exige rojo ───────────────────────────────────
   ok    test_idioma.py --sabotaje       4/4 detectadas
   ok    test_fuga.py --sabotaje         6/6 detectadas
 
-VERDE · 224/224          salida=0
+VERDE · 225/225          salida=0
 ```
 
 | Verificación | Dónde | Árbol |
 |---|---|---|
-| 224/224, salida 0 | Soberano · Python 3.14.4 | `fd518b6` |
-| 224/224, salida 0 | Soberano · Python 3.10.12 | `fd518b6` |
+| 225/225, salida 0 | Soberano · Python 3.14.4 (sistema) | actual |
+| 225/225, salida 0 | Soberano · Python 3.10.12 (`uv`) | actual |
+| 225/225, salida 0 | Soberano · Python 3.11.16 (`uv`) | actual |
+| 225/225, salida 0 | Soberano · Python 3.12.13 (`uv`) | actual |
+| 225/225, salida 0 | Soberano · Python 3.13.15 (`uv`) | actual |
 | 224/224, salida 0 | **máquina independiente** · Python 3.10.12 | `5a86cc6` |
 
 ---
 
-Pendiente de firma del Soberano.
+**FIRMADA · Pisky · Soberano · 2026-08-16.**

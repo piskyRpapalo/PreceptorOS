@@ -195,6 +195,41 @@ class TestFuga(BaseFuga):
     D1 (parar al acabar cada sala), el permiso del gerente, la gramatica de
     las preguntas numeradas por voz, y el recorrido entero de punta a punta."""
 
+    def test_00_el_numero_del_test_es_el_del_criterio(self):
+        """El numero del metodo y el del criterio que declara son el mismo.
+
+        Existe porque NO lo eran: `test_07` cubria el criterio 8, `test_08` el
+        7, `test_09` el 10 y `test_10` el 9. Nada fallaba por eso -- los diez
+        pasaban -- y precisamente por eso duro: solo se ve auditando, y quien
+        auditase por el numero del metodo concluiria que faltan criterios que
+        estan.
+
+        Se comprueba por introspeccion y no con una lista escrita a mano: una
+        lista es otra cosa mas que se puede desincronizar del arbol, y seria
+        el mismo fallo con un fichero mas.
+        """
+        import inspect
+        import re
+        desajustes = []
+        vistos = {}
+        for nombre, metodo in inspect.getmembers(type(self), inspect.isfunction):
+            m = re.fullmatch(r"test_(\d\d)_\w+", nombre)
+            if not m:
+                continue
+            doc = inspect.getdoc(metodo) or ""
+            d = re.match(r"Criterio (\d+):", doc)
+            if not d:
+                continue        # no declara criterio: no es uno de los diez
+            n_test, n_crit = int(m.group(1)), int(d.group(1))
+            if n_test != n_crit:
+                desajustes.append(f"{nombre} declara «Criterio {n_crit}»")
+            vistos[n_crit] = nombre
+        self.assertEqual(desajustes, [], f"el numero no casa: {desajustes}")
+        # Y que esten los diez: una renumeracion que borrase uno dejaria la
+        # comprobacion de arriba en verde con nueve.
+        self.assertEqual(sorted(vistos), list(range(1, 11)),
+                         f"no estan los 10 criterios declarados: {sorted(vistos)}")
+
     def test_01_reanudar_de_verdad(self):
         """Criterio 1: se reanuda en la sala 3 sin repetir la 1 ni la 2.
 
@@ -387,7 +422,7 @@ class TestFuga(BaseFuga):
         self.assertIsNone(re.search(r"\bDROP\s+TABLE\b", codigo, re.I),
                           "hay un DROP TABLE en fuga.py")
 
-    def test_07_sin_oidos_sin_voz_funciona(self):
+    def test_08_sin_oidos_sin_voz_funciona(self):
         """Criterio 8: sin voz ni oido, la sala se completa escribiendo."""
         voz_antes, oido_antes = self.fuga_mod.voz, self.fuga_mod.oido
         self.fuga_mod.voz = None
@@ -406,7 +441,7 @@ class TestFuga(BaseFuga):
                          "sin voz ni oido la sala 1 no se completo")
         self.assertEqual(self.perfil().get("como_llamarte"), "Carlos")
 
-    def test_08_manifiesto_se_comporta(self):
+    def test_07_manifiesto_se_comporta(self):
         """Criterio 7: el manifiesto lleva la huella de su propio cuerpo."""
         f = self.fuga_mod.FugaMuseo()
         try:
@@ -426,7 +461,7 @@ class TestFuga(BaseFuga):
         self.assertEqual(hashlib.sha256(cuerpo.encode("utf-8")).hexdigest(), firma,
                          "la firma no corresponde al cuerpo que firma")
 
-    def test_09_mision_completa_con_un_dato(self):
+    def test_10_mision_completa_con_un_dato(self):
         """Criterio 10: M3 se completa con un solo dato real y el resto NO_DATA."""
         f = self.fuga_mod.FugaMuseo()
         try:
@@ -446,7 +481,7 @@ class TestFuga(BaseFuga):
         self.assertEqual(sorted(completadas), [1, 3, 5],
                          "no se completaron las tres salas recorridas")
 
-    def test_10_toda_confirmacion_tiene_sonido(self):
+    def test_09_toda_confirmacion_tiene_sonido(self):
         """Criterio 9: entrar en una sala pide su leitmotiv, y hay mas de un
         reproductor por si el primero no esta."""
         import inspect

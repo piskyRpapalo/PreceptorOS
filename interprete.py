@@ -14,12 +14,13 @@ from __future__ import annotations
 
 import sys
 
-# Las DOS que se han corrido enteras, no un intervalo elegido a ojo:
-#   3.10.12 · Ubuntu 22.04 · 218/218
-#   3.14.4  · Ubuntu 26.04 · 218/218
-# Lo de en medio se infiere, y por eso el aviso dice "probado en", no
-# "compatible con": nadie ha corrido la tanda en 3.12 y decirlo sería regalar
-# una medida que no existe.
+# Los CINCO puntos corridos enteros, no un intervalo elegido a ojo. Los dos
+# extremos son los que definen el rango; los tres de en medio ya no se infieren
+# -- se midieron con `uv` el 2026-08-16 y están en la tabla del README:
+#   3.10.12 · 3.11.16 · 3.12.13 · 3.13.15 · 3.14.4
+# `PROBADAS` sigue siendo el par de EXTREMOS y no la lista de cinco, porque es
+# lo que se compara: el aviso nombra el rango, no el censo. `test_interprete`
+# exige que ese par y MINIMA/MAXIMA no se separen nunca.
 PROBADAS = ("3.10.12", "3.14.4")
 MINIMA = (3, 10, 12)
 MAXIMA = (3, 14, 4)

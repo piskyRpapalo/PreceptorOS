@@ -137,19 +137,35 @@ redaction just removed it from.
 | Version | Where | Tree | Result |
 |---|---|---|---|
 | 3.10.12 | Ubuntu 22.04 | `73f7bc6` | 217/217 |
-| 3.10.12 | standalone build (`uv`), Ubuntu 26.04 host | current | 224/224 |
-| 3.14.4 | Ubuntu 26.04 | current | 224/224 |
+| 3.10.12 | standalone build (`uv`) | current | 225/225 |
+| 3.11.16 | standalone build (`uv`) | current | 225/225 |
+| 3.12.13 | standalone build (`uv`) | current | 225/225 |
+| 3.13.15 | standalone build (`uv`) | current | 225/225 |
+| 3.14.4 | Ubuntu 26.04, system | current | 225/225 |
 
-Those are the runs that **happened**, end to end, sabotage modes included. The
-rows are split on purpose: the 22.04 figure is from an older tree and has not
-been repeated since, so it is reported as what it is — a real measurement of a
-different commit — instead of being folded into today's number. On the current
-tree, 3.10.12 was re-run here on a standalone build, which pins the interpreter
-but not the distribution.
+Those are the runs that **happened**, end to end, sabotage modes included —
+**five points, not an interval with two ends and a guess in the middle.** The
+first row is kept separate on purpose: it is a real measurement of an older
+tree and has not been repeated since, so it is reported as what it is instead
+of being folded into today's number.
 
-Not a compatibility claim for everything in between: nobody has run the suite
-on 3.12, so this table does not say it works there. It says what was measured,
-where, and on which tree.
+What the table still does **not** claim: the four `uv` rows pin the interpreter,
+not the distribution — they all ran on one machine. A second machine is a
+different measurement, and there is one: an independent sandbox reproduced
+224/224 on 3.10.12 at commit `5a86cc6`.
+
+To run it on another version yourself:
+
+```
+uv run --python 3.12 ./bin/pruebas ; echo "salida=$?"
+```
+
+**Not** `uv run --python 3.12 python3 -m unittest discover`. That runs 145 of
+the 225 tests for the reason described above — `discover` does not find the
+five suites with their own runner — and it prints its report to stderr while
+the cases print to stdout, so a `tail` on the output shows the end of a museum
+escape and no test count at all. It exits 0. A green that covers 64% and says
+nothing about it is the exact failure `bin/pruebas` exists to prevent.
 
 Outside that range Aurelius **declares and keeps going**:
 
@@ -174,7 +190,7 @@ Para comprobar que todo funciona en tu máquina:
 
     bin/pruebas
 
-Corre las 13 suites — **224 pruebas** — y los dos modos de sabotaje. Imprime
+Corre las 13 suites — **225 pruebas** — y los dos modos de sabotaje. Imprime
 el desglose por suite y **con qué intérprete se corrió**, así que el número se
 puede comprobar en vez de creer: una cifra sin su máquina es un rumor con
 decimales.
