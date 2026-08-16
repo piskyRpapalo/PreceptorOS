@@ -191,3 +191,7 @@ que acompaña: 4/4 y 6/6 roturas detectadas.
 
 Las pruebas no tocan tu `~/.aurelius/`, no abren el micrófono y no sacan nada
 por el altavoz — ver `silencio.py`.
+
+Qué se verifica y qué **no**: [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md).
+Cierre de la tercera misión: [CIERRE_M3.md](CIERRE_M3.md). Pragmas que apagan
+una guardia: [EXCEPCIONES.md](EXCEPCIONES.md).
