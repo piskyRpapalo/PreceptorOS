@@ -92,7 +92,15 @@ suite_propia() {
   fi
 }
 
+# --- el interprete, con nombre y numero -------------------------------------
+# Una cifra sin su maquina es un rumor con decimales. "217/217 verde" no dice
+# nada si no consta CON QUE se corrio: el mismo arbol da numeros distintos en
+# interpretes distintos, y esa es justamente la clase de diferencia que hay que
+# poder ver. Va en la cabecera y no al final, para que salga aunque la tanda se
+# corte a la mitad -- si se corta, el interprete es el primer dato que hace
+# falta.
 echo "── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────"
+echo "  ${gris}$(python3 -V 2>&1) · $(command -v python3)${fin}"
 echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
