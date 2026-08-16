@@ -102,9 +102,40 @@ journal de la ventana, 9.129 líneas reales, sin una sola coincidencia de
 `no space` / `ENOSPC` / `I/O error`, ni de `oom-kill`, en toda la semana
 disponible.
 
+### Enmienda · M-D80b · 2026-08-16
+
+El párrafo anterior descarta más de lo que puede. Se corrige aquí y no se
+borra: un acta que se reescribe deja de servir para saber qué se creyó y
+cuándo.
+
+> Disco descartado: 541 GB libres y cero eventos de ENOSPC o E/S en el journal
+> de toda la semana. NO DESCARTADO: presión de memoria sobre `/tmp`, que es
+> tmpfs. Un tmpfs lleno devuelve ENOSPC sin dejar rastro en el journal ni
+> disparar oom-kill, así que la ausencia de registro no lo excluye. A partir de
+> M-D80b, `bin/pruebas` fija `TMPDIR=/var/tmp` para eliminar la
+> indeterminación.
+
+Y lo que eso invierte, dicho sin rodeos: «`TemporaryDirectory` ni siquiera toca
+el disco» se escribió arriba **como argumento a favor del descarte**, y es lo
+contrario. Que el temporal viviera en RAM no aleja las pruebas del problema:
+es el flanco. Un tmpfs se llena con la memoria de la máquina, no con el disco,
+y los 541 GB del NVMe no lo protegen de nada.
+
+Hasta esta enmienda, `TMPDIR` no estaba puesto en esta máquina, así que
+`tempfile` resolvía a `/tmp` — tmpfs, RAM — y ninguna tanda dejó constancia de
+dónde había escrito. Dos tandas con el mismo número podían no haber corrido en
+el mismo sitio. Desde M-D80b el sitio es uno, está fijado antes de cualquier
+operación y **se imprime en la cabecera** junto al intérprete, por el mismo
+motivo que él: una cifra sin su máquina es un rumor con decimales, y «dónde
+escribió» es parte de la máquina.
+
+Esto no identifica el mecanismo ni lo pretende. Cierra una indeterminación:
+si el rojo vuelve, vuelve en un sitio conocido, con espacio medido y estable,
+y entonces la pregunta tendrá una respuesta que hoy no puede tener.
+
 **Mecanismo: sin determinar.** `NO_DATA`.
 
-El árbol da hoy VERDE 218/218, salida 0, en Python 3.14.4 y en 3.10.12. Eso no
+El árbol da hoy VERDE 224/224, salida 0, en Python 3.14.4 y en 3.10.12. Eso no
 cierra el rojo: dice que no se reproduce, que es una afirmación distinta y más
 débil. Un rojo sin causa conocida se declara, no se cierra.
 
@@ -113,6 +144,8 @@ Lo que sigue abierto, en concreto:
 - No se sabe qué hizo fallar a esas 7 y no a las otras.
 - No se sabe si la correlación con los 18.000 bytes es la causa o un rasgo
   compartido de otra cosa.
+- **La presión de memoria sobre el tmpfs sigue viva como hipótesis** (ver la
+  enmienda M-D80b). No se descartó; se dejó de poder ocurrir por accidente.
 - No hay constancia de la hora exacta de aquella tanda, así que la ventana del
   journal que se inspeccionó (01:00–02:31) puede no contenerla. El grep se
   amplió a todos los arranques registrados desde el 10 de agosto y tampoco hay

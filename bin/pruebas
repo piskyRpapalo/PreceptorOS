@@ -15,6 +15,28 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
+# --- el mismo sistema de ficheros en todas las tandas (M-D80b) --------------
+# `/tmp` en esta maquina es tmpfs -- RAM -- y `/var/tmp` es el NVMe. Hasta aqui
+# las tandas usaban uno u otro segun el TMPDIR que trajera la sesion, sin que
+# nadie lo hubiera elegido: dos tandas con el mismo numero podian no haber
+# corrido en el mismo sitio, y eso no se veia por ninguna parte.
+#
+# Importa para el rojo del 2026-08-16. Un tmpfs lleno devuelve ENOSPC sin
+# dejar rastro en el journal y sin disparar oom-kill, asi que ese flanco NO lo
+# cierra la ausencia de registro -- lo unico que lo cierra es correr siempre en
+# un sitio conocido y con espacio medido. Si el rojo vuelve, vuelve ahi.
+#
+# `:-` y no una asignacion seca: lo que la persona declara manda, como en el
+# resto del arbol. Por eso el sitio se IMPRIME en la cabecera -- si una sesion
+# trae su propio TMPDIR, la tanda no se lo discute, pero tampoco lo esconde.
+export TMPDIR="${TMPDIR:-/var/tmp}"
+if [ ! -d "$TMPDIR" ] || [ ! -w "$TMPDIR" ]; then
+  echo "PARADA · TMPDIR=$TMPDIR no existe o no se puede escribir." >&2
+  echo "         Sin temporal no hay tanda, y una tanda que cae por esto se" >&2
+  echo "         parece demasiado a una que falla por otra cosa." >&2
+  exit 2
+fi
+
 RAPIDO=0
 [ "${1:-}" = "--rapido" ] && RAPIDO=1
 
@@ -101,6 +123,11 @@ suite_propia() {
 # falta.
 echo "── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────"
 echo "  ${gris}$(python3 -V 2>&1) · $(command -v python3)${fin}"
+# El temporal, por el mismo motivo que el interprete: una cifra sin su maquina
+# es un rumor con decimales, y "donde escribio" es parte de la maquina. Sale
+# el tipo de sistema de ficheros porque es el dato que separa RAM de disco.
+echo "  ${gris}TMPDIR=${TMPDIR} · $(df -hT "$TMPDIR" 2>/dev/null | \
+      awk 'NR==2 {print $2" · "$5" libres"}')${fin}"
 # El rango probado sale de `interprete.py`, el mismo sitio del que lo saca el
 # producto: si viviera aqui tambien, el dia que se pruebe una version nueva
 # habria que acertar en dos ficheros. Una tanda fuera de rango se corre igual
