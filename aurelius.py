@@ -22,6 +22,7 @@ import textos as TX
 import tono as T
 
 import casa as _casa
+import interprete as _interprete
 
 # M3 · La Fuga del Museo (opcional)
 try:
@@ -513,6 +514,15 @@ def main():
     ap.add_argument("--backup", nargs="?", const="", metavar="FILE",
                     help="verified copy of the whole memory, WAL included")
     a = ap.parse_args()
+
+    # Lo primero y en TODOS los modos, `--view` y `--export` incluidos: si esta
+    # version cae fuera de lo probado, se dice antes de que salga ningun
+    # resultado. Declarar, no bloquear -- fuera del rango no significa roto,
+    # significa sin dato, y negarse a arrancar convertiria esa ausencia de
+    # medida en un veredicto. Ver `interprete.py`.
+    nota = _interprete.aviso()
+    if nota:
+        print(nota, file=sys.stderr)
 
     est, rec = M.estado(a.db)
     if a.backup is not None:

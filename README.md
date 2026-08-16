@@ -130,7 +130,39 @@ redaction just removed it from.
 - [ ] Full-text search — out of M2 on purpose
 - [ ] Manifest signature — belongs to the close of M2
 
-12/12 tests green: `python3 test_memory.py`
+`python3 test_memory.py` — 25/25 green. The whole tree is `bin/pruebas`.
+
+## Python: the range that was actually run
+
+| Version | Where | Tree | Result |
+|---|---|---|---|
+| 3.10.12 | Ubuntu 22.04 | `73f7bc6` | 217/217 |
+| 3.10.12 | standalone build (`uv`), Ubuntu 26.04 host | current | 224/224 |
+| 3.14.4 | Ubuntu 26.04 | current | 224/224 |
+
+Those are the runs that **happened**, end to end, sabotage modes included. The
+rows are split on purpose: the 22.04 figure is from an older tree and has not
+been repeated since, so it is reported as what it is — a real measurement of a
+different commit — instead of being folded into today's number. On the current
+tree, 3.10.12 was re-run here on a standalone build, which pins the interpreter
+but not the distribution.
+
+Not a compatibility claim for everything in between: nobody has run the suite
+on 3.12, so this table does not say it works there. It says what was measured,
+where, and on which tree.
+
+Outside that range Aurelius **declares and keeps going**:
+
+```
+NOTA · Python 3.9.7. La tanda de pruebas se ha corrido en 3.10.12 / 3.14.4, no en esta.
+NOTE · Python 3.9.7. The test run has been done on 3.10.12 / 3.14.4, not on this one.
+```
+
+It does not refuse to start. Outside the tested range does not mean broken — it
+means there is no data, and turning a missing measurement into a verdict is
+exactly what this program does not do anywhere else. The note goes to stderr,
+so piping output stays clean. The range lives in `interprete.py`, in one place,
+so this table and the program cannot drift apart.
 
 ## License
 
@@ -142,10 +174,12 @@ Para comprobar que todo funciona en tu máquina:
 
     bin/pruebas
 
-Corre las 12 suites — **218 pruebas** — y los dos modos de sabotaje. Imprime
-el desglose por suite, así que el número se puede comprobar en vez de creer.
+Corre las 13 suites — **224 pruebas** — y los dos modos de sabotaje. Imprime
+el desglose por suite y **con qué intérprete se corrió**, así que el número se
+puede comprobar en vez de creer: una cifra sin su máquina es un rumor con
+decimales.
 
-No uses `python3 -m unittest discover` para esto. Ve 7 de las 12 suites: las
+No uses `python3 -m unittest discover` para esto. Ve 8 de las 13 suites: las
 otras cinco traen corredor propio y `discover` no las encuentra, así que dice
 `OK` habiendo corrido poco más de la mitad. Un OK que cubre la mitad no es un
 OK, y por eso existe `bin/pruebas`.

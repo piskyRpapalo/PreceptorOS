@@ -101,11 +101,17 @@ suite_propia() {
 # falta.
 echo "── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────"
 echo "  ${gris}$(python3 -V 2>&1) · $(command -v python3)${fin}"
+# El rango probado sale de `interprete.py`, el mismo sitio del que lo saca el
+# producto: si viviera aqui tambien, el dia que se pruebe una version nueva
+# habria que acertar en dos ficheros. Una tanda fuera de rango se corre igual
+# -- se anota, no se impide.
+AVISO_V="$(python3 -c 'import interprete; print((interprete.aviso() or "").split(chr(10))[0])' 2>/dev/null)"
+[ -n "$AVISO_V" ] && echo "  ${ambar}${AVISO_V}${fin}"
 echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
-UNITTEST=(test_descarga test_estado test_fuga test_guardrails test_leitmotivs
-          test_silencio test_voz_cyber)
+UNITTEST=(test_descarga test_estado test_fuga test_guardrails test_interprete
+          test_leitmotivs test_silencio test_voz_cyber)
 PROPIAS=(cara idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
