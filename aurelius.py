@@ -36,12 +36,19 @@ import estado as _estado
 
 RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
 
-# --- catálogo de piezas · URLs y hashes pendientes de confirmación ---
+# --- catálogo de piezas · huellas medidas, no heredadas ------------------
+# Las dos se descargaron ENTERAS y se hashearon en el disco. No se copió el
+# hash de una página ni se dedujo de una cabecera: un Content-Length no es
+# una huella, y un repositorio que responde 401 entrega unos bytes de error
+# que también tienen su sha256 — es justo así como se firma un error.
 CEREBRO = _descarga.Pieza(
     nombre="Qwen3-4B-Instruct-2507 Q4_K_M",
     url="https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/main/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
-    sha256="PENDIENTE_CONFIRMAR_POR_EL_SOBERANO",
-    bytes=None,
+    # fichero: Qwen3-4B-Instruct-2507-Q4_K_M.gguf (2 497 281 120 bytes)
+    # url    : https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/main/Qwen3-4B-Instruct-2507-Q4_K_M.gguf
+    # huella medida el 2026-08-17T01:05:06Z y firmada por el Soberano
+    sha256="3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+    bytes=2497281120,
     licencia="Apache-2.0",
     destino="modelos/qwen3-4b-instruct-2507-Q4_K_M.gguf",
 )
@@ -49,8 +56,11 @@ CEREBRO = _descarga.Pieza(
 VOZ = _descarga.Pieza(
     nombre="Piper es_ES-sharvard speaker_0",
     url="https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx",
-    sha256="PENDIENTE_CONFIRMAR_POR_EL_SOBERANO",
-    bytes=None,
+    # fichero: es_ES-sharvard-medium.onnx (76 733 615 bytes)
+    # url    : https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx
+    # huella medida el 2026-08-17T01:05:55Z y firmada por el Soberano
+    sha256="40febfb1679c69a4505ff311dc136e121e3419a13a290ef264fdf43ddedd0fb1",
+    bytes=76733615,
     licencia="MIT",
     destino="voz/es_ES-sharvard-medium.onnx",
 )
