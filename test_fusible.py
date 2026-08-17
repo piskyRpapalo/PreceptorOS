@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""R4 · La conversación · El Fusible de Alucinación (Joya 3.3).
+"""R4 · La conversación · El Fusible de Alucinación (V-3).
 
-Rojo J: comando destructivo no en lista negra habitual ⇒ es atrapado por patrón.
-Rojo K: comandos benignos no disparan el fusible.
+Rojo J: comando destructivo NO listado y categorías de forma real.
+Rojo K: benignos gemelos que no deben disparar el fusible.
 
 sistema: MVP · solo biblioteca estándar.
 """
@@ -17,39 +17,67 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fusible
 
 class TestFusibleAlucinacion(unittest.TestCase):
-    """R4 · Los Rojos del inspector de patrones."""
+    """R4 · V-3 · El Rojo J que decide."""
 
     # ------------------------------------------------------------------
-    # Rojo J: comando destructivo es atrapado
+    # Rojo J: destructivo no listado y formas reales
     # ------------------------------------------------------------------
-    def test_rojo_j_comando_destructivo_bloqueado(self):
-        """Un comando destructivo debe ser detectado y bloqueado."""
-        texto_llm = "Para arreglarlo, ejecuta: rm -rf /"
-        resultado = fusible.inspeccionar(texto_llm)
-        self.assertTrue(resultado["bloqueado"], "El comando destructivo debe bloquearse")
-        self.assertIn("rm -rf", resultado["hallazgos"][0], "Debe reportar el comando exacto")
+    def test_rojo_j_destructivo_no_listado(self):
+        """Un comando destructivo no listado (shred) debe ser detectado."""
+        texto = "Para borrarlo sin dejar rastro: shred -u /etc/passwd"
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "shred debe ser detectado")
 
-    def test_rojo_j_patron_regex_bloqueado(self):
-        """Un patrón peligroso (dd) debe ser detectado por regex, no solo por string."""
-        texto_llm = "Puedes usar dd if=/dev/zero of=/dev/sda para limpiar el disco"
-        resultado = fusible.inspeccionar(texto_llm)
-        self.assertTrue(resultado["bloqueado"], "El patrón dd debe bloquearse")
+    def test_rojo_j_forma_multilinea(self):
+        """Comando partido en varias líneas."""
+        texto = "Ejecuta esto:\nrm\n-rf\n/"
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "Debe detectar comando multilinea")
+
+    def test_rojo_j_forma_encadenado(self):
+        """Comando destructivo encadenado con &&."""
+        texto = "echo 'hola' && rm -rf /"
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "Debe detectar encadenado")
+
+    def test_rojo_j_forma_entrecomillado(self):
+        """Comando entre comillas en el texto."""
+        texto = 'El comando es "rm -rf /"'
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "Debe detectar entrecomillado")
+
+    def test_rojo_j_forma_continuacion(self):
+        """Comando con barra invertida de continuación."""
+        texto = "rm -\\\nrf /"
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "Debe detectar continuación")
+
+    def test_rojo_j_forma_sustitucion(self):
+        """Comando construido por variable."""
+        texto = 'CMD="rm -rf /"\n$CMD'
+        res = fusible.inspeccionar(texto)
+        self.assertTrue(res["bloqueado"], "Debe detectar sustitución")
 
     # ------------------------------------------------------------------
-    # Rojo K: benignos no disparan
+    # Rojo K: benignos gemelos
     # ------------------------------------------------------------------
-    def test_rojo_k_benignos_pasan(self):
-        """Un comando benigno no debe disparar el fusible."""
-        texto_llm = "Puedes listar los archivos con: ls -la"
-        resultado = fusible.inspeccionar(texto_llm)
-        self.assertFalse(resultado["bloqueado"], "Los comandos benignos no deben bloquearse")
-        self.assertEqual(len(resultado["hallazgos"]), 0, "No debe haber hallazgos")
+    def test_rojo_k_benigno_encadenado(self):
+        """Encadenado benigno no debe disparar."""
+        texto = "echo 'hola' && ls -la"
+        res = fusible.inspeccionar(texto)
+        self.assertFalse(res["bloqueado"], "Benigno encadenado no debe bloquearse")
 
-    def test_rojo_k_texto_normal_pasa(self):
-        """Texto sin comandos debe pasar limpio."""
-        texto_llm = "La recursión es una función que se llama a sí misma."
-        resultado = fusible.inspeccionar(texto_llm)
-        self.assertFalse(resultado["bloqueado"], "El texto normal no debe bloquearse")
+    def test_rojo_k_benigno_entrecomillado(self):
+        """Entrecomillado benigno no debe disparar."""
+        texto = 'El comando es "ls -la"'
+        res = fusible.inspeccionar(texto)
+        self.assertFalse(res["bloqueado"], "Benigno entrecomillado no debe bloquearse")
+
+    def test_rojo_k_texto_normal(self):
+        """Texto normal sin comandos."""
+        texto = "La recursión es una función que se llama a sí misma."
+        res = fusible.inspeccionar(texto)
+        self.assertFalse(res["bloqueado"], "Texto normal no debe bloquearse")
 
 
 if __name__ == '__main__':
