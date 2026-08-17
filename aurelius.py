@@ -39,7 +39,7 @@ RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
 # --- catálogo de piezas · URLs y hashes pendientes de confirmación ---
 CEREBRO = _descarga.Pieza(
     nombre="Qwen3-4B-Instruct-2507 Q4_K_M",
-    url="https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507-GGUF/resolve/main/qwen3-4b-instruct-2507-Q4_K_M.gguf",
+    url="https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/main/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
     sha256="PENDIENTE_CONFIRMAR_POR_EL_SOBERANO",
     bytes=None,
     licencia="Apache-2.0",
