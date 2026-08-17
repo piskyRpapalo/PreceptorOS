@@ -505,6 +505,40 @@ def respaldar(ruta, destino=None):
     return destino, despues
 
 
+
+def restaurar(respaldo, destino):
+    """Restaura un respaldo en una ruta nueva. Nunca pisa el destino.
+
+    Simetrico a respaldar(): falla cerrado si el respaldo no existe,
+    si el destino ya existe, o si los recuentos no coinciden despues.
+    No destruye el original: restaurar es copiar hacia adelante, no mover.
+    """
+    if not os.path.exists(respaldo):
+        raise FileNotFoundError(
+            f"there is no backup at {respaldo}. Nothing to restore.")
+    if os.path.exists(destino):
+        # Restaurar jamas pisa una memoria viva: el destino puede ser
+        # la unica copia que la persona tiene en uso.
+        raise FileExistsError(
+            f"{destino} already exists. Restore never overwrites a live memory.")
+    origen = sqlite3.connect(respaldo)
+    copia = sqlite3.connect(destino)
+    try:
+        origen.backup(copia)
+        antes = _recuento_verificable(origen)
+        despues = _recuento_verificable(copia)
+    finally:
+        copia.close()
+        origen.close()
+    if antes != despues:
+        roto = destino + ".INCOMPLETO"
+        os.replace(destino, roto)
+        raise RespaldoNoVerificado(
+            f"the restore does not match the backup ({antes} vs {despues}). "
+            f"It was renamed to {roto} and must not be trusted as a memory.")
+    return destino, despues
+
+
 # --- componente 5 · la frontera -------------------------------------------
 
 def exportar(c, redactor=None, incluir_archivados=False):

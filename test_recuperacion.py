@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-from memory import respaldar
+from memory import respaldar, restaurar
 
 
 def crear_memoria_prueba(ruta_original):
@@ -92,7 +92,7 @@ class TestRecuperacion(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as tmpdir:
             ruta_original = os.path.join(tmpdir, 'memory.db')
-            destino_previsto = os.path.join(tmpdir, 'memory_backup.tgz')
+            destino_previsto = os.path.join(tmpdir, 'memory_backup.db')
 
             crear_memoria_prueba(ruta_original)
 
@@ -203,7 +203,7 @@ class TestRecuperacion(unittest.TestCase):
         """Si el destino ya existe, respaldar() debe fallar cerrado."""
         with tempfile.TemporaryDirectory() as tmpdir:
             ruta_original = os.path.join(tmpdir, 'memory.db')
-            destino_previsto = os.path.join(tmpdir, 'memory_backup.tgz')
+            destino_previsto = os.path.join(tmpdir, 'memory_backup.db')
 
             crear_memoria_prueba(ruta_original)
 
@@ -221,7 +221,7 @@ class TestRecuperacion(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as tmpdir:
             ruta_original = os.path.join(tmpdir, 'memory.db')
-            destino_previsto = os.path.join(tmpdir, 'memory_backup.tgz')
+            destino_previsto = os.path.join(tmpdir, 'memory_backup.db')
 
             crear_memoria_prueba(ruta_original)
 
@@ -246,6 +246,76 @@ class TestRecuperacion(unittest.TestCase):
             conn.close()
 
             self.assertGreater(len(tablas), 0, "El respaldo debe tener tablas")
+
+
+
+    def test_caso_real_restaurar_sin_destruir_original(self):
+        """R1 · El caso real: restaurar en ruta nueva, comparar, cronometrar.
+
+        No destruye el original. La invariante 'no se borra nada' se respeta:
+        restaurar es copiar hacia adelante, no mover.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ruta_original = os.path.join(tmpdir, 'memory.db')
+            respaldo_path = os.path.join(tmpdir, 'memory_backup.db')
+            ruta_restaurada = os.path.join(tmpdir, 'memory_restaurada.db')
+
+            crear_memoria_prueba(ruta_original)
+
+            # Respaldar
+            t0 = time.perf_counter()
+            destino, recuentos = respaldar(ruta_original, respaldo_path)
+            t_respaldo = time.perf_counter() - t0
+
+            # Restaurar en ruta nueva (NO destruye el original)
+            t0 = time.perf_counter()
+            destino_restaurado, recuentos_restaurados = restaurar(
+                respaldo_path, ruta_restaurada
+            )
+            t_restauracion = time.perf_counter() - t0
+
+            print(f'\nTIEMPO RESPALDO: {t_respaldo:.3f}s')
+            print(f'TIEMPO RESTAURACION: {t_restauracion:.3f}s')
+
+            # El original sigue vivo
+            self.assertTrue(os.path.exists(ruta_original),
+                            "El original debe seguir vivo")
+            # La restaurada existe
+            self.assertTrue(os.path.exists(ruta_restaurada),
+                            "La restaurada debe existir")
+            # Los recuentos coinciden
+            self.assertEqual(recuentos, recuentos_restaurados,
+                             "Los recuentos deben coincidir")
+
+            # Verificar contenido de la restaurada
+            conn = sqlite3.connect(ruta_restaurada)
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+
+            cur.execute(
+                'SELECT "what","why","where","learned" FROM engrams WHERE "what" = ?',
+                ('prueba NO_DATA',)
+            )
+            row = cur.fetchone()
+            self.assertIsNotNone(row, "NO_DATA debe persistir en la restaurada")
+            self.assertEqual(row['why'], 'NO_DATA')
+            self.assertEqual(row['where'], 'NO_DATA')
+            self.assertEqual(row['learned'], 'NO_DATA')
+
+            cur.execute(
+                'SELECT archived FROM engrams WHERE "what" = ?',
+                ('prueba archivada',)
+            )
+            row = cur.fetchone()
+            self.assertIsNotNone(row, "El archivado debe persistir en la restaurada")
+            self.assertEqual(row['archived'], 1, "Archivar no es borrar")
+
+            cur.execute('SELECT COUNT(*) AS n FROM engrams')
+            row = cur.fetchone()
+            self.assertEqual(row['n'], 3,
+                             "Deben persistir los 3 engrams en la restaurada")
+
+            conn.close()
 
 
 if __name__ == '__main__':
