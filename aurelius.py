@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -66,6 +67,29 @@ VOZ = _descarga.Pieza(
 )
 
 
+# --- el motor que enciende el cerebro -------------------------------------
+# El fichero del modelo pesa 2,3 GiB y no hace nada solo: hace falta un
+# programa que lo ejecute. Son dos ausencias distintas y se dicen por
+# separado, porque tener el cerebro descargado y no poder encenderlo es
+# exactamente el momento en que un desconocido cree que se ha equivocado él.
+#
+# El nombre del binario vive AQUI y en el README, no en lo que lee la persona:
+# a quien acaba de llegar, "llama-cli" no le dice qué le falta ni qué hacer.
+MOTOR = "llama-cli"
+
+
+def motor_conversacion():
+    """La ruta del motor, o None si no está. Mismo orden que `voz.piper_binario`.
+
+    `shutil.which` y no el PATH implícito de un servicio: un unit de systemd no
+    carga el perfil del usuario y no ve ~/.local/bin — cicatriz conocida.
+    """
+    declarado = os.environ.get("AURELIUS_MOTOR", "").strip()
+    if declarado:
+        return declarado if os.path.isfile(declarado) else None
+    return shutil.which(MOTOR)
+
+
 # --- guardrails: se inyecta, no se copia ----------------------------------
 
 def cargar_redactor():
@@ -83,7 +107,15 @@ def preguntar(texto, permitir_vacio=True):
     try:
         r = input(texto)
     except EOFError:
-        return ""
+        # Ctrl-D no dice nada distinto de un Enter en blanco: quien cierra la
+        # entrada tampoco está respondiendo. Por eso sale por la MISMA puerta
+        # que el hueco, incluido el None cuando el hueco no se admite.
+        #
+        # Antes devolvía "" siempre, y ahí estaba la grieta: "" no es None, se
+        # colaba por la guarda `if what is None` del llamante y llegaba hasta
+        # escribir un recuerdo sin qué, que revienta. La guarda estaba bien
+        # puesta; era esta línea la que la esquivaba.
+        return "" if permitir_vacio else None
     r = r.strip()
     if r == "" and not permitir_vacio:
         return None
@@ -492,6 +524,12 @@ def sesion(ruta):
     with M.abrir(ruta) as c:
         recordar_idioma(c, idioma)
         paso0_presentacion(c, lengua)
+        # El cerebro está en el disco pero no hay con qué encenderlo. Se dice
+        # una vez, al principio, y la sesión sigue: la memoria funciona entera
+        # sin motor, y callarlo dejaría a la persona esperando una charla que
+        # no va a llegar.
+        if _descarga.presente(CEREBRO) and motor_conversacion() is None:
+            print(tx(lengua, "sin_motor"))
         while True:
             paso2_primer_recuerdo(c, lengua)
             n = c.execute("select count(*) from engrams "

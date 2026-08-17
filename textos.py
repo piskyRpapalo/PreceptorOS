@@ -68,6 +68,11 @@ TEXTOS = {
         "recuerdo_que": "So — what happened?  ",
         "recuerdo_sin_que": ("Without a 'what' there is no memory. Nothing written,\n"
                              "and nothing wrong: come back when there is something."),
+        "sin_motor": ("\nThis copy has no conversation engine installed. I can keep\n"
+                      "and recall your notes, but I cannot talk yet. Everything\n"
+                      "below works without it.\n"
+                      "To switch talking on, install the engine listed in\n"
+                      "README → Requirements.\n"),
         "recuerdo_opcionales": (
             "\nThe next three can stay empty. Enter leaves them as {ausente},\n"
             "and a memory with declared gaps is still a memory — it is more\n"
@@ -195,6 +200,11 @@ TEXTOS = {
         "recuerdo_que": "Entonces — ¿qué pasó?  ",
         "recuerdo_sin_que": ("Sin un 'qué' no hay recuerdo. No he escrito nada,\n"
                              "y no pasa nada: vuelve cuando lo haya."),
+        "sin_motor": ("\nEsta copia no tiene motor de conversación instalado. Puedo\n"
+                      "guardar y recordar tus notas, pero todavía no puedo charlar.\n"
+                      "Todo lo de abajo funciona sin él.\n"
+                      "Para activar la charla, instala el motor que indica\n"
+                      "README → Requirements.\n"),
         "recuerdo_opcionales": (
             "\nLos tres siguientes pueden quedarse vacíos. Enter los deja en\n"
             "{ausente}, y un recuerdo con huecos declarados sigue siendo un\n"
