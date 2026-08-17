@@ -266,3 +266,6 @@ Two more things are in Spanish **by design**, and are not oversights:
   the session is Spanish.
 - The comments and docstrings inside the code. The reasoning of this project
   is written in Spanish; the interface it presents to the world is in English.
+
+
+> **Aviso de Seguridad:** El fusible de alucinación inspecciona la salida del modelo en busca de comandos destructivos, pero *no es completo*. Frena, no sustituye a la persona. La última comprobación la haces tú.

@@ -154,6 +154,13 @@ def crear(ruta):
             c.execute("ALTER TABLE engrams ADD COLUMN origen_dispositivo TEXT NOT NULL DEFAULT 'NO_DATA'")
         except sqlite3.OperationalError:
             pass  # La columna ya existe
+    
+    # B2: Permisos restrictivos desde el primer byte
+    try:
+        os.chmod(carpeta, 0o700)
+        os.chmod(ruta, 0o600)
+    except OSError:
+        pass  # En Windows o sistemas sin soporte, no falla
     return ruta
 
 
