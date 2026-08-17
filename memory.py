@@ -76,6 +76,21 @@ create table if not exists profile (
 """
 
 
+
+# La tabla de salidas registra cada texto que cruza la frontera hacia fuera.
+# Append-only: nunca se borra una fila. Lo que salio, salio, y queda constancia.
+ESQUEMA_SALIDAS = """
+create table if not exists salidas (
+    id            integer primary key autoincrement,
+    cuando        text not null default (datetime('now')),
+    canal         text not null default 'NO_DATA',
+    texto         text not null,
+    hallazgos     text not null default '[]',
+    hash_original text not null
+);
+"""
+
+
 class FronteraSinFiltro(Exception):
     """Se intento exportar sin filtro de redaccion. Falla cerrado."""
 
@@ -133,7 +148,7 @@ def crear(ruta):
     carpeta = os.path.dirname(os.path.abspath(ruta))
     os.makedirs(carpeta, exist_ok=True)
     with abrir(ruta) as c:
-        c.executescript(ESQUEMA + ESQUEMA_PERFIL)
+        c.executescript(ESQUEMA + ESQUEMA_PERFIL + ESQUEMA_SALIDAS)
     return ruta
 
 
@@ -537,6 +552,25 @@ def restaurar(respaldo, destino):
             f"the restore does not match the backup ({antes} vs {despues}). "
             f"It was renamed to {roto} and must not be trusted as a memory.")
     return destino, despues
+
+def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original):
+    """Registra una salida que cruzo la frontera. Append-only, nunca se borra.
+
+    Simetrico a la doctrina de memoria: lo que salio, salio, y queda constancia.
+    Falla cerrado si la insercion falla: sin registro, no hay salida valida.
+    """
+    import json
+    c.execute(ESQUEMA_SALIDAS)  # idempotente: crea la tabla si no existe
+    hallazgos_json = json.dumps(hallazgos, ensure_ascii=False)
+    cur = c.execute(
+        "insert into salidas (canal, texto, hallazgos, hash_original) "
+        "values (?, ?, ?, ?)",
+        (canal, texto_redactado, hallazgos_json, hash_original)
+    )
+    c.commit()  # durabilidad ANTES de devolver
+    return cur.lastrowid
+
+
 
 
 # --- componente 5 · la frontera -------------------------------------------

@@ -16,6 +16,7 @@ import argparse
 import os
 import shutil
 import sys
+import hashlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import memory as M
@@ -594,13 +595,40 @@ def main():
             except M.FronteraSinFiltro as e:
                 print(f"BLOCKED · {e}", file=sys.stderr)
                 return 2
+
+            # --- R2 · CONTRATO: preparar → mostrar → salir → registrar ---
+            print("=== FRONTERA DE SALIDA (INSPECCIÓN) ===")
             print(texto)
+            print("=======================================")
             total = sum(h["count"] for h in hallazgos)
             detalle = ", ".join(
                 "{}x{}".format(h["policy"], h["count"]) for h in hallazgos)
-            print("\n<!-- redacted: {} items · {} -->".format(
+            print("<!-- redacted: {} items · {} -->".format(
                 total, detalle or "none"))
-            return 0
+
+            # Mostrar (inspección humana)
+            try:
+                resp = input("¿Aprobar salida para registro? (s/n): ").strip().lower()
+            except EOFError:
+                resp = "n"  # No interactivo: no se registra, solo se muestra.
+
+            if resp == "s":
+                # Registrar (log en SQLite)
+                hash_original = hashlib.sha256(texto.encode('utf-8')).hexdigest()
+                try:
+                    M.registrar_salida(c, 'cli_export', texto, hallazgos, hash_original)
+                    print("OK · Salida registrada en la frontera.")
+                except Exception as e_reg:
+                    print(f"ERROR · No se pudo registrar la salida: {e_reg}", file=sys.stderr)
+                    return 3
+                # Salir (imprimir a stdout para copiar)
+                print("\n--- COPIAR TEXPO ABAJO ---")
+                print(texto)
+                print("--- FIN DEL TEXTO ---")
+                return 0
+            else:
+                print("BLOCKED · Salida no aprobada. No se registra ni se exporta.")
+                return 2
     banderas = arranque(a.db)
     return sesion(a.db)
 

@@ -258,6 +258,13 @@ def preparar_envio(texto):
     Devuelve {"estado", "texto", "hallazgos", "policy_hash"}. El contador que
     ve la interfaz es este valor de retorno: la interfaz no lo recalcula.
     """
+    # Doctrina: si no hay reglas o falla la config, no hay salida. Filtro vacío = bloqueo.
+    try:
+        politicas = _politicas_efectivas()
+    except PoliticasInvalidas:
+        raise EnvioBloqueado("configuración de políticas ausente o ilegible: envío bloqueado") from None
+    if not politicas:
+        raise EnvioBloqueado("sin políticas efectivas: envío bloqueado por seguridad")
     try:
         redactado, hallazgos = redactar_salida(texto)
     except Exception:
