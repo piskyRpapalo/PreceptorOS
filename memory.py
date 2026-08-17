@@ -149,6 +149,11 @@ def crear(ruta):
     os.makedirs(carpeta, exist_ok=True)
     with abrir(ruta) as c:
         c.executescript(ESQUEMA + ESQUEMA_PERFIL + ESQUEMA_SALIDAS)
+        # D12: Migracion aditiva. Si la DB es vieja, le anyade la columna.
+        try:
+            c.execute("ALTER TABLE engrams ADD COLUMN origen_dispositivo TEXT NOT NULL DEFAULT 'NO_DATA'")
+        except sqlite3.OperationalError:
+            pass  # La columna ya existe
     return ruta
 
 
@@ -183,16 +188,17 @@ def _o_ausente(v):
 
 
 def escribir_engrama(c, what, why=None, where_ref=None, learned="",
-                     origin="persona"):
+                     origin="persona", origen_dispositivo="NO_DATA"):
     """Inserta un recuerdo con las palabras de la persona, sin normalizar.
     `what` es obligatorio; el resto puede quedar en NO_DATA y el recuerdo
-    sigue siendo valido: un recuerdo sin motivo declarado es informacion."""
+    sigue siendo valido: un recuerdo sin motivo declarado es informacion.
+    `origen_dispositivo` marca donde nacio (D11: Identidad por Origen)."""
     if what is None or str(what).strip() == "":
         raise ValueError("what es obligatorio: un recuerdo sin qué no es un recuerdo")
     cur = c.execute(
-        "insert into engrams (what, why, where_ref, learned, origin) "
-        "values (?, ?, ?, ?, ?)",
-        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))
+        "insert into engrams (what, why, where_ref, learned, origin, origen_dispositivo) "
+        "values (?, ?, ?, ?, ?, ?)",
+        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin, origen_dispositivo))
     c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco
     return leer_engrama(c, cur.lastrowid)
 
@@ -574,6 +580,42 @@ def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original):
 
 
 # --- componente 5 · la frontera -------------------------------------------
+
+def importar(c, ruta_ext):
+    """Importa engramas de una memoria externa (otro dispositivo).
+
+    D11 (Identidad por Origen): no fusiona ni sobreescribe. Inserta los engramas
+    externos tal cual, conservando su origen_dispositivo. El ID local autoincremental
+    les asignara un nuevo numero, evitando choques. Cero DELETE.
+    """
+    import sqlite3 as _sqlite3
+    if not os.path.isfile(ruta_ext):
+        raise FileNotFoundError(f"Memoria externa no encontrada: {ruta_ext}")
+    
+    con_ext = _sqlite3.connect(f"file:{ruta_ext}?mode=ro", uri=True)
+    con_ext.row_factory = _sqlite3.Row
+    try:
+        # Leer engramas externos. Si la DB externa es vieja y no tiene origen_dispositivo, usamos NO_DATA
+        try:
+            filas_ext = con_ext.execute(
+                "SELECT what, why, where_ref, learned, origin, origen_dispositivo FROM engrams"
+            ).fetchall()
+        except _sqlite3.OperationalError:
+            filas_ext = con_ext.execute(
+                "SELECT what, why, where_ref, learned, origin, 'NO_DATA' as origen_dispositivo FROM engrams"
+            ).fetchall()
+        
+        for f in filas_ext:
+            c.execute(
+                "INSERT INTO engrams (what, why, where_ref, learned, origin, origen_dispositivo) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (f["what"], f["why"], f["where_ref"], f["learned"], f["origin"], f["origen_dispositivo"])
+            )
+        c.commit()
+        return len(filas_ext)
+    finally:
+        con_ext.close()
+
 
 def exportar(c, redactor=None, incluir_archivados=False):
     """Markdown legible para llevarselo. La redaccion ocurre AQUI y solo aqui.
