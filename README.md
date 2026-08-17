@@ -198,8 +198,8 @@ so this table and the program cannot drift apart.
 
 Dual license, one file each — the text that governs is theirs, not this summary:
 
-- Prose and lore: CC BY-SA 4.0 — [LICENSE](LICENSE)
-- Code: MIT — [LICENSE-CODE](LICENSE-CODE)
+- Code: MIT — [LICENSE](LICENSE)
+- Prose and lore: CC BY-SA 4.0 — [LICENSE-PROSE](LICENSE-PROSE)
 
 ## Contact
 
