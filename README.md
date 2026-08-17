@@ -1,4 +1,4 @@
-# Aurelius · M2 · the Water
+# Aurelius
 
 > **Sin un modelo local instalado, Aurelius no conversa: pregunta y recuerda.**
 > Esa es la descripción honesta. El cerebro y la voz se descargan en el primer arranque, con tu consentimiento.
@@ -51,6 +51,20 @@ so.
 
 Voice is optional and separate. Without it, everything works and the Speak
 button says plainly that this copy has no voice.
+
+## Requirements
+
+| Requirement | How to check it | If it is missing |
+|---|---|---|
+| Python 3.10+ | `python3 -V` | it does not start — the only mandatory one |
+| `llama-cli` | `command -v llama-cli` | no conversation with the model; everything else works |
+| `piper` | `command -v piper` | the Speak button says that this copy has no voice |
+
+Only the first row is required. The other two remove one capability each and
+leave the rest of the program intact: that is the design, not an accident of
+it. A copy of Aurelius with neither `llama-cli` nor `piper` still asks, still
+writes, still shows and still exports — and it tells you which of the two it is
+running without, instead of failing somewhere later and letting you guess.
 
 ## The face
 
@@ -126,9 +140,9 @@ redaction just removed it from.
 - [x] WAL journal: an interrupted write leaves no half rows
 - [x] Store raw / export redacted, tested in both directions
 - [x] Export blocked with no filter
-- [ ] `guardrails` module shipped in this folder — comes from the product, injected not copied
-- [ ] Full-text search — out of M2 on purpose
-- [ ] Manifest signature — belongs to the close of M2
+- [x] `guardrails` module shipped in this folder — `guardrails.py` and `test_guardrails.py`
+- [x] Manifest signature — `manifest.py` and `test_manifest.py`, versioned since the close of M3
+- [ ] Full-text search — left out on purpose
 
 `python3 test_memory.py` — 25/25 green. The whole tree is `bin/pruebas`.
 
@@ -182,7 +196,14 @@ so this table and the program cannot drift apart.
 
 ## License
 
-Dual License: CC BY-SA 4.0 (prose/lore) + MIT (code).
+Dual license, one file each — the text that governs is theirs, not this summary:
+
+- Prose and lore: CC BY-SA 4.0 — [LICENSE](LICENSE)
+- Code: MIT — [LICENSE-CODE](LICENSE-CODE)
+
+## Contact
+
+davidpecero@gmail.com
 
 ## Verificación
 
