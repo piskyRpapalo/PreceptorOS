@@ -205,30 +205,50 @@ Dual license, one file each — the text that governs is theirs, not this summar
 
 davidpecero@gmail.com
 
-## Verificación
+## Verification
 
-Para comprobar que todo funciona en tu máquina:
+To check that everything works on your machine:
 
     bin/pruebas
 
-Corre las 13 suites — **225 pruebas** — y los dos modos de sabotaje. Imprime
-el desglose por suite y **con qué intérprete se corrió**, así que el número se
-puede comprobar en vez de creer: una cifra sin su máquina es un rumor con
-decimales.
+It runs the 13 suites — **225 tests** — and the two sabotage modes. It prints
+the per-suite breakdown and **which interpreter it ran on**, so the number can
+be checked instead of believed: a figure without its machine is a rumour with
+decimals.
 
-No uses `python3 -m unittest discover` para esto. Ve 8 de las 13 suites: las
-otras cinco traen corredor propio y `discover` no las encuentra, así que dice
-`OK` habiendo corrido poco más de la mitad. Un OK que cubre la mitad no es un
-OK, y por eso existe `bin/pruebas`.
+Do not use `python3 -m unittest discover` for this. It sees 8 of the 13 suites:
+the other five bring their own runner and `discover` does not find them, so it
+says `OK` having run barely half. An OK that covers half is not an OK, and that
+is why `bin/pruebas` exists.
 
-Los dos sabotajes (`test_idioma.py --sabotaje`, `test_fuga.py --sabotaje`)
-rompen el producto a propósito en una copia del árbol y **exigen que las
-pruebas se pongan rojas**. Es lo que separa una suite que prueba algo de una
-que acompaña: 4/4 y 6/6 roturas detectadas.
+The two sabotages (`test_idioma.py --sabotaje`, `test_fuga.py --sabotaje`)
+break the product on purpose in a copy of the tree and **require the tests to
+go red**. That is what separates a suite that proves something from one that
+merely keeps it company: 4/4 and 6/6 breakages caught.
 
-Las pruebas no tocan tu `~/.aurelius/`, no abren el micrófono y no sacan nada
-por el altavoz — ver `silencio.py`.
+The tests do not touch your `~/.aurelius/`, do not open the microphone and do
+not send anything to the speaker — see `silencio.py`.
 
-Qué se verifica y qué **no**: [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md).
-Cierre de la tercera misión: [CIERRE_M3.md](CIERRE_M3.md). Pragmas que apagan
-una guardia: [EXCEPCIONES.md](EXCEPCIONES.md).
+What is verified and what is **not**: [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md).
+Third mission close-out: [CIERRE_M3.md](CIERRE_M3.md). Pragmas that switch a
+guard off: [EXCEPCIONES.md](EXCEPCIONES.md).
+
+## Lore names (kept in Spanish)
+
+Some names stay in Spanish because that is how they were created. They are
+names, not documentation:
+
+- **"el Preceptor"** — the character you talk to.
+- **"M1 · el Fuego", "M2 · el Agua", "M3 · la Piedra"** — mission titles.
+- **`bin/pruebas`, `silencio.py`, `descarga.py`, `voz.py`** and the rest of the
+  file and command names — renaming them would break every path, link and
+  test in this repository, and in the close-out documents that cite them.
+
+Two more things are in Spanish **by design**, and are not oversights:
+
+- The Spanish half of the interface (`textos.py`). This is a bilingual
+  product: it greets you in English by default and speaks Spanish if you ask
+  it to. `test_idioma.py` requires it to say `¿Creo mi memoria ahora?` when
+  the session is Spanish.
+- The comments and docstrings inside the code. The reasoning of this project
+  is written in Spanish; the interface it presents to the world is in English.
