@@ -201,6 +201,20 @@ Dual license, one file each — the text that governs is theirs, not this summar
 - Code: MIT — [LICENSE](LICENSE)
 - Prose and lore: CC BY-SA 4.0 — [LICENSE-PROSE](LICENSE-PROSE)
 
+**Scope of the MIT license.** This MIT license applies to all Python source
+code (`*.py`), shell scripts (`*.sh`), and configuration files in this
+repository.
+
+The prose, documentation, and lore (including but not limited to `README.md`
+and all `.md` files) are licensed separately under CC BY-SA 4.0 (see
+LICENSE-PROSE).
+
+This paragraph used to live at the bottom of `LICENSE` itself. It was moved
+here so that `LICENSE` holds the canonical MIT text and nothing else: GitHub
+identifies a licence by comparing that file against the canonical wording, and
+an appendix — however true — made it report `Other` instead of MIT. The terms
+did not change; only where they are written.
+
 ## Contact
 
 davidpecero@gmail.com
