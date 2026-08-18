@@ -223,7 +223,7 @@ uv run --python 3.12 ./bin/pruebas ; echo "salida=$?"
 ```
 
 **Not** `uv run --python 3.12 python3 -m unittest discover`. That runs 145 of
-the 225 tests for the reason described above — `discover` does not find the
+the 254 tests for the reason described above — `discover` does not find the
 five suites with their own runner — and it prints its report to stderr while
 the cases print to stdout, so a `tail` on the output shows the end of a museum
 escape and no test count at all. It exits 0. A green that covers 64% and says
@@ -248,12 +248,12 @@ To check that everything works on your machine:
 
     bin/pruebas
 
-It runs the 13 suites — **225 tests** — and the two sabotage modes. It prints
+It runs the 19 suites — **254 tests** — and the two sabotage modes. It prints
 the per-suite breakdown and **which interpreter it ran on**, so the number can
 be checked instead of believed: a figure without its machine is a rumour with
 decimals.
 
-Do not use `python3 -m unittest discover` for this. It sees 8 of the 13 suites:
+Do not use `python3 -m unittest discover` for this. It sees 8 of the 19 suites:
 the other five bring their own runner and `discover` does not find them, so it
 says `OK` having run barely half. An OK that covers half is not an OK, and that
 is why `bin/pruebas` exists.
