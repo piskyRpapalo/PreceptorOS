@@ -7,6 +7,9 @@
   --warn: #8a5b00; --warn-soft: #fdf3e0;
   --stop: #a3242b; --stop-soft: #fbeced;
   --acento: #6d5ae0;
+  --acento-tenue: #efecff;
+  --halo-alto: #ddd6ff;
+  --halo-bajo: #eae5ff;
   --radio: 12px;
 }
 @media (prefers-color-scheme: dark) {
@@ -17,13 +20,24 @@
     --warn: #e0b872; --warn-soft: #2e2515;
     --stop: #f19aa0; --stop-soft: #331a1c;
     --acento: #a794ff;
+    --acento-tenue: #221d3d;
+    --halo-alto: #241d47;
+    --halo-bajo: #191532;
   }
 }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
-  margin: 0; background: var(--ground); color: var(--ink);
+  margin: 0; color: var(--ink);
+  /* La misma tierra violeta que el tablero. Eran dos pantallas del mismo
+     producto pintadas por dos manos: el tablero con su halo y este panel en
+     gris de fabrica. Se cruza de una a otra por un enlace, y el salto se
+     notaba. */
+  background:
+    radial-gradient(130% 40% at 50% -5%,  var(--halo-alto) 0%, transparent 68%),
+    radial-gradient(120% 35% at 50% 105%, var(--halo-bajo) 0%, transparent 70%),
+    var(--ground);
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   display: flex; flex-direction: column;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
@@ -36,7 +50,8 @@ body {
 }
 
 .barra { padding: .9rem 1rem .3rem; }
-.barra h1 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
+.barra h1 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em;
+            font-weight: 800; }
 .estado { margin: .15rem 0 0; font-size: .8rem; color: var(--ink-soft); }
 
 .pestanas {
@@ -51,9 +66,10 @@ body {
   min-height: 44px;
 }
 .pestanas button[aria-selected="true"] {
-  color: var(--ink); background: var(--paper); border-color: var(--line);
-  font-weight: 600;
+  color: var(--ink); background: var(--paper); border-color: var(--acento);
+  font-weight: 700;
 }
+.pestanas button { font-weight: 600; }
 
 .carril { flex: 1; overflow: hidden; position: relative; }
 .panel {
@@ -88,11 +104,12 @@ button.enviar, button.probar {
   border-radius: var(--radio); cursor: pointer;
 }
 button:disabled { opacity: .5; cursor: not-allowed; }
-.pie { margin: 0; font-size: .78rem; color: var(--ink-soft); }
+.pie { margin: 0; font-size: .8rem; color: var(--ink-soft); font-weight: 500; }
 
 /* --- frontera --- */
 .tarjeta {
-  background: var(--paper); border: 1px solid var(--line);
+  background: var(--paper);
+  border: 1px solid var(--line); border-left: 3px solid var(--acento);
   border-radius: var(--radio); padding: .9rem; display: flex;
   flex-direction: column; gap: .7rem;
 }
@@ -109,7 +126,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 .switch.is-on { background: var(--ok); }
 .switch.is-on i { transform: translateX(16px); }
-.switch-label { font-weight: 600; }
+.switch-label { font-weight: 700; }
 .insignia { margin-left: auto; padding: .18rem .5rem; border-radius: 999px;
             font-size: .75rem; font-weight: 600; }
 .insignia-ok   { background: var(--ok-soft);   color: var(--ok); }
@@ -129,7 +146,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .payload-caja summary { font-size: .8rem; color: var(--ink-soft); cursor: pointer; }
 .payload {
   margin: .5rem 0 0; padding: .6rem; overflow-x: auto;
-  background: var(--ground); border: 1px solid var(--line);
+  background: var(--acento-tenue); border: 1px solid var(--line);
   border-radius: 8px; font-size: .78rem;
 }
 

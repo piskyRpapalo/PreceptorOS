@@ -135,5 +135,51 @@ class TestCaptura(unittest.TestCase):
         self.assertEqual(self.h.codigo, 400)
 
 
+class TestLaCaraNoSeApaga(unittest.TestCase):
+    """Ninguna animacion de la cara puede hacerla desaparecer.
+
+    CICATRIZ, 2026-08-23. El bucle de hablar iba de 0% a -400% en
+    `background-position`. Con posicionamiento en porcentaje, cualquier valor
+    fuera de 0-100% saca la imagen del marco: el busto desaparecia la mitad de
+    cada ciclo y quedaba un parpadeo de alto contraste a ritmo constante.
+
+    No es una queja estetica. Un parpadeo asi es un riesgo para personas con
+    epilepsia fotosensible, y lo vio una persona mirando el telefono antes que
+    ninguna prueba. Esta es esa prueba.
+    """
+
+    RUTA = os.path.join(AQUI, "interface")
+
+    def _css(self):
+        for nombre in os.listdir(self.RUTA):
+            if nombre.endswith(".css"):
+                with open(os.path.join(self.RUTA, nombre), encoding="utf-8") as fh:
+                    yield nombre, fh.read()
+
+    def test_ninguna_posicion_de_fondo_sale_del_marco(self):
+        import re
+        # Se comparan NUMEROS, no formas. La primera version de esta prueba usaba
+        # una alternancia de patrones para "mayor que 100" y marcaba 100% como
+        # invalido -- que es el ultimo fotograma, alineado a la derecha y
+        # perfectamente visible. Una prueba que marca lo correcto se acaba
+        # desactivando, y entonces deja de proteger lo que importa.
+        valores = re.compile(r"background-position:\s*(-?\d+(?:\.\d+)?)%")
+        for nombre, css in self._css():
+            for bruto in valores.findall(css):
+                v = float(bruto)
+                self.assertTrue(
+                    0 <= v <= 100,
+                    f"{nombre}: background-position {v}% saca la imagen del "
+                    f"marco y la cara se apaga a mitad de ciclo")
+
+    def test_toda_animacion_de_la_cara_respeta_menos_movimiento(self):
+        """Quien pidio menos movimiento no recibe una cara parpadeando."""
+        for nombre, css in self._css():
+            if "@keyframes" not in css:
+                continue
+            self.assertIn("prefers-reduced-motion", css,
+                          f"{nombre} anima y no atiende a quien pide quietud")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

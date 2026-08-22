@@ -325,15 +325,23 @@ function marcarFusionVista() {
   fusion(false);
 }
 
-/* El ojo parpadea una vez por minuto. No en bucle: en Reposo la app tiene que
- * parecer quieta, no viva. Es el unico movimiento que el blueprint del rack
- * aprueba para una CPU ARM, y con su misma forma -- 1.2s, steps(2). */
-setInterval(() => {
+/* Un gesto cada 25-40 segundos, y nunca mientras piensa: ahi ya se mueve la
+ * boca, y dos cosas moviendose a la vez es ruido. El intervalo se sortea en
+ * cada vuelta -- uno fijo se vuelve un tic, y un tic se nota mas que el gesto.
+ *
+ * Por que existe: el modelo tarda minutos en un telefono. Entre turno y turno
+ * la pantalla se queda quieta, y quieta se lee como rota. Esto no acelera
+ * nada; solo dice que sigue ahi. */
+function gesto() {
   const b = $("busto");
-  if (!b || b.classList.contains("piensa")) return;
-  b.classList.add("pestanea");
-  setTimeout(() => b.classList.remove("pestanea"), 1400);
-}, 60000);
+  const proxima = 25000 + Math.floor(Math.random() * 15000);
+  if (b && !b.classList.contains("piensa")) {
+    b.classList.add("gesto");
+    setTimeout(() => b.classList.remove("gesto"), 420);
+  }
+  setTimeout(gesto, proxima);
+}
+setTimeout(gesto, 12000);
 
 /* --- el Camino --------------------------------------------------------- */
 /* Los ocho peldaños salen del servidor, con su estado medido. Aqui NO se
