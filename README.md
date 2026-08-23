@@ -5,9 +5,9 @@
 
 # Aurelius
 
-**Your memory, in one file you can carry. It starts empty, and says so.**
+🇬🇧 **Your memory, in one file you can carry. It starts empty, and says so.**
 
-**Tu memoria, en un fichero que puedes llevarte. Empieza vacía, y lo dice.**
+🇪🇸 **Tu memoria, en un fichero que puedes llevarte. Empieza vacía, y lo dice.**
 
 🇪🇸 Español  ·  🇬🇧 English
 
@@ -23,12 +23,12 @@
 <img src="assets/pantalla-telon-en.png" width="240"
      alt="The Aurelius opening screen on a phone: on a white marble background, a large circle holds the pixel-art bust in its final frame, the marble face broken open to show dark machinery, one lit amber eye and loose fragments floating beside the head. Below it, the name Aurelius in ornate bronze letters with small gears.">
 <img src="assets/pantalla-tablero-en.png" width="240"
-     alt="The dashboard: a row with the bust, the bronze Aurelius name and a bronze plate button with a microphone, the words 'talk here' under it in violet. Below, a tall marble slate framed in bronze holds the conversation, then a text field and a bar of five icons: Memory, Border, The Path, Profile, Projects.">
+     alt="The dashboard mid-conversation: a row holds the bust, the bronze Aurelius name and a bronze plate button with a microphone, the words 'talk here' under it in violet. On the marble slate below, framed in bronze, the person asks why they should keep their own data; Aurelius answers that if the machine fails you still have what you wrote, and that it is not about control but about having what you need when you need it; the person replies that it is like a notebook that answers back, and Aurelius asks what they would like to try first. Under the slate, a text field and a bar of five icons: Memory, Border, The Path, Profile, Projects.">
 <img src="assets/pantalla-perfil-en.png" width="240"
      alt="The Profile panel: fields for what to call you, what interests you and language, plus a box headed 'How you want to be spoken to' holding instructions that are sent to Aurelius on every turn.">
 <br>
-<sub>It wakes from the stone, then hands you the slate — and it speaks the language your memory declares.<br>
-Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu memoria.</sub>
+<sub>🇬🇧 It wakes from the stone, then hands you the slate — and it speaks the language your memory declares.<br>
+🇪🇸 Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu memoria.</sub>
 </div>
 
 ---
@@ -40,21 +40,23 @@ Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu
 | **Computer** | One file, double-click. → [INSTALL_PC.md](INSTALL_PC.md) | Un fichero, doble clic. → [INSTALACION_PC.md](INSTALACION_PC.md) |
 | **Android** | Termux, then an icon on your home screen. → [INSTALL_ANDROID.md](INSTALL_ANDROID.md) | Termux, y luego un icono en la pantalla de inicio. → [INSTALACION_ANDROID.md](INSTALACION_ANDROID.md) |
 
-There is no account, no sign-up and no server. Nothing to cancel later.
+🇬🇧 There is no account, no sign-up and no server. Nothing to cancel later.
 
-No hay cuenta, ni registro, ni servidor. Nada que cancelar después.
+🇪🇸 No hay cuenta, ni registro, ni servidor. Nada que cancelar después.
 
 ---
 
 ## What it does / Qué hace
 
-You write **"my daughter is called Ana"** and Aurelius keeps it. Later you ask
+🇬🇧 You write **"my daughter is called Ana"** and Aurelius keeps it. Later you ask
 **"what is my daughter called?"** and it answers **Ana** — because you told it,
 not because it guessed.
 
-Escribes **«mi hija se llama Ana»** y Aurelius lo guarda. Más tarde preguntas
+🇪🇸 Escribes **«mi hija se llama Ana»** y Aurelius lo guarda. Más tarde preguntas
 **«¿cómo se llama mi hija?»** y responde **Ana** — porque se lo dijiste tú, no
 porque lo haya deducido.
+
+🇬🇧
 
 - **Remembers what you tell it, in your words.** Not a summary of them.
 - **Never sends your data anywhere.** No cloud, no telemetry, no account.
@@ -62,23 +64,27 @@ porque lo haya deducido.
 - **Works offline**, on your machine, with no graphics card.
 - **Starts empty, says so, and helps you fill it.**
 
+🇪🇸
+
 - **Recuerda lo que le dices, con tus palabras.** No un resumen de ellas.
 - **No manda tus datos a ningún sitio.** Sin nube, sin telemetría, sin cuenta.
 - **Pregunta antes de hacer nada destructivo.** Prefiere ir lento a arrepentirse.
 - **Funciona sin conexión**, en tu máquina, sin tarjeta gráfica.
 - **Empieza vacío, lo dice, y te ayuda a llenarlo.**
 
-Your whole memory is one file: `~/.aurelius/memory.db`. Copy it to a USB stick
+🇬🇧 Your whole memory is one file: `~/.aurelius/memory.db`. Copy it to a USB stick
 and your memory comes with you. Open it on a machine with no cable plugged in
 and it says exactly the same thing.
 
-Toda tu memoria es un fichero: `~/.aurelius/memory.db`. Cópialo a un lápiz USB
+🇪🇸 Toda tu memoria es un fichero: `~/.aurelius/memory.db`. Cópialo a un lápiz USB
 y tu memoria se va contigo. Ábrelo en una máquina sin un solo cable conectado y
 dice exactamente lo mismo.
 
 ---
 
 ## What it does NOT do / Qué NO hace
+
+🇬🇧
 
 - **It does not search — yet.** With few memories, search is a solution to a
   problem you do not have.
@@ -88,6 +94,8 @@ dice exactamente lo mismo.
 - **It does not talk without a brain installed.** Without one it asks and
   remembers, but it does not converse — and it tells you so instead of
   pretending.
+
+🇪🇸
 
 - **No busca — todavía.** Con pocos recuerdos, buscar es la solución a un
   problema que no tienes.
@@ -101,22 +109,22 @@ dice exactamente lo mismo.
 
 ## Security / Seguridad
 
-The fuse inspects what the model writes **before you see it**. It matches
+🇬🇧 The fuse inspects what the model writes **before you see it**. It matches
 structural shapes, not forbidden words.
 
-El fusible inspecciona lo que el modelo escribe **antes de que tú lo veas**.
+🇪🇸 El fusible inspecciona lo que el modelo escribe **antes de que tú lo veas**.
 Reconoce formas estructurales, no palabras prohibidas.
 
-It does **not** resolve variables, decode base64, or follow indirections. It
+🇬🇧 It does **not** resolve variables, decode base64, or follow indirections. It
 slows things down; it does not stand in for you. **The last check is yours.**
 
-**No** resuelve variables, no descodifica base64 y no sigue indirecciones.
+🇪🇸 **No** resuelve variables, no descodifica base64 y no sigue indirecciones.
 Frena; no te sustituye. **La última comprobación la haces tú.**
 
-The exact list of what it catches and what it misses is in
+🇬🇧 The exact list of what it catches and what it misses is in
 [TECHNICAL.md](TECHNICAL.md) — written out, not summarised.
 
-La lista exacta de lo que caza y lo que se le escapa está en
+🇪🇸 La lista exacta de lo que caza y lo que se le escapa está en
 [TECHNICAL.md](TECHNICAL.md) — escrita entera, no resumida.
 
 ---
@@ -129,9 +137,9 @@ cd aurelius
 python3 aurelius.py
 ```
 
-That is the whole installation. No package, no service, no account.
+🇬🇧 That is the whole installation. No package, no service, no account.
 
-Esa es la instalación entera. Sin paquete, sin servicio, sin cuenta.
+🇪🇸 Esa es la instalación entera. Sin paquete, sin servicio, sin cuenta.
 
 ```
 python3 aurelius.py --charla        # talk, if a brain is installed
@@ -139,17 +147,17 @@ bin/aurelius-servicio arranca       # the web face
 bin/pruebas                         # the whole test run
 ```
 
-Python 3.10 or newer, and its standard library. Nothing else — which is also
+🇬🇧 Python 3.10 or newer, and its standard library. Nothing else — which is also
 why the desktop build fits in 14 MB instead of 400.
 
-Python 3.10 o más nuevo, y su biblioteca estándar. Nada más — que es también
+🇪🇸 Python 3.10 o más nuevo, y su biblioteca estándar. Nada más — que es también
 por lo que el ejecutable de escritorio cabe en 14 MB y no en 400.
 
-**Deeper:** [TECHNICAL.md](TECHNICAL.md) — the fuse's real limits, the measured
+🇬🇧 **Deeper:** [TECHNICAL.md](TECHNICAL.md) — the fuse's real limits, the measured
 numbers with the machine that produced them, the Python versions actually run,
 and how to verify any of it yourself.
 
-**Más a fondo:** [TECHNICAL.md](TECHNICAL.md) — los límites reales del fusible,
+🇪🇸 **Más a fondo:** [TECHNICAL.md](TECHNICAL.md) — los límites reales del fusible,
 las cifras medidas con la máquina que las produjo, las versiones de Python
 realmente probadas, y cómo comprobar cualquiera de ellas por tu cuenta.
 
@@ -157,9 +165,9 @@ realmente probadas, y cómo comprobar cualquiera de ellas por tu cuenta.
 
 ## Licence / Licencia
 
-The text that governs is in the files, not in this summary.
+🇬🇧 The text that governs is in the files, not in this summary.
 
-El texto que manda está en los ficheros, no en este resumen.
+🇪🇸 El texto que manda está en los ficheros, no en este resumen.
 
 - **Code / Código** — MIT · [LICENSE](LICENSE)
 - **Prose, lore and sprites / Prosa, lore y sprites** — CC BY-SA 4.0 ·
@@ -169,7 +177,7 @@ El texto que manda está en los ficheros, no en este resumen.
 
 ## Contact / Contacto
 
-Issues and pull requests on GitHub. Security findings: [SECURITY.md](SECURITY.md).
+🇬🇧 Issues and pull requests on GitHub. Security findings: [SECURITY.md](SECURITY.md).
 
-Incidencias y pull requests en GitHub. Hallazgos de seguridad:
+🇪🇸 Incidencias y pull requests en GitHub. Hallazgos de seguridad:
 [SECURITY.md](SECURITY.md).
