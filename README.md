@@ -18,7 +18,7 @@
 <img src="https://img.shields.io/badge/Python-3.10%2B-2F6B4F?style=flat" alt="Python 3.10 or newer">
 <img src="https://img.shields.io/badge/dependencies-standard%20library%20only-A9762B?style=flat" alt="Dependencies: standard library only">
 <img src="https://img.shields.io/badge/storage-one%20local%20file-2F6B4F?style=flat" alt="Storage: one local file">
-<img src="https://img.shields.io/badge/code-MIT-57534E?style=flat" alt="Code licence: MIT">
+<img src="https://img.shields.io/badge/code-Apache--2.0-57534E?style=flat" alt="Code licence: Apache-2.0">
 
 </div>
 
@@ -347,7 +347,7 @@ realmente probadas, y cómo comprobar cualquiera de ellas por tu cuenta.
 
 🇪🇸 El texto que manda está en los ficheros, no en este resumen.
 
-- **Code / Código** — MIT · [LICENSE](LICENSE)
+- **Code / Código** — Apache-2.0 · [LICENSE](LICENSE)
 - **Prose, lore and sprites / Prosa, lore y sprites** — CC BY-SA 4.0 ·
   [LICENSE-PROSE](LICENSE-PROSE)
 

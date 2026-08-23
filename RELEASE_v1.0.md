@@ -77,5 +77,5 @@ resumidos.
 
 ## Licencia
 
-- **Código** — MIT · [LICENSE](LICENSE)
+- **Código** — Apache-2.0 · [LICENSE](LICENSE)
 - **Prosa, lore y sprites** — CC BY-SA 4.0 · [LICENSE-PROSE](LICENSE-PROSE)

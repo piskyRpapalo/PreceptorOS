@@ -59,10 +59,15 @@ snapshot.
 
 CC BY-SA 4.0 — [LICENSE-PROSE](LICENSE-PROSE).
 
-Corregido el 2026-08-22. Esta linea decia `Apache-2.0`, y en este arbol no
-existe ninguna licencia Apache: `LICENSE` es MIT y `LICENSE-PROSE` es
-CC BY-SA 4.0.
+Se elige CC BY-SA 4.0 y no la licencia del codigo por coherencia, no por
+gusto: el README ya licencia **todos** los `.md` bajo LICENSE-PROSE. Poner
+aqui la del codigo crearia una tercera version del mismo dato, que es como
+empezo este problema.
 
-Se elige CC BY-SA 4.0 y no MIT por coherencia, no por gusto: el README ya
-licencia **todos** los `.md` bajo LICENSE-PROSE. Poner MIT aqui crearia la
-tercera version del mismo dato, que es como empezo este problema.
+CICATRIZ, 2026-08-23. Esta nota decia, escrita el 22: «en este arbol no
+existe ninguna licencia Apache: LICENSE es MIT». Era falso cuando se
+escribio. `LICENSE` es el Apache-2.0 completo desde el commit 11acf6e del
+2026-08-19, y aquel commit toco `LICENSE` y nada mas -- ningun documento se
+entero. La correccion del 22 no se hizo mirando el fichero: se hizo de
+memoria, que es exactamente el fallo que este documento existe para impedir.
+El dato manda sobre el recuerdo, incluido el recuerdo de quien corrige.
