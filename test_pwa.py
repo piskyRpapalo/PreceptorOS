@@ -181,5 +181,55 @@ class TestLaCaraNoSeApaga(unittest.TestCase):
                           f"{nombre} anima y no atiende a quien pide quietud")
 
 
+class TestLasImagenesQuePideLaCaraSeSirven(unittest.TestCase):
+    """Toda imagen que la interfaz pide tiene que existir y saber servirse.
+
+    CICATRIZ, 2026-08-23. El servidor traducia extension a tipo con una tabla
+    cerrada -- png, svg, webp, gif -- y devolvia 404 para todo lo demas. El
+    fondo de la lamina se guardo en jpeg porque una fotografia de marmol en png
+    pesa cinco veces mas, y desde ese dia el fondo no se pintaba: se veia el
+    color de respaldo y parecia una decision de diseno. Nadie lo noto porque
+    ninguna prueba miraba lo que la hoja de estilo pide de verdad.
+
+    La prueba no lleva una lista de ficheros escrita a mano: la saca de la
+    propia interfaz. Una lista a mano se queda vieja en cuanto alguien anade
+    una imagen, y volveria a fallar en silencio.
+    """
+
+    RUTA = os.path.join(AQUI, "interface")
+
+    def _pedidas(self):
+        import re
+        pide = re.compile(r"/assets/([A-Za-z0-9._-]+)")
+        vistas = set()
+        for nombre in sorted(os.listdir(self.RUTA)):
+            if not nombre.endswith((".css", ".html", ".js")):
+                continue
+            with open(os.path.join(self.RUTA, nombre), encoding="utf-8") as fh:
+                for hallado in pide.findall(fh.read()):
+                    vistas.add((nombre, hallado))
+        return sorted(vistas)
+
+    def test_existen_en_el_disco(self):
+        pedidas = self._pedidas()
+        self.assertTrue(pedidas, "la interfaz no pide ninguna imagen: "
+                                 "la prueba se quedo sin objeto")
+        for donde, fichero in pedidas:
+            self.assertTrue(
+                os.path.isfile(os.path.join(AQUI, "assets", fichero)),
+                f"{donde} pide assets/{fichero} y no esta en el disco")
+
+    def test_el_servidor_sabe_su_tipo(self):
+        with open(os.path.join(AQUI, "bin", "aurelius-pwa"),
+                  encoding="utf-8") as fh:
+            fuente = fh.read()
+        for donde, fichero in self._pedidas():
+            ext = os.path.splitext(fichero)[1].lower()
+            self.assertIn(
+                f'"{ext}"', fuente,
+                f"{donde} pide assets/{fichero} y el servidor no tiene tipo "
+                f"para {ext}: respondera 404 y la cara saldra sin esa pieza")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

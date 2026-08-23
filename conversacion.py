@@ -291,8 +291,14 @@ GUIA = {
 }
 
 
-def prompt_sistema(fase_actual, idioma=None):
-    """Carácter + vocabulario + qué toca ahora. En ese orden y entero.
+def prompt_sistema(fase_actual, idioma=None, instrucciones=None):
+    """Carácter + vocabulario + qué toca ahora + lo que pidió la persona.
+
+    El orden no es casual y las instrucciones van LAS ULTIMAS, detrás del
+    arquetipo y no en su lugar. La persona ajusta CÓMO se le habla -- el tono,
+    los ejemplos, el trato -- y no puede borrar lo que este producto es. Un
+    campo de texto libre que sustituyera al carácter sería una puerta para
+    pedirle que deje de declarar sus ausencias, y eso no se ajusta.
 
     El glosario lleva los nombres del juego y lo que significan, **jamás la
     equivalencia con el nombre interno**: enseñarle a un modelo que
@@ -305,6 +311,11 @@ def prompt_sistema(fase_actual, idioma=None):
     if glosario:
         partes.append(glosario)
     partes.append(GUIA.get(idioma, GUIA["es"]).get(fase_actual, ""))
+    if instrucciones and instrucciones.strip():
+        marco = ("Esto te lo pidió la persona con la que hablas:"
+                 if idioma != "en" else
+                 "This is what the person you are talking to asked for:")
+        partes.append(f"{marco}\n{instrucciones.strip()}")
     return "\n\n".join(p for p in partes if p).strip()
 
 
@@ -331,7 +342,7 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     idioma = TX.normalizar(idioma)
     perfil = M.leer_perfil(c)
     donde = fase(camino, perfil)
-    sistema = prompt_sistema(donde, idioma)
+    sistema = prompt_sistema(donde, idioma, perfil.get("instrucciones"))
 
     if motor is None:
         raise SinCerebro("no hay motor de conversación en esta copia")

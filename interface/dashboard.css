@@ -1,28 +1,31 @@
-/* Aurelius · el tablero. Violeta de la casa, mobile-first, sin terminal a la vista. */
+/* Aurelius · el tablero. Marmol de la casa, mobile-first, sin terminal a la vista. */
 
+/* Paleta fija, no automatica. El tablero se pinta siempre sobre el marmol
+   claro de la lamina: es una cara, y una cara que cambia de piel segun el
+   ajuste del sistema deja de ser la misma. El violeta pasa de ser el suelo a
+   ser la luz -- vive en los mandos y en los bordes, no en el fondo, que es lo
+   que hacia que las laminas recortadas ensenaran su borde blanco. El panel de la frontera sigue su propio
+   camino porque ahi manda la legibilidad del dato, no la identidad. */
 :root {
   --violeta:      #6d5ae0;
   --violeta-hondo:#4c3fb5;
-  --violeta-tenue:#efecff;
-  --halo-alto:    #ddd6ff;
-  --halo-bajo:    #eae5ff;
-  --ambar:        #e0b872;
-  --ink: #16181d;  --ink-soft: #5b6270; --line: #dfe3ea;
-  --paper: #ffffff; --ground: #f5f6f8;
-  --ok: #1f7a4d;   --stop: #a3242b;
+  /* El violeta de las letras sueltas sobre marmol. Mas hondo que el de los
+     mandos a proposito: el marmol tiene vetas oscuras y el tono claro se
+     hundia en ellas justo donde caia un rotulo. */
+  --violeta-fuerte:#3f3196;
+  --violeta-tenue:#ece9fb;
+  --ambar:        #a97c11;
+  --oro:          #8a6d2f;
+  --fondo:        #f1eff3;
+  --fondo-centro: #ffffff;
+  --circuito:     #d8d2e6;
+  --ink:      #241a35;
+  --ink-soft: #5f5674;
+  --line:     #cdc5dc;
+  --paper:    rgba(255,255,255,.86);
+  --ground:   rgba(255,255,255,.62);
+  --ok: #1e7a52;  --stop: #a52218;
   --radio: 16px;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --violeta:      #a794ff;
-    --violeta-hondo:#7c68e8;
-    --violeta-tenue:#221d3d;
-    --halo-alto:    #241d47;
-    --halo-bajo:    #191532;
-    --ink: #e9ecf1;  --ink-soft: #a2abba; --line: #333844;
-    --paper: #1b1e25; --ground: #121419;
-    --ok: #6cd39b;   --stop: #f19aa0;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -33,10 +36,15 @@ body {
      esta el busto, un rescoldo abajo donde estan los mandos, y el suelo. Muy
      suave a proposito -- si el fondo compite con el texto, se lee peor y la
      cara deja de ser una cara para ser un poster. */
-  background:
-    radial-gradient(130% 55% at 50% -5%,  var(--halo-alto) 0%, transparent 68%),
-    radial-gradient(120% 45% at 50% 105%, var(--halo-bajo) 0%, transparent 70%),
-    var(--ground);
+  /* El fondo del concept art, no una imitacion en CSS. `cover` lo adapta a
+     vertical -- la lamina es apaisada y un telefono no -- y va Fijo, para que
+     no se repinte al desplazar: en esta CPU eso se nota. El color de debajo es
+     el mismo violeta, asi que si la imagen tarda no hay destello blanco. */
+  background-color: var(--fondo);
+  background-image: url("/assets/fondo-marmol.jpg");
+  background-size: 240px auto;
+  background-repeat: repeat;
+  background-attachment: fixed;
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   display: flex; flex-direction: column;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
@@ -46,8 +54,22 @@ body {
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden;
       clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* --- el busto --- */
-.retrato { padding: 1.4rem 1rem .4rem; text-align: center; }
+/* --- la cabecera: cara, nombre y el mando de voz, en una fila --- */
+/* Los tres elementos de identidad se apilaban en vertical y se comian media
+   pantalla; el hueco de conversacion quedaba de seis lineas. Puestos en fila
+   la cabecera baja a unos cien pixeles y todo lo que sobra se lo queda el
+   chat, que es para lo que se abre la aplicacion. El mando de voz sube aqui
+   por la misma razon por la que es grande: quien no puede escribir comodo
+   tiene que alcanzarlo sin buscarlo. */
+.retrato {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .6rem .6rem .2rem;
+}
+/* El estado va debajo del mando de voz y no debajo del nombre: quien lo lee
+   quiere saber si puede pulsar, y la respuesta tiene que estar donde esta el
+   dedo. De paso el nombre se queda con el ancho que suelta. */
+.mando { flex: none; display: flex; flex-direction: column; align-items: center;
+         gap: .1rem; }
 /* Dos tiras de cuatro fotogramas, medidas antes de usarlas.
    `aurelius-up`    · marmol, grietas, cyborg, fragmentos. Solo el tercero
                       tiene el ojo encendido: 115 pixeles ambar contra 0 y 0.
@@ -58,9 +80,10 @@ body {
    Con cuatro fotogramas y el fondo al 400%, cada uno cae en un tercio:
    0%, 33.333%, 66.667%, 100%. El reposo es el tercero de `up`. */
 .busto {
-  width: 116px; height: 116px; margin: 0 auto; border-radius: 50%; position: relative;
+  width: 68px; height: 68px; margin: 0; flex: none;
+  border-radius: 50%; position: relative;
   background: var(--paper) url("/assets/aurelius-up.png") 66.667% 50% / 400% auto no-repeat;
-  border: 2px solid var(--violeta); box-shadow: 0 8px 28px rgba(109,90,224,.22);
+  border: 2px solid var(--violeta); box-shadow: 0 6px 22px rgba(109,90,224,.35);
   image-rendering: pixelated;
   animation: despertar 1.5s steps(3, jump-none) 1 both,
              respirar 3s ease-in-out 1.5s infinite;
@@ -127,16 +150,36 @@ body {
 
 .nombre { margin: .6rem 0 .1rem; font-size: 1.35rem; letter-spacing: -.02em;
           font-weight: 800; }
-.pulso  { margin: 0; font-size: .86rem; color: var(--ink-soft);
-          font-weight: 600; }
+.pulso  { margin: 0; font-size: .68rem; line-height: 1.25; text-align: center;
+          max-width: 118px; color: var(--violeta-fuerte); font-weight: 800;
+          letter-spacing: .01em; }
 
 /* --- lo que dice --- */
+/* La tabla de marmol de la lamina. `border-image` estira el marco de bronce
+   sin deformar las esquinas, que es justo lo que hace falta cuando la altura
+   depende de cuanto se haya hablado. El marmol va debajo como color: la
+   imagen del marco es transparente por dentro. */
 .dice {
-  flex: 1; margin: .9rem 1rem; padding: 1rem; overflow-y: auto;
-  background: var(--paper); border: 1px solid var(--line);
-  border-radius: var(--radio); min-height: 5rem;
-  display: flex; flex-direction: column; gap: .6rem;
+  flex: 1; margin: .35rem .5rem .5rem; padding: .55rem .5rem; overflow-y: auto;
+  min-height: 6rem; display: flex; flex-direction: column; gap: .6rem;
+  /* El bronce va de borde, no de fondo: asi el hueco de dentro crece con la
+     conversacion sin deformar las esquinas, y puedo dibujarlo mas estrecho de
+     lo que mide en la lamina (47 px de lado) para ganar ancho de lectura. Los
+     numeros del recorte se midieron sobre el fichero, no se estimaron. */
+  border-style: solid;
+  border-width: 11px 12px 12px 12px;
+  /* `round` y no `stretch`: el lado mide 47 px de alto util y el marco puede
+     acabar midiendo mil y pico. Estirado se convierte en un tablon liso --
+     se pierden las hojas. Repetido conserva el relieve. */
+  border-image: url("/assets/marco-marmol.png") 31 47 34 47 round;
+  /* Apenas un velo: el marmol de debajo tiene que seguir viendose dentro
+     del marco -- es la pizarra, no un papel liso encima de ella. */
+  background: rgba(255,255,255,.26);
+  color: var(--ink);
 }
+.dice p { color: var(--ink); }
+.dice p.mio { background: var(--violeta-hondo); color: #fff; }
+.dice p.espera { color: var(--ink-soft); }
 .dice p { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap;
           font-weight: 500; }
 .dice p.mio { align-self: flex-end; max-width: 85%; padding: .5rem .7rem;
@@ -169,18 +212,34 @@ body {
  }
 @media (prefers-reduced-motion: reduce) {
   .reloj { animation: none; }
+  .hablar { transition: none; }
 }
 
 /* --- hablar --- */
-.hablar-zona { padding: 0 1rem 1rem; display: flex; flex-direction: column; gap: .6rem; }
+.hablar-zona { padding: 0 .7rem .6rem; }
+/* El boton de la lamina: la placa de bronce con el microfono. Sin rotulo a la
+   vista -- el microfono ya dice lo que hace. El texto sigue en el arbol, solo
+   que fuera de la pantalla: de ahi sale el nombre del boton para un lector de
+   pantalla, y quitarlo dejaria el mando mudo para quien no ve el dibujo.
+   El brillo violeta es una sombra proyectada sobre la silueta, no un halo
+   rectangular: `drop-shadow` sigue el alfa de la placa. */
 .hablar {
-  width: 100%; min-height: 68px; font: inherit; font-size: 1.15rem; font-weight: 700;
-  color: #fff; background: linear-gradient(180deg, var(--violeta), var(--violeta-hondo));
-  border: 0; border-radius: 999px; cursor: pointer;
-  box-shadow: 0 6px 20px rgba(109,90,224,.35);
+  flex: none; width: 104px; height: 84px; font: inherit;
+  background: url("/assets/boton-hablar.png") center / contain no-repeat;
+  border: 0; cursor: pointer; padding: 0; position: relative;
+  filter: drop-shadow(0 0 9px rgba(109,90,224,.55));
+  transition: filter .18s ease-out;
 }
-.hablar:disabled { opacity: .45; box-shadow: none; }
-.hablar, .escribir button {
+.hablar svg { display: none; }
+.hablar .rotulo-boton {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.hablar.escuchando {
+  filter: drop-shadow(0 0 17px rgba(109,90,224,.95)) brightness(1.1) saturate(1.2);
+}
+.hablar:disabled { opacity: .45; filter: none; }
+.escribir button {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
 }
 /* El icono hereda el color del texto: una sola fuente de verdad para el tema
@@ -188,11 +247,10 @@ body {
 .hablar svg, .escribir button svg { width: 1.35em; height: 1.35em; flex: none; }
 .escribir button svg { width: 1.2em; height: 1.2em; }
 .rotulo-boton { font-weight: 700; }
-.hablar.escuchando { background: linear-gradient(180deg, var(--ambar), #b8873a); }
 .escribir { display: flex; gap: .5rem; }
 .escribir input {
   flex: 1; font: inherit; min-height: 48px; padding: .5rem .8rem; color: var(--ink);
-  background: var(--paper); border: 1px solid var(--line); border-radius: 999px;
+  background: #fff; border: 1px solid var(--line); border-radius: 999px;
 }
 .escribir button {
   font: inherit; font-weight: 600; min-height: 48px; padding: 0 1.1rem; color: #fff;
@@ -216,7 +274,7 @@ body {
   border-radius: var(--radio) var(--radio) 0 0;
   padding: .9rem 1rem calc(1rem + env(safe-area-inset-bottom));
   transform: translateY(100%); transition: transform .22s ease-out;
-  box-shadow: 0 -10px 34px rgba(0,0,0,.18);
+  box-shadow: 0 -10px 34px rgba(36,26,53,.22);
 }
 .cajon.abierto { transform: translateY(0); }
 .cajon h2 { margin: .2rem 0 .7rem; font-size: 1.05rem; font-weight: 800;
@@ -274,9 +332,159 @@ body {
           font-weight: 600; text-decoration: none; }
 
 @media (min-width: 720px) {
+  .busto  { width: 92px; height: 92px; }
+  .hablar { width: 132px; height: 104px; }
   .retrato, .dice, .hablar-zona, .tiradores { max-width: 34rem;
     margin-inline: auto; width: 100%; }
   .cajon { max-width: 34rem; inset: auto auto 0 50%; transform: translate(-50%, 100%);
            border-radius: var(--radio) var(--radio) 0 0; }
   .cajon.abierto { transform: translate(-50%, 0); }
+}
+
+
+/* --- el nombre, en oro --------------------------------------------------- */
+/* Georgia y no una fuente de Google: pedirla por red rompe la promesa de que
+   esta cara no habla con nadie, y en un telefono sin datos no llegaria. El
+   espaciado ancho hace el trabajo que haria la Cinzel. */
+/* Las letras son la lamina, enteras. Se dan como <img> y no como fondo para
+   que lleven su texto alternativo: quien no ve la imagen tiene que leer el
+   nombre igual. */
+.marca { flex: 1; min-width: 0; margin: 0; text-align: left; }
+.marca img { width: 100%; max-width: 236px; height: auto; display: block; }
+@media (min-width: 720px) { .marca img { max-width: 300px; } }
+
+/* --- el telon ------------------------------------------------------------ */
+.telon {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.3rem;
+  background: var(--fondo) url("/assets/fondo-marmol.jpg") 0 0 / 240px auto repeat;
+  animation: caer .45s ease-out 1.8s both;
+}
+/* El telon no es un cartel: es el despertar. Los mismos cuatro fotogramas de
+   `aurelius-up` que usa el busto del tablero -- marmol entero, grietas, la
+   maquina asomando con el ojo encendido, los fragmentos sueltos -- una sola
+   vez y en orden. No es un dibujo aparte, es la misma tira, asi que no hay
+   dos verdades sobre que cara tiene esto al arrancar.
+
+   El busto del tablero se para en el tercero -- la maquina con el ojo
+   encendido -- porque ese es su reposo. El telon no: llega hasta el cuarto,
+   el de los fragmentos de marmol sueltos, que es el unico sitio donde ese
+   fotograma se ve. Cuatro fotogramas piden `steps(4, jump-none)` sobre el
+   recorrido entero: reparte en 0, 33.333, 66.667 y 100 por ciento, que son
+   justo los bordes de la tira al 400 por ciento de ancho.
+
+   La cortina espera a 1.8s con la animacion en 1.2s: sin ese respiro de seis
+   decimas el ultimo fotograma aparece y se va en el mismo suspiro. */
+.telon-busto {
+  /* Grande de verdad. El circulo inscrito en un cuadrado se come las esquinas,
+     que es justo donde flotan los fragmentos de marmol del ultimo fotograma:
+     cuanto mas pequeno el circulo, mas dibujo se pierde. `min` lo ata al ancho
+     del telefono para que no se salga en pantallas estrechas. */
+  width: min(68vw, 320px); aspect-ratio: 1; border-radius: 50%; flex: none;
+  background: url("/assets/aurelius-up.png") 0% 50% / 400% auto no-repeat;
+  border: 3px solid var(--violeta);
+  box-shadow: 0 10px 34px rgba(109,90,224,.4);
+  image-rendering: pixelated;
+  animation: despertar-entero 1.2s steps(4, jump-none) 1 both;
+}
+@keyframes despertar-entero {
+  from { background-position:   0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+.telon img { width: 72%; max-width: 400px; height: auto; }
+@keyframes caer { to { opacity: 0; visibility: hidden; } }
+/* Quien pidio quietud no espera un segundo y medio a una cortina. */
+@media (prefers-reduced-motion: reduce) { .telon { display: none; } }
+@media (prefers-reduced-motion: reduce) { .telon-busto { animation: none; } }
+
+/* --- la barra de cinco --------------------------------------------------- */
+.barra-iconos {
+  display: flex; gap: .25rem; padding: .5rem .5rem calc(.5rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line); background: var(--paper);
+}
+.barra-iconos button {
+  flex: 1; min-height: 64px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .22rem;
+  font: inherit; font-size: .63rem; font-weight: 800; letter-spacing: .02em;
+  color: var(--violeta-fuerte); background: transparent; border: 0;
+  border-radius: var(--radio); cursor: pointer;
+}
+.barra-iconos button svg { display: none; }
+/* Cada icono va dentro de un recuadro que se apaga del violeta de la casa
+   hacia un blanco central. Dos cosas a la vez: el borde ata la barra a los
+   colores del resto -- si no, cinco bronces sueltos sobre marmol parecen
+   pegatinas -- y el centro claro absorbe lo que quede del damero original,
+   asi que el recorte no tiene que ser perfecto para que no se note.
+
+   Dos capas de fondo por caja: el icono arriba, el degradado debajo. El
+   degradado vive en una variable porque la regla que pone la imagen de cada
+   icono sobreescribe `background-image` entera, y sin la variable habria que
+   repetir el degradado cinco veces y mantenerlo sincronizado a mano. */
+.barra-iconos button i {
+  --vidrio: radial-gradient(circle at 50% 46%,
+              #ffffff 38%, rgba(255,255,255,.86) 62%, rgba(109,90,224,.22) 100%);
+  width: 40px; height: 40px; display: block;
+  border: 1px solid rgba(109,90,224,.55); border-radius: 12px;
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: 28px 28px, cover;
+  box-shadow: 0 1px 4px rgba(76,63,181,.14);
+}
+.barra-iconos button[data-cajon="memoria"]    i { background-image: url("/assets/icono-memoria.png"), var(--vidrio); }
+.barra-iconos button[data-cajon="frontera"]   i { background-image: url("/assets/icono-frontera.png"), var(--vidrio); }
+.barra-iconos button[data-cajon="camino"]     i { background-image: url("/assets/icono-camino.png"), var(--vidrio); }
+.barra-iconos button[data-cajon="perfil"]     i { background-image: url("/assets/icono-perfil.png"), var(--vidrio); }
+.barra-iconos button[data-cajon="proyectos"]  i { background-image: url("/assets/icono-proyectos.png"), var(--vidrio); }
+.barra-iconos { background: rgba(255,255,255,.9); }
+.barra-iconos button[aria-expanded="true"] { color: var(--violeta-hondo); background: transparent; }
+.barra-iconos button[aria-expanded="true"] i {
+  border-color: var(--violeta);
+  box-shadow: 0 0 0 2px rgba(109,90,224,.28), 0 1px 4px rgba(76,63,181,.2);
+}
+
+/* --- volver -------------------------------------------------------------- */
+.volver {
+  font: inherit; font-size: .85rem; font-weight: 600; color: var(--ink-soft);
+  background: transparent; border: 0; padding: .2rem 0 .6rem; cursor: pointer;
+  min-height: 44px;
+}
+
+/* Los cajones heredan el fondo del tablero: se cruza de uno a otro y no hay
+   salto. Antes eran papel claro sobre tierra violeta. */
+.cajon { background: var(--fondo) url("/assets/fondo-marmol.jpg") 0 0 / 240px auto repeat; }
+
+/* --- perfil y proyectos -------------------------------------------------- */
+.campo { display: block; margin: .7rem 0 0; }
+.campo span { display: block; font-size: .78rem; font-weight: 700;
+              color: var(--ink-soft); margin-bottom: .25rem; }
+.campo input, .campo textarea, .campo select {
+  width: 100%; font: inherit; font-size: .9rem; padding: .55rem .7rem;
+  color: var(--ink); background: #fff; border: 1px solid var(--line);
+  border-radius: 10px; min-height: 44px;
+}
+.campo textarea { min-height: 120px; resize: vertical; line-height: 1.45; }
+.guardar {
+  margin-top: .8rem; width: 100%; min-height: 48px; font: inherit;
+  font-weight: 700; color: #fff; background: var(--violeta);
+  border: 0; border-radius: 999px; cursor: pointer;
+}
+.dicho-guardado { margin: .5rem 0 0; font-size: .8rem; font-weight: 600;
+                  color: var(--ok); }
+.dicho-guardado[hidden] { display: none; }
+
+.lista-proyectos { list-style: none; margin: .6rem 0 0; padding: 0;
+                   display: flex; flex-direction: column; gap: .5rem; }
+.lista-proyectos li {
+  background: var(--paper); border: 1px solid var(--line);
+  border-left: 3px solid var(--violeta); border-radius: 10px; padding: .6rem .7rem;
+}
+.lista-proyectos b { display: block; font-size: .92rem; }
+.lista-proyectos .ruta { font-family: ui-monospace, monospace; font-size: .72rem;
+                         color: var(--ink-soft); overflow-wrap: anywhere; }
+.lista-proyectos .falta { color: var(--stop); font-size: .72rem; font-weight: 700; }
+.lista-proyectos .quitar {
+  margin-top: .4rem; font: inherit; font-size: .75rem; font-weight: 600;
+  color: var(--stop); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: .25rem .7rem; min-height: 36px; cursor: pointer;
 }

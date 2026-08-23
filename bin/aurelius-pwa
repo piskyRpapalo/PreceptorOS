@@ -41,7 +41,8 @@ sys.path.insert(0, AQUI)
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
-import captura as C                                         # noqa: E402
+import captura as C
+import proyectos as PR                                         # noqa: E402
 import conversacion as _charla                              # noqa: E402
 import cara as _cara                                        # noqa: E402
 import casa as _casa
@@ -99,6 +100,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._camino()
         if ruta.startswith("/api/voz"):
             return self._voz()
+        if ruta == "/api/perfil":
+            return self._perfil_leer()
+        if ruta == "/api/proyectos":
+            return self._proyectos_leer()
         if ruta.startswith("/assets/"):
             return self._asset(ruta[len("/assets/"):])
         pieza = ESTATICOS.get(ruta)
@@ -128,7 +133,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._json(404, {"estado": "NO_DATA",
                                     "motivo": "aquí no vive eso"})
         tipos = {".png": "image/png", ".svg": "image/svg+xml",
-                 ".webp": "image/webp", ".gif": "image/gif"}
+                 ".webp": "image/webp", ".gif": "image/gif",
+                 ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
         tipo = tipos.get(os.path.splitext(nombre)[1])
         if tipo is None:
             return self._json(404, {"estado": "NO_DATA",
@@ -158,6 +164,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._turno(datos)
         if ruta == "/api/captura":
             return self._captura_marcar(datos)
+        if ruta == "/api/perfil":
+            return self._perfil_guardar(datos)
+        if ruta == "/api/proyectos":
+            return self._proyectos_guardar(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
 
     def _estado(self):
@@ -202,6 +212,53 @@ class PWA(BaseHTTPRequestHandler):
         return self._json(200, {"estado": "ok", "idioma": idioma,
                                 "peldanos": peldanos,
                                 "cifras": camino.get("cifras", {})})
+
+    CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones")
+
+    def _perfil_leer(self):
+        with M.abrir(self.server.ruta_db) as c:
+            perfil = M.leer_perfil(c)
+        return self._json(200, {
+            "estado": "ok",
+            "campos": {k: perfil.get(k, "NO_DATA") for k in self.CAMPOS_PERFIL},
+        })
+
+    def _perfil_guardar(self, datos):
+        """Solo los campos que esta puerta declara. Nada de escribir el perfil
+        entero con lo que llegue: el perfil tiene claves que el producto pone y
+        la interfaz no debe poder tocar."""
+        escritos = []
+        with M.abrir(self.server.ruta_db) as c:
+            for clave in self.CAMPOS_PERFIL:
+                if clave not in datos:
+                    continue
+                valor = datos[clave]
+                if not isinstance(valor, str) or len(valor) > 4000:
+                    return self._json(400, {"estado": "bloqueado",
+                                            "motivo": f"{clave} fuera de rango"})
+                M.escribir_perfil(c, clave, valor.strip() or "NO_DATA")
+                escritos.append(clave)
+            perfil = M.leer_perfil(c)
+        return self._json(200, {"estado": "ok", "escritos": escritos,
+                                "campos": {k: perfil.get(k, "NO_DATA")
+                                           for k in self.CAMPOS_PERFIL}})
+
+    def _proyectos_leer(self):
+        with M.abrir(self.server.ruta_db) as c:
+            return self._json(200, {"estado": "ok", "proyectos": PR.listar(c)})
+
+    def _proyectos_guardar(self, datos):
+        with M.abrir(self.server.ruta_db) as c:
+            if datos.get("quitar") is not None:
+                pid = datos.get("quitar")
+                ok = isinstance(pid, int) and PR.quitar(c, pid)
+            else:
+                ok = PR.anadir(c, datos.get("titulo", ""),
+                               datos.get("ruta", ""), datos.get("nota", "")) is not None
+            lista = PR.listar(c)
+        return self._json(200 if ok else 400,
+                          {"estado": "ok" if ok else "bloqueado",
+                           "proyectos": lista})
 
     def _voz(self):
         """¿Puede hablar esta copia? Se contesta con el disco, no con un deseo.

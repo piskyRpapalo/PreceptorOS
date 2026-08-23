@@ -15,7 +15,7 @@ let idioma = "es";
  * falta, y aqui se ve de un vistazo. */
 const T = {
   es: {
-    listo: "listo para hablar",
+    listo: "habla aquí",
     sin_cerebro: "puedo preguntar y recordar, todavía no conversar",
     sin_servidor: "no alcanzo al servidor",
     pensando: "pensando… esto puede tardar minutos",
@@ -40,11 +40,22 @@ const T = {
     front_que: "Antes de que un texto salga, se tachan claves, rutas y direcciones.",
     front_como: "Se cuenta la clase y la cantidad, nunca el texto encontrado. Y si el filtro no puede terminar, no se envía nada.",
     voz_no: "Esta copia no lleva voz: falta {falta}.",
+    volver: "← Volver", perfil: "Perfil", proyectos: "Proyectos",
+    et_nombre: "Cómo te llamas", et_intereses: "Lo que te interesa (separado por comas)",
+    et_idioma: "Idioma", et_instrucciones: "Cómo quieres que te hable",
+    et_cerebro: "Cerebro", et_cuaderno: "Cuaderno de turnos",
+    guardar: "Guardar", guardado: "Guardado.",
+    ph_instrucciones: "Eres Aurelius, mi compañero de aprendizaje. Me hablas con respeto pero sin formalidad excesiva. Prefiero ejemplos concretos a teoría abstracta.",
+    nota_instrucciones: "Esto se le dice a Aurelius en cada turno, después de su carácter y no en su lugar: ajustas cómo te habla, no lo que es.",
+    proy_intro: "Cosas que quieres volver a encontrar. Es una lista, no un gestor de ficheros: guarda el título y la ruta, y no toca nada de tu disco.",
+    et_titulo: "Título", et_ruta: "Ruta (opcional)",
+    anadir: "Añadir", no_esta: "no está ahí", quitar: "Quitar",
+    nota_memoria: "Vive en un solo fichero de tu máquina. Puedes copiarlo y llevártelo.",
     hecho: "hecho", empezado: "empezado", sin_empezar: "sin empezar",
     no_medible: "no medible desde aquí",
   },
   en: {
-    listo: "ready to talk",
+    listo: "talk here",
     sin_cerebro: "I can ask and remember, not converse yet",
     sin_servidor: "cannot reach the server",
     pensando: "thinking… this can take minutes",
@@ -69,6 +80,17 @@ const T = {
     front_que: "Before any text leaves, keys, paths and addresses are blanked out.",
     front_como: "What gets counted is the class and the quantity, never the text found. And if the filter cannot finish, nothing is sent.",
     voz_no: "This copy has no voice: {falta} is missing.",
+    volver: "← Back", perfil: "Profile", proyectos: "Projects",
+    et_nombre: "What to call you", et_intereses: "What interests you (comma separated)",
+    et_idioma: "Language", et_instrucciones: "How you want to be spoken to",
+    et_cerebro: "Brain", et_cuaderno: "Turn notebook",
+    guardar: "Save", guardado: "Saved.",
+    ph_instrucciones: "You are Aurelius, my learning companion. Speak to me with respect but without excessive formality. I prefer concrete examples to abstract theory.",
+    nota_instrucciones: "This is told to Aurelius on every turn, after its character and not in its place: you adjust how it speaks to you, not what it is.",
+    proy_intro: "Things you want to find again. It is a list, not a file manager: it keeps the title and the path, and touches nothing on your disk.",
+    et_titulo: "Title", et_ruta: "Path (optional)",
+    anadir: "Add", no_esta: "not there", quitar: "Remove",
+    nota_memoria: "It lives in one file on your machine. You can copy it and take it with you.",
     hecho: "done", empezado: "started", sin_empezar: "not started",
     no_medible: "not measurable from here",
   },
@@ -84,8 +106,12 @@ function abrir(cual) {
     else { c.classList.remove("abierto"); c.hidden = true; }
   });
   velo.classList.add("visible");
-  if (cual === "memoria" || cual === "ajustes") pulso();
+  document.querySelectorAll("[data-cajon]").forEach((b) =>
+    b.setAttribute("aria-expanded", String(b.dataset.cajon === cual)));
+  if (cual === "memoria" || cual === "perfil") pulso();
   if (cual === "camino") cargarCamino();
+  if (cual === "perfil") cargarPerfil();
+  if (cual === "proyectos") cargarProyectos();
 }
 function cerrar() {
   document.querySelectorAll(".cajon").forEach((c) => {
@@ -93,7 +119,11 @@ function cerrar() {
     setTimeout(() => { c.hidden = true; }, 220);
   });
   velo.classList.remove("visible");
+  document.querySelectorAll("[data-cajon]").forEach((b) =>
+    b.setAttribute("aria-expanded", "false"));
 }
+document.querySelectorAll("[data-volver]").forEach((b) =>
+  b.addEventListener("click", cerrar));
 document.querySelectorAll("[data-cajon]").forEach((b) =>
   b.addEventListener("click", () => abrir(b.dataset.cajon)));
 velo.addEventListener("click", cerrar);
@@ -110,55 +140,7 @@ document.querySelectorAll(".cajon").forEach((c) => {
 });
 
 /* --- estado ------------------------------------------------------------ */
-async function pulso() {
-  try {
-    const r = await fetch("/api/estado");
-    const d = await r.json();
-    idioma = d.idioma === "en" ? "en" : "es";
-    document.documentElement.lang = idioma;
-    $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
-    rotulo();
-    $("dicho").placeholder = idioma === "en" ? "…or write it here"
-                                             : "…o escríbelo aquí";
-    // Las etiquetas del marco tambien: estaban escritas en el HTML y por eso
-    // no cambiaban. Un tablero que declara hablar dos idiomas y solo traduce
-    // los mensajes esta a medio traducir, que se nota mas que no traducir.
-    $("mandar").setAttribute("aria-label", t("dilo"));
-    $("frontera-que").textContent = t("front_que");
-    $("frontera-como").textContent = t("front_como");
-    const rotulos = { memoria: "memoria", frontera: "frontera",
-                      camino: "camino", ajustes: "ajustes" };
-    document.querySelectorAll("[data-cajon]").forEach((b) => {
-      b.textContent = t(rotulos[b.dataset.cajon]);
-    });
-    const titulos = { memoria: "tu_memoria", frontera: "la_frontera",
-                      camino: "el_camino", ajustes: "los_ajustes" };
-    for (const [cual, clave] of Object.entries(titulos)) {
-      const h = document.querySelector("#cajon-" + cual + " h2");
-      if (!h) continue;
-      // Se escribe en el <span> del rotulo, NO en el <h2>: el h2 lleva ahora
-      // un icono dentro, y `h2.textContent = ...` lo borraba entero. Un
-      // titulo que se traduce no deberia poder tirar su propio icono.
-      const rot = h.querySelector("span") || h;
-      rot.textContent = t(clave);
-    }
-    $("hablar").disabled = !d.motor;
-    $("mandar").disabled = !d.motor;
-    $("m-turnos").textContent = d.turnos.turnos;
-    $("m-consent").textContent = d.turnos.consentidos;
-    $("m-corr").textContent = d.turnos.corregidos;
-    $("a-idioma").textContent = d.idioma === "en" ? "English" : "Español";
-    $("a-motor").textContent = d.motor ? t("instalado") : t("sin_instalar");
-    $("a-captura").textContent = d.captura_activa ? t("encendido") : t("apagado");
-    $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
-  } catch {
-    $("pulso").textContent = t("sin_servidor");
-    $("hablar").disabled = true;
-    $("mandar").disabled = true;
-  }
-}
-
-/* El rotulo del boton grande se calcula en UN sitio. Estaba en cuatro -- al
+/* El rotulo del boton grande se calcula en Un sitio. Estaba en cuatro -- al
  * arrancar, al escuchar, al parar y al no haber reconocimiento -- y cada uno
  * escribia su cadena. Cuatro sitios que dicen lo mismo son cuatro sitios donde
  * se puede quedar uno sin traducir. */
@@ -166,6 +148,87 @@ function rotulo() {
   const hay = window.SpeechRecognition || window.webkitSpeechRecognition;
   const r = $("rotulo-hablar");
   if (r) r.textContent = hablando ? t("escuchando") : (hay ? t("hablar") : t("escribir"));
+}
+
+async function pulso() {
+  // El fetch y el pintado, separados a proposito. Estaban en el mismo `try`, y
+  // una referencia a un elemento que ya no existia -- quedo huerfana al fusionar
+  // dos paneles en uno -- caia en el mismo `catch` y la cara decia "no alcanzo
+  // al servidor" mientras el servidor contestaba 200 dos veces. Un mensaje que
+  // culpa a la red por un fallo propio manda a mirar donde no es.
+  let d;
+  try {
+    const r = await fetch("/api/estado");
+    d = await r.json();
+  } catch {
+    $("pulso").textContent = t("sin_servidor");
+    $("hablar").disabled = true;
+    $("mandar").disabled = true;
+    return;
+  }
+  // Un fallo pintando NO es un fallo de red, y se dice distinto. Si esto se
+  // traga la excepcion, la cara se queda a medio traducir y nadie sabe por que.
+  try {
+    pintarEstado(d);
+  } catch (e) {
+    $("pulso").textContent = "· " + (e && e.message ? e.message : e);
+  }
+}
+
+function pintarEstado(d) {
+  idioma = d.idioma === "en" ? "en" : "es";
+  document.documentElement.lang = idioma;
+  $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
+  rotulo();
+  $("dicho").placeholder = idioma === "en" ? "…or write it here"
+                                           : "…o escríbelo aquí";
+  // Las etiquetas del marco tambien: estaban escritas en el HTML y por eso
+  // no cambiaban. Un tablero que declara hablar dos idiomas y solo traduce
+  // los mensajes esta a medio traducir, que se nota mas que no traducir.
+  $("mandar").setAttribute("aria-label", t("dilo"));
+  $("frontera-que").textContent = t("front_que");
+  $("frontera-como").textContent = t("front_como");
+  // Solo el <span> del rotulo: el boton lleva un icono dentro, y escribir
+  // en el boton entero lo borraria. Ya paso una vez con los titulos.
+  document.querySelectorAll("[data-rotulo]").forEach((sp) => {
+    sp.textContent = t(sp.dataset.rotulo);
+  });
+  document.querySelectorAll("[data-volver]").forEach((b) => {
+    b.textContent = t("volver");
+  });
+  for (const [id, clave] of Object.entries({
+      "et-nombre": "et_nombre", "et-intereses": "et_intereses",
+      "et-idioma": "et_idioma", "et-instrucciones": "et_instrucciones",
+      "et-cerebro": "et_cerebro", "et-cuaderno": "et_cuaderno",
+      "et-titulo": "et_titulo", "et-ruta": "et_ruta",
+      "nota-instrucciones": "nota_instrucciones", "proy-intro": "proy_intro",
+      "nota-memoria": "nota_memoria"})) {
+    const el = $(id);
+    if (el) el.textContent = t(clave);
+  }
+  $("p-guardar").textContent = t("guardar");
+  $("pr-anadir").textContent = t("anadir");
+  $("p-instrucciones").placeholder = t("ph_instrucciones");
+  const titulos = { memoria: "tu_memoria", frontera: "la_frontera",
+                    camino: "el_camino", perfil: "perfil",
+                    proyectos: "proyectos" };
+  for (const [cual, clave] of Object.entries(titulos)) {
+    const h = document.querySelector("#cajon-" + cual + " h2");
+    if (!h) continue;
+    // Se escribe en el <span> del rotulo, NO en el <h2>: el h2 lleva ahora
+    // un icono dentro, y `h2.textContent = ...` lo borraba entero. Un
+    // titulo que se traduce no deberia poder tirar su propio icono.
+    const rot = h.querySelector("span") || h;
+    rot.textContent = t(clave);
+  }
+  $("hablar").disabled = !d.motor;
+  $("mandar").disabled = !d.motor;
+  $("m-turnos").textContent = d.turnos.turnos;
+  $("m-consent").textContent = d.turnos.consentidos;
+  $("m-corr").textContent = d.turnos.corregidos;
+  $("a-motor").textContent = d.motor ? t("instalado") : t("sin_instalar");
+  $("a-captura").textContent = d.captura_activa ? t("encendido") : t("apagado");
+  $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
 }
 
 /* --- decir ------------------------------------------------------------- */
@@ -342,6 +405,94 @@ function gesto() {
   setTimeout(gesto, proxima);
 }
 setTimeout(gesto, 12000);
+
+/* --- perfil ------------------------------------------------------------ */
+/* Los campos se leen del servidor y se escriben uno a uno. `No_data` es un
+ * valor del producto, no un texto que la persona deba ver en una caja: se
+ * enseña vacio, que es lo que significa. */
+function sinNoData(v) { return (!v || v === "No_data") ? "" : v; }
+
+async function cargarPerfil() {
+  try {
+    const r = await fetch("/api/perfil");
+    const d = await r.json();
+    $("p-nombre").value = sinNoData(d.campos.name);
+    $("p-intereses").value = sinNoData(d.campos.intereses);
+    $("p-instrucciones").value = sinNoData(d.campos.instrucciones);
+    const idi = sinNoData(d.campos.language) || "es";
+    $("p-idioma").value = idi === "en" ? "en" : "es";
+  } catch { /* el pulso ya dice que no hay servidor */ }
+}
+
+$("p-guardar").addEventListener("click", async () => {
+  const cuerpo = {
+    name: $("p-nombre").value,
+    intereses: $("p-intereses").value,
+    language: $("p-idioma").value,
+    instrucciones: $("p-instrucciones").value,
+  };
+  try {
+    const r = await fetch("/api/perfil", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cuerpo),
+    });
+    if (!r.ok) return;
+    const av = $("p-dicho");
+    av.textContent = t("guardado");
+    av.hidden = false;
+    setTimeout(() => { av.hidden = true; }, 2500);
+    pulso();                       // el idioma puede haber cambiado
+  } catch { /* nada que guardar si no hay servidor */ }
+});
+
+/* --- proyectos --------------------------------------------------------- */
+async function cargarProyectos() {
+  try {
+    const r = await fetch("/api/proyectos");
+    const d = await r.json();
+    const ul = $("lista-proyectos");
+    ul.replaceChildren();
+    for (const p of d.proyectos) {
+      const li = document.createElement("li");
+      const b = document.createElement("b");
+      b.textContent = p.titulo;
+      li.appendChild(b);
+      if (p.ruta && p.ruta !== "No_data") {
+        const ruta = document.createElement("div");
+        ruta.className = "ruta"; ruta.textContent = p.ruta;
+        li.appendChild(ruta);
+        if (!p.existe) {
+          // Se dice, no se borra. La persona decide si la arregla o la quita.
+          const falta = document.createElement("div");
+          falta.className = "falta"; falta.textContent = t("no_esta");
+          li.appendChild(falta);
+        }
+      }
+      const quitar = document.createElement("button");
+      quitar.className = "quitar"; quitar.type = "button";
+      quitar.textContent = t("quitar");
+      quitar.addEventListener("click", () => proyectoQuitar(p.id));
+      li.appendChild(quitar);
+      ul.appendChild(li);
+    }
+  } catch { /* sin servidor no hay lista */ }
+}
+
+async function proyectoGuardar(cuerpo) {
+  await fetch("/api/proyectos", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(cuerpo),
+  });
+  cargarProyectos();
+}
+function proyectoQuitar(id) { proyectoGuardar({ quitar: id }); }
+
+$("pr-anadir").addEventListener("click", () => {
+  const titulo = $("pr-titulo").value.trim();
+  if (!titulo) return;
+  proyectoGuardar({ titulo, ruta: $("pr-ruta").value });
+  $("pr-titulo").value = ""; $("pr-ruta").value = "";
+});
 
 /* --- el Camino --------------------------------------------------------- */
 /* Los ocho peldaños salen del servidor, con su estado medido. Aqui NO se

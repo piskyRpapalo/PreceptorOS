@@ -20,13 +20,15 @@
 </div>
 
 <div align="center">
-<img src="assets/tablero-en.png" width="250"
-     alt="The Aurelius dashboard in English on a phone: the marble bust in a violet ring, the name Aurelius, the line 'ready to talk', an empty conversation area, a large violet Talk button and a text field.">
-<img src="assets/tablero.png" width="250"
-     alt="The same dashboard in Spanish: 'listo para hablar', a Hablar button and the field '…o escríbelo aquí'.">
+<img src="assets/pantalla-telon-en.png" width="240"
+     alt="The Aurelius opening screen on a phone: on a white marble background, a large circle holds the pixel-art bust in its final frame, the marble face broken open to show dark machinery, one lit amber eye and loose fragments floating beside the head. Below it, the name Aurelius in ornate bronze letters with small gears.">
+<img src="assets/pantalla-tablero-en.png" width="240"
+     alt="The dashboard: a row with the bust, the bronze Aurelius name and a bronze plate button with a microphone, the words 'talk here' under it in violet. Below, a tall marble slate framed in bronze holds the conversation, then a text field and a bar of five icons: Memory, Border, The Path, Profile, Projects.">
+<img src="assets/pantalla-perfil-en.png" width="240"
+     alt="The Profile panel: fields for what to call you, what interests you and language, plus a box headed 'How you want to be spoken to' holding instructions that are sent to Aurelius on every turn.">
 <br>
-<sub>The face, running on a phone — it speaks the language your memory declares.<br>
-La cara, corriendo en un teléfono — habla el idioma que declara tu memoria.</sub>
+<sub>It wakes from the stone, then hands you the slate — and it speaks the language your memory declares.<br>
+Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu memoria.</sub>
 </div>
 
 ---

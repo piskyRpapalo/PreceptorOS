@@ -3,27 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#6d5ae0">
+<meta name="theme-color" content="#1a1225">
 <title>Aurelius</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/dashboard.css">
 </head>
 <body>
 
+<div class="telon" id="telon" aria-hidden="true">
+  <div class="telon-busto"></div>
+  <img src="/assets/titulo-aurelius.png" alt="Aurelius">
+</div>
+
 <div class="retrato">
   <div class="busto" id="busto" role="img"
        aria-label="Busto de mármol con un ojo encendido"></div>
-  <h1 class="nombre">Aurelius</h1>
-  <p class="pulso" id="pulso" aria-live="polite">comprobando…</p>
-</div>
-
-<p class="fusion" id="fusion" hidden>
-  <span id="fusion-texto"></span><span class="puntos" id="puntos"></span>
-</p>
-
-<main class="dice" id="dice" aria-live="polite"></main>
-
-<div class="hablar-zona">
+  <h1 class="marca"><img src="/assets/titulo-aurelius.png" alt="Aurelius"></h1>
+  <div class="mando">
   <button class="hablar" id="hablar" type="button">
     <svg id="icono-hablar" viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -34,6 +30,17 @@
     </svg>
     <span class="rotulo-boton" id="rotulo-hablar">Hablar</span>
   </button>
+    <p class="pulso" id="pulso" aria-live="polite">…</p>
+  </div>
+</div>
+
+<p class="fusion" id="fusion" hidden>
+  <span id="fusion-texto"></span><span class="puntos" id="puntos"></span>
+</p>
+
+<main class="dice" id="dice" aria-live="polite"></main>
+
+<div class="hablar-zona">
   <form class="escribir" id="escribir">
     <label class="sr" for="dicho">O escríbelo</label>
     <input id="dicho" type="text" placeholder="…o escríbelo aquí" autocomplete="off">
@@ -47,36 +54,67 @@
   </form>
 </div>
 
-<nav class="tiradores">
-  <button type="button" data-cajon="memoria">Memoria</button>
-  <button type="button" data-cajon="frontera">Frontera</button>
-  <button type="button" data-cajon="camino">El Camino</button>
-  <button type="button" data-cajon="ajustes">Ajustes</button>
+<nav class="barra-iconos" aria-label="Paneles">
+  <button type="button" data-cajon="memoria" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M 4 5 a2 2 0 0 1 2 -2 h12 v18 H 6 a2 2 0 0 1 -2 -2 Z"></path>
+      <path d="M 8 3 v18"></path><path d="M 12 8 h4"></path><path d="M 12 12 h4"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="memoria">Memoria</span>
+  </button>
+  <button type="button" data-cajon="frontera" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M 12 3 l 8 3 v5 c 0 5 -3.4 8.2 -8 10 c -4.6 -1.8 -8 -5 -8 -10 V 6 Z"></path>
+      <path d="M 9 12 l 2 2 l 4 -4"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="frontera">Frontera</span>
+  </button>
+  <button type="button" data-cajon="camino" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M 4 21 h5 v-4 h5 v-4 h5 v-4 h1"></path>
+      <path d="M 4 21 v-3"></path><path d="M 20 4 v2"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="camino">Camino</span>
+  </button>
+  <button type="button" data-cajon="perfil" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M 4 21 c 0 -4.4 3.6 -7 8 -7 s 8 2.6 8 7"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="perfil">Perfil</span>
+  </button>
+  <button type="button" data-cajon="proyectos" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+      <path d="M 9 7 V 5 a2 2 0 0 1 2 -2 h2 a2 2 0 0 1 2 2 v2"></path>
+      <path d="M 3 12 h18"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="proyectos">Proyectos</span>
+  </button>
 </nav>
 
 <div class="velo" id="velo"></div>
 
 <section class="cajon" id="cajon-memoria" aria-label="Memoria" hidden>
   <div class="asa"></div>
-  <h2>Tu memoria</h2>
+  <button class="volver" type="button" data-volver>← Volver</button>
+  <h2><span>Tu memoria</span></h2>
   <div class="dato"><span>Recuerdos guardados</span><b id="m-turnos">—</b></div>
   <div class="dato"><span>Consentidos para aprender</span><b id="m-consent">—</b></div>
   <div class="dato"><span>Corregidos por ti</span><b id="m-corr">—</b></div>
-  <p class="nota">
-    Vive en un solo fichero de tu máquina. Puedes copiarlo y llevártelo.
-    Nada sale de aquí si tú no lo exportas.
-  </p>
+  <p class="nota" id="nota-memoria"></p>
 </section>
 
 <section class="cajon" id="cajon-frontera" aria-label="Frontera" hidden>
   <div class="asa"></div>
+  <button class="volver" type="button" data-volver>← Volver</button>
   <h2>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M 12 3 l 8 3 v5 c 0 5 -3.4 8.2 -8 10 c -4.6 -1.8 -8 -5 -8 -10 V 6 Z"></path>
       <path d="M 9 12 l 2 2 l 4 -4"></path>
     </svg>
-    <span id="titulo-frontera">La frontera</span>
+    <span>La frontera</span>
   </h2>
   <div class="escudo-caja">
     <p id="frontera-que"></p>
@@ -87,19 +125,50 @@
 
 <section class="cajon" id="cajon-camino" aria-label="El Camino" hidden>
   <div class="asa"></div>
-  <h2>El Camino</h2>
+  <button class="volver" type="button" data-volver>← Volver</button>
+  <h2><span>El Camino</span></h2>
   <p class="nota" id="camino-intro"></p>
   <ul class="camino" id="camino"></ul>
 </section>
 
-<section class="cajon" id="cajon-ajustes" aria-label="Ajustes" hidden>
+<section class="cajon" id="cajon-perfil" aria-label="Perfil" hidden>
   <div class="asa"></div>
-  <h2>Ajustes</h2>
-  <div class="dato"><span>Idioma</span><b id="a-idioma">—</b></div>
-  <div class="dato"><span>Cerebro</span><b id="a-motor">—</b></div>
-  <div class="dato"><span>Cuaderno de turnos</span><b id="a-captura">—</b></div>
+  <button class="volver" type="button" data-volver>← Volver</button>
+  <h2><span>Perfil</span></h2>
+
+  <label class="campo"><span id="et-nombre"></span>
+    <input id="p-nombre" type="text" autocomplete="off"></label>
+  <label class="campo"><span id="et-intereses"></span>
+    <input id="p-intereses" type="text" autocomplete="off"></label>
+  <label class="campo"><span id="et-idioma"></span>
+    <select id="p-idioma">
+      <option value="es">Español</option>
+      <option value="en">English</option>
+    </select></label>
+
+  <label class="campo"><span id="et-instrucciones"></span>
+    <textarea id="p-instrucciones"></textarea></label>
+  <p class="nota" id="nota-instrucciones"></p>
+
+  <button class="guardar" type="button" id="p-guardar"></button>
+  <p class="dicho-guardado" id="p-dicho" hidden></p>
+
+  <div class="dato"><span id="et-cerebro"></span><b id="a-motor">—</b></div>
+  <div class="dato"><span id="et-cuaderno"></span><b id="a-captura">—</b></div>
   <p class="nota" id="a-nota"></p>
-  <a class="enlace" href="/app.html">Cuaderno y consentimientos →</a>
+</section>
+
+<section class="cajon" id="cajon-proyectos" aria-label="Proyectos" hidden>
+  <div class="asa"></div>
+  <button class="volver" type="button" data-volver>← Volver</button>
+  <h2><span>Proyectos</span></h2>
+  <p class="nota" id="proy-intro"></p>
+  <label class="campo"><span id="et-titulo"></span>
+    <input id="pr-titulo" type="text" autocomplete="off"></label>
+  <label class="campo"><span id="et-ruta"></span>
+    <input id="pr-ruta" type="text" autocomplete="off"></label>
+  <button class="guardar" type="button" id="pr-anadir"></button>
+  <ul class="lista-proyectos" id="lista-proyectos"></ul>
 </section>
 
 <script src="/dashboard.js"></script>
