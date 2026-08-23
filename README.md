@@ -5,9 +5,12 @@
 
 # Aurelius
 
-🇬🇧 **Your memory, in one file you can carry. It starts empty, and says so.**
+🇬🇧 **It has no syllabus. It walks yours — one question at a time, and it never picks the subject.**
 
-🇪🇸 **Tu memoria, en un fichero que puedes llevarte. Empieza vacía, y lo dice.**
+🇪🇸 **No tiene temario. Recorre el tuyo — una pregunta cada vez, y jamás elige el tema.**
+
+<sub>🇬🇧 Your memory is one file you can carry. It starts empty, and says so.<br>
+🇪🇸 Tu memoria es un fichero que puedes llevarte. Empieza vacía, y lo dice.</sub>
 
 🇪🇸 Español  ·  🇬🇧 English
 
@@ -30,6 +33,94 @@
 <sub>🇬🇧 It wakes from the stone, then hands you the slate — and it speaks the language your memory declares.<br>
 🇪🇸 Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu memoria.</sub>
 </div>
+
+---
+
+## The Path / El Camino
+
+🇬🇧 Most tools that remember things are filing cabinets: you put something in,
+you take it out, and you are exactly as capable as you were before. Aurelius
+keeps what you tell it because it needs to know **where you actually are** —
+and then it walks from there. The memory is the floor. The Path is the point.
+
+🇪🇸 Casi todo lo que recuerda cosas es un archivador: metes algo, lo sacas, y
+sigues sabiendo exactamente lo mismo que antes. Aurelius guarda lo que le
+cuentas porque necesita saber **dónde estás de verdad** — y desde ahí camina.
+La memoria es el suelo. El Camino es el asunto.
+
+### It does not choose your subject / No elige tu tema
+
+🇬🇧 This is the rule the whole thing is built around, and it is written into
+what the model is told on every single turn:
+
+🇪🇸 Esta es la regla sobre la que está construido todo, y va escrita en lo que
+se le dice al modelo en cada turno:
+
+> 🇬🇧 *They are building their own thing. **Never propose the subject or the
+> domain: it is not yours.** Say what just happened and hand the turn back.*
+>
+> 🇪🇸 *Está construyendo lo suyo. **Nunca propongas el tema ni el dominio: no es
+> tuyo.** Narra lo que acaba de pasar y devuélvele el turno.*
+
+🇬🇧 So it has no course to sell you. You bring Python, and it walks Python with
+you: one question at a time, at your pace, starting from what you already said
+you knew — not from lesson one of a syllabus written for nobody. Bring boats,
+or bookkeeping, or your own language. The behaviour is the same, because the
+behaviour is not about the topic.
+
+🇪🇸 Así que no tiene ningún curso que venderte. Traes Python, y recorre Python
+contigo: una pregunta cada vez, a tu ritmo, partiendo de lo que ya dijiste que
+sabías — no de la lección uno de un temario escrito para nadie. Trae barcos, o
+contabilidad, o tu propio idioma. El comportamiento es el mismo, porque el
+comportamiento no va del tema.
+
+### Eight rungs, and five of them are yours to skip / Ocho peldaños, y cinco puedes saltártelos
+
+🇬🇧 Three rungs are the core — everyone walks those. The other five are optional
+stops, taken one at a time and in any order. From the code that draws them:
+
+🇪🇸 Tres peldaños son el núcleo — esos los anda todo el mundo. Los otros cinco
+son paradas opcionales, de una en una y en cualquier orden. Del código que los
+dibuja:
+
+> 🇬🇧 *The core is everyone's. The rest you choose. **A path that forces you
+> through all eight is not a path: it is a corridor.***
+>
+> 🇪🇸 *El núcleo es de todos. Lo demás se elige. **Un camino que obliga a pasar
+> por las ocho no es un camino: es un pasillo.***
+
+| | 🇬🇧 | 🇪🇸 |
+|---|---|---|
+| **M0 – M2** | The Totem · The Fire · The Water | El Tótem · El Fuego · El Agua |
+| **M3 – M7** | The Refuge · The Signal · The Pact · The Copper Bastion · The Earth | El Refugio · La Señal · El Pacto · El Bastión de Cobre · La Tierra |
+
+### Measured, not decorated / Medido, no decorado
+
+🇬🇧 Every rung is computed from your own memory — how many memories are active,
+whether the manifest is sealed, which rooms you finished, which crossings were
+signed and which were blocked. Nothing is a checkbox you tick yourself.
+
+🇪🇸 Cada peldaño se calcula desde tu propia memoria — cuántos recuerdos están
+activos, si el manifiesto está sellado, qué salas terminaste, qué cruces se
+firmaron y cuáles se bloquearon. Nada es una casilla que marcas tú.
+
+🇬🇧 And when a rung **cannot** be measured, it says so instead of guessing. The
+Fire is one: from inside, the product cannot see whether a brain is installed,
+so it reports *not measurable* rather than paint a bar it did not earn. That is
+the same instinct as the rest of the product — a progress bar nobody measured is
+a lie with a percentage on it.
+
+🇪🇸 Y cuando un peldaño **no** se puede medir, lo dice en vez de suponerlo. El
+Fuego es uno: desde dentro, el producto no puede ver si hay un cerebro
+instalado, así que declara *no medible* en lugar de pintar una barra que no se
+ha ganado. Es el mismo instinto que el resto — una barra de progreso que nadie
+midió es una mentira con un porcentaje encima.
+
+🇬🇧 On a clean install every rung is at zero, and it tells you that on the first
+screen. It would rather start honest than start impressive.
+
+🇪🇸 En una instalación limpia todos los peldaños están a cero, y te lo dice en
+la primera pantalla. Prefiere empezar honesto a empezar impresionante.
 
 ---
 
@@ -104,6 +195,93 @@ dice exactamente lo mismo.
 - **No necesita red, ni GPU, ni nada más allá de Python 3.**
 - **No conversa sin un cerebro instalado.** Sin él pregunta y recuerda, pero no
   conversa — y te lo dice en vez de disimular.
+
+---
+
+## Make it yours / Hazlo tuyo
+
+🇬🇧 Aurelius is not a service that happens to run on your machine. It is a tool
+handed over, with the parts left where you can reach them. The defaults are one
+person's guess about an unknown machine — yours is not unknown to you. There are
+three levers, and they cost increasing amounts of effort.
+
+🇪🇸 Aurelius no es un servicio que resulta que corre en tu máquina. Es una
+herramienta entregada, con las piezas donde puedes alcanzarlas. Los valores por
+defecto son la suposición de una persona sobre una máquina que no conoce — la
+tuya sí la conoces tú. Hay tres palancas, y cuestan cada vez más esfuerzo.
+
+### 1 · Tell it how to speak to you / Dile cómo hablarte
+
+🇬🇧 In **Profile** there is a box: *How you want to be spoken to*. What you write
+there is sent on every turn, **after** its character and not in its place — you
+adjust how it speaks to you, not what it is. It takes effect on the next turn;
+nothing to restart.
+
+🇪🇸 En **Perfil** hay una caja: *Cómo quieres que te hable*. Lo que escribas ahí
+se manda en cada turno, **después** de su carácter y no en su lugar — ajustas
+cómo te habla, no lo que es. Vale desde el turno siguiente; nada que reiniciar.
+
+### 2 · Swap the brain / Cambia el cerebro
+
+🇬🇧 The brain is a GGUF file and the engine is `llama-completion` from
+llama.cpp. Neither is welded in. The one that ships is Qwen3-4B-Instruct-2507
+Q4_K_M (2.5 GB, Apache-2.0) because it is the largest thing that answers on a
+phone — not because it is the best one you can run.
+
+🇪🇸 El cerebro es un fichero GGUF y el motor es `llama-completion` de llama.cpp.
+Ninguno de los dos va soldado. El que viene es Qwen3-4B-Instruct-2507 Q4_K_M
+(2,5 GB, Apache-2.0) porque es lo más grande que responde en un teléfono — no
+porque sea lo mejor que puedes correr.
+
+| | |
+|---|---|
+| `--modelo <path>` | 🇬🇧 which GGUF the web face uses · 🇪🇸 qué GGUF usa la cara web |
+| `AURELIUS_MOTOR` | 🇬🇧 absolute path to the engine, when it is not on `PATH` · 🇪🇸 ruta absoluta al motor, cuando no está en el `PATH` |
+| `AURELIUS_TOPE_TOKENS` | 🇬🇧 how long an answer may get — 80 by default · 🇪🇸 cuánto puede alargarse una respuesta — 80 por defecto |
+| `AURELIUS_ESPERA` | 🇬🇧 seconds before a turn is called timed out — 420 by default · 🇪🇸 segundos antes de dar un turno por agotado — 420 por defecto |
+
+🇬🇧 Two things worth knowing before you swap. The prompt is sent as plain
+completion, with no chat template, so **instruct** models behave best. And the
+machine decides the wait: on a mid-range phone a turn is minutes, not seconds —
+on a desktop with the same model it is seconds. If your turns time out, that is
+not a fault, it is the wrong `AURELIUS_ESPERA` for your hardware, and the
+product says which of the two it was instead of blaming the model.
+
+🇪🇸 Dos cosas que conviene saber antes de cambiarlo. La petición se manda como
+completado a secas, sin plantilla de conversación, así que los modelos
+**instruct** se portan mejor. Y la máquina manda en la espera: en un teléfono de
+gama media un turno son minutos, no segundos — en un escritorio con el mismo
+modelo son segundos. Si tus turnos se agotan, no es una avería: es el
+`AURELIUS_ESPERA` equivocado para tu hardware, y el producto dice cuál de las
+dos cosas pasó en vez de culpar al modelo.
+
+### 3 · Train your own / Entrena el tuyo
+
+🇬🇧 A fine-tuned brain goes **beside** the base one, never over it. It is
+declared in `cerebro.json` with its own sha256, and it is measured before it is
+used: if the file is missing or the fingerprint does not match, the base brain
+is used and nothing breaks — an absent fine-tune is not a failure. Rollback is a
+written preference read on the next turn. There is no daemon to restart, because
+every turn is already a fresh child process.
+
+🇪🇸 Un cerebro afinado se pone **al lado** del base, nunca encima. Se declara en
+`cerebro.json` con su propio sha256, y se mide antes de usarlo: si el fichero no
+está o la huella no cuadra, se usa el base y no se rompe nada — un afinado
+ausente no es una avería. La vuelta atrás es una preferencia escrita que se lee
+en el turno siguiente. No hay demonio que reiniciar, porque cada turno ya es un
+proceso hijo nuevo.
+
+🇬🇧 None of this is finished, and saying otherwise would be the first lie. The
+numbers that exist were measured on the machines named in
+[TECHNICAL.md](TECHNICAL.md); yours will be different. Bring what you measure —
+an issue with your hardware, your model and your timings is worth more here than
+an opinion about which model is best, including mine.
+
+🇪🇸 Nada de esto está terminado, y decir lo contrario sería la primera mentira.
+Las cifras que hay se midieron en las máquinas que nombra
+[TECHNICAL.md](TECHNICAL.md); las tuyas serán otras. Trae lo que midas — una
+incidencia con tu hardware, tu modelo y tus tiempos vale aquí más que una
+opinión sobre qué modelo es mejor, incluida la mía.
 
 ---
 
