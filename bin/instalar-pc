@@ -20,7 +20,7 @@ AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APPS="$HOME/.local/share/applications"
 ICONOS="$HOME/.local/share/icons/hicolor/256x256/apps"
 DESKTOP="$APPS/aurelius.desktop"
-PUERTO="${AURELIUS_PWA_PUERTO:-8740}"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
 
 az()   { printf '\033[38;5;141m··\033[0m %s\n' "$1"; }
 nota() { printf '\033[38;5;103m   %s\033[0m\n' "$1"; }

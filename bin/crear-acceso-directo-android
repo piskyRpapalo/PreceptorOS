@@ -22,7 +22,7 @@ AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ATAJOS="$HOME/.shortcuts"
 ICONOS="$HOME/.shortcuts/icons"
 NOMBRE="Aurelius"
-PUERTO="${AURELIUS_PWA_PUERTO:-8740}"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
 # La ruta real de bash en este telefono, no una suposicion.
 BASH="$(command -v bash)"
 

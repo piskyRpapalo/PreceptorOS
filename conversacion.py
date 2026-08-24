@@ -45,6 +45,7 @@ import memory as M
 import fusible
 import narrador as N
 import textos as TX
+import entorno as _entorno
 
 # POR QUÉ `llama-completion` Y NO `llama-cli`.
 # Medido el 2026-08-19, contra el mismo modelo y el mismo prompt:
@@ -93,7 +94,7 @@ CONTEXTO = 4096
 # y un tope de 320 invita al modelo a rellenar. Que además convierta un turno
 # de tres minutos en uno de medio en un teléfono es la consecuencia, no el
 # motivo.
-TOPE_TOKENS = int(os.environ.get("AURELIUS_TOPE_TOKENS", "80"))
+TOPE_TOKENS = int(_entorno.leer("TOPE_TOKENS", "80"))
 MOTOR = "llama-completion"
 
 # Cuánto se espera a que el modelo conteste. Medido el 2026-08-19 en dos
@@ -116,14 +117,14 @@ MOTOR = "llama-completion"
 # Se sube el defecto y se deja gobernar por el entorno. Lo que NO se hace es
 # esconder el corte: un turno que se pasó del tiempo se dice distinto de un
 # motor que falló, porque son cosas distintas y se arreglan distinto.
-ESPERA = int(os.environ.get("AURELIUS_ESPERA", "420"))
+ESPERA = int(_entorno.leer("ESPERA", "420"))
 
 FASES = ("nucleo", "decision", "side_quest", "proyecto")
 
 
 def motor_disponible():
     """La ruta del motor, o None. Nunca el PATH implícito de un servicio."""
-    declarado = os.environ.get("AURELIUS_MOTOR", "").strip()
+    declarado = _entorno.leer("MOTOR", "").strip()
     if declarado:
         return declarado if os.path.isfile(declarado) else None
     return shutil.which(MOTOR)
@@ -155,7 +156,7 @@ def ruta_cache():
     su carpeta sin que los pidiera, y quien tenga el disco justo tiene que poder
     decir que no y quedarse con un producto más lento pero entero.
     """
-    if os.environ.get("AURELIUS_SIN_CACHE", "").strip() == "1":
+    if _entorno.leer("SIN_CACHE", "").strip() == "1":
         return None
     try:
         return str(_casa.raiz() / NOMBRE_CACHE)

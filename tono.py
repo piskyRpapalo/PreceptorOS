@@ -11,7 +11,7 @@ vive en el Preceptor, en la maquina de su dueno, y no viaja al clon publico.
 Aqui no hay nada que sepa de modelos: el tono funciona igual con o sin ellos,
 y por eso puede publicarse.
 
-Interruptor: la variable de entorno AURELIUS_RITMO. 1.0 es el ritmo normal,
+Interruptor: la variable PRECEPTOROS_RITMO (o la vieja AURELIUS_RITMO). 1.0 es el ritmo normal,
 0 desactiva toda espera. Los tests la fijan a 0, porque una suite lenta se
 deja de correr y un mecanismo que no se corre no protege nada.
 """
@@ -21,7 +21,13 @@ import os
 import sys
 import time
 
-_RITMO = float(os.environ.get("AURELIUS_RITMO", "1.0"))
+# El nombre nuevo y el viejo, leidos a mano y no por `entorno`, a proposito:
+# `tono` es un modulo HOJA -- no importa nada de este arbol -- y hay una prueba
+# que lo vigila desde antes que este renombrado. Acoplar la hoja al puente para
+# ahorrar dos lineas cambiaria una propiedad del diseno por comodidad.
+_RITMO = float(os.environ.get("PRECEPTOROS_RITMO")
+               or os.environ.get("AURELIUS_RITMO")
+               or "1.0")
 
 
 def fijar_ritmo(valor):

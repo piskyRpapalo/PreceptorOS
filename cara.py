@@ -32,6 +32,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import memory as M
 import textos as TX
+import entorno as _entorno
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(AQUI, "assets")
@@ -1138,9 +1139,9 @@ def main(argv=None):
     ap.add_argument("--idioma", choices=("en", "es"))
     # La voz es opcional por diseño. Si no está, la cara se genera igual y su
     # botón lo declara: una copia sin voz sigue siendo una copia entera.
-    ap.add_argument("--piper", default=os.environ.get("AURELIUS_PIPER"),
+    ap.add_argument("--piper", default=_entorno.leer("PIPER"),
                     help="path to the piper binary (child process, no socket)")
-    ap.add_argument("--voz", default=os.environ.get("AURELIUS_VOZ"),
+    ap.add_argument("--voz", default=_entorno.leer("VOZ"),
                     help="path to the signed voice model (.onnx)")
     ap.add_argument("--puente", metavar="ORIGEN",
                     help="origen del puente local (p.ej. http://127.0.0.1:8734). "

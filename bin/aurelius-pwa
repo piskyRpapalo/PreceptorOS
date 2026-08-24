@@ -48,8 +48,8 @@ import cara as _cara                                        # noqa: E402
 import casa as _casa
 import voz as _voz                                        # noqa: E402
 
-BIND = os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
-PUERTO = int(os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
+BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
+PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
 LIMITE = 512 * 1024
 INTERFAZ = os.path.join(AQUI, "interface")
 

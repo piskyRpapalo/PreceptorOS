@@ -45,6 +45,7 @@ import conversacion as _charla
 import narrador as _narrador
 import afinado as _afinado
 import captura as _captura
+import entorno as _entorno
 
 RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
 
@@ -726,7 +727,7 @@ def _peldano_actual(camino):
 def arranque(ruta):
     """Flujo de arranque del Preceptor §6. Se ejecuta ANTES de sesion()."""
     # Si estamos en modo test, saltar el arranque completo
-    if os.environ.get("AURELIUS_TEST") == "1":
+    if _entorno.leer("TEST") == "1":
         return {"ritual_firmado": False, "cerebro_descargado": False, "voz_descargada": False}
     
     # 1. Casa

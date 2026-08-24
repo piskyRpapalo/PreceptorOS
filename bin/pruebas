@@ -50,9 +50,9 @@ LINEAS=()
 # Ni microfono, ni sintesis, ni altavoz, en toda la tanda y en los procesos
 # hijo que arranquen las suites. Ver `silencio.py`. Sin esto, en una maquina
 # con whisper.cpp instalado la tanda graba la habitacion.
-export AURELIUS_SIN_HARDWARE=1
+export PRECEPTOROS_SIN_HARDWARE=1 AURELIUS_SIN_HARDWARE=1
 # Y el ritmo del relato a cero: las pausas son para la persona, no para el CI.
-export AURELIUS_RITMO=0
+export PRECEPTOROS_RITMO=0 AURELIUS_RITMO=0
 
 # --- el aviso que va PRIMERO ------------------------------------------------
 # Un verde sobre trabajo sin commitear es un verde que un `git checkout` borra.
@@ -138,7 +138,7 @@ echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails
-          test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa)
+          test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno)
 PROPIAS=(cara idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done

@@ -27,17 +27,29 @@ from __future__ import annotations
 import os
 import unittest
 
-VARIABLE = "AURELIUS_SIN_HARDWARE"
+import entorno as _entorno
+
+SUFIJO = "SIN_HARDWARE"
+VARIABLE = _entorno.PREFIJO + SUFIJO
+VARIABLE_ANTERIOR = _entorno.PREFIJO_ANTERIOR + SUFIJO
 
 
 def apagado() -> bool:
     """True si esta maquina tiene el hardware declarado como apagado."""
-    return os.environ.get(VARIABLE) == "1"
+    return _entorno.activa(SUFIJO)
 
 
 def activar():
-    """Apaga el hardware para este proceso y los que arranque."""
+    """Apaga el hardware para este proceso y los que arranque.
+
+    Pone los DOS nombres, y aqui si hace falta: esta variable no la lee solo
+    este arbol -- viaja a procesos hijo, y entre ellos hay guiones de `bin/` y
+    herramientas de fuera que todavia buscan el nombre viejo. Escribir solo el
+    nuevo dejaria el microfono encendido en un hijo que creia estar en
+    silencio, que es exactamente el fallo que este modulo existe para impedir.
+    """
     os.environ[VARIABLE] = "1"
+    os.environ[VARIABLE_ANTERIOR] = "1"
 
 
 class SinHardware(unittest.TestCase):

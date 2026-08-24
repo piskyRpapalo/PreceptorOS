@@ -24,8 +24,8 @@
 set -uo pipefail
 
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PUERTO="${AURELIUS_PWA_PUERTO:-8740}"
-BITACORA="${AURELIUS_PWA_LOG:-$HOME/.aurelius/pwa.log}"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
+BITACORA="${PRECEPTOROS_PWA_LOG:-${AURELIUS_PWA_LOG:-$HOME/.aurelius/pwa.log}}"
 ORDEN="${1:-arranca}"
 
 vivo() { pgrep -f "aurelius-pwa" >/dev/null 2>&1; }

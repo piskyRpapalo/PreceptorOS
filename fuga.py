@@ -37,6 +37,7 @@ except ImportError:
     generar_leitmotivs = None
 
 import silencio as _silencio
+import entorno as _entorno
 
 DB_PATH = os.path.expanduser("~/.aurelius/memory.db")
 MANIFIESTO_PATH = os.path.expanduser("~/.aurelius/manifiesto_fuga.txt")
@@ -85,7 +86,7 @@ MINIMO_PARA_ESTIMAR = 2
 
 # El ritmo de las pausas, mismo interruptor que `tono`. A 0 la fuga no espera:
 # una suite que se sienta a ver las pausas se deja de correr.
-_RITMO = float(os.environ.get("AURELIUS_RITMO", "1.0"))
+_RITMO = float(_entorno.leer("RITMO", "1.0"))
 
 
 # Cuantas veces se vuelve a preguntar antes de tomar el defecto DICIENDOLO.

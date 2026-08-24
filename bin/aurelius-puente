@@ -44,8 +44,8 @@ import memory as M                                          # noqa: E402
 
 # La dirección NO vive en el repo. Sin variable, loopback: lo más estrecho que
 # se puede escuchar, y lo único que no obliga a confiar en la red de nadie.
-BIND = os.environ.get("AURELIUS_PUENTE_BIND", "127.0.0.1")
-PUERTO = int(os.environ.get("AURELIUS_PUENTE_PUERTO", "8734"))
+BIND = os.environ.get("PRECEPTOROS_PUENTE_BIND") or os.environ.get("AURELIUS_PUENTE_BIND", "127.0.0.1")
+PUERTO = int(os.environ.get("PRECEPTOROS_PUENTE_PUERTO") or os.environ.get("AURELIUS_PUENTE_PUERTO", "8734"))
 LIMITE = 2 * 1024 * 1024      # un formulario que pesa más que esto no es un formulario
 
 

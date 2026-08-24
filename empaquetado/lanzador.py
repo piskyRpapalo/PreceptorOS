@@ -27,8 +27,9 @@ import sys
 import threading
 import time
 import webbrowser
+import entorno as _entorno
 
-PUERTO = int(os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
+PUERTO = int(_entorno.leer("PWA_PUERTO", "8740"))
 
 # PIEZAS DECLARADAS PARA EL EMPAQUETADOR, Y NO ES CEREMONIA.
 # El servidor se carga desde un fichero de datos, asi que el analizador

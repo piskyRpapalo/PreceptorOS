@@ -22,6 +22,7 @@ import tempfile
 from typing import Optional
 
 import silencio as _silencio
+import entorno as _entorno
 
 NO_DATA = "NO_DATA"
 
@@ -56,7 +57,7 @@ def espeak_data() -> str:
     que sí. El que se equivoca al declarar quiere enterarse, no que le
     funcione por otro sitio.
     """
-    declarado = os.environ.get("AURELIUS_ESPEAK_DATA")
+    declarado = _entorno.leer("ESPEAK_DATA")
     if declarado:
         return declarado if os.path.isdir(declarado) else NO_DATA
     for patron in ESPEAK_SISTEMA:
@@ -72,7 +73,7 @@ def piper_binario() -> str:
     `shutil.which` y no el PATH implícito de un servicio: los units de systemd
     no cargan el perfil interactivo y no ven `~/.local/bin`.
     """
-    declarado = os.environ.get("AURELIUS_PIPER")
+    declarado = _entorno.leer("PIPER")
     if declarado:
         return declarado if os.path.isfile(declarado) else NO_DATA
     hallado = shutil.which("piper")
