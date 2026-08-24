@@ -703,10 +703,10 @@ SABOTAJES = (
     (
         "durabilidad · escribir_engrama devuelve sin confirmar",
         "memory.py",
-        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))\n'
+        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin, origen_dispositivo))\n'
         '    c.commit()      # durabilidad ANTES de devolver: si se devuelve, esta en disco\n'
         '    return leer_engrama(c, cur.lastrowid)',
-        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin))\n'
+        '        (what, _o_ausente(why), _o_ausente(where_ref), learned or "", origin, origen_dispositivo))\n'
         '    return leer_engrama(c, cur.lastrowid)',
     ),
     (
@@ -801,6 +801,157 @@ def main_sabotaje():
         print("\n  PARADA: una invariante rota que la suite no ve significa que ese")
         print("  test no vale. Hay que reescribirlo antes de seguir.")
     return 1 if (no_detectados or not intacto) else 0
+
+
+# --- B.1a · la busqueda lexica --------------------------------------------
+
+@caso("23 · busca lo que la persona escribio, y ordena por relevancia")
+def t23():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="compilar llama.cpp en el Beelink",
+                           why="para no depender de la nube",
+                           learned="Vulkan se cae entre sesiones")
+        M.escribir_engrama(c, what="la soberania empieza por el hardware")
+        M.escribir_engrama(c, what="un recuerdo cualquiera sobre gatos")
+        assert len(M.buscar(c, "soberania")) == 1, "no encuentra por `what`"
+        assert len(M.buscar(c, "nube")) == 1, "no encuentra por `why`"
+        assert len(M.buscar(c, "Vulkan")) == 1, "no encuentra por `learned`"
+        assert len(M.buscar(c, "gatos ornitorrinco")) == 0, \
+            "dos palabras deberian exigirse las dos"
+
+
+@caso("24 · el acento y la caja no esconden un recuerdo")
+def t24():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="la soberanía del Camión")
+        for consulta in ("soberania", "SOBERANÍA", "camion", "Camión"):
+            assert len(M.buscar(c, consulta)) == 1, \
+                f"`{consulta}` no encontro el recuerdo"
+
+
+@caso("25 · teclear raro no rompe la busqueda: es texto, no sintaxis")
+def t25():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="un recuerdo normal")
+        # Todas estas explotarian si la consulta se pasara cruda a FTS5.
+        for veneno in ('C++', 'dos"tres', 'NOT OR AND', '(', '*', '-', '',
+                       'lo que sea AND NEAR("x")'):
+            M.buscar(c, veneno)   # basta con que no levante
+
+
+@caso("26 · lo archivado no reaparece por la puerta de atras de la busqueda")
+def t26():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        fila = M.escribir_engrama(c, what="un recuerdo sobre la bateria")
+        M.archivar(c, fila["id"])
+        assert M.buscar(c, "bateria") == [], "un archivado salio en la busqueda"
+        assert len(M.buscar(c, "bateria", incluir_archivados=True)) == 1, \
+            "pedido explicitamente, el archivado deberia salir"
+        M.desarchivar(c, fila["id"])
+        assert len(M.buscar(c, "bateria")) == 1, \
+            "desarchivar no devolvio el recuerdo a la busqueda"
+
+
+@caso("27 · una memoria anterior al indice se indexa entera, no solo lo nuevo")
+def t27():
+    ruta = tmp_ruta()
+    con = sqlite3.connect(ruta)
+    con.executescript(M.ESQUEMA)          # esquema viejo: sin indice
+    con.execute("insert into engrams (what, why) values (?,?)",
+                ("un recuerdo de mayo sobre la bateria", "se perdio y dolio"))
+    con.commit()
+    con.close()
+    with M.abrir(ruta) as c:
+        try:
+            M.buscar(c, "bateria")
+            assert False, "sin indice, buscar deberia declarar la ausencia"
+        except M.BusquedaNoDisponible:
+            pass
+        M.asegurar_tablas(c)
+        assert len(M.buscar(c, "bateria")) == 1, \
+            "lo escrito ANTES del indice no se encuentra: falto el rebuild"
+
+
+@caso("28 · el indice se entera por el motor, no porque le avisen")
+def t28():
+    """`importar` escribe SQL crudo. Si la sincronizacion dependiera de que cada
+    funcion llame al indice, esta fila no estaria indexada -- y la busqueda
+    daria cero sin que nada fallara."""
+    origen = tmp_ruta("origen.db")
+    M.crear(origen)
+    with M.abrir(origen) as c:
+        M.escribir_engrama(c, what="un recuerdo que viaja entre dispositivos")
+    destino = tmp_ruta("destino.db")
+    M.crear(destino)
+    with M.abrir(destino) as c:
+        M.importar(c, origen)
+        assert len(M.buscar(c, "viaja")) == 1, \
+            "lo importado por SQL crudo no llego al indice"
+
+
+@caso("29 · sin FTS5 se declara la ausencia; no se finge una busqueda peor")
+def t29():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="un recuerdo cualquiera")
+        estado, detalle = M.estado_busqueda(c)
+        assert estado == "DISPONIBLE", f"aqui FTS5 existe, dijo {estado}"
+        assert detalle != "", "el detalle no puede venir vacio"
+    # Y el otro lado: una memoria sin indice lo dice, en vez de devolver [].
+    otra = tmp_ruta("sin_indice.db")
+    con = sqlite3.connect(otra)
+    con.executescript(M.ESQUEMA)
+    con.commit()
+    con.close()
+    with M.abrir(otra) as c:
+        assert M.estado_busqueda(c)[0] == "NO_DATA", \
+            "una memoria sin indice deberia decir NO_DATA"
+        try:
+            M.buscar(c, "lo que sea")
+            assert False, "buscar sin indice deberia levantar, no devolver []"
+        except M.BusquedaNoDisponible:
+            pass
+
+
+@caso("30 · el indice no duplica el texto: la unica copia sigue en engrams")
+def t30():
+    """`content=engrams` no es un detalle de rendimiento. Un segundo sitio con
+    el mismo texto seria un segundo sitio del que fugarlo."""
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    aguja = "zarabanda-inconfundible-del-soberano"
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what=f"un recuerdo con {aguja} dentro")
+        filas = c.execute(
+            "select count(*) from engrams_fts_data where block like ?",
+            (f"%{aguja}%",)).fetchone()[0]
+    assert filas == 0, "el indice guardo el texto entero, no solo los terminos"
+
+
+@caso("31 · asegurar el indice sobre una memoria a medio esquema no revienta")
+def t31():
+    """`asegurar_tablas` se llama sobre memorias viejas cuyo esquema no esta
+    completo. Colgar los disparadores de un `engrams` que no existe rompia el
+    arranque de quien lleva mas tiempo usando esto -- justo a quien la funcion
+    existe para servir."""
+    ruta = tmp_ruta("a_medias.db")
+    con = sqlite3.connect(ruta)
+    con.executescript("create table salidas (id integer primary key, texto text);")
+    con.commit()
+    con.close()
+    with M.abrir(ruta) as c:
+        M.asegurar_tablas(c)              # basta con que no levante
+        assert M.estado_busqueda(c)[0] == "NO_DATA", \
+            "sin `engrams` no puede haber indice, y deberia decirlo"
 
 
 # --- corredor -------------------------------------------------------------

@@ -137,6 +137,70 @@ create table if not exists salidas (
 """
 
 
+# B.1a · el indice de busqueda lexica. FTS5 viene DENTRO de sqlite: no anyade
+# dependencia, y por eso entra donde los embeddings no pueden (el README promete
+# que la biblioteca estandar es el unico requisito, y esa promesa es el producto).
+#
+# `content=engrams` -- indice de contenido externo: el texto NO se duplica. El
+# indice guarda solo la estructura invertida y va a buscar las palabras a
+# `engrams`, que sigue siendo la unica copia de lo que la persona escribio. Un
+# segundo sitio con el mismo texto seria un segundo sitio del que fugarlo.
+#
+# Y se sincroniza con DISPARADORES, no llamando al indice desde cada funcion que
+# inserta. Hay tres caminos hasta `engrams` -- `escribir_engrama`,
+# `promover_a_engrama` e `importar`, que escribe SQL crudo -- y manana habra un
+# cuarto. Un indice que depende de que el proximo camino se acuerde de avisarle
+# es un indice que dara verde mientras miente. Misma leccion que los cuatro
+# disparadores append-only del latido: se impone en el motor, no en la
+# disciplina de quien escriba a las tres de la manana.
+ESQUEMA_BUSQUEDA_TABLA = """
+create virtual table if not exists engrams_fts using fts5(
+    what, why, learned,
+    content=engrams,
+    content_rowid=id,
+    tokenize="unicode61 remove_diacritics 2"
+);
+"""
+
+# El mismo, sin plegar acentos: reserva para un sqlite anterior a 3.27, donde
+# `remove_diacritics 2` no existe. Se degrada la calidad de la busqueda, no la
+# existencia del indice -- y se puede saber cual de los dos quedo, porque
+# `estado_busqueda` lo dice.
+ESQUEMA_BUSQUEDA_TABLA_LLANA = """
+create virtual table if not exists engrams_fts using fts5(
+    what, why, learned,
+    content=engrams,
+    content_rowid=id
+);
+"""
+
+# `delete` antes de `insert` en el update: con contenido externo, FTS5 no puede
+# releer la fila vieja (ya no esta), asi que hay que darle los valores ANTIGUOS
+# a mano o el indice se queda con terminos huerfanos que casan con recuerdos que
+# ya no dicen eso.
+#
+# El disparador de DELETE existe aunque la doctrina prohiba borrar engramas: no
+# esta ahi para bendecir el borrado, sino para que el indice no siga afirmando
+# que existe algo que ya no esta. Un indice que sobrevive a su fuente es peor
+# que no tener indice.
+ESQUEMA_BUSQUEDA_SYNC = """
+create trigger if not exists engrams_fts_ai after insert on engrams begin
+    insert into engrams_fts (rowid, what, why, learned)
+    values (new.id, new.what, new.why, new.learned);
+end;
+create trigger if not exists engrams_fts_au after update on engrams begin
+    insert into engrams_fts (engrams_fts, rowid, what, why, learned)
+    values ('delete', old.id, old.what, old.why, old.learned);
+    insert into engrams_fts (rowid, what, why, learned)
+    values (new.id, new.what, new.why, new.learned);
+end;
+create trigger if not exists engrams_fts_ad after delete on engrams begin
+    insert into engrams_fts (engrams_fts, rowid, what, why, learned)
+    values ('delete', old.id, old.what, old.why, old.learned);
+end;
+"""
+
+
 class FronteraSinFiltro(Exception):
     """Se intento exportar sin filtro de redaccion. Falla cerrado."""
 
@@ -159,6 +223,15 @@ class BorradorNoEncontrado(Exception):
 
 class RespaldoNoVerificado(Exception):
     """La copia se hizo pero no cuadra con el original. No se da por buena."""
+
+
+class BusquedaNoDisponible(Exception):
+    """Este sqlite no trae FTS5. Se declara la ausencia; no se finge la busqueda.
+
+    La tentacion era caer a `like '%palabra%'` en silencio. No se hace: una
+    busqueda peor con el mismo nombre miente sobre lo que encontro, y quien la
+    use creera que lo que no salio no existe. Que falte se dice.
+    """
 
 
 # --- componente 1 · memory_state ------------------------------------------
@@ -217,6 +290,10 @@ def crear(ruta):
             c.execute("ALTER TABLE engrams ADD COLUMN origen_dispositivo TEXT NOT NULL DEFAULT 'NO_DATA'")
         except sqlite3.OperationalError:
             pass  # La columna ya existe
+        # El indice de busqueda nace con el esquema. Si este sqlite no trae
+        # FTS5 devuelve None y la memoria se crea igual: sin indice se puede
+        # vivir, sin memoria no.
+        asegurar_busqueda(c)
     
     # B2: Permisos restrictivos desde el primer byte
     try:
@@ -672,6 +749,149 @@ def asegurar_tablas(c):
                       f"text not null default {defecto}")
         except sqlite3.OperationalError:
             pass  # La columna ya existe (D12: migracion aditiva)
+    # Y el indice, por la misma razon que las tablas jovenes: una memoria
+    # nacida antes de B.1a no pasa por `crear()` nunca mas. La primera vez se
+    # puebla con `rebuild`, asi que lo escrito antes tambien se encuentra.
+    asegurar_busqueda(c)
+
+
+# --- componente 8 · busqueda lexica (B.1a) ---------------------------------
+
+def _hay_fts5(c):
+    """Si este sqlite trae el modulo FTS5. Se PRUEBA, no se deduce de la version."""
+    try:
+        c.execute("create virtual table if not exists temp.sonda_fts5 using fts5(a)")
+        c.execute("drop table temp.sonda_fts5")
+        return True
+    except sqlite3.OperationalError:
+        return False
+
+
+def asegurar_busqueda(c):
+    """Crea el indice de busqueda si falta, y lo puebla la primera vez.
+
+    Mismo contrato que `asegurar_tablas`: idempotente y aditivo. Cero DELETE,
+    cero DROP, cero valores tocados en `engrams`.
+
+    Devuelve el tokenizador que quedo ('unicode61+sin_acentos', 'unicode61') o
+    None si este sqlite no trae FTS5. Devolver en vez de levantar: que falte el
+    indice no puede impedir escribir un recuerdo. La memoria manda sobre su
+    indice, y no al reves.
+
+    ORDEN QUE IMPORTA: primero la tabla, y los disparadores SOLO si la tabla
+    existe. Al reves, un sqlite sin FTS5 se quedaria con tres disparadores
+    apuntando a una tabla que no esta, y el primer recuerdo que la persona
+    escribiera reventaria. El indice es opcional; escribir no lo es.
+    """
+    # Sin `engrams` no hay nada que indexar, y los disparadores no se pueden
+    # colgar de una tabla que no esta. Ocurre de verdad: `asegurar_tablas` se
+    # llama sobre memorias viejas cuyo esquema no se ha completado todavia, y
+    # ahi reventaba. Un indice sobre una fuente ausente no es medio indice: es
+    # una tabla que promete responder por algo que no existe.
+    if not _tabla_existe(c, "engrams"):
+        return None
+
+    nuevo = not _tabla_existe(c, "engrams_fts")
+
+    tokenizador = None
+    for esquema, nombre in ((ESQUEMA_BUSQUEDA_TABLA, "unicode61+sin_acentos"),
+                            (ESQUEMA_BUSQUEDA_TABLA_LLANA, "unicode61")):
+        try:
+            c.executescript(esquema)
+            tokenizador = nombre
+            break
+        except sqlite3.OperationalError:
+            continue          # sin `remove_diacritics 2`, o sin FTS5 entero
+
+    if tokenizador is None:
+        return None
+
+    c.executescript(ESQUEMA_BUSQUEDA_SYNC)
+
+    if nuevo:
+        # Una memoria que ya tenia recuerdos no los indexo al escribirlos: no
+        # habia indice. `rebuild` los lee de `engrams` y los mete de golpe. Sin
+        # esto, la busqueda solo encontraria lo escrito a partir de hoy -- y no
+        # habria forma de notarlo, porque devolveria resultados.
+        c.execute("insert into engrams_fts (engrams_fts) values ('rebuild')")
+        c.commit()
+    return tokenizador
+
+
+def _tabla_existe(c, nombre):
+    return c.execute(
+        "select 1 from sqlite_master where name=? limit 1", (nombre,)
+    ).fetchone() is not None
+
+
+def estado_busqueda(c):
+    """('DISPONIBLE'|'NO_DATA', detalle). Lo que hay, sin adornar."""
+    if not _hay_fts5(c):
+        return "NO_DATA", "este sqlite no trae FTS5"
+    if not _tabla_existe(c, "engrams_fts"):
+        return "NO_DATA", "el indice no esta creado todavia"
+    n = c.execute("select count(*) from engrams_fts").fetchone()[0]
+    return "DISPONIBLE", f"{n} recuerdos indexados"
+
+
+def _consulta_fts(texto):
+    """Las palabras de la persona -> una consulta FTS5 que no puede explotar.
+
+    Cada palabra se envuelve en comillas como frase literal. Sin esto, escribir
+    `C++`, `NOT`, `dos"tres` o un parentesis suelto levanta un error de sintaxis
+    de FTS5 y la busqueda casca por teclear normal. Envuelto, todo es texto.
+
+    Las palabras sin un solo caracter alfanumerico se caen: una frase vacia
+    ("") tampoco es sintaxis valida, y buscar un guion no significa nada.
+
+    Devuelve None si no queda nada que buscar -- que no es lo mismo que no
+    encontrar nada, y por eso `buscar` lo distingue.
+    """
+    if texto is None:
+        return None
+    palabras = []
+    for bruta in str(texto).split():
+        if any(ch.isalnum() for ch in bruta):
+            palabras.append('"' + bruta.replace('"', '""') + '"')
+    return " ".join(palabras) if palabras else None
+
+
+def buscar(c, consulta, incluir_archivados=False, limite=50):
+    """Recuerdos que casan con las palabras, del mas relevante al menos.
+
+    Lexica, no semantica: encuentra las palabras que la persona escribio, no lo
+    que quiso decir. Es una limitacion declarada, no un paso intermedio hacia
+    otra cosa -- lo semantico necesita un modelo de embeddings, y eso rompe la
+    promesa de biblioteca estandar (B.1b, aparcada).
+
+    Respeta el archivo: lo archivado no sale salvo que se pida, igual que en
+    `_filas`. Un recuerdo archivado que reaparece por la puerta de atras de la
+    busqueda no estaria archivado.
+    """
+    if not _tabla_existe(c, "engrams_fts"):
+        estado, detalle = estado_busqueda(c)
+        raise BusquedaNoDisponible(detalle)
+
+    q = _consulta_fts(consulta)
+    if q is None:
+        return []
+
+    # Sin alias sobre `engrams_fts`, a proposito: FTS5 exige el NOMBRE de la
+    # tabla a la izquierda de MATCH, y con un alias devuelve "no such column".
+    sql = ("select e.* from engrams_fts "
+           "join engrams e on e.id = engrams_fts.rowid "
+           "where engrams_fts match ?")
+    if not incluir_archivados:
+        sql += " and e.status='activo'"
+    sql += " order by rank limit ?"
+
+    try:
+        return [dict(r) for r in c.execute(sql, (q, int(limite)))]
+    except sqlite3.OperationalError as e:
+        # Queda como red por si una version de FTS5 rechaza algo que
+        # `_consulta_fts` deja pasar. Se declara: cero resultados por error NO
+        # se puede confundir con cero resultados por no haber.
+        raise BusquedaNoDisponible(f"la consulta no se pudo ejecutar: {e}") from e
 
 
 def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original,
