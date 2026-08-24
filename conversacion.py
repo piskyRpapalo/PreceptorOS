@@ -38,6 +38,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import time
 
 import memory as M
 import fusible
@@ -347,20 +348,28 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     if motor is None:
         raise SinCerebro("no hay motor de conversación en esta copia")
 
+    # A.5 · el reloj del modelo. Se cronometra AQUI porque este es el unico
+    # sitio que ve la llamada entera; la puerta se cronometra sola despues.
+    _t0 = time.perf_counter()
     cruda = motor(sistema + "\n\n" + (texto_persona or ""))
+    ms_motor = (time.perf_counter() - _t0) * 1000
     if not cruda:
+        # No se registra: sin respuesta no hay cruce de frontera, y una latencia
+        # sin salida asociada seria un numero suelto que nadie puede auditar.
         raise SinCerebro("el motor no devolvió nada")
 
     # La puerta única. El fusible mira la forma de lo que el modelo propone; si
     # salta, `cruzar_frontera` deja la fila del bloqueo y relanza.
     salida = M.cruzar_frontera(c, canal, cruda.strip(),
-                               fusible.preparar_respuesta)
+                               fusible.preparar_respuesta,
+                               ms_motor=ms_motor)
     return {
         "fase": donde,
         "texto": salida["texto"],
         "hallazgos": salida["hallazgos"],
         "id_salida": salida["id_salida"],
         "sistema": sistema,
+        "ms_motor": ms_motor,
     }
 
 

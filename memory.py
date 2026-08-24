@@ -132,7 +132,17 @@ create table if not exists salidas (
     hallazgos     text not null default '[]',
     hash_original text not null,
     estado        text not null default 'ok',
-    motivo        text not null default 'NO_DATA'
+    motivo        text not null default 'NO_DATA',
+    -- A.5 · cuanto costo, en milisegundos. NULL a proposito y no 0: un turno
+    -- de 0 ms no existe, y un cero es un numero que se promedia. Lo que no se
+    -- midio se lee como NO_DATA y se queda FUERA de la estadistica.
+    --
+    -- Dos columnas y no una porque las mide gente distinta: el motor lo
+    -- cronometra `turno()`, que es quien lo llama; la puerta se cronometra a
+    -- si misma. Un solo numero obligaria a culpar al modelo de lo que a lo
+    -- mejor cuesta el fusible.
+    ms_motor      real,
+    ms_frontera   real
 );
 """
 
@@ -749,6 +759,14 @@ def asegurar_tablas(c):
                       f"text not null default {defecto}")
         except sqlite3.OperationalError:
             pass  # La columna ya existe (D12: migracion aditiva)
+    # A.5 · sin `not null` y sin defecto: las filas que ya existian NO se
+    # midieron, y tienen que poder decirlo. Rellenarlas con 0 las metería en la
+    # media como turnos instantaneos que nunca ocurrieron.
+    for columna in ("ms_motor", "ms_frontera"):
+        try:
+            c.execute(f"alter table salidas add column {columna} real")
+        except sqlite3.OperationalError:
+            pass
     # Y el indice, por la misma razon que las tablas jovenes: una memoria
     # nacida antes de B.1a no pasa por `crear()` nunca mas. La primera vez se
     # puebla con `rebuild`, asi que lo escrito antes tambien se encuentra.
@@ -895,7 +913,8 @@ def buscar(c, consulta, incluir_archivados=False, limite=50):
 
 
 def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original,
-                     estado="ok", motivo=AUSENTE):
+                     estado="ok", motivo=AUSENTE,
+                     ms_motor=None, ms_frontera=None):
     """Registra una salida que cruzo la frontera. Append-only, nunca se borra.
 
     Simetrico a la doctrina de memoria: lo que salio, salio, y queda constancia.
@@ -915,16 +934,19 @@ def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original,
     hallazgos_json = json.dumps(hallazgos, ensure_ascii=False)
     cur = c.execute(
         "insert into salidas "
-        "(canal, texto, hallazgos, hash_original, estado, motivo) "
-        "values (?, ?, ?, ?, ?, ?)",
-        (canal, texto_redactado, hallazgos_json, hash_original, estado, motivo)
+        "(canal, texto, hallazgos, hash_original, estado, motivo, "
+        " ms_motor, ms_frontera) "
+        "values (?, ?, ?, ?, ?, ?, ?, ?)",
+        (canal, texto_redactado, hallazgos_json, hash_original, estado, motivo,
+         ms_motor, ms_frontera)
     )
     c.commit()  # durabilidad ANTES de devolver
     return cur.lastrowid
 
 
 
-def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None):
+def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None,
+                    ms_motor=None):
     """Puerta única de salida. Falla cerrado si cualquier paso falla.
 
     Orquesta el flujo entero: preparar -> (confirmar) -> registrar. Las tres
@@ -959,6 +981,17 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None):
             SinInspeccion...), después de dejar la fila del bloqueo
     """
     import hashlib
+    import time
+
+    # A.5 · la puerta se cronometra a si misma. `ms_motor` llega de fuera
+    # porque el modelo corre ANTES de llegar aqui y solo quien lo llamo pudo
+    # medirlo; lo que cuesta la puerta -- fusible, redaccion, inspeccion -- se
+    # mide aqui, que es el unico sitio que lo ve entero.
+    #
+    # No se actualiza la fila despues para anotar el total: `salidas` es
+    # append-only, y un registro que se reescribe para completarse deja de
+    # poder probar lo que decia cuando se escribio.
+    _t0 = time.perf_counter()
 
     # La huella se calcula sobre el ORIGINAL, no sobre lo redactado: un registro
     # que hashea su propia redacción no puede probar qué salió de aquí.
@@ -972,8 +1005,14 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None):
         except Exception as e:
             # Constancia ANTES de re-lanzar: un bloqueo del que no queda rastro
             # es indistinguible de un bloqueo que nunca ocurrió.
+            # El tiempo se anota TAMBIEN cuando se bloquea. Un turno frenado
+            # por el fusible costo lo mismo de modelo que uno que paso, y
+            # dejarlo fuera sesgaria la medida hacia abajo justo en los casos
+            # raros -- que son los que se miran cuando algo va lento.
             registrar_salida(c, canal, AUSENTE, [], hash_original,
-                             estado="bloqueado", motivo=_motivo(e))
+                             estado="bloqueado", motivo=_motivo(e),
+                             ms_motor=ms_motor,
+                             ms_frontera=(time.perf_counter() - _t0) * 1000)
             raise
 
         # Paso 2: extraer texto redactado y hallazgos
@@ -992,8 +1031,10 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None):
                 "la salida no fue aprobada: no se registra ni sale nada")
 
         # Paso 4: registrar la salida
-        id_salida = registrar_salida(c, canal, texto_redactado, hallazgos,
-                                     hash_original)
+        id_salida = registrar_salida(
+            c, canal, texto_redactado, hallazgos, hash_original,
+            ms_motor=ms_motor,
+            ms_frontera=(time.perf_counter() - _t0) * 1000)
     finally:
         _paso.abierto = False
 
@@ -1003,6 +1044,96 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None):
         "hallazgos": hallazgos,
         "id_salida": id_salida
     }
+
+
+def _percentil(ordenados, q):
+    """Percentil por interpolacion lineal. Sin dependencias y sin sorpresas."""
+    if not ordenados:
+        return None
+    if len(ordenados) == 1:
+        return ordenados[0]
+    pos = (len(ordenados) - 1) * q
+    bajo = int(pos)
+    alto = min(bajo + 1, len(ordenados) - 1)
+    return ordenados[bajo] + (ordenados[alto] - ordenados[bajo]) * (pos - bajo)
+
+
+def latencias(c, canal=None, limite=None):
+    """A.5 · lo que costaron los turnos, en milisegundos. Solo lo medido.
+
+    Devuelve un dict por canal con `n`, `sin_medir`, `mediana`, `p95`, `min` y
+    `max` de cada reloj (`ms_motor`, `ms_frontera`).
+
+    `sin_medir` no es decoracion: es la mitad de la medida. Un p95 calculado
+    sobre 3 de 40 turnos es un rumor con decimales, y sin ese contador no hay
+    forma de saber que lo es desde el numero.
+
+    La mediana antes que la media, a proposito: un solo turno que se comio el
+    swap desplaza una media y no mueve una mediana, y lo que se quiere saber es
+    lo que pasa normalmente, no lo que paso una vez.
+    """
+    asegurar_tablas(c)
+    q = "select canal, ms_motor, ms_frontera from salidas"
+    args = []
+    if canal is not None:
+        q += " where canal=?"
+        args.append(canal)
+    q += " order by id desc"
+    if limite is not None:
+        q += " limit ?"
+        args.append(int(limite))
+
+    por_canal = {}
+    for fila in c.execute(q, args):
+        d = por_canal.setdefault(fila["canal"], {
+            "n": 0, "sin_medir": 0, "ms_motor": [], "ms_frontera": []})
+        d["n"] += 1
+        medido = False
+        for reloj in ("ms_motor", "ms_frontera"):
+            if fila[reloj] is not None:
+                d[reloj].append(fila[reloj])
+                medido = True
+        if not medido:
+            d["sin_medir"] += 1
+
+    salida = {}
+    for nombre, d in por_canal.items():
+        resumen = {"n": d["n"], "sin_medir": d["sin_medir"]}
+        for reloj in ("ms_motor", "ms_frontera"):
+            v = sorted(d[reloj])
+            resumen[reloj] = ({
+                "n": len(v),
+                "mediana": _percentil(v, 0.5),
+                "p95": _percentil(v, 0.95),
+                "min": v[0],
+                "max": v[-1],
+            } if v else {"n": 0, "mediana": None, "p95": None,
+                         "min": None, "max": None})
+        salida[nombre] = resumen
+    return salida
+
+
+def vista_latencias(c, canal=None, limite=None):
+    """La misma medida, para leerla. Sin datos dice NO_DATA, no un cero."""
+    datos = latencias(c, canal=canal, limite=limite)
+    if not datos:
+        return f"latencias · {AUSENTE} (ninguna salida registrada todavia)"
+    lineas = []
+    for nombre in sorted(datos):
+        d = datos[nombre]
+        lineas.append(f"{nombre} · {d['n']} salidas"
+                      + (f" ({d['sin_medir']} sin medir)" if d["sin_medir"] else ""))
+        for reloj in ("ms_motor", "ms_frontera"):
+            r = d[reloj]
+            if r["n"] == 0:
+                lineas.append(f"    {reloj:<12} {AUSENTE}")
+            else:
+                lineas.append(
+                    f"    {reloj:<12} n={r['n']:<4} "
+                    f"mediana {r['mediana']:8.1f} ms · "
+                    f"p95 {r['p95']:8.1f} ms · "
+                    f"min {r['min']:.1f} · max {r['max']:.1f}")
+    return "\n".join(lineas)
 
 
 def resumen_salidas(c, limite=50):

@@ -954,6 +954,110 @@ def t31():
             "sin `engrams` no puede haber indice, y deberia decirlo"
 
 
+# --- A.5 · la latencia por turno ------------------------------------------
+
+@caso("32 · lo que cuesta el turno queda en la fila, con dos relojes")
+def t32():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.cruzar_frontera(c, "modelo_local", "una respuesta",
+                          lambda t: {"texto": t, "hallazgos": []},
+                          ms_motor=1234.5)
+        fila = c.execute("select ms_motor, ms_frontera from salidas").fetchone()
+    assert abs(fila["ms_motor"] - 1234.5) < 0.001, "el reloj del motor no llego"
+    assert fila["ms_frontera"] is not None, "la puerta no se cronometro sola"
+    assert fila["ms_frontera"] >= 0, "un tiempo negativo no es un tiempo"
+
+
+@caso("33 · lo no medido es NO_DATA, jamas un cero")
+def t33():
+    """Un cero se promedia; NO_DATA no. Rellenar lo que falta con 0 mete en la
+    media turnos instantaneos que nunca ocurrieron."""
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        # Una exportacion no pasa por el modelo: su ms_motor no existe.
+        M.cruzar_frontera(c, "cli_export", "un texto",
+                          lambda t: {"texto": t, "hallazgos": []})
+        fila = c.execute("select ms_motor from salidas").fetchone()
+        assert fila["ms_motor"] is None, "lo no medido se guardo como numero"
+        d = M.latencias(c)["cli_export"]
+        assert d["ms_motor"]["n"] == 0, "un no-medido entro en la estadistica"
+        assert d["ms_motor"]["mediana"] is None, "invento una mediana sin datos"
+        assert "NO_DATA" in M.vista_latencias(c), "la vista no declara la ausencia"
+
+
+@caso("34 · un turno bloqueado tambien deja su tiempo")
+def t34():
+    """Un turno frenado por el fusible costo lo mismo de modelo que uno que
+    paso. Dejarlo fuera sesga la medida hacia abajo justo en los casos raros,
+    que son los que se miran cuando algo va lento."""
+    ruta = tmp_ruta()
+    M.crear(ruta)
+
+    def preparar_que_bloquea(texto):
+        raise M.FronteraSinFiltro("bloqueado a proposito")
+
+    with M.abrir(ruta) as c:
+        try:
+            M.cruzar_frontera(c, "modelo_local", "lo que sea",
+                              preparar_que_bloquea, ms_motor=999.0)
+            assert False, "deberia haber relanzado"
+        except M.FronteraSinFiltro:
+            pass
+        fila = c.execute(
+            "select estado, ms_motor from salidas").fetchone()
+    assert fila["estado"] == "bloqueado"
+    assert abs(fila["ms_motor"] - 999.0) < 0.001, \
+        "el bloqueo perdio el tiempo del modelo"
+
+
+@caso("35 · una tabla `salidas` anterior a A.5 se amplia sin perder filas")
+def t35():
+    ruta = tmp_ruta()
+    con = sqlite3.connect(ruta)
+    con.executescript(M.ESQUEMA)
+    con.executescript("""
+        create table salidas (
+            id            integer primary key autoincrement,
+            cuando        text not null default (datetime('now')),
+            canal         text not null default 'NO_DATA',
+            texto         text not null,
+            hallazgos     text not null default '[]',
+            hash_original text not null
+        );
+    """)
+    con.execute("insert into salidas (canal, texto, hash_original) "
+                "values ('cli_export', 'una salida de antes', 'abc')")
+    con.commit()
+    con.close()
+    with M.abrir(ruta) as c:
+        M.asegurar_tablas(c)
+        fila = c.execute("select texto, ms_motor, ms_frontera from salidas").fetchone()
+        assert fila["texto"] == "una salida de antes", "se perdio la fila vieja"
+        assert fila["ms_motor"] is None and fila["ms_frontera"] is None, \
+            "una fila que nadie midio no puede decir que se midio"
+        d = M.latencias(c)["cli_export"]
+        assert d["n"] == 1 and d["sin_medir"] == 1, \
+            "la fila sin medir no se conto como sin medir"
+
+
+@caso("36 · la mediana aguanta un turno raro que a la media se la come")
+def t36():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        for ms in (100.0, 100.0, 100.0, 100.0, 9000.0):
+            M.cruzar_frontera(c, "modelo_local", f"texto {ms}",
+                              lambda t: {"texto": t, "hallazgos": []},
+                              ms_motor=ms)
+        d = M.latencias(c)["modelo_local"]["ms_motor"]
+    assert d["mediana"] == 100.0, f"la mediana se movio: {d['mediana']}"
+    assert d["max"] == 9000.0, "el turno raro se perdio; tiene que verse"
+    assert d["n"] == 5
+
+
 # --- corredor -------------------------------------------------------------
 
 def main():

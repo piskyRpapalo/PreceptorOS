@@ -75,6 +75,50 @@ class TestBucle(unittest.TestCase):
         self.assertEqual(despues - antes, 1, "un turno deja una huella, y una sola")
 
     # ------------------------------------------------------------------
+    # A.5: el turno se cronometra, y el numero es del modelo, no del reloj
+    # ------------------------------------------------------------------
+    def test_a5_el_turno_deja_su_latencia_medida(self):
+        """El reloj del motor tiene que medir el motor, no el turno entero.
+
+        Se usa un motor que tarda un tiempo CONOCIDO: si `ms_motor` midiera
+        otra cosa -- el turno completo, o nada -- la cota no se cumpliria.
+        """
+        import time as _t
+
+        def motor_lento(prompt):
+            _t.sleep(0.05)
+            return "una respuesta cualquiera"
+
+        with M.abrir(self.db) as c:
+            r = C.turno(c, "hola", self._camino(c), motor=motor_lento,
+                        idioma="es")
+            fila = c.execute(
+                "select ms_motor, ms_frontera from salidas "
+                "order by id desc limit 1").fetchone()
+
+        self.assertIn("ms_motor", r, "el turno no devuelve lo que midio")
+        self.assertGreaterEqual(fila["ms_motor"], 50.0,
+                                "midio menos de lo que el motor tardo")
+        self.assertLess(fila["ms_motor"], 500.0,
+                        "midio de mas: eso no es el motor, es el turno entero")
+        self.assertIsNotNone(fila["ms_frontera"],
+                             "la puerta no dejo su propio tiempo")
+
+    def test_a5_sin_respuesta_no_se_inventa_una_latencia(self):
+        """Sin cruce no hay fila, y por tanto no hay latencia suelta.
+
+        Una latencia sin salida asociada seria un numero que nadie puede
+        auditar contra nada.
+        """
+        with M.abrir(self.db) as c:
+            antes = self._salidas(c)
+            with self.assertRaises(C.SinCerebro):
+                C.turno(c, "hola", self._camino(c), motor=lambda p: "",
+                        idioma="es")
+            self.assertEqual(self._salidas(c), antes,
+                             "un motor mudo dejo fila igualmente")
+
+    # ------------------------------------------------------------------
     # Rojo C-b: el prompt lleva vocabulario, no cocina
     # ------------------------------------------------------------------
     def test_rojo_cb_el_prompt_lleva_glosario_sin_internos(self):
