@@ -1,4 +1,4 @@
-# Aurelius · the technical file
+# PreceptorOS · the technical file
 
 Everything a reader who audits needs, moved out of `README.md` on 2026-08-22 so
 that the front page could be read by someone who is not auditing. **Nothing was
@@ -11,7 +11,7 @@ Back to the front page: [README.md](README.md).
 
 ## What the fuse does not catch
 
-Aurelius inspects what the model writes before you ever see it as a command.
+PreceptorOS inspects what the model writes before you ever see it as a command.
 That inspector — the fuse — matches **structural shapes**: the form of a
 destructive command, not a list of forbidden words. It reads the text with line
 continuations and spacing normalised first, so breaking a command across lines
@@ -57,7 +57,7 @@ program in which it stops being yours.
 
 Only the first row is required. The other two remove one capability each and
 leave the rest of the program intact: that is the design, not an accident of
-it. A copy of Aurelius with neither `llama-completion` nor `piper` still asks, still
+it. A copy of PreceptorOS with neither `llama-completion` nor `piper` still asks, still
 writes, still shows and still exports — and it tells you which of the two it is
 running without, instead of failing somewhere later and letting you guess.
 
@@ -66,16 +66,16 @@ running without, instead of failing somewhere later and letting you guess.
 
 ## Pace: `AURELIUS_RITMO`
 
-Aurelius speaks with a cadence — it types at a readable speed and pauses at
+PreceptorOS speaks with a cadence — it types at a readable speed and pauses at
 punctuation. That is a default, not a requirement. Set `AURELIUS_RITMO=0` and
 every wait disappears; `1.0` is the normal pace, and any number in between
 scales it.
 
 ```
-AURELIUS_RITMO=0 python3 aurelius.py
+AURELIUS_RITMO=0 python3 preceptoros.py
 ```
 
-Turn it off if you are in a hurry, driving Aurelius from a script, or reading
+Turn it off if you are in a hurry, driving PreceptorOS from a script, or reading
 with a screen reader — a pause that helps one person is noise to another. **The
 text is identical in both modes.** Cadence can change *when* something is said,
 never *what* is said; a tone that alters the content is not tone. The pace also
@@ -92,9 +92,9 @@ in `bin/`, you start it by hand, and no module imports it. A clone that has it
 never runs it.
 
 ```
-bin/aurelius-servicio arranca     # starts it, and verifies it answers
-bin/aurelius-servicio estado      # is it alive, and does it respond?
-bin/aurelius-servicio para        # stops it
+bin/preceptoros-servicio arranca     # starts it, and verifies it answers
+bin/preceptoros-servicio estado      # is it alive, and does it respond?
+bin/preceptoros-servicio para        # stops it
 ```
 
 `arranca` refuses to start a second one. A stale process still holding the port
@@ -163,7 +163,7 @@ the cases print to stdout, so a `tail` on the output shows the end of a museum
 escape and no test count at all. It exits 0. A green that covers 64% and says
 nothing about it is the exact failure `bin/pruebas` exists to prevent.
 
-Outside that range Aurelius **declares and keeps going**:
+Outside that range PreceptorOS **declares and keeps going**:
 
 ```
 NOTA · Python 3.9.7. La tanda de pruebas se ha corrido en 3.10.12 / 3.14.4, no en esta.

@@ -3,7 +3,7 @@
 <img src="assets/aurelius-up.png" width="560"
      alt="Pixel-art sprite sheet, four frames on one strip: a white marble bust of a bearded classical figure. In the first frame the marble is whole; in the second thin cracks run across the face; in the third the marble breaks open to show dark machinery underneath and one lit amber eye; in the fourth more of the surface has come away and loose fragments float beside the head.">
 
-# Aurelius
+# PreceptorOS
 
 🇬🇧 **It has no syllabus. It walks yours — one question at a time, and it never picks the subject.**
 
@@ -24,11 +24,11 @@
 
 <div align="center">
 <img src="assets/pantalla-telon-en.png" width="240"
-     alt="The Aurelius opening screen on a phone: on a white marble background, a large circle holds the pixel-art bust in its final frame, the marble face broken open to show dark machinery, one lit amber eye and loose fragments floating beside the head. Below it, the name Aurelius in ornate bronze letters with small gears.">
+     alt="The PreceptorOS opening screen on a phone: on a white marble background, a large circle holds the pixel-art bust in its final frame, the marble face broken open to show dark machinery, one lit amber eye and loose fragments floating beside the head. Below it, the name PreceptorOS in ornate bronze letters with small gears.">
 <img src="assets/pantalla-tablero-en.png" width="240"
-     alt="The dashboard mid-conversation: a row holds the bust, the bronze Aurelius name and a bronze plate button with a microphone, the words 'talk here' under it in violet. On the marble slate below, framed in bronze, the person asks why they should keep their own data; Aurelius answers that if the machine fails you still have what you wrote, and that it is not about control but about having what you need when you need it; the person replies that it is like a notebook that answers back, and Aurelius asks what they would like to try first. Under the slate, a text field and a bar of five icons: Memory, Border, The Path, Profile, Projects.">
+     alt="The dashboard mid-conversation: a row holds the bust, the bronze PreceptorOS name and a bronze plate button with a microphone, the words 'talk here' under it in violet. On the marble slate below, framed in bronze, the person asks why they should keep their own data; PreceptorOS answers that if the machine fails you still have what you wrote, and that it is not about control but about having what you need when you need it; the person replies that it is like a notebook that answers back, and PreceptorOS asks what they would like to try first. Under the slate, a text field and a bar of five icons: Memory, Border, The Path, Profile, Projects.">
 <img src="assets/pantalla-perfil-en.png" width="240"
-     alt="The Profile panel: fields for what to call you, what interests you and language, plus a box headed 'How you want to be spoken to' holding instructions that are sent to Aurelius on every turn.">
+     alt="The Profile panel: fields for what to call you, what interests you and language, plus a box headed 'How you want to be spoken to' holding instructions that are sent to PreceptorOS on every turn.">
 <br>
 <sub>🇬🇧 It wakes from the stone, then hands you the slate — and it speaks the language your memory declares.<br>
 🇪🇸 Despierta de la piedra y te pasa la pizarra — y habla el idioma que declara tu memoria.</sub>
@@ -39,12 +39,12 @@
 ## The Path / El Camino
 
 🇬🇧 Most tools that remember things are filing cabinets: you put something in,
-you take it out, and you are exactly as capable as you were before. Aurelius
+you take it out, and you are exactly as capable as you were before. PreceptorOS
 keeps what you tell it because it needs to know **where you actually are** —
 and then it walks from there. The memory is the floor. The Path is the point.
 
 🇪🇸 Casi todo lo que recuerda cosas es un archivador: metes algo, lo sacas, y
-sigues sabiendo exactamente lo mismo que antes. Aurelius guarda lo que le
+sigues sabiendo exactamente lo mismo que antes. PreceptorOS guarda lo que le
 cuentas porque necesita saber **dónde estás de verdad** — y desde ahí camina.
 La memoria es el suelo. El Camino es el asunto.
 
@@ -139,11 +139,11 @@ la primera pantalla. Prefiere empezar honesto a empezar impresionante.
 
 ## What it does / Qué hace
 
-🇬🇧 You write **"my daughter is called Ana"** and Aurelius keeps it. Later you ask
+🇬🇧 You write **"my daughter is called Ana"** and PreceptorOS keeps it. Later you ask
 **"what is my daughter called?"** and it answers **Ana** — because you told it,
 not because it guessed.
 
-🇪🇸 Escribes **«mi hija se llama Ana»** y Aurelius lo guarda. Más tarde preguntas
+🇪🇸 Escribes **«mi hija se llama Ana»** y PreceptorOS lo guarda. Más tarde preguntas
 **«¿cómo se llama mi hija?»** y responde **Ana** — porque se lo dijiste tú, no
 porque lo haya deducido.
 
@@ -163,11 +163,11 @@ porque lo haya deducido.
 - **Funciona sin conexión**, en tu máquina, sin tarjeta gráfica.
 - **Empieza vacío, lo dice, y te ayuda a llenarlo.**
 
-🇬🇧 Your whole memory is one file: `~/.aurelius/memory.db`. Copy it to a USB stick
+🇬🇧 Your whole memory is one file: `~/.preceptoros/memory.db` — or `~/.aurelius/memory.db` if you installed this before the rename, in which case it stays exactly where it is and nothing moves. Copy it to a USB stick
 and your memory comes with you. Open it on a machine with no cable plugged in
 and it says exactly the same thing.
 
-🇪🇸 Toda tu memoria es un fichero: `~/.aurelius/memory.db`. Cópialo a un lápiz USB
+🇪🇸 Toda tu memoria es un fichero: `~/.preceptoros/memory.db` — o `~/.aurelius/memory.db` si lo instalaste antes del renombrado, en cuyo caso se queda exactamente donde está y no se mueve nada. Cópialo a un lápiz USB
 y tu memoria se va contigo. Ábrelo en una máquina sin un solo cable conectado y
 dice exactamente lo mismo.
 
@@ -204,12 +204,12 @@ dice exactamente lo mismo.
 
 ## Make it yours / Hazlo tuyo
 
-🇬🇧 Aurelius is not a service that happens to run on your machine. It is a tool
+🇬🇧 PreceptorOS is not a service that happens to run on your machine. It is a tool
 handed over, with the parts left where you can reach them. The defaults are one
 person's guess about an unknown machine — yours is not unknown to you. There are
 three levers, and they cost increasing amounts of effort.
 
-🇪🇸 Aurelius no es un servicio que resulta que corre en tu máquina. Es una
+🇪🇸 PreceptorOS no es un servicio que resulta que corre en tu máquina. Es una
 herramienta entregada, con las piezas donde puedes alcanzarlas. Los valores por
 defecto son la suposición de una persona sobre una máquina que no conoce — la
 tuya sí la conoces tú. Hay tres palancas, y cuestan cada vez más esfuerzo.
@@ -291,7 +291,7 @@ opinión sobre qué modelo es mejor, incluida la mía.
 
 ## The prompt cache / El caché del prompt
 
-🇬🇧 Aurelius passes `--prompt-cache` to the engine, so the model does not
+🇬🇧 PreceptorOS passes `--prompt-cache` to the engine, so the model does not
 re-read its own character sheet from scratch on every single turn. Measured on
 2026-08-24 with the real prompt:
 
@@ -302,16 +302,16 @@ re-read its own character sheet from scratch on every single turn. Measured on
 
 The phone goes from nearly six minutes per turn to thirty-three seconds.
 
-The cache lives at `~/.aurelius/cache_prompt.bin`, weighs about **252 MiB**, and
+The cache lives next to your memory, as `cache_prompt.bin`, weighs about **252 MiB**, and
 holds KV tensors — **not your words**. It is a file, not a server: no port is
 opened. You can delete it whenever you like and it rebuilds itself on the next
 turn. To turn it off and trade speed for disk:
 
 ```bash
-AURELIUS_SIN_CACHE=1 python3 aurelius.py
+AURELIUS_SIN_CACHE=1 python3 preceptoros.py
 ```
 
-🇪🇸 Aurelius le pasa `--prompt-cache` al motor, para que el modelo no vuelva a
+🇪🇸 PreceptorOS le pasa `--prompt-cache` al motor, para que el modelo no vuelva a
 leerse su propia hoja de personaje desde cero en cada turno. Medido el
 2026-08-24 con el prompt real:
 
@@ -322,13 +322,13 @@ leerse su propia hoja de personaje desde cero en cada turno. Medido el
 
 El teléfono pasa de casi seis minutos por turno a treinta y tres segundos.
 
-El caché vive en `~/.aurelius/cache_prompt.bin`, ocupa unos **252 MiB** y guarda
+El caché vive al lado de tu memoria, como `cache_prompt.bin`, ocupa unos **252 MiB** y guarda
 tensores KV — **no tus palabras**. Es un fichero, no un servidor: no abre ningún
 puerto. Puedes borrarlo cuando quieras y se rehace solo en el siguiente turno.
 Para apagarlo y cambiar velocidad por disco:
 
 ```bash
-AURELIUS_SIN_CACHE=1 python3 aurelius.py
+AURELIUS_SIN_CACHE=1 python3 preceptoros.py
 ```
 
 ---
@@ -360,7 +360,7 @@ Frena; no te sustituye. **La última comprobación la haces tú.**
 ```
 git clone https://github.com/piskyRpapalo/aurelius.git
 cd aurelius
-python3 aurelius.py
+python3 preceptoros.py
 ```
 
 🇬🇧 That is the whole installation. No package, no service, no account.
@@ -368,8 +368,8 @@ python3 aurelius.py
 🇪🇸 Esa es la instalación entera. Sin paquete, sin servicio, sin cuenta.
 
 ```
-python3 aurelius.py --charla        # talk, if a brain is installed
-bin/aurelius-servicio arranca       # the web face
+python3 preceptoros.py --charla        # talk, if a brain is installed
+bin/preceptoros-servicio arranca       # the web face
 bin/pruebas                         # the whole test run
 ```
 

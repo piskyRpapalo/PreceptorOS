@@ -1,5 +1,5 @@
 # Empaquetado opcional. El producto NO lo necesita para funcionar: la
-# instalacion documentada sigue siendo `git clone` y `python3 aurelius.py`, y
+# instalacion documentada sigue siendo `git clone` y `python3 preceptoros.py`, y
 # eso no ha cambiado.
 #
 # Esto existe para quien quiera `pip install -e .` y tener el comando en el
@@ -8,7 +8,7 @@
 # lista se queda vacia a proposito y con este aviso al lado.
 
 [project]
-name = "aurelius"
+name = "preceptoros"
 version = "1.0.0"
 description = "Your memory, in one file you can carry. It starts empty, and says so."
 readme = "README.md"
@@ -30,7 +30,7 @@ classifiers = [
 Homepage = "https://github.com/piskyRpapalo/aurelius"
 
 [project.scripts]
-aurelius = "aurelius:main"
+preceptoros = "preceptoros:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

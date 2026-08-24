@@ -1,6 +1,6 @@
-# Instalar Aurelius en un ordenador
+# Instalar PreceptorOS en un ordenador
 
-Dos caminos. El primero es para usar Aurelius; el segundo, para trastearlo.
+Dos caminos. El primero es para usar PreceptorOS; el segundo, para trastearlo.
 
 ---
 
@@ -10,7 +10,7 @@ Dos caminos. El primero es para usar Aurelius; el segundo, para trastearlo.
 
 1. Descarga `aurelius`.
 2. Ábrelo con doble clic.
-3. Se abre tu navegador en Aurelius. Ya está.
+3. Se abre tu navegador en PreceptorOS. Ya está.
 
 Para cerrarlo, cierra la ventana negra que se abrió con él.
 
@@ -28,7 +28,7 @@ caben dentro y **no se descargan sin tu permiso**:
 | El motor | ~10 MB | Es código ejecutable de otros. Este proyecto firma datos, no programas. |
 | El cerebro | **2,3 GB** | Se ofrece con su licencia y su huella delante, y lo aceptas tú. |
 
-Sin ellas, **Aurelius pregunta y recuerda pero no conversa**. Es la descripción
+Sin ellas, **PreceptorOS pregunta y recuerda pero no conversa**. Es la descripción
 honesta, y este fichero no promete más de lo que trae dentro.
 
 ### Dónde queda lo tuyo
@@ -40,7 +40,7 @@ un USB, o borrarlo. Nada sale de tu máquina si tú no lo exportas.
 
 La ventana negra dice qué pasó. Las dos cosas que suelen ocurrir:
 
-- **«Aurelius ya estaba abierto»** — lo está. Se abrió el navegador y no se
+- **«PreceptorOS ya estaba abierto»** — lo está. Se abrió el navegador y no se
   arrancó un segundo, porque dos a la vez sobre la misma memoria haría que
   vieras una cosa y el fichero dijera otra.
 - **«El servidor no llegó a responder»** — algo ocupa el puerto 8740. Cierra la
@@ -55,11 +55,11 @@ reabrirlo sin recordar un comando.
 
 ### En el ordenador
 
-1. Busca **Aurelius** en el menú de aplicaciones. Si está, tócalo y ya.
+1. Busca **PreceptorOS** en el menú de aplicaciones. Si está, tócalo y ya.
 2. Si no está, abre una terminal:
 
 ```
-cd ~/aurelius && bin/aurelius-servicio arranca
+cd ~/aurelius && bin/preceptoros-servicio arranca
 ```
 
 Te dirá `arrancado · http://127.0.0.1:8740`. Abre esa dirección en el
@@ -71,7 +71,7 @@ Quedó una copia anterior corriendo. **Ojo con esto**, porque tiene una trampa:
 el servidor se puede llamar de dos formas distintas según cómo lo arrancaste.
 
 ```
-bin/aurelius-servicio para      # la forma limpia: para lo que haya
+bin/preceptoros-servicio para      # la forma limpia: para lo que haya
 ```
 
 Y si aun así sigue ocupado, el que queda es el ejecutable empaquetado, que
@@ -90,7 +90,7 @@ equivocada.
 ### Cómo saber si está vivo
 
 ```
-bin/aurelius-servicio estado
+bin/preceptoros-servicio estado
 ```
 
 Dice el pid y si responde. Si dice `parado`, arráncalo.
@@ -99,7 +99,7 @@ Dice el pid y si responde. Si dice `parado`, arráncalo.
 
 ## El icono en el menú de aplicaciones
 
-Si clonaste el repositorio, una línea deja Aurelius en el menú:
+Si clonaste el repositorio, una línea deja PreceptorOS en el menú:
 
 ```
 bin/instalar-pc
@@ -121,9 +121,9 @@ Para quien quiera leerlo, cambiarlo o auditarlo.
 ```
 git clone https://github.com/piskyRpapalo/aurelius
 cd aurelius
-python3 aurelius.py             # crear tu memoria
-python3 aurelius.py --charla    # hablar, si hay cerebro
-bin/aurelius-servicio arranca   # la cara web
+python3 preceptoros.py             # crear tu memoria
+python3 preceptoros.py --charla    # hablar, si hay cerebro
+bin/preceptoros-servicio arranca   # la cara web
 ```
 
 Python 3.10 o más nuevo. **Sin dependencias**: solo biblioteca estándar. Eso no

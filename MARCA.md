@@ -99,7 +99,7 @@ Para el README de perfil, sustituye las cuatro líneas por estas:
 ```
 
 **Aviso, y por eso no lo he hecho yo:** el badge de las pruebas del README de
-Aurelius **sí** tiene que seguir siendo el de GitHub Actions. Ese no es
+PreceptorOS **sí** tiene que seguir siendo el de GitHub Actions. Ese no es
 decoración: cambia de color solo cuando la tanda se pone roja, y uno guardado
 en el repo diría «verde» para siempre. Un badge que no puede ponerse rojo es
 peor que no tener badge.

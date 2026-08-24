@@ -2,7 +2,7 @@
 
 > Español más abajo · [Ir a la versión en español](#politica-de-seguridad)
 
-Aurelius keeps your memory in a file on your own machine. If something in this
+PreceptorOS keeps your memory in a file on your own machine. If something in this
 project can leak that file, corrupt it, or run code you did not ask for, we want
 to know before anyone else does.
 
@@ -73,16 +73,16 @@ In scope:
   tampered artifact accepted, downgrade or path traversal on unpacking.
 - Generated HTML (`cara.html`) that executes injected content from your own
   stored memories.
-- Path traversal, symlink attacks, or unsafe permissions on files Aurelius
+- Path traversal, symlink attacks, or unsafe permissions on files PreceptorOS
   writes.
 
 Out of scope:
 
-- Aurelius does **not** encrypt your database at rest, and does not claim to.
+- PreceptorOS does **not** encrypt your database at rest, and does not claim to.
   Anyone with read access to your user account can read your memories. That is a
   design decision, not a bug — report the threat model, not the fact.
 - Vulnerabilities in Python itself, your OS, or the upstream model weights, other
-  than how Aurelius fetches and verifies them.
+  than how PreceptorOS fetches and verifies them.
 - Anything requiring physical access to an unlocked machine, or root on it.
 - Missing hardening headers or similar on `cara.html`, which is a local file and
   not a served site.
@@ -90,7 +90,7 @@ Out of scope:
 
 ## A note on what this project is
 
-Aurelius is a learning project about technical sovereignty. A clear, reproducible
+PreceptorOS is a learning project about technical sovereignty. A clear, reproducible
 security report is worth more to it than a patch — it teaches. If you took the
 time to find something here, thank you.
 
@@ -100,7 +100,7 @@ time to find something here, thank you.
 
 # Política de seguridad
 
-Aurelius guarda tu memoria en un fichero de tu propia máquina. Si algo de este
+PreceptorOS guarda tu memoria en un fichero de tu propia máquina. Si algo de este
 proyecto puede filtrar ese fichero, corromperlo o ejecutar código que no pediste,
 queremos saberlo antes que nadie.
 
@@ -173,16 +173,16 @@ Dentro de alcance:
 - HTML generado (`cara.html`) que ejecute contenido inyectado desde tus propias
   memorias guardadas.
 - Path traversal, ataques por symlink o permisos inseguros en los ficheros que
-  Aurelius escribe.
+  PreceptorOS escribe.
 
 Fuera de alcance:
 
-- Aurelius **no** cifra tu base de datos en reposo, y no dice lo contrario.
+- PreceptorOS **no** cifra tu base de datos en reposo, y no dice lo contrario.
   Cualquiera con acceso de lectura a tu cuenta de usuario puede leer tus
   memorias. Es una decisión de diseño, no un fallo — reporta el modelo de
   amenaza, no el hecho.
 - Vulnerabilidades de Python, de tu sistema operativo o de los pesos del modelo
-  original, más allá de cómo Aurelius los descarga y verifica.
+  original, más allá de cómo PreceptorOS los descarga y verifica.
 - Cualquier cosa que requiera acceso físico a una máquina desbloqueada, o root en
   ella.
 - Cabeceras de endurecimiento o similares en `cara.html`, que es un fichero local
@@ -191,6 +191,6 @@ Fuera de alcance:
 
 ## Una nota sobre qué es este proyecto
 
-Aurelius es un proyecto de aprendizaje sobre soberanía técnica. Un reporte de
+PreceptorOS es un proyecto de aprendizaje sobre soberanía técnica. Un reporte de
 seguridad claro y reproducible vale aquí más que un parche: enseña. Si dedicaste
 tiempo a encontrar algo aquí, gracias.
