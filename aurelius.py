@@ -26,6 +26,7 @@ import textos as TX
 import tono as T
 
 import casa as _casa
+import path as _path
 import interprete as _interprete
 
 # M3 · La Fuga del Museo (opcional)
@@ -731,9 +732,20 @@ def arranque(ruta):
     # 1. Casa
     try:
         _casa.asegurar()
+        # D2 · la carpeta de paths nace con la casa, VACIA. No se copian los de
+        # fabrica dentro: escribir en su carpeta algo que no pidio es empezar a
+        # decidir por ella, y ademas dejaria una copia vieja que ya nadie
+        # actualiza cuando el producto mejore el path.
+        _path.asegurar()
     except _casa.CasaInaccesible as e:
         print(f"ERROR: {e}")
         sys.exit(1)
+    except OSError as e:
+        # Que no se pueda crear la carpeta de paths NO tumba el arranque: los
+        # de fabrica se leen igual desde el directorio del programa. Se dice y
+        # se sigue -- perder los paths propios no vale una sesion entera.
+        print(f"Aviso: no pude crear tu carpeta de paths ({e}). "
+              f"Los que vienen con el producto se leen igual.")
 
     # 2. Reconciliar banderas con el disco
     banderas, mentian = _estado.reconciliar({
