@@ -25,6 +25,8 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import cara
+from unittest import mock
+import casa
 import conversacion as C
 import memory as M
 import narrador as N
@@ -247,6 +249,99 @@ class TestBucle(unittest.TestCase):
 
 
 # --- la sesion enchufada · aurelius.py --charla ---------------------------
+
+class TestPromptCache(unittest.TestCase):
+    """A.5b · el acelerador. Medido: el telefono pasa de 5m50s a 33 s por turno.
+
+    Lo que se prueba aqui no es la velocidad -- eso se mide, no se afirma en una
+    suite -- sino que el acelerador no puede hacer dano: que no guarda las
+    palabras de la persona, que se puede apagar, y que un fichero corrupto no
+    deja a nadie sin producto.
+    """
+
+    def _orden(self, **kw):
+        """La orden que se le pasaria al binario, sin ejecutar nada."""
+        vistas = []
+
+        class Falso:
+            returncode = 0
+            stdout = "una respuesta"
+            stderr = ""
+
+        def espia(orden, **_):
+            vistas.append(orden)
+            return Falso()
+
+        with tempfile.TemporaryDirectory() as d:
+            modelo = os.path.join(d, "m.gguf")
+            open(modelo, "w").close()
+            binario = os.path.join(d, "llama-completion")
+            open(binario, "w").close()
+            with mock.patch.object(C, "motor_disponible", lambda: binario), \
+                 mock.patch.object(C.subprocess, "run", espia):
+                motor = C.motor_llama(modelo, **kw)
+                motor("hola")
+        return vistas
+
+    def test_el_cache_entra_en_la_orden(self):
+        ordenes = self._orden()
+        self.assertIn("--prompt-cache", ordenes[0])
+
+    def test_JAMAS_prompt_cache_all(self):
+        """`-all` guardaria lo que la persona escribio y lo que el modelo
+        contesto en un fichero sin cifrar fuera de memory.db. La memoria tiene
+        un sitio y una puerta; esto es un acelerador, no una segunda memoria."""
+        for orden in self._orden():
+            self.assertNotIn("--prompt-cache-all", orden)
+            self.assertNotIn("--prompt-cache-ro", orden)
+
+    def test_se_puede_apagar(self):
+        """Son ~252 MiB que aparecen en su carpeta sin que los pidiera."""
+        with mock.patch.dict(os.environ, {"AURELIUS_SIN_CACHE": "1"}):
+            self.assertIsNone(C.ruta_cache())
+            for orden in self._orden():
+                self.assertNotIn("--prompt-cache", orden)
+
+    def test_un_cache_corrupto_no_deja_sin_producto(self):
+        """Falla ABIERTO el acelerador; la respuesta sigue fallando cerrado."""
+        intentos = []
+
+        class Resp:
+            def __init__(self, code):
+                self.returncode = code
+                self.stdout = "" if code else "la respuesta buena"
+                self.stderr = ""
+
+        def espia(orden, **_):
+            intentos.append(orden)
+            # El primero, con cache, revienta. El segundo tiene que ir sin él.
+            return Resp(1) if "--prompt-cache" in orden else Resp(0)
+
+        with tempfile.TemporaryDirectory() as d:
+            modelo = os.path.join(d, "m.gguf")
+            open(modelo, "w").close()
+            binario = os.path.join(d, "llama-completion")
+            open(binario, "w").close()
+            cache = os.path.join(d, "cache_prompt.bin")
+            with open(cache, "w") as f:
+                f.write("basura")
+            with mock.patch.object(C, "motor_disponible", lambda: binario), \
+                 mock.patch.object(C.subprocess, "run", espia):
+                texto = C.motor_llama(modelo, cache=cache)("hola")
+            self.assertEqual(texto, "la respuesta buena",
+                             "un cache corrupto dejo a la persona sin respuesta")
+            self.assertEqual(len(intentos), 2, "no reintento sin cache")
+            self.assertNotIn("--prompt-cache", intentos[1])
+            self.assertFalse(os.path.exists(cache),
+                             "el cache corrupto se quedo para reventar manana")
+
+    def test_el_cache_vive_en_la_casa_de_la_persona(self):
+        ruta = C.ruta_cache()
+        self.assertIsNotNone(ruta)
+        self.assertTrue(ruta.endswith(C.NOMBRE_CACHE))
+        self.assertIn(str(casa.raiz()), ruta,
+                      "el cache no se escribe junto al script, como todo lo suyo")
+
 
 class TestSesionCharla(unittest.TestCase):
     """C-g…C-i · el bucle deja de ser una funcion sin llamante."""

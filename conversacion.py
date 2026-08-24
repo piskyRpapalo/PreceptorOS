@@ -40,6 +40,7 @@ import shutil
 import subprocess
 import time
 
+import casa as _casa
 import memory as M
 import fusible
 import narrador as N
@@ -128,7 +129,47 @@ def motor_disponible():
     return shutil.which(MOTOR)
 
 
-def motor_llama(modelo, hilos=8, tiempo=None):
+# A.5b · el fichero donde el motor guarda el prompt ya masticado.
+#
+# POR QUE EXISTE, medido el 2026-08-24 con el prompt REAL (el ARQUETIPO entero,
+# ~1.410 tokens, que es lo que se manda en cada turno):
+#
+#            primer token        turno completo
+#   Beelink   17.730 -> 2.447 ms   20.296 -> 5.766 ms    (7,2x / 3,5x)
+#   Doogee   337.708 -> 7.283 ms  408.614 -> 32.807 ms   (46x / 12x)
+#
+# El telefono pasa de 5 min 50 s por turno a 33 segundos. Sin esto, el modelo
+# relee el mismo ARQUETIPO palabra por palabra en CADA turno: el primer token se
+# comia el 87 % del tiempo, y no habia nada que superponer con audio porque
+# todavia no habia salido nada.
+#
+# Es un FICHERO, no un servidor. D68 sigue en pie: no se abre ningun puerto.
+NOMBRE_CACHE = "cache_prompt.bin"
+TAMANO_CACHE_APROX_MIB = 252
+
+
+def ruta_cache():
+    """Dónde vive el prompt masticado, o None si la persona lo desactivó.
+
+    `AURELIUS_SIN_CACHE=1` lo apaga. Existe porque son ~252 MiB que aparecen en
+    su carpeta sin que los pidiera, y quien tenga el disco justo tiene que poder
+    decir que no y quedarse con un producto más lento pero entero.
+    """
+    if os.environ.get("AURELIUS_SIN_CACHE", "").strip() == "1":
+        return None
+    try:
+        return str(_casa.raiz() / NOMBRE_CACHE)
+    except Exception:
+        return None      # sin casa no hay cache, y no es motivo de parar
+
+
+# Centinela para distinguir "no me dijeron nada de cache" de "me dijeron que
+# None": el segundo es una peticion explicita de correr sin cache, y una prueba
+# tiene que poder pedirlo.
+_SIN_DECIR = object()
+
+
+def motor_llama(modelo, hilos=8, tiempo=None, cache=_SIN_DECIR):
     """Devuelve un motor real: una función `prompt -> texto`.
 
     Proceso hijo por entrada y salida estándar. Ni un socket: un puerto local
@@ -139,14 +180,41 @@ def motor_llama(modelo, hilos=8, tiempo=None):
     if not (binario and modelo and os.path.isfile(modelo)):
         return None
     tiempo = ESPERA if tiempo is None else tiempo
+    if cache is _SIN_DECIR:
+        cache = ruta_cache()
 
-    def hablar(prompt):
+    def _orden(prompt, con_cache):
         orden = [binario, "-m", modelo, "-c", str(CONTEXTO),
                  "-n", str(TOPE_TOKENS), "-st", "--no-warmup",
                  "--no-display-prompt", "-t", str(hilos), "-p", prompt]
+        if con_cache:
+            # `--prompt-cache` a secas, JAMAS `--prompt-cache-all`: la variante
+            # `-all` guardaria tambien lo que la persona escribio y lo que el
+            # modelo contesto, en un fichero de 252 MiB fuera de `memory.db`,
+            # sin cifrar y sin pasar por la frontera. La memoria tiene un sitio
+            # y una puerta; esto es un acelerador, no una segunda memoria.
+            orden += ["--prompt-cache", con_cache]
+        return orden
+
+    def _correr(prompt, con_cache):
+        r = subprocess.run(_orden(prompt, con_cache), capture_output=True,
+                           text=True, timeout=tiempo, stdin=subprocess.DEVNULL)
+        return r
+
+    def hablar(prompt):
         try:
-            r = subprocess.run(orden, capture_output=True, text=True,
-                               timeout=tiempo, stdin=subprocess.DEVNULL)
+            r = _correr(prompt, cache)
+            if r.returncode != 0 and cache:
+                # El cache es una optimizacion: si estorba, se tira y se sigue.
+                # Un fichero corrupto -- disco lleno a medio escribir, modelo
+                # cambiado, version distinta del binario -- NO puede dejar a la
+                # persona sin producto. Falla ABIERTO el acelerador; la
+                # respuesta sigue fallando cerrado.
+                try:
+                    os.remove(cache)
+                except OSError:
+                    pass
+                r = _correr(prompt, None)
         except subprocess.TimeoutExpired:
             # No es lo mismo que fallar: estaba trabajando y no le dio tiempo.
             raise SeAgotoElTiempo(
@@ -157,6 +225,13 @@ def motor_llama(modelo, hilos=8, tiempo=None):
             return None
         if r.returncode != 0:
             return None
+        if cache:
+            # Mismos permisos que la memoria: son tensores derivados de lo que
+            # se le manda al modelo, y viven en la carpeta de la persona.
+            try:
+                os.chmod(cache, 0o600)
+            except OSError:
+                pass
         return limpiar(r.stdout, prompt)
 
     return hablar
