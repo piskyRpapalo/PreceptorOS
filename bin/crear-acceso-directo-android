@@ -58,7 +58,7 @@ cat > "$ATAJOS/$NOMBRE" <<ATAJO
 # Generado por bin/crear-acceso-directo-android. Editable: es tuyo.
 #
 # POR QUE SE LLAMA A \`bash\` Y NO AL GUION DIRECTAMENTE.
-# bin/aurelius-servicio empieza por \`#!/usr/bin/env bash\`, y en Termux NO
+# bin/preceptoros-servicio empieza por \`#!/usr/bin/env bash\`, y en Termux NO
 # EXISTE /usr/bin/env. En una sesion interactiva funciona igual porque Termux
 # carga \`libtermux-exec\` por LD_PRELOAD y reescribe el shebang al vuelo --
 # pero el widget no lo lleva, y ahi el shebang falla.
@@ -68,7 +68,7 @@ cat > "$ATAJOS/$NOMBRE" <<ATAJO
 # 2026-08-22.
 #
 # Llamando a bash con la ruta absoluta, el shebang deja de importar.
-"$BASH" "$AQUI/bin/aurelius-servicio" arranca || exit 1
+"$BASH" "$AQUI/bin/preceptoros-servicio" arranca || exit 1
 
 # El navegador se abre DESPUES de que el servidor responda -- eso lo garantiza
 # \`arranca\`, que no dice "arrancado" hasta comprobarlo. Abrirlo antes enseña
@@ -87,7 +87,7 @@ if [ "$WIDGET" = "no" ]; then
   printf '    2. Manten pulsada la pantalla de inicio → Widgets → Termux\n'
   printf '    3. Elige "%s"\n\n' "$NOMBRE"
   printf '  Mientras tanto, para reabrir Aurelius:\n'
-  printf '    cd %s && bin/aurelius-servicio arranca\n\n' "$AQUI"
+  printf '    cd %s && bin/preceptoros-servicio arranca\n\n' "$AQUI"
   exit 0
 fi
 

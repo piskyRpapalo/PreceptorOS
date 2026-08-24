@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# aurelius-servicio · arranca la cara, y no deja dos.
+#
+# sistema: instrumento de operación. **No es parte del producto.**
+#
+# POR QUÉ EXISTE
+# --------------
+# Arrancar el servidor a mano parece trivial hasta que hay dos. Un proceso
+# viejo que sigue atado al puerto hace que el nuevo muera al nacer -- y como el
+# viejo SÍ responde, todo parece funcionar mientras se mide la versión
+# equivocada. Ha pasado tres veces en este proyecto: el oyente en 8900, el
+# puente en 8734, y la propia cara en 8740. Las tres veces el síntoma mintió.
+#
+# Así que este guion hace una sola cosa bien: deja UNO corriendo, y si no
+# puede, lo dice en voz alta en vez de fallar en silencio.
+#
+# LO QUE NO HACE
+# --------------
+# * No sobrevive a un reinicio del teléfono, y no finge que sí. Android no
+#   arranca Termux solo: hace falta la aplicación Termux:Boot, que se instala
+#   a mano desde F-Droid y necesita además eximir a Termux de la optimización
+#   de batería. Las dos cosas las hace el carbono mirando la pantalla.
+# * No abre el servidor a la red. La dirección la decide el entorno.
+set -uo pipefail
+
+AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
+# La raiz se la preguntamos a `casa`, que es quien la decide. Escribir
+# `~/.aurelius` aqui dejaria este guion mirando a la casa vieja el dia del
+# renombrado, mientras el producto mira a la nueva.
+CASA="$(cd "$AQUI" && python3 -c 'import casa; print(casa.raiz())' 2>/dev/null || echo "$HOME/.aurelius")"
+BITACORA="${PRECEPTOROS_PWA_LOG:-${AURELIUS_PWA_LOG:-$CASA/pwa.log}}"
+ORDEN="${1:-arranca}"
+
+vivo() { pgrep -f "(preceptoros|aurelius)-pwa" >/dev/null 2>&1; }
+
+case "$ORDEN" in
+  para)
+    pkill -f "(preceptoros|aurelius)-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
+    ;;
+  estado)
+    if vivo; then
+      echo "vivo · pid $(pgrep -f "(preceptoros|aurelius)-pwa" | tr '\n' ' ')"
+      curl -s -o /dev/null -w "responde: HTTP %{http_code}\n" \
+           "http://127.0.0.1:$PUERTO/api/estado" 2>/dev/null || echo "no responde"
+    else
+      echo "parado"
+    fi
+    ;;
+  arranca)
+    if vivo; then
+      echo "ya había uno vivo; no arranco un segundo."
+      echo "  para reiniciarlo:  $0 para && $0 arranca"
+      exit 0
+    fi
+    mkdir -p "$(dirname "$BITACORA")"
+    # QUIEN LLAMA DECIDE LA FORMA. systemd con Type=simple vigila al proceso que
+    # lanza: si ese proceso se va a segundo plano y devuelve 0, systemd cree que
+    # el servicio murio limpiamente y lo reinicia. Medido en el Beelink: 23
+    # reinicios en bucle, cada diez segundos, con status=0 -- el peor sintoma,
+    # porque "salio bien" y "se cayo" se leian igual.
+    #
+    # `INVOCATION_ID` lo pone systemd y solo systemd. Con el, se corre en primer
+    # plano y se le entrega el proceso con `exec`, para que vigile al servidor y
+    # no a un envoltorio. Sin el, segundo plano como siempre.
+    if [ -n "${INVOCATION_ID:-}" ]; then
+      echo "[servicio] bajo systemd: primer plano, sin bifurcar"
+      exec python3 "$AQUI/bin/preceptoros-pwa"
+    fi
+    (setsid nohup python3 "$AQUI/bin/preceptoros-pwa" >>"$BITACORA" 2>&1 </dev/null &)
+    # Se espera y se COMPRUEBA. Un `&` que devuelve 0 solo dice que el shell
+    # pudo bifurcar, no que el servidor esté escuchando.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      sleep 1
+      if curl -s -o /dev/null "http://127.0.0.1:$PUERTO/api/estado" 2>/dev/null; then
+        echo "arrancado · http://127.0.0.1:$PUERTO"
+        exit 0
+      fi
+    done
+    echo "no llegó a responder en 10 s. Lo que dijo:" >&2
+    tail -5 "$BITACORA" >&2
+    exit 1
+    ;;
+  *)
+    echo "uso: $0 [arranca|para|estado]" >&2; exit 2 ;;
+esac

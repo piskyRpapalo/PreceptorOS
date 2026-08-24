@@ -2,7 +2,7 @@
 """Lanzador · doble clic, y Aurelius abre. Solo biblioteca estándar.
 
 Esto NO es una capa nueva sobre el producto: es la puerta para quien no abre
-una terminal. Arranca el mismo servidor de `bin/aurelius-pwa`, en el mismo
+una terminal. Arranca el mismo servidor de `bin/preceptoros-pwa`, en el mismo
 puerto, contra la misma memoria. Si algo falla, lo dice en una ventana del
 navegador en vez de en una consola que esta persona no va a mirar.
 
@@ -72,7 +72,7 @@ def main():
     try:
         import importlib.util
         from importlib.machinery import SourceFileLoader
-        ruta = os.path.join(raiz, "bin", "aurelius-pwa")
+        ruta = os.path.join(raiz, "bin", "preceptoros-pwa")
         spec = importlib.util.spec_from_loader(
             "aurelius_pwa", SourceFileLoader("aurelius_pwa", ruta))
         modulo = importlib.util.module_from_spec(spec)

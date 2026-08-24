@@ -33,12 +33,12 @@ SECRETO_FALSO = "sk-" + "abc123DEF456ghi789JKL"
 import memory
 import captura
 
-# `bin/aurelius-pwa` no lleva extension .py -- es un ejecutable, no un modulo --
+# `bin/preceptoros-pwa` no lleva extension .py -- es un ejecutable, no un modulo --
 # asi que se le da un cargador explicito en vez de dejar que se adivine por el
 # nombre. Probar el fichero que se ejecuta de verdad vale mas que probar una
 # copia con otra extension.
 from importlib.machinery import SourceFileLoader          # noqa: E402
-_ruta = os.path.join(AQUI, "bin", "aurelius-pwa")
+_ruta = os.path.join(AQUI, "bin", "preceptoros-pwa")
 _spec = importlib.util.spec_from_loader(
     "aurelius_pwa", SourceFileLoader("aurelius_pwa", _ruta))
 PWA = importlib.util.module_from_spec(_spec)
@@ -220,7 +220,7 @@ class TestLasImagenesQuePideLaCaraSeSirven(unittest.TestCase):
                 f"{donde} pide assets/{fichero} y no esta en el disco")
 
     def test_el_servidor_sabe_su_tipo(self):
-        with open(os.path.join(AQUI, "bin", "aurelius-pwa"),
+        with open(os.path.join(AQUI, "bin", "preceptoros-pwa"),
                   encoding="utf-8") as fh:
             fuente = fh.read()
         for donde, fichero in self._pedidas():

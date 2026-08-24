@@ -22,7 +22,7 @@ done
 
 exec $PY --onefile --name aurelius --noconfirm \
   --icon "$R/empaquetado/aurelius.png" --paths "$R" \
-  --add-data "$R/bin/aurelius-pwa:bin" \
+  --add-data "$R/bin/preceptoros-pwa:bin" \
   --add-data "$R/interface:interface" \
   --add-data "$R/policies.default.json:." \
   --add-data "$R/assets:assets" \

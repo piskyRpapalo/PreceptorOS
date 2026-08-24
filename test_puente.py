@@ -40,8 +40,8 @@ import memory as M                                          # noqa: E402
 
 
 def _cargar_puente():
-    """`bin/aurelius-puente` no lleva extensión: se carga por ruta."""
-    ruta = os.path.join(AQUI, "bin", "aurelius-puente")
+    """`bin/preceptoros-puente` no lleva extensión: se carga por ruta."""
+    ruta = os.path.join(AQUI, "bin", "preceptoros-puente")
     spec = importlib.util.spec_from_loader(
         "aurelius_puente",
         importlib.machinery.SourceFileLoader("aurelius_puente", ruta))
@@ -173,7 +173,7 @@ class TestPuente(unittest.TestCase):
         """Sin variable de entorno, loopback. Un puerto abierto es una puerta."""
         self.assertEqual(P.BIND, "127.0.0.1",
                          "el puente no puede nacer escuchando fuera")
-        fuente = open(os.path.join(AQUI, "bin", "aurelius-puente"),
+        fuente = open(os.path.join(AQUI, "bin", "preceptoros-puente"),
                       encoding="utf-8").read()
         self.assertNotIn('"0.0.0.0"', fuente,
                          "ninguna dirección abierta escrita en el repo")
