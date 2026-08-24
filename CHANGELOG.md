@@ -3,6 +3,24 @@
 Every number here was measured on the machine that produced it. Where something
 was not measured, it says so.
 
+## v1.1 · 2026-08-25 · PreceptorOS
+
+El producto pasa a llamarse **PreceptorOS**; el personaje sigue siendo Aurelius.
+Los nombres viejos —`aurelius.py`, `import aurelius`, `AURELIUS_*`,
+`bin/aurelius-*`— funcionan hasta el **2026-11-23**. Tu carpeta no se mueve: si
+existe `~/.aurelius/`, se adopta donde está.
+
+- **Prompt-cache**: de 20,3 s a 5,8 s por turno en escritorio, y de 6 min 49 s a
+  32,8 s en el teléfono. Un fichero, no un servidor.
+- **Búsqueda por texto completo** sobre los recuerdos, con FTS5. Cero
+  dependencias nuevas.
+- **Caminos de aprendizaje** en `~/.preceptoros/path/`, legibles sin modelo y
+  sin red.
+- **Latencia por turno** registrada; lo no medido dice `NO_DATA`, nunca cero.
+
+Detalle en [RELEASE_v1.1.md](RELEASE_v1.1.md).
+
+
 ## v1.0.0 — 2026-08-22
 
 First minimum viable product: a local-first memory companion, no cloud, no
