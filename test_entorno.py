@@ -125,7 +125,7 @@ class TestElProductoUsaElPuente(unittest.TestCase):
     """
 
     FICHEROS_PRODUCTO = ("conversacion.py", "voz.py", "tono.py", "fuga.py",
-                         "silencio.py", "cara.py", "aurelius.py",
+                         "silencio.py", "cara.py", "preceptoros.py",
                          "empaquetado/lanzador.py")
 
     # Módulos que leen las dos variables a mano en vez de importar `entorno`,

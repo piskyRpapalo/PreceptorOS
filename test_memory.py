@@ -757,7 +757,7 @@ def main_sabotaje():
     print(f"   original: {RAIZ}")
     print("   se rompe una copia temporal; el original no se toca\n")
     huella_antes = {f: _sha256(os.path.join(RAIZ, f))
-                    for f in ("memory.py", "aurelius.py")}
+                    for f in ("memory.py", "preceptoros.py")}
     no_detectados = []
 
     for nombre, fichero, ancla, sustitucion in SABOTAJES:

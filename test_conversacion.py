@@ -366,7 +366,7 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_cg_un_turno_de_sesion_una_fila(self):
         """La sesion existe, corre, y su turno queda registrado."""
-        import aurelius
+        import preceptoros as aurelius
         dicho = []
         aurelius.charla(self.db, motor=motor_sintetico("Queda como lo escribiste."),
                         entrada=self._guion("hola"), salida=dicho.append)
@@ -381,7 +381,7 @@ class TestSesionCharla(unittest.TestCase):
 
     def test_rojo_cg_dos_turnos_dos_filas(self):
         """Y no cuenta de mas: dos vueltas, dos huellas."""
-        import aurelius
+        import preceptoros as aurelius
         aurelius.charla(self.db, motor=motor_sintetico(),
                         entrada=self._guion("una", "dos"), salida=lambda t: None)
         with M.abrir(self.db) as c:
@@ -393,7 +393,7 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ch_sin_motor_la_sesion_declara(self):
         """Se ofrece lo que hay, no lo que gustaria tener."""
-        import aurelius
+        import preceptoros as aurelius
         dicho = []
         aurelius.charla(self.db, motor=None, entrada=self._guion("hola"),
                         salida=dicho.append)
@@ -410,7 +410,7 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ci_la_sesion_dice_donde_esta_con_su_nombre(self):
         """El peldano se anuncia por su nombre de juego y con lo que lo mide."""
-        import aurelius
+        import preceptoros as aurelius
         import narrador as NN
         dicho = []
         aurelius.charla(self.db, motor=None, entrada=self._guion(),
@@ -430,7 +430,7 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ci_un_bloqueo_no_repite_la_herida(self):
         """Si el fusible salta, la persona se entera y el texto no se reimprime."""
-        import aurelius
+        import preceptoros as aurelius
         dicho = []
         aurelius.charla(self.db, motor=motor_sintetico("hazlo con rm -rf /"),
                         entrada=self._guion("borra"), salida=dicho.append)
@@ -453,7 +453,7 @@ class TestMotorUnaSolaVerdad(unittest.TestCase):
         otra. Dos verdades sobre la misma pieza no discrepan el dia que se
         escriben, sino seis meses despues.
         """
-        import aurelius
+        import preceptoros as aurelius
         self.assertIs(aurelius.MOTOR, C.MOTOR,
                       "el nombre del motor vive en conversacion.py, y solo ahi")
         self.assertIs(aurelius.motor_conversacion.__wrapped__
@@ -544,7 +544,7 @@ class TestAusenciasYTeclado(unittest.TestCase):
 
     def test_rojo_cl_la_sesion_dice_cual_es_la_ausencia(self):
         """Y el mensaje nombra lo que falta: el binario, o la ruta del cerebro."""
-        import aurelius
+        import preceptoros as aurelius
         ruta = "/una/ruta/cerebro.gguf"
 
         dicho = []
@@ -567,7 +567,7 @@ class TestAusenciasYTeclado(unittest.TestCase):
     def test_rojo_cm_sale_por_palabra_ademas_de_por_vacio(self):
         """En un telefono, confiar solo en un Enter en blanco es confiar en que
         nadie lo pulse sin querer."""
-        import aurelius
+        import preceptoros as aurelius
         for palabra in aurelius.SALIDAS_EXPLICITAS:
             cola = [palabra, "esto no deberia llegar"]
             aurelius.charla(self.db, motor=motor_sintetico(),
@@ -585,7 +585,7 @@ class TestAusenciasYTeclado(unittest.TestCase):
         una forma elegante de no probar nada.
         """
         import builtins
-        import aurelius
+        import preceptoros as aurelius
         original = builtins.input
         try:
             for romper in (EOFError, KeyboardInterrupt):
@@ -601,7 +601,7 @@ class TestAusenciasYTeclado(unittest.TestCase):
         """Si la salida esta redirigida, un prompt en el buffer es una pantalla
         en blanco esperando a que pregunten algo que ya se pregunto."""
         import builtins
-        import aurelius
+        import preceptoros as aurelius
         visto = []
         original = builtins.input
         try:
@@ -624,12 +624,12 @@ class TestPrimerArranque(unittest.TestCase):
     """
 
     def test_rojo_cn_una_bandera_sin_memoria_dice_que_hacer(self):
-        import aurelius
+        import preceptoros as aurelius
         dicho = []
         codigo = aurelius._sin_memoria(dicho.append)
         texto = "\n".join(dicho)
         self.assertEqual(codigo, 1, "sin memoria, la bandera no puede decir que fue bien")
-        self.assertIn("python3 aurelius.py", texto,
+        self.assertIn("python3 preceptoros.py", texto,
                       "no dice el comando concreto que crea la memoria")
         for promesa in ("si tú lo dices", "if you say so"):
             self.assertNotIn(promesa, texto,

@@ -193,7 +193,7 @@ TEXTOS = {
         # pregunta que no llega.
         "sin_memoria_aun": ("There is no memory on this machine yet, so there is\n"
                             "nothing to do here. Run this and we make it together:\n"
-                            "  python3 aurelius.py\n"),
+                            "  python3 preceptoros.py\n"),
 
         # --- el ritual · primer contacto. Todo lo que se ve, aquí.
         "ritual_saludo": "\nFirst, three things about you. None is required.",
@@ -361,7 +361,7 @@ TEXTOS = {
                                "esta máquina. Puedo crearla ahora, si tú lo dices."),
         "sin_memoria_aun": ("Todavía no hay memoria en esta máquina, así que aquí\n"
                             "no hay nada que hacer. Ejecuta esto y la creamos juntos:\n"
-                            "  python3 aurelius.py\n"),
+                            "  python3 preceptoros.py\n"),
 
         # --- el ritual · primer contacto. Todo lo que se ve, aquí.
         "ritual_saludo": "\nPrimero, tres cosas sobre ti. Ninguna es obligatoria.",

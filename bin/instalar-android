@@ -115,5 +115,5 @@ nota "la verificación del sha256 la hace él, no este guion"
 
 printf "\n${AZUL}Listo.${FIN} Lo que sigue lo decides tú:\n\n"
 printf "  cd %s\n" "$DESTINO"
-printf "  python3 aurelius.py          %s\n" "· crear tu memoria"
-printf "  python3 aurelius.py --charla %s\n\n" "· hablar, si hay cerebro"
+printf "  python3 preceptoros.py          %s\n" "· crear tu memoria"
+printf "  python3 preceptoros.py --charla %s\n\n" "· hablar, si hay cerebro"

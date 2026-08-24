@@ -109,7 +109,7 @@ class TestRango(unittest.TestCase):
             import memory
             memory.crear(db)
             r = subprocess.run(
-                [sys.executable, "aurelius.py", "--view", "--db", db],
+                [sys.executable, "preceptoros.py", "--view", "--db", db],
                 cwd=str(AQUI), env=entorno, capture_output=True, text=True, timeout=120)
         salida = r.stdout + r.stderr
         if I.dentro_del_rango():

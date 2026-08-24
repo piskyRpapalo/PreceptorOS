@@ -14,7 +14,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import aurelius
+import preceptoros as aurelius
 import memory
 
 

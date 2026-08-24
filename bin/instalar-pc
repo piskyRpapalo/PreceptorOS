@@ -49,7 +49,7 @@ nota "python3  $(python3 -V 2>&1 | cut -d' ' -f2)"
 
 RUTA_LANZA=""
 MODO=""
-if [ -f "$AQUI/bin/aurelius-servicio" ] && [ -f "$AQUI/aurelius.py" ]; then
+if [ -f "$AQUI/bin/aurelius-servicio" ] && [ -f "$AQUI/preceptoros.py" ]; then
   RUTA_LANZA="$AQUI/bin/aurelius-servicio"
   MODO="repositorio"
 elif [ -x "$AQUI/dist/aurelius" ]; then

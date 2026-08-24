@@ -213,7 +213,7 @@ class TestEnchufadoEnElArranque(unittest.TestCase):
     """La carpeta nace con la casa, y nace VACIA."""
 
     def test_arranque_llama_a_asegurar(self):
-        import aurelius
+        import preceptoros as aurelius
         fuente = Path(aurelius.__file__).read_text(encoding="utf-8")
         self.assertIn("_path.asegurar()", fuente,
                       "arranque() no crea la carpeta de paths")
@@ -221,7 +221,7 @@ class TestEnchufadoEnElArranque(unittest.TestCase):
     def test_un_fallo_creando_la_carpeta_no_tumba_el_arranque(self):
         """Perder los paths propios no vale una sesion entera: los de fabrica
         se leen igual desde el directorio del programa."""
-        import aurelius
+        import preceptoros as aurelius
         fuente = Path(aurelius.__file__).read_text(encoding="utf-8")
         trozo = fuente.split("_path.asegurar()")[1][:600]
         self.assertIn("except OSError", trozo,

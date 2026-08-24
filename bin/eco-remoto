@@ -24,7 +24,7 @@ LO QUE NO HACE
   código de salida.
 
 Uso:  bin/eco-remoto python3 corredor.py
-      bin/eco-remoto --puerto 8900 python3 aurelius.py --charla
+      bin/eco-remoto --puerto 8900 python3 preceptoros.py --charla
 """
 from __future__ import annotations
 

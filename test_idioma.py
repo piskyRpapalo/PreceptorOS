@@ -79,7 +79,7 @@ def correr(entradas, ruta=None, extra=()):
     entorno = dict(os.environ, AURELIUS_RITMO="0", PYTHONIOENCODING="utf-8",
                    AURELIUS_TEST="1")
     proc = subprocess.run(
-        [sys.executable, "aurelius.py", "--db", ruta, *extra],
+        [sys.executable, "preceptoros.py", "--db", ruta, *extra],
         input="\n".join(entradas) + "\n", cwd=AQUI, env=entorno,
         capture_output=True, text=True, timeout=60)
     return proc.stdout + proc.stderr, ruta
@@ -263,19 +263,19 @@ def t11():
 
 SABOTAJES = (
     ("la sesion no pregunta el idioma",
-     "aurelius.py",
+     "preceptoros.py",
      "    idioma = paso_idioma(ruta)",
      "    idioma = TX.DEFECTO"),
     ("el idioma elegido no se guarda en el perfil",
-     "aurelius.py",
+     "preceptoros.py",
      '        M.escribir_perfil(c, "language", idioma)',
      "        pass"),
     ("la sesion ignora el idioma y habla siempre en ingles",
-     "aurelius.py",
+     "preceptoros.py",
      "def tx(idioma, clave, **kw):\n    return TX.texto(idioma, clave, **kw)",
      'def tx(idioma, clave, **kw):\n    return TX.texto("en", clave, **kw)'),
     ("la pregunta numerada vuelve a tragarse cualquier cosa",
-     "aurelius.py",
+     "preceptoros.py",
      "        if linea.isdigit() and 1 <= int(linea) <= len(opciones):",
      "        if True:"),
 )
@@ -289,7 +289,7 @@ def _sha(ruta):
 def main_sabotaje():
     print("── M2 · IDIOMA · MODO SABOTAJE · se EXIGE rojo " + "─" * 20)
     sha_antes = {f: _sha(os.path.join(AQUI, f))
-                 for f in ("aurelius.py", "textos.py", "memory.py")}
+                 for f in ("preceptoros.py", "textos.py", "memory.py")}
     no_detectados = []
     for nombre, fichero, ancla, sustitucion in SABOTAJES:
         destino = os.path.join(tempfile.mkdtemp(prefix="sab_idioma_"), "arbol")
