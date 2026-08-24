@@ -1,0 +1,44 @@
+{
+  "id": "python-primeros-pasos",
+  "titulo": "Python, los primeros pasos",
+  "idioma": "es",
+  "version": 1,
+  "fuente": "Aurelius · path de fábrica",
+  "pasos": [
+    {
+      "id": "el-interprete",
+      "titulo": "Hablar con el intérprete",
+      "porque": "Python contesta al momento. Aprender con respuesta inmediata es varias veces más rápido que escribir un fichero entero y esperar a ver si funciona.",
+      "hacer": "Escribe `python3` en la terminal. Prueba `2 + 2`, `\"hola\" * 3`, `len(\"soberanía\")`. Sal con Ctrl-D.",
+      "comprobar": "Has visto al intérprete darte tres respuestas distintas sin escribir ningún fichero."
+    },
+    {
+      "id": "guardar-en-un-fichero",
+      "titulo": "Pasar de la consola a un fichero",
+      "porque": "Lo que se teclea en la consola se pierde. Un fichero se puede volver a correr, enseñar y corregir.",
+      "hacer": "Crea `prueba.py` con una línea `print(\"funciona\")` y córrelo con `python3 prueba.py`.",
+      "comprobar": "El mismo fichero da la misma salida dos veces seguidas."
+    },
+    {
+      "id": "leer-el-error",
+      "titulo": "Leer un error de arriba abajo",
+      "porque": "Un traceback no es un castigo: es un mapa que dice el fichero, la línea y el tipo de fallo. Quien aprende a leerlo deja de necesitar que se lo expliquen.",
+      "hacer": "Provoca un error a propósito: `print(1/0)`. Lee la última línea primero — ahí está el tipo — y luego sube buscando tu fichero.",
+      "comprobar": "Ante un error, sabes decir en qué línea de qué fichero ocurrió antes de intentar arreglarlo."
+    },
+    {
+      "id": "la-biblioteca-estandar",
+      "titulo": "Mirar en la caja antes de instalar nada",
+      "porque": "Python trae cientos de módulos de serie. Instalar una dependencia para algo que ya viene dentro añade una cosa que mantener, que actualizar y que puede fallarte cuando no estés mirando.",
+      "hacer": "Prueba `import json`, `import sqlite3`, `import pathlib` y `import statistics`. Ninguno hay que instalarlo.",
+      "comprobar": "Puedes nombrar tres cosas que Python ya sabe hacer sin instalar nada."
+    },
+    {
+      "id": "escribir-la-prueba",
+      "titulo": "Escribir la prueba antes que el arreglo",
+      "porque": "Un arreglo sin prueba se deshace solo en tres meses y nadie se entera. La prueba es lo que hace que el arreglo siga arreglado.",
+      "hacer": "Con `unittest` (viene de serie), escribe una prueba que FALLE. Míralo fallar. Luego escribe el código que la pone en verde.",
+      "comprobar": "Has visto tu prueba en rojo antes de verla en verde. Una prueba que nunca estuvo roja no demuestra nada."
+    }
+  ]
+}

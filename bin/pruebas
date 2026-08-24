@@ -138,7 +138,7 @@ echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails
-          test_interprete test_leitmotivs test_silencio test_voz_cyber)
+          test_interprete test_leitmotivs test_silencio test_voz_cyber test_path)
 PROPIAS=(cara idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done

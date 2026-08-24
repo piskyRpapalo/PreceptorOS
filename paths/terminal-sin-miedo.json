@@ -1,0 +1,44 @@
+{
+  "id": "terminal-sin-miedo",
+  "titulo": "La terminal sin miedo",
+  "idioma": "es",
+  "version": 1,
+  "fuente": "Aurelius · path de fábrica",
+  "pasos": [
+    {
+      "id": "donde-estoy",
+      "titulo": "Saber dónde estás",
+      "porque": "Casi todo lo que sale mal en una terminal sale mal porque estabas en otra carpeta de la que creías. Antes de cualquier orden, la pregunta es dónde.",
+      "hacer": "Escribe `pwd` y luego `ls`. Lo primero dice la carpeta; lo segundo, qué hay dentro.",
+      "comprobar": "Puedes decir en voz alta la ruta donde estás sin mirar la pantalla."
+    },
+    {
+      "id": "moverse",
+      "titulo": "Moverte sin perderte",
+      "porque": "`cd` es la única orden que cambia el suelo que pisas. Si la entiendes, dejas de teclear a ciegas.",
+      "hacer": "Prueba `cd ..` para subir, `cd -` para volver a la anterior y `cd` a secas para ir a tu casa.",
+      "comprobar": "Sales de tu carpeta personal, vuelves con `cd -`, y `pwd` confirma que estás donde esperabas."
+    },
+    {
+      "id": "leer-sin-abrir",
+      "titulo": "Leer un fichero sin abrirlo",
+      "porque": "Abrir un editor para mirar tres líneas es una fricción que acaba con la gente dejando de mirar.",
+      "hacer": "Usa `head -20 fichero`, `tail -20 fichero` y `wc -l fichero`.",
+      "comprobar": "Sabes cuántas líneas tiene un fichero y qué dicen las primeras, sin haberlo abierto."
+    },
+    {
+      "id": "buscar",
+      "titulo": "Buscar dentro de los ficheros",
+      "porque": "Recordar dónde escribiste algo no escala. Buscarlo, sí.",
+      "hacer": "Prueba `grep -rn \"palabra\" .` en una carpeta con texto. La `-n` da el número de línea; la `-r` baja por las subcarpetas.",
+      "comprobar": "Encuentras una palabra que sabes que escribiste, y la salida te dice fichero y línea."
+    },
+    {
+      "id": "deshacer-el-miedo",
+      "titulo": "Saber qué órdenes NO tienen vuelta atrás",
+      "porque": "El miedo a la terminal casi siempre es miedo a borrar algo sin querer. El miedo se cura sabiendo exactamente cuáles son las cuatro o cinco órdenes peligrosas, no evitándolas todas.",
+      "hacer": "Aprende de memoria que `rm` no manda a la papelera, que `>` sobreescribe sin preguntar y que `mv` puede pisar un fichero existente. Prueba `rm -i` y `cp -i`, que preguntan.",
+      "comprobar": "Puedes nombrar tres órdenes que no se pueden deshacer y decir qué hace cada una."
+    }
+  ]
+}
