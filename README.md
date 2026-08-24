@@ -177,8 +177,10 @@ dice exactamente lo mismo.
 
 🇬🇧
 
-- **It does not search — yet.** With few memories, search is a solution to a
-  problem you do not have.
+- **It does not search meaning.** It searches *words*: full-text over what you
+  wrote, using the search engine that ships inside SQLite. Finding what you
+  meant, rather than what you typed, needs an embeddings model — and that would
+  break the promise that the standard library is the only requirement.
 - **It does not redact what you store.** Your machine, your data, your words.
   Redaction happens at the border, when something is about to *leave*.
 - **It does not need the network, a GPU, or anything beyond Python 3.**
@@ -188,8 +190,10 @@ dice exactamente lo mismo.
 
 🇪🇸
 
-- **No busca — todavía.** Con pocos recuerdos, buscar es la solución a un
-  problema que no tienes.
+- **No busca significado.** Busca *palabras*: texto completo sobre lo que
+  escribiste, con el buscador que ya viene dentro de SQLite. Encontrar lo que
+  querías decir, y no lo que tecleaste, exige un modelo de embeddings — y eso
+  rompería la promesa de que la biblioteca estándar es el único requisito.
 - **No redacta lo que guardas.** Tu máquina, tus datos, tus palabras. La
   redacción ocurre en la frontera, cuando algo está a punto de *salir*.
 - **No necesita red, ni GPU, ni nada más allá de Python 3.**
@@ -282,6 +286,50 @@ Las cifras que hay se midieron en las máquinas que nombra
 [TECHNICAL.md](TECHNICAL.md); las tuyas serán otras. Trae lo que midas — una
 incidencia con tu hardware, tu modelo y tus tiempos vale aquí más que una
 opinión sobre qué modelo es mejor, incluida la mía.
+
+---
+
+## The prompt cache / El caché del prompt
+
+🇬🇧 Aurelius passes `--prompt-cache` to the engine, so the model does not
+re-read its own character sheet from scratch on every single turn. Measured on
+2026-08-24 with the real prompt:
+
+| | first token | whole turn |
+|---|---|---|
+| Desktop (Ryzen 7, CPU only) | 17.7 s → **2.4 s** | 20.3 s → **5.8 s** |
+| Phone (Android, 8 cores) | 337.7 s → **7.3 s** | 408.6 s → **32.8 s** |
+
+The phone goes from nearly six minutes per turn to thirty-three seconds.
+
+The cache lives at `~/.aurelius/cache_prompt.bin`, weighs about **252 MiB**, and
+holds KV tensors — **not your words**. It is a file, not a server: no port is
+opened. You can delete it whenever you like and it rebuilds itself on the next
+turn. To turn it off and trade speed for disk:
+
+```bash
+AURELIUS_SIN_CACHE=1 python3 aurelius.py
+```
+
+🇪🇸 Aurelius le pasa `--prompt-cache` al motor, para que el modelo no vuelva a
+leerse su propia hoja de personaje desde cero en cada turno. Medido el
+2026-08-24 con el prompt real:
+
+| | primer token | turno completo |
+|---|---|---|
+| Escritorio (Ryzen 7, solo CPU) | 17,7 s → **2,4 s** | 20,3 s → **5,8 s** |
+| Teléfono (Android, 8 núcleos) | 337,7 s → **7,3 s** | 408,6 s → **32,8 s** |
+
+El teléfono pasa de casi seis minutos por turno a treinta y tres segundos.
+
+El caché vive en `~/.aurelius/cache_prompt.bin`, ocupa unos **252 MiB** y guarda
+tensores KV — **no tus palabras**. Es un fichero, no un servidor: no abre ningún
+puerto. Puedes borrarlo cuando quieras y se rehace solo en el siguiente turno.
+Para apagarlo y cambiar velocidad por disco:
+
+```bash
+AURELIUS_SIN_CACHE=1 python3 aurelius.py
+```
 
 ---
 
