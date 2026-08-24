@@ -11,7 +11,11 @@ producto. Nada de lo que la persona ajusta se escribe jamás junto al script.
 
 from pathlib import Path
 
-NOMBRE = ".aurelius"
+# Mandato 1 · el renombrado. Con punto delante, como estaba: `.preceptoros` y
+# no `preceptoros`. Sin el punto, la carpeta deja de estar oculta y aparece en
+# medio del home de la persona junto a Documentos y Descargas -- eso no es
+# renombrar, es cambiar donde vive y como se ve, y no estaba en la orden.
+NOMBRE = ".preceptoros"
 
 # Los nombres que esta casa ha tenido antes, del mas reciente al mas antiguo.
 # Existe por el renombrado del producto (Mandato 1): el dia que `NOMBRE`
@@ -24,7 +28,7 @@ NOMBRE = ".aurelius"
 # vacia y una campana sin empezar, y la persona creeria que lo ha perdido todo.
 # Un fallo que se parece a un primer arranque es el peor de todos, porque no
 # parece un fallo.
-NOMBRES_ANTERIORES = ()
+NOMBRES_ANTERIORES = (".aurelius",)
 
 
 class CasaInaccesible(RuntimeError):

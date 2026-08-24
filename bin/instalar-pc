@@ -34,7 +34,7 @@ if [ "${1:-}" = "--desinstalar" ]; then
     update-desktop-database "$APPS" 2>/dev/null || true
   az "Quitado el icono y su entrada"
   nota "$DESKTOP"
-  nota "TU MEMORIA NO SE TOCA: sigue en ~/.aurelius/memory.db"
+  nota "TU MEMORIA NO SE TOCA: sigue donde estaba"
   nota "el producto tampoco: sigue en $AQUI"
   printf '\n'
   exit 0

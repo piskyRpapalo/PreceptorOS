@@ -40,6 +40,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 AQUI = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, AQUI)
 
+import casa as _casa                                        # noqa: E402
 import memory as M                                          # noqa: E402
 
 # La dirección NO vive en el repo. Sin variable, loopback: lo más estrecho que
@@ -117,7 +118,11 @@ class Puente(BaseHTTPRequestHandler):
 def main(argv=None):
     import argparse
     ap = argparse.ArgumentParser(description="Aurelius · el camino de vuelta")
-    ap.add_argument("--db", default=os.path.expanduser("~/.aurelius/memory.db"))
+    # La raiz la decide `casa`, y solo `casa`. Escribirla a mano aqui es
+    # exactamente lo que ese modulo existe para impedir: el dia que el
+    # producto se renombre, este guion seguiria mirando a la casa vieja
+    # mientras el resto mira a la nueva.
+    ap.add_argument("--db", default=str(_casa.raiz() / "memory.db"))
     ap.add_argument("--cara", default="cara.html",
                     help="el HTML que se sirve; se genera con cara.py --puente")
     a = ap.parse_args(argv)
