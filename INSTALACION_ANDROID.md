@@ -20,7 +20,7 @@ Pide teclear una vez. Después no hace falta la terminal para usarlo.
 
 ```
 pkg install -y git
-git clone --depth 1 https://github.com/piskyRpapalo/aurelius ~/aurelius
+git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/aurelius
 cd ~/aurelius && bash bin/instalar-android
 ```
 

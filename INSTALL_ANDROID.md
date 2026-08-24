@@ -22,7 +22,7 @@ It asks you to type once. After that you do not need the terminal to use it.
 
 ```
 pkg install -y git
-git clone --depth 1 https://github.com/piskyRpapalo/aurelius ~/aurelius
+git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/aurelius
 cd ~/aurelius && bash bin/instalar-android
 ```
 

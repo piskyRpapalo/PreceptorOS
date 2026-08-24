@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/piskyRpapalo/aurelius"
+Homepage = "https://github.com/piskyRpapalo/PreceptorOS"
 
 [project.scripts]
 preceptoros = "preceptoros:main"

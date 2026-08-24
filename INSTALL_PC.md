@@ -108,7 +108,7 @@ memory** or the product — only the icon.
 For anyone who wants to read it, change it or audit it.
 
 ```
-git clone https://github.com/piskyRpapalo/aurelius
+git clone https://github.com/piskyRpapalo/PreceptorOS
 cd aurelius
 python3 aurelius.py             # create your memory
 python3 aurelius.py --charla    # talk, if a brain is installed

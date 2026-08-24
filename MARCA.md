@@ -92,10 +92,10 @@ sola conexión.
 Para el README de perfil, sustituye las cuatro líneas por estas:
 
 ```html
-<img src="https://raw.githubusercontent.com/piskyRpapalo/aurelius/main/assets/badges/python.svg" alt="Python 3.10+">
-<img src="https://raw.githubusercontent.com/piskyRpapalo/aurelius/main/assets/badges/deps.svg" alt="Dependencies: stdlib only">
-<img src="https://raw.githubusercontent.com/piskyRpapalo/aurelius/main/assets/badges/code.svg" alt="Code licence: Apache-2.0">
-<img src="https://raw.githubusercontent.com/piskyRpapalo/aurelius/main/assets/badges/prose.svg" alt="Prose licence: CC BY-SA 4.0">
+<img src="https://raw.githubusercontent.com/piskyRpapalo/PreceptorOS/main/assets/badges/python.svg" alt="Python 3.10+">
+<img src="https://raw.githubusercontent.com/piskyRpapalo/PreceptorOS/main/assets/badges/deps.svg" alt="Dependencies: stdlib only">
+<img src="https://raw.githubusercontent.com/piskyRpapalo/PreceptorOS/main/assets/badges/code.svg" alt="Code licence: Apache-2.0">
+<img src="https://raw.githubusercontent.com/piskyRpapalo/PreceptorOS/main/assets/badges/prose.svg" alt="Prose licence: CC BY-SA 4.0">
 ```
 
 **Aviso, y por eso no lo he hecho yo:** el badge de las pruebas del README de

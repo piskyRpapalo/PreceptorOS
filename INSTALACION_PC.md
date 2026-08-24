@@ -119,8 +119,8 @@ producto — solo el icono.
 Para quien quiera leerlo, cambiarlo o auditarlo.
 
 ```
-git clone https://github.com/piskyRpapalo/aurelius
-cd aurelius
+git clone https://github.com/piskyRpapalo/PreceptorOS
+cd PreceptorOS
 python3 preceptoros.py             # crear tu memoria
 python3 preceptoros.py --charla    # hablar, si hay cerebro
 bin/preceptoros-servicio arranca   # la cara web

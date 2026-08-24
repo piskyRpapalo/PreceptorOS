@@ -1,5 +1,10 @@
 # Aurelius v1.0.0 · MVP cerrado
 
+> **Nota de 2026-08-25.** El producto se llamaba Aurelius cuando se escribió
+> esto. Las URL de abajo siguen tal cual a propósito — reescribir una nota de
+> versión pasada es falsear el registro. GitHub redirige el nombre viejo al
+> nuevo, así que siguen funcionando. Ver [RELEASE_v1.1.md](RELEASE_v1.1.md).
+
 ## Qué es este release
 
 El primer producto mínimo viable de Aurelius: un compañero de memoria
