@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # instalar-pc · el icono, y saber volver.
 #
-# EL PROBLEMA QUE RESUELVE: cerraste Aurelius y no sabes reabrirlo. Le paso al
+# EL PROBLEMA QUE RESUELVE: cerraste PreceptorOS y no sabes reabrirlo. Le paso al
 # autor. Un comando que hay que recordar no es una puerta.
 #
 # CUBRE LAS DOS RUTAS, porque son dos personas distintas:
@@ -28,7 +28,7 @@ muere(){ printf '\n✗ %s\n' "$1" >&2; exit 1; }
 
 # --- desinstalar ----------------------------------------------------------
 if [ "${1:-}" = "--desinstalar" ]; then
-  printf '\n\033[38;5;141mAURELIUS\033[0m · quitando el acceso\n\n'
+  printf '\n\033[38;5;141mPRECEPTOROS\033[0m · quitando el acceso\n\n'
   rm -f "$DESKTOP" "$ICONOS/aurelius.png"
   command -v update-desktop-database >/dev/null 2>&1 && \
     update-desktop-database "$APPS" 2>/dev/null || true
@@ -40,7 +40,7 @@ if [ "${1:-}" = "--desinstalar" ]; then
   exit 0
 fi
 
-printf '\n\033[38;5;141mAURELIUS\033[0m · instalación en el escritorio\n\n'
+printf '\n\033[38;5;141mPRECEPTOROS\033[0m · instalación en el escritorio\n\n'
 
 # --- 1 · lo que hay -------------------------------------------------------
 az "1 · Lo que hay"
@@ -108,7 +108,7 @@ chmod +x "$LANZADOR"
 cat > "$DESKTOP" <<DESK
 [Desktop Entry]
 Type=Application
-Name=Aurelius
+Name=PreceptorOS
 Comment=Your memory, in one file you can carry
 Comment[es]=Tu memoria, en un fichero que puedes llevarte
 Exec=$LANZADOR
@@ -125,7 +125,7 @@ nota "$DESKTOP"
 
 # --- 4 · como volver ------------------------------------------------------
 printf '\n\033[38;5;141mListo.\033[0m\n\n'
-printf '  \033[1mPara abrirlo:\033[0m busca "Aurelius" en el menu de aplicaciones.\n\n'
+printf '  \033[1mPara abrirlo:\033[0m busca "PreceptorOS" en el menu de aplicaciones.\n\n'
 printf '  \033[1mSi cierras la ventana del navegador\033[0m, el servidor sigue vivo.\n'
 printf '  Vuelve a tocar el icono y se abre otra vez, sin arrancar un segundo.\n\n'
 printf '  \033[1mSi algo se queda colgado:\033[0m\n'
