@@ -18,6 +18,7 @@
 <img src="https://img.shields.io/badge/Python-3.10%2B-2F6B4F?style=flat" alt="Python 3.10 or newer">
 <img src="https://img.shields.io/badge/dependencies-standard%20library%20only-A9762B?style=flat" alt="Dependencies: standard library only">
 <img src="https://img.shields.io/badge/storage-one%20local%20file-2F6B4F?style=flat" alt="Storage: one local file">
+<img src="https://img.shields.io/badge/tests-356%2F356-2F6B4F?style=flat" alt="Tests: 356 of 356 passing">
 <img src="https://img.shields.io/badge/code-Apache--2.0-57534E?style=flat" alt="Code licence: Apache-2.0">
 
 </div>
@@ -173,6 +174,20 @@ dice exactamente lo mismo.
 
 ---
 
+## What it looks like / Cómo se ve
+
+<sub>🇬🇧 Captured on a DOOGEE Tank 3 over a private tailnet, Chrome for Android.
+Every number on screen is measured from the memory on that machine — nothing here
+is a mockup.<br>
+🇪🇸 Capturado en un DOOGEE Tank 3 por tailnet privada, Chrome de Android. Cada
+número de la pantalla sale de la memoria de esa máquina: aquí no hay maqueta.</sub>
+
+| | |
+|---|---|
+| <img src="docs/screenshots/03_brujula_camino.png" width="230"> | 🇬🇧 **The learning compass**, mode *The Path*: eight rungs, each with its own state. Gold is done, emerald is growing, violet is where the field pushes now, and the **hatched** sector is a rung that cannot be measured — declared, never painted as zero. The rank (*Bronze*) is the measured mean, not a score you are given.<br>🇪🇸 **La brújula**, modo *Camino*. El sector rayado es un peldaño que no se puede medir: declarado, nunca pintado como cero. |
+| <img src="docs/screenshots/04_brujula_detalle.png" width="230"> | 🇬🇧 **Mode *Detail***: the same eight rungs plus four dimensions of your own — topics, projects, profile, pace. Two of them are hatched here because a fresh memory has nothing to measure yet.<br>🇪🇸 **Modo *Detalle***: los ocho peldaños más cuatro dimensiones tuyas. |
+| <img src="docs/screenshots/05_conversacion.png" width="230"> | 🇬🇧 **A turn.** Asked what it is, it answers *"You can call me Preceptor. I am a presence that walks with you through what you already know. I don't explain—I show."* Four seconds, on a phone, with no network beyond the private tailnet.<br>🇪🇸 **Un turno.** Cuatro segundos, en un teléfono. |
+
 ## What it does NOT do / Qué NO hace
 
 🇬🇧
@@ -313,7 +328,7 @@ re-read its own character sheet from scratch on every single turn. Measured on
 
 The phone goes from nearly six minutes per turn to thirty-three seconds.
 
-The cache lives next to your memory, as `cache_prompt.bin`, weighs about **252 MiB**, and
+The cache lives next to your memory — `~/.preceptoros/cache_prompt.bin`, or `~/.aurelius/cache_prompt.bin` on an install older than the rename — weighs about **252 MiB**, and
 holds KV tensors — **not your words**. It is a file, not a server: no port is
 opened. You can delete it whenever you like and it rebuilds itself on the next
 turn. To turn it off and trade speed for disk:
@@ -333,7 +348,7 @@ leerse su propia hoja de personaje desde cero en cada turno. Medido el
 
 El teléfono pasa de casi seis minutos por turno a treinta y tres segundos.
 
-El caché vive al lado de tu memoria, como `cache_prompt.bin`, ocupa unos **252 MiB** y guarda
+El caché vive al lado de tu memoria — `~/.preceptoros/cache_prompt.bin`, o `~/.aurelius/cache_prompt.bin` si tu instalación es anterior al renombrado —, ocupa unos **252 MiB** y guarda
 tensores KV — **no tus palabras**. Es un fichero, no un servidor: no abre ningún
 puerto. Puedes borrarlo cuando quieras y se rehace solo en el siguiente turno.
 Para apagarlo y cambiar velocidad por disco:
