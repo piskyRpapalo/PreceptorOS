@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""fusible.py · El Fusible (Joya 3.3 · V-3).
+"""output_guard.py · el output-guard (Joya 3.3 · V-3).
 
-Fusible de comandos destructivos. Detecta patrones conocidos por forma
+Se lee «el Fusible» en la cara: `narrador.py` traduce este nombre interno a la
+palabra que ve la persona, igual que hace con «la Cicatriz» y «el Velo».
+
+Output-guard de comandos destructivos. Detecta patrones conocidos por forma
 (shape-matching). **No resuelve variables, ni codificaciones, ni
 indirecciones.** Primera línea de defensa, no filtro completo de
 alucinaciones.
@@ -19,7 +22,7 @@ Qué NO frena, y conviene saberlo antes que descubrirlo:
   el ingenio no.
 
 El nombre se queda: es parte del vocabulario del producto. Lo que cambia aquí
-es lo que promete. Un fusible que se presenta como filtro completo de
+es lo que promete. Un output-guard que se presenta como filtro completo de
 alucinaciones invita a confiar en él para lo que no puede hacer, y eso es peor
 que no tenerlo — la persona baja la guardia exactamente donde debería subirla.
 
@@ -46,7 +49,7 @@ PATRONES_PELIGROSOS = [
 
 
 class RespuestaBloqueada(Exception):
-    """El fusible vio forma peligrosa en la respuesta del modelo. No pasa."""
+    """El output-guard vio forma peligrosa en la respuesta del modelo. No pasa."""
 
 def _normalizar(texto: str) -> str:
     """Normaliza continuaciones de línea y espacios para cazar la forma."""
@@ -77,7 +80,7 @@ def inspeccionar(texto: str) -> dict:
 def preparar_respuesta(texto: str) -> dict:
     """Prepara la respuesta del modelo para que cruce la frontera.
 
-    Es lo que le faltaba al fusible para ser una puerta y no solo un dictamen:
+    Es lo que le faltaba al output-guard para ser una puerta y no solo un dictamen:
     `memory.cruzar_frontera` la llama, y de su veredicto sale la fila del
     registro. Lo que viaja son CLASE Y CANTIDAD, jamás el fragmento -- el mismo
     criterio que `guardrails.redactar_salida`.
@@ -85,5 +88,5 @@ def preparar_respuesta(texto: str) -> dict:
     resultado = inspeccionar(texto)
     if resultado["bloqueado"]:
         raise RespuestaBloqueada(
-            "el fusible encontró forma peligrosa en la respuesta: no pasa")
+            "el output-guard encontró forma peligrosa en la respuesta: no pasa")
     return {"texto": texto, "hallazgos": resultado["clases"]}

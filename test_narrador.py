@@ -69,7 +69,7 @@ CONCEPTOS = {
     "objetivo_macro", "scaffolding_fading", "retrieval",
 }
 
-MODULOS = ("memory", "hilos", "cara", "fusible", "traza", "guardrails", "andamio")
+MODULOS = ("memory", "hilos", "cara", "output_guard", "traza", "guardrails", "andamio")
 
 
 def _asoma(texto, crudo):

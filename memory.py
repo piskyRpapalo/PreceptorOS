@@ -140,7 +140,7 @@ create table if not exists salidas (
     -- Dos columnas y no una porque las mide gente distinta: el motor lo
     -- cronometra `turno()`, que es quien lo llama; la puerta se cronometra a
     -- si misma. Un solo numero obligaria a culpar al modelo de lo que a lo
-    -- mejor cuesta el fusible.
+    -- mejor cuesta el output-guard.
     ms_motor      real,
     ms_frontera   real
 );
@@ -724,7 +724,7 @@ _paso = threading.local()
 
 # Los mensajes de estas excepciones son fijos y no llevan fragmento del texto:
 # se pueden guardar enteros. Se comparan por NOMBRE en vez de importar
-# guardrails o fusible aqui: la dependencia del arbol va producto -> memoria, y
+# guardrails o output-guard aqui: la dependencia del arbol va producto -> memoria, y
 # no se invierte por comodidad.
 _MOTIVOS_CITABLES = ("EnvioBloqueado", "SinInspeccion", "RespuestaBloqueada",
                      "FronteraSinFiltro")
@@ -951,12 +951,12 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None,
 
     Orquesta el flujo entero: preparar -> (confirmar) -> registrar. Las tres
     preparaciones del árbol -- preparar_envio (guardrails), preparar_respuesta
-    (fusible) y preparar_salida_andamio -- desembocan aquí. Nadie sale por otro
+    (output-guard) y preparar_salida_andamio -- desembocan aquí. Nadie sale por otro
     sitio: fuera de esta función, `registrar_salida` levanta SalidaSinPuerta.
 
     QUÉ CUENTA COMO BLOQUEO, Y POR QUÉ
     ----------------------------------
-    El registro anota los veredictos del FILTRO -- guardrails, fusible, falta de
+    El registro anota los veredictos del FILTRO -- guardrails, output-guard, falta de
     inspección --, no las decisiones de la persona. Un `confirmar` que dice que
     no NO escribe fila: que alguien decida no exportar su propia memoria no es un
     evento de seguridad, es su criterio, y anotarlo sería vigilarla en su propia
@@ -985,7 +985,7 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None,
 
     # A.5 · la puerta se cronometra a si misma. `ms_motor` llega de fuera
     # porque el modelo corre ANTES de llegar aqui y solo quien lo llamo pudo
-    # medirlo; lo que cuesta la puerta -- fusible, redaccion, inspeccion -- se
+    # medirlo; lo que cuesta la puerta -- output-guard, redaccion, inspeccion -- se
     # mide aqui, que es el unico sitio que lo ve entero.
     #
     # No se actualiza la fila despues para anotar el total: `salidas` es
@@ -1006,7 +1006,7 @@ def cruzar_frontera(c, canal, texto_original, preparar_fn, confirmar=None,
             # Constancia ANTES de re-lanzar: un bloqueo del que no queda rastro
             # es indistinguible de un bloqueo que nunca ocurrió.
             # El tiempo se anota TAMBIEN cuando se bloquea. Un turno frenado
-            # por el fusible costo lo mismo de modelo que uno que paso, y
+            # por el output-guard costo lo mismo de modelo que uno que paso, y
             # dejarlo fuera sesgaria la medida hacia abajo justo en los casos
             # raros -- que son los que se miran cuando algo va lento.
             registrar_salida(c, canal, AUSENTE, [], hash_original,

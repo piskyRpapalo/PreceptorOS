@@ -144,7 +144,7 @@ class TestBucle(unittest.TestCase):
     # Rojo C-c: la respuesta cruza la puerta
     # ------------------------------------------------------------------
     def test_rojo_cc_la_respuesta_cruza_la_puerta(self):
-        """Queda huella con su canal, y el fusible mira antes de dejar pasar."""
+        """Queda huella con su canal, y el output-guard mira antes de dejar pasar."""
         with M.abrir(self.db) as c:
             resultado = C.turno(c, "hola", self._camino(c),
                                 motor=motor_sintetico(), idioma="es")
@@ -154,13 +154,13 @@ class TestBucle(unittest.TestCase):
         self.assertEqual(fila["estado"], "ok")
 
     def test_rojo_cc_lo_peligroso_deja_cicatriz_y_no_pasa(self):
-        """Si el modelo propone algo destructivo, salta el fusible.
+        """Si el modelo propone algo destructivo, salta el output-guard.
 
         Y lo que queda es la marca, no el texto: la cicatriz no guarda la herida.
         """
         motor = motor_sintetico("Para limpiarlo: rm -rf /")
         with M.abrir(self.db) as c:
-            with self.assertRaises(fusible_bloqueado()):
+            with self.assertRaises(output_guard_bloqueado()):
                 C.turno(c, "¿cómo lo borro?", self._camino(c), motor=motor,
                         idioma="es")
             fila = c.execute(
@@ -429,7 +429,7 @@ class TestSesionCharla(unittest.TestCase):
     # Rojo C-i (b): un bloqueo se cuenta sin repetir lo bloqueado
     # ------------------------------------------------------------------
     def test_rojo_ci_un_bloqueo_no_repite_la_herida(self):
-        """Si el fusible salta, la persona se entera y el texto no se reimprime."""
+        """Si el output-guard salta, la persona se entera y el texto no se reimprime."""
         import preceptoros as aurelius
         dicho = []
         aurelius.charla(self.db, motor=motor_sintetico("hazlo con rm -rf /"),
@@ -688,9 +688,9 @@ class TestElTiempo(unittest.TestCase):
         self.assertGreaterEqual(C.ESPERA, 420,
                                 "la espera por defecto no cubre un telefono")
 
-def fusible_bloqueado():
-    import fusible
-    return fusible.RespuestaBloqueada
+def output_guard_bloqueado():
+    import output_guard
+    return output_guard.RespuestaBloqueada
 
 
 if __name__ == '__main__':

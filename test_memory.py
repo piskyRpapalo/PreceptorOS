@@ -990,7 +990,7 @@ def t33():
 
 @caso("34 · un turno bloqueado tambien deja su tiempo")
 def t34():
-    """Un turno frenado por el fusible costo lo mismo de modelo que uno que
+    """Un turno frenado por el output-guard costo lo mismo de modelo que uno que
     paso. Dejarlo fuera sesga la medida hacia abajo justo en los casos raros,
     que son los que se miran cuando algo va lento."""
     ruta = tmp_ruta()

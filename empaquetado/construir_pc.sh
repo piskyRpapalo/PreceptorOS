@@ -15,7 +15,7 @@ for f in "$R"/*.py; do
 done
 OCULTOS=""
 for m in memory guardrails captura conversacion cara casa textos tono estado \
-         hilos fusible descarga interprete narrador manifest lore silencio \
+         hilos output_guard descarga interprete narrador manifest lore silencio \
          traza caracter voz oido fuga corredor; do
   OCULTOS="$OCULTOS --hidden-import $m"
 done

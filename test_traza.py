@@ -13,7 +13,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import fusible
+import output_guard
 import memory
 import traza
 
@@ -72,7 +72,7 @@ class TestTrazaVerificacion(unittest.TestCase):
 
     def test_v5_falla_cerrado(self):
         """Inspector ausente o ilegible ⇒ bloqueado + NO_DATA."""
-        # Simulamos un fusible roto pasando un texto que cause un error
+        # Simulamos un output-guard roto pasando un texto que cause un error
         # o simplemente verificamos que la traza maneja el estado NO_DATA
         t = traza.generar(None) # Entrada None simula fallo
         self.assertIn("[x]", str(t), "Fallo debe mostrar [x]")
@@ -81,7 +81,7 @@ class TestTrazaVerificacion(unittest.TestCase):
     def test_v6_constancia(self):
         """Un bloqueo deja UNA fila en el registro, y sin el texto crudo.
 
-        Ya no se simula: el fusible cruza la frontera por la puerta única, y de
+        Ya no se simula: el output-guard cruza la frontera por la puerta única, y de
         su veredicto sale la constancia. Un bloqueo del que no queda rastro es
         indistinguible de un bloqueo que nunca ocurrió.
         """
@@ -91,9 +91,9 @@ class TestTrazaVerificacion(unittest.TestCase):
 
         with memory.abrir(self.db_path) as c:
             antes = c.execute("select count(*) from salidas").fetchone()[0]
-            with self.assertRaises(fusible.RespuestaBloqueada):
+            with self.assertRaises(output_guard.RespuestaBloqueada):
                 memory.cruzar_frontera(c, "modelo_local", texto,
-                                       fusible.preparar_respuesta)
+                                       output_guard.preparar_respuesta)
             filas = c.execute(
                 "select estado, texto, motivo from salidas order by id").fetchall()
 

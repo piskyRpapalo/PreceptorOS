@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """traza.py · La Traza de Verificación (D10).
 
-Genera la traza determinista de la comprobación del fusible.
+Genera la traza determinista de la comprobación del output-guard.
 No es pensamiento, es veredicto. No es narración, es hecho.
 """
 from __future__ import annotations
 import datetime
-import fusible
+import output_guard
 
 ALCANCE_DECLARADO = "reviso patrones estructurales; no lo reconozco todo; la última comprobación es tuya"
 
@@ -24,9 +24,9 @@ def generar(texto: str | None) -> dict:
             "entrada": "NO_DATA"
         }
     
-    resultado_fusible = fusible.inspeccionar(texto)
-    bloqueado = resultado_fusible["bloqueado"]
-    hallazgos = resultado_fusible["hallazgos"]
+    resultado_guard = output_guard.inspeccionar(texto)
+    bloqueado = resultado_guard["bloqueado"]
+    hallazgos = resultado_guard["hallazgos"]
     
     if bloqueado:
         estado = "[x] bloqueado"

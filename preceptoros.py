@@ -37,7 +37,7 @@ except ImportError:
     fuga = None
     FUGA_DISPONIBLE = False
 import descarga as _descarga
-import fusible as _fusible
+import output_guard as _output_guard
 import estado as _estado
 import hilos as _hilos
 import cara as _cara
@@ -687,7 +687,7 @@ def charla(ruta, motor=None, entrada=None, salida=print, vueltas=None,
             try:
                 turno = _charla.turno(c, dicho, camino, motor=motor,
                                       idioma=idioma)
-            except _fusible.RespuestaBloqueada:
+            except _output_guard.RespuestaBloqueada:
                 # La cicatriz ya quedo escrita dentro de la puerta.
                 salida(tx(idioma, "charla_bloqueado"))
                 continue

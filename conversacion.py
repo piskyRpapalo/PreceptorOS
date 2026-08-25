@@ -28,8 +28,8 @@ personas notan. La memoria funciona entera sin modelo, y el turno lo declara.
 
 LO QUE EL MODELO CONTESTA CRUZA LA FRONTERA
 -------------------------------------------
-Toda respuesta pasa por `memory.cruzar_frontera` con el fusible como
-preparación. Si el fusible salta, queda la cicatriz y no pasa nada. Si no,
+Toda respuesta pasa por `memory.cruzar_frontera` con el output-guard como
+preparación. Si el output-guard salta, queda la cicatriz y no pasa nada. Si no,
 queda la huella. Un modelo que habla sin dejar constancia es un modelo del que
 no se puede auditar nada.
 """
@@ -42,7 +42,7 @@ import time
 
 import casa as _casa
 import memory as M
-import fusible
+import output_guard
 import narrador as N
 import textos as TX
 import entorno as _entorno
@@ -414,7 +414,7 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     hace es inventar una respuesta que parezca del modelo.
 
     Con `motor`, la respuesta **cruza la frontera** antes de volver. Si el
-    fusible salta queda la cicatriz y no se devuelve texto.
+    output-guard salta queda la cicatriz y no se devuelve texto.
     """
     idioma = TX.normalizar(idioma)
     perfil = M.leer_perfil(c)
@@ -434,10 +434,10 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
         # sin salida asociada seria un numero suelto que nadie puede auditar.
         raise SinCerebro("el motor no devolvió nada")
 
-    # La puerta única. El fusible mira la forma de lo que el modelo propone; si
+    # La puerta única. El output-guard mira la forma de lo que el modelo propone; si
     # salta, `cruzar_frontera` deja la fila del bloqueo y relanza.
     salida = M.cruzar_frontera(c, canal, cruda.strip(),
-                               fusible.preparar_respuesta,
+                               output_guard.preparar_respuesta,
                                ms_motor=ms_motor)
     return {
         "fase": donde,
