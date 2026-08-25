@@ -8,16 +8,16 @@
   "description": "Tu memoria, en un fichero que puedes llevarte.",
   "icons": [
     {
-      "src": "/assets/icono-cyborg.png",
-      "sizes": "512x512",
+      "src": "/assets/icono-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icono-cyborg.png",
+      "src": "/assets/icono-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
