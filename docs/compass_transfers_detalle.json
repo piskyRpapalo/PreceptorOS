@@ -1,0 +1,18 @@
+{
+  "version": "2026-08-26",
+  "regla": "R12 = [[R8, C], [C^T, D]]",
+  "dimensiones": ["memorias_tema", "proyectos_activos", "preferencias", "ritmo"],
+  "acoples_C": {
+    "M2|memorias_tema": 0.4,
+    "M7|proyectos_activos": 0.4,
+    "M0|preferencias": 0.3,
+    "M0|ritmo": 0.1,
+    "M1|ritmo": 0.1,
+    "M2|ritmo": 0.1
+  },
+  "acople_defecto": 0.05,
+  "D_diagonal": 1.0,
+  "D_fuera_diagonal": 0.2,
+  "fuente": "Firmado por el mantenedor del proyecto el 2026-08-26 (T38 v9.3). R8 se firma aparte en compass_transfers.json; este fichero NO repite esos 64 valores: los genera por regla.",
+  "nota": "El prior 12x12 se GENERA, no se firma a mano. Firmar 144 numeros invita a que 80 de ellos se copien sin pensarlos, y un numero copiado sin pensar es indistinguible de uno medido."
+}

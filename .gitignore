@@ -4,7 +4,17 @@ lexico_prohibido.txt
 # Entregables internos. Viven en disco para su firma, no en la historia de este
 # repo: llevan léxico propio, y lo que entra en la historia no se saca sin
 # reescribirla. El árbol versionado se mantiene publicable tal cual está.
-docs/
+# `docs/*` y no `docs/`, y la diferencia importa: git NO desciende a un
+# directorio excluido, asi que con `docs/` las tres excepciones de abajo serian
+# letra muerta y nadie se enteraria hasta mirar un `git status` con lupa.
+docs/*
+# Excepcion firmada (2026-08-26): la documentacion de la brujula SI viaja. Es
+# documentacion del producto, no un entregable interno -- y `test_compass`
+# comprueba en cada tanda que estos tres ficheros no lleven lexico de la casa.
+# La lista es blanca a proposito: `docs/` sigue cerrado por defecto.
+!docs/COMPASS.md
+!docs/compass_transfers.json
+!docs/compass_transfers_detalle.json
 
 __pycache__/
 *.pyc
@@ -29,3 +39,7 @@ aurelius.spec
 # empaquetado/construir_pc.sh. Un binario en la historia la engorda para
 # siempre y no se audita leyendolo.
 dist/
+
+# Corpus de pruebas: contiene cadenas tipo sk- FALSAS (inventadas).
+# Un scanner de secretos las marca como fuga aunque el archivo lo declare.
+corpus/muestras.json

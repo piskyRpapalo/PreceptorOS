@@ -63,6 +63,8 @@ ESTATICOS = {
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    "/compass.css": ("compass.css", "text/css; charset=utf-8"),
+    "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     "/manifest.json": ("manifest.json", "application/manifest+json"),
     "/sw.js": ("sw.js", "application/javascript; charset=utf-8"),
 }
@@ -184,6 +186,45 @@ class PWA(BaseHTTPRequestHandler):
             "turnos": cuenta,
         })
 
+    # 100.64.0.0/10 es el rango que usa Tailscale. Se comprueba por prefijo y no
+    # por nombre: un nombre lo resuelve quien controle el DNS, un rango no.
+    @staticmethod
+    def _es_local(ip):
+        if ip in ("127.0.0.1", "::1", "localhost"):
+            return True
+        if ip.startswith("127."):
+            return True
+        try:
+            partes = [int(x) for x in ip.split(".")]
+        except ValueError:
+            return False
+        return len(partes) == 4 and partes[0] == 100 and 64 <= partes[1] <= 127
+
+    def _consulta(self):
+        from urllib.parse import parse_qs, urlparse
+        return parse_qs(urlparse(self.path).query)
+
+    def _brujula(self, modo, debug):
+        """La Brujula. **Sensor de memory.db, jamas actuador.**
+
+        Vive detras de `?modo=`, y eso no es capricho: sin el parametro,
+        `/api/camino` devuelve EXACTAMENTE lo que devolvia antes. `dashboard.js`
+        lo consume desde el 23 de agosto y romperle el contrato para estrenar un
+        widget seria cambiar algo que funciona por algo que todavia no.
+        """
+        try:
+            import compass as _compass
+        except Exception as e:
+            return self._json(503, {"error": "compass_unavailable",
+                                    "motivo": f"no se pudo importar: {e}"})
+        try:
+            loops = os.path.join(str(_casa.raiz()), "loops.db")
+            b = _compass.LearningCompass(self.server.ruta_db, loops, modo=modo)
+            return self._json(200, b.resumen(modo=modo, debug=debug))
+        except Exception as e:
+            return self._json(503, {"error": "compass_unavailable",
+                                    "motivo": str(e)[:200]})
+
     def _camino(self):
         """Los ocho peldanos, medidos. No estaba expuesto en ninguna ruta.
 
@@ -196,6 +237,18 @@ class PWA(BaseHTTPRequestHandler):
         producto. Si vivieran aqui tambien, el dia que cambie uno habria que
         acertar en dos sitios.
         """
+        q = self._consulta()
+        modo = (q.get("modo") or [None])[0]
+        debug = (q.get("debug") or ["0"])[0] == "1"
+        if debug and not self._es_local(self.client_address[0]):
+            return self._json(403, {"error": "debug_no_permitido",
+                                    "motivo": "?debug=1 solo desde loopback o tailnet"})
+        if modo in ("camino", "detalle"):
+            return self._brujula(modo, debug)
+        if modo is not None:
+            return self._json(400, {"error": "modo_desconocido",
+                                    "motivo": "modo debe ser camino o detalle"})
+
         with M.abrir(self.server.ruta_db) as c:
             perfil = M.leer_perfil(c)
             idioma = perfil.get("language", "es")

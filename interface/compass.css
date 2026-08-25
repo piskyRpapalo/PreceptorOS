@@ -1,0 +1,92 @@
+/* compass.css · la rosa de los vientos. Colores del canon, nada inventado. */
+
+#compass-container {
+  --marmol:   #F5F5F0;   /* completado */
+  --ambar:    #D4A574;   /* activo */
+  --pizarra:  #4A4A48;   /* bloqueado */
+  --bronce:   #8B7355;   /* en progreso */
+  --gris:     #C0C0C0;   /* no medible */
+  color: var(--bronce);
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+#compass-svg { width: 100%; height: auto; display: block; }
+
+.sector {
+  stroke: #2A2A28;
+  stroke-width: .6;
+  transition: fill .5s ease, opacity .5s ease;
+}
+.sector.completado   { fill: var(--marmol); }
+.sector.en_progreso  { fill: var(--bronce); }
+.sector.bloqueado    { fill: var(--pizarra); }
+
+/* No medible NO se pinta como cero: se raya, para que se vea que es un hueco
+   declarado y no un peldano sin empezar. Son cosas distintas. */
+.sector.no_medible {
+  fill: var(--gris);
+  stroke-dasharray: 3 2;
+  opacity: .55;
+}
+
+.sector.activo {
+  fill: var(--ambar);
+  animation: compass-pulse 2s ease-in-out infinite;
+}
+@keyframes compass-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .62; }
+}
+
+.etiqueta {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 8px;
+  fill: #2A2A28;
+  pointer-events: none;
+}
+.sector.bloqueado + .etiqueta, .etiqueta.claro { fill: var(--marmol); }
+
+#aguja { stroke: var(--ambar); stroke-width: 3; transition: all .5s ease; }
+#aguja.coherente   { stroke: #2F6B4F; }
+#aguja.intermedia  { stroke: var(--ambar); }
+#aguja.incoherente { stroke: #8C3B2F; }
+/* Sin velocidad medible: gris y a trazos. No es «vas mal»; es «no se sabe». */
+#aguja.sin-medir   { stroke: var(--gris); stroke-dasharray: 4 3; }
+
+#nucleo { fill: var(--bronce); transition: r .5s ease, fill .5s ease; }
+#nucleo.estancado { fill: #6B7280; animation: none; }
+
+#ticks line { stroke: var(--bronce); stroke-width: 1.5; opacity: .7; }
+#eta { font-family: Georgia, serif; font-size: 9px; fill: #2A2A28; }
+
+#anillo-detalle.oculto { display: none; }
+
+#compass-aviso {
+  font-size: .78rem;
+  text-align: center;
+  margin-top: .4rem;
+  color: var(--bronce);
+}
+#compass-aviso.viejo   { color: #B45309; }
+#compass-aviso.antiguo { color: #8C3B2F; }
+
+#compass-controles {
+  display: flex; gap: .5rem; justify-content: center; margin-top: .5rem;
+}
+#compass-controles button {
+  font: inherit; font-size: .8rem; padding: .2rem .6rem;
+  background: transparent; border: 1px solid var(--bronce);
+  color: inherit; border-radius: 3px; cursor: pointer;
+}
+#compass-controles button[aria-pressed="true"] {
+  background: var(--bronce); color: var(--marmol);
+}
+
+@media (max-width: 360px) {
+  #compass-container { transform: scale(.7); transform-origin: top center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sector.activo { animation: none; }
+  .sector, #aguja, #nucleo { transition: none; }
+}

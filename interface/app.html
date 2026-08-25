@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/compass.css">
 </head>
 <body>
 
@@ -25,6 +26,18 @@
 </nav>
 
 <main id="carril" class="carril">
+
+  <!-- la brujula · sensor de tu memoria, nunca actuador -->
+  <section class="panel" id="panel-compass" aria-label="Brújula de aprendizaje">
+    <div id="compass-container">
+      <div id="compass-svg-hueco"></div>
+      <p id="compass-aviso" role="status" aria-live="polite"></p>
+      <div id="compass-controles">
+        <button type="button" id="compass-modo-camino" aria-pressed="true">Camino</button>
+        <button type="button" id="compass-modo-detalle" aria-pressed="false">Detalle</button>
+      </div>
+    </div>
+  </section>
 
   <!-- hablar -->
   <section class="panel" id="panel-chat" aria-label="Hablar">
@@ -82,5 +95,6 @@
 </main>
 
 <script src="/app.js"></script>
+<script src="/compass.js"></script>
 </body>
 </html>

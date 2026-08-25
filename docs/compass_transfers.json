@@ -1,0 +1,15 @@
+{
+  "version": "2026-08-26",
+  "prior": [
+    [1.00, 0.30, 0.40, 0.20, 0.15, 0.10, 0.05, 0.05],
+    [0.30, 1.00, 0.50, 0.30, 0.20, 0.15, 0.10, 0.10],
+    [0.40, 0.50, 1.00, 0.40, 0.25, 0.35, 0.20, 0.60],
+    [0.20, 0.30, 0.40, 1.00, 0.45, 0.40, 0.35, 0.30],
+    [0.15, 0.20, 0.25, 0.45, 1.00, 0.50, 0.40, 0.25],
+    [0.10, 0.15, 0.35, 0.40, 0.50, 1.00, 0.55, 0.40],
+    [0.05, 0.10, 0.20, 0.35, 0.40, 0.55, 1.00, 0.50],
+    [0.05, 0.10, 0.60, 0.30, 0.25, 0.40, 0.50, 1.00]
+  ],
+  "fuente": "Doctrina firmada por el mantenedor del proyecto el 2026-08-26",
+  "nota": "Cada valor R[i][j] estima cuanto aprender Mj ayuda a Mi. Diagonal forzada a 1.0. Valores |Rij|>0.95 capados. Este prior se usa cuando no hay datos empiricos suficientes (< 20 latidos del Curador). Es conocimiento declarado, no medido: honest sensors."
+}

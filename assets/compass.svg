@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="compass-titulo" id="compass-svg">
+  <title id="compass-titulo">Brujula de aprendizaje</title>
+  <defs>
+    <pattern id="tex-activo" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="2" opacity=".35"/>
+    </pattern>
+    <pattern id="tex-bloqueado" width="5" height="5" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="currentColor" opacity=".28"/>
+    </pattern>
+  </defs>
+  <g id="anillo-peldanos">
+    <path id="sector-m0" class="sector bloqueado" d="M100.00,10.00 A90,90 0 0,1 163.64,36.36 L138.89,61.11 A55,55 0 0,0 100.00,45.00 Z"><title>M0 · Totem</title></path>
+    <path id="sector-m1" class="sector bloqueado" d="M163.64,36.36 A90,90 0 0,1 190.00,100.00 L155.00,100.00 A55,55 0 0,0 138.89,61.11 Z"><title>M1 · Fuego</title></path>
+    <path id="sector-m2" class="sector bloqueado" d="M190.00,100.00 A90,90 0 0,1 163.64,163.64 L138.89,138.89 A55,55 0 0,0 155.00,100.00 Z"><title>M2 · Agua</title></path>
+    <path id="sector-m3" class="sector bloqueado" d="M163.64,163.64 A90,90 0 0,1 100.00,190.00 L100.00,155.00 A55,55 0 0,0 138.89,138.89 Z"><title>M3 · Refugio</title></path>
+    <path id="sector-m4" class="sector bloqueado" d="M100.00,190.00 A90,90 0 0,1 36.36,163.64 L61.11,138.89 A55,55 0 0,0 100.00,155.00 Z"><title>M4 · Senal</title></path>
+    <path id="sector-m5" class="sector bloqueado" d="M36.36,163.64 A90,90 0 0,1 10.00,100.00 L45.00,100.00 A55,55 0 0,0 61.11,138.89 Z"><title>M5 · Pacto</title></path>
+    <path id="sector-m6" class="sector bloqueado" d="M10.00,100.00 A90,90 0 0,1 36.36,36.36 L61.11,61.11 A55,55 0 0,0 45.00,100.00 Z"><title>M6 · Bastion</title></path>
+    <path id="sector-m7" class="sector bloqueado" d="M36.36,36.36 A90,90 0 0,1 100.00,10.00 L100.00,45.00 A55,55 0 0,0 61.11,61.11 Z"><title>M7 · Tierra</title></path>
+  </g>
+  <g id="anillo-detalle" class="oculto">
+    <path id="sector-d0" class="sector detalle bloqueado" d="M100.00,48.00 A52,52 0 0,1 152.00,100.00 L132.00,100.00 A32,32 0 0,0 100.00,68.00 Z"><title>memorias_tema</title></path>
+    <path id="sector-d1" class="sector detalle bloqueado" d="M152.00,100.00 A52,52 0 0,1 100.00,152.00 L100.00,132.00 A32,32 0 0,0 132.00,100.00 Z"><title>proyectos_activos</title></path>
+    <path id="sector-d2" class="sector detalle bloqueado" d="M100.00,152.00 A52,52 0 0,1 48.00,100.00 L68.00,100.00 A32,32 0 0,0 100.00,132.00 Z"><title>preferencias</title></path>
+    <path id="sector-d3" class="sector detalle bloqueado" d="M48.00,100.00 A52,52 0 0,1 100.00,48.00 L100.00,68.00 A32,32 0 0,0 68.00,100.00 Z"><title>ritmo</title></path>
+  </g>
+  <g id="etiquetas">
+    <text class="etiqueta" x="127.7" y="33.0" text-anchor="middle" dominant-baseline="middle">M0</text>
+    <text class="etiqueta" x="167.0" y="72.3" text-anchor="middle" dominant-baseline="middle">M1</text>
+    <text class="etiqueta" x="167.0" y="127.7" text-anchor="middle" dominant-baseline="middle">M2</text>
+    <text class="etiqueta" x="127.7" y="167.0" text-anchor="middle" dominant-baseline="middle">M3</text>
+    <text class="etiqueta" x="72.3" y="167.0" text-anchor="middle" dominant-baseline="middle">M4</text>
+    <text class="etiqueta" x="33.0" y="127.7" text-anchor="middle" dominant-baseline="middle">M5</text>
+    <text class="etiqueta" x="33.0" y="72.3" text-anchor="middle" dominant-baseline="middle">M6</text>
+    <text class="etiqueta" x="72.3" y="33.0" text-anchor="middle" dominant-baseline="middle">M7</text>
+  </g>
+  <circle id="nucleo" cx="100" cy="100" r="10"/>
+  <line id="aguja" x1="100" y1="100" x2="100" y2="70" stroke-linecap="round"/>
+  <g id="ticks"></g>
+  <text id="eta" x="100" y="188" text-anchor="middle"></text>
+</svg>
