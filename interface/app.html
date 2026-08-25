@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/compass.css?v=34">
+<link rel="stylesheet" href="/compass.css?v=35">
 </head>
 <body>
 
@@ -74,10 +74,7 @@
       <p class="vacio" id="vacio" hidden></p>
       <p class="bloqueado" id="bloqueado" hidden></p>
 
-      <p class="pie">
-        Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más.
-        Los números vienen del payload — esta interfaz no cuenta.
-      </p>
+      <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
       <details class="payload-caja">
         <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
         <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
@@ -88,16 +85,13 @@
   <!-- cuaderno -->
   <section class="panel" id="panel-captura" aria-label="Cuaderno" hidden>
     <p class="pie" id="recuento">…</p>
-    <p class="pie">
-      Un turno capturado no es un turno consentido. Nada entra en un
-      entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.
-    </p>
+    <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
     <ul class="turnos" id="turnos"></ul>
   </section>
 
 </main>
 
 <script src="/app.js"></script>
-<script src="/compass.js?v=34"></script>
+<script src="/compass.js?v=35"></script>
 </body>
 </html>

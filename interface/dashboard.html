@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/dashboard.css">
-<link rel="stylesheet" href="/compass.css?v=34">
+<link rel="stylesheet" href="/compass.css?v=35">
 </head>
 <body>
 
@@ -46,7 +46,7 @@
 
 <div class="hablar-zona">
   <form class="escribir" id="escribir">
-    <label class="sr" for="dicho">O escríbelo</label>
+    <label class="sr" for="dicho" data-rotulo="o_escribelo">O escríbelo</label>
     <input id="dicho" type="text" placeholder="…o escríbelo aquí" autocomplete="off">
     <button type="submit" id="mandar" aria-label="Dilo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -102,10 +102,10 @@
 <section class="cajon" id="cajon-memoria" aria-label="Memoria" hidden>
   <div class="asa"></div>
   <button class="volver" type="button" data-volver>← Volver</button>
-  <h2><span>Tu memoria</span></h2>
-  <div class="dato"><span>Recuerdos guardados</span><b id="m-turnos">—</b></div>
-  <div class="dato"><span>Consentidos para aprender</span><b id="m-consent">—</b></div>
-  <div class="dato"><span>Corregidos por ti</span><b id="m-corr">—</b></div>
+  <h2><span data-rotulo="tu_memoria">Tu memoria</span></h2>
+  <div class="dato"><span data-rotulo="m_guardados">Recuerdos guardados</span><b id="m-turnos">—</b></div>
+  <div class="dato"><span data-rotulo="m_consentidos">Consentidos para aprender</span><b id="m-consent">—</b></div>
+  <div class="dato"><span data-rotulo="m_corregidos">Corregidos por ti</span><b id="m-corr">—</b></div>
   <p class="nota" id="nota-memoria"></p>
 </section>
 
@@ -118,19 +118,19 @@
       <path d="M 12 3 l 8 3 v5 c 0 5 -3.4 8.2 -8 10 c -4.6 -1.8 -8 -5 -8 -10 V 6 Z"></path>
       <path d="M 9 12 l 2 2 l 4 -4"></path>
     </svg>
-    <span>La frontera</span>
+    <span data-rotulo="la_frontera">La frontera</span>
   </h2>
   <div class="escudo-caja">
     <p id="frontera-que"></p>
     <p id="frontera-como"></p>
   </div>
-  <a class="enlace" href="/app.html">Abrir el panel completo →</a>
+  <a class="enlace" href="/app.html" data-rotulo="abrir_panel">Abrir el panel completo →</a>
 </section>
 
 <section class="cajon" id="cajon-camino" aria-label="El Camino" hidden>
   <div class="asa"></div>
   <button class="volver" type="button" data-volver>← Volver</button>
-  <h2><span>El Camino</span></h2>
+  <h2><span data-rotulo="la_frontera">El Camino</span></h2>
   <p class="nota" id="camino-intro"></p>
 
   <!-- La brujula, en la puerta de entrada y no en una cara aparte: es donde
@@ -151,7 +151,7 @@
 <section class="cajon" id="cajon-perfil" aria-label="Perfil" hidden>
   <div class="asa"></div>
   <button class="volver" type="button" data-volver>← Volver</button>
-  <h2><span>Perfil</span></h2>
+  <h2><span data-rotulo="el_camino">Perfil</span></h2>
 
   <label class="campo"><span id="et-nombre"></span>
     <input id="p-nombre" type="text" autocomplete="off"></label>
@@ -178,7 +178,7 @@
 <section class="cajon" id="cajon-proyectos" aria-label="Proyectos" hidden>
   <div class="asa"></div>
   <button class="volver" type="button" data-volver>← Volver</button>
-  <h2><span>Proyectos</span></h2>
+  <h2><span data-rotulo="perfil">Proyectos</span></h2>
   <p class="nota" id="proy-intro"></p>
   <label class="campo"><span id="et-titulo"></span>
     <input id="pr-titulo" type="text" autocomplete="off"></label>
@@ -189,6 +189,6 @@
 </section>
 
 <script src="/dashboard.js"></script>
-<script src="/compass.js?v=34"></script>
+<script src="/compass.js?v=35"></script>
 </body>
 </html>

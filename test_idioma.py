@@ -392,6 +392,81 @@ def t14():
         "el idioma estaba guardado y no se ve: se volverá a preguntar"
 
 
+
+# --- la cara, no la sesion -------------------------------------------------
+# Los casos de arriba prueban la SESION de terminal. Estos prueban las dos
+# CARAS web, que es donde se escapo el idioma de verdad: tres etiquetas del
+# panel de memoria estaban escritas a mano en el HTML y se quedaban en
+# castellano con el perfil en English. Nadie lo vio porque nada lo miraba.
+
+HTML_CARAS = ("interface/dashboard.html", "interface/app.html")
+
+# Enganches validos: si un texto vive dentro de uno de estos, el JS lo traduce.
+ENGANCHES = ("data-rotulo", "data-i18n", "data-volver", "data-cajon", "id=")
+
+# Lo que puede quedarse literal: nombres propios, marcas, simbolos y lore.
+BLANCA = {
+    "PreceptorOS", "Preceptor", "Aurelius", "M0", "M1", "M2", "M3", "M4",
+    "M5", "M6", "M7", "The Path", "Detail", "—", "·", "…", "⌂",
+    # Los nombres de idioma se escriben en SU idioma: un selector que dice
+    # «Spanish» en ingles obliga a saber ingles para elegir castellano.
+    "Español", "English",
+}
+
+
+def _textos_sueltos(ruta):
+    """Texto visible que NO cuelga de un enganche de traduccion."""
+    import html as _html
+    crudo = open(os.path.join(AQUI, ruta), encoding="utf-8").read()
+    # Fuera lo que no se ve.
+    crudo = re.sub(r"<(script|style)\b.*?</\1>", " ", crudo, flags=re.S | re.I)
+    sueltos = []
+    for m in re.finditer(r"<([a-zA-Z0-9]+)([^>]*)>([^<>]+)</\1>", crudo):
+        atributos, texto = m.group(2), _html.unescape(m.group(3)).strip()
+        if len(texto) < 3 or texto in BLANCA:
+            continue
+        if any(e in atributos for e in ENGANCHES):
+            continue
+        sueltos.append((ruta, texto[:60]))
+    return sueltos
+
+
+@caso("la cara no lleva texto suelto sin enganche de traduccion")
+def t_cara_sin_texto_suelto():
+    sueltos = []
+    for ruta in HTML_CARAS:
+        sueltos += _textos_sueltos(ruta)
+    assert not sueltos, (
+        "texto visible sin forma de traducirse (engancharlo con data-rotulo o "
+        "data-i18n, o anadirlo a BLANCA si es nombre propio):\n  " +
+        "\n  ".join(f"{r}: {t!r}" for r, t in sueltos))
+
+
+@caso("los dos diccionarios de la cara tienen las MISMAS claves")
+def t_diccionarios_simetricos():
+    """Una clave que existe en un idioma y no en el otro es una fuga con fecha."""
+    import json as _json
+    for fichero in ("interface/dashboard.js", "interface/app.js"):
+        crudo = open(os.path.join(AQUI, fichero), encoding="utf-8").read()
+        claves = {}
+        for idioma in ("es", "en"):
+            m = re.search(rf"\n\s{{2,4}}{idioma}:\s*\{{", crudo)
+            if not m:
+                continue
+            trozo, prof = "", 0
+            for ch in crudo[m.end() - 1:]:
+                trozo += ch
+                prof += (ch == "{") - (ch == "}")
+                if prof == 0:
+                    break
+            claves[idioma] = set(re.findall(r"[\n,{]\s*([a-z_0-9]+)\s*:", trozo))
+        if len(claves) == 2:
+            solo_es = claves["es"] - claves["en"]
+            solo_en = claves["en"] - claves["es"]
+            assert not solo_es and not solo_en, (
+                f"{fichero}: claves asimetricas · solo es={sorted(solo_es)} "
+                f"· solo en={sorted(solo_en)}")
+
 def main():
     fallos = 0
     print("── M2 · IDIOMA DE LA SESION " + "─" * 38)
