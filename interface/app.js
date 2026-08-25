@@ -1,4 +1,4 @@
-/* Aurelius · la cara premium.
+/* PreceptorOS · la cara premium.
  *
  * LA Regla QUE Gobierna Este Fichero: la interfaz nunca cuenta.
  * Todo número que se pinta sale del payload que devolvió el endpoint. No hay

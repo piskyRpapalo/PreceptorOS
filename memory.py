@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M2 · el Agua · la memoria de Aurelius.
+"""M2 · el Agua · la memoria de PreceptorOS.
 
 sistema: MVP · solo biblioteca estandar (python3 + sqlite3).
 Un unico fichero .db que la persona se lleva consigo.
@@ -31,7 +31,7 @@ import textos as TX
 AUSENTE = "NO_DATA"          # marca visible de ausencia declarada
 CAMPOS_HUECO = ("why", "where_ref", "learned")
 
-# El marco, que no es contenido. Donde corre Aurelius y como quiere la persona
+# El marco, que no es contenido. Donde corre PreceptorOS y como quiere la persona
 # que la llamen no son recuerdos: un recuerdo es algo que le paso y decidio
 # escribir. Guardarlos como engramas metería dos filas que nadie escribio en el
 # recuento de huecos, y daria la mision por cumplida sin que la persona hubiera

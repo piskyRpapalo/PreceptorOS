@@ -1,4 +1,4 @@
-/* Aurelius · el tablero.
+/* PreceptorOS · el tablero.
  *
  * Mismas dos reglas que el panel: la interfaz no cuenta -- los numeros vienen
  * del servidor -- y nada se promete antes de comprobarlo.

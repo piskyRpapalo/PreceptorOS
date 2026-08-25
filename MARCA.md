@@ -50,7 +50,7 @@ hace el producto, y quien llega al perfil viene a ver qué hay.*
 
 ---
 
-## Topics del repositorio `aurelius`
+## Topics del repositorio `PreceptorOS`
 
 En la web del repo, la rueda dentada junto a *About*:
 

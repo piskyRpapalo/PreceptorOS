@@ -1,4 +1,4 @@
-# Installing Aurelius on an Android phone
+# Installing PreceptorOS on an Android phone
 
 **State, as of 2026-08-22: there are two paths, and only one of them exists.**
 Said first, so nobody downloads what is not there.
@@ -7,7 +7,7 @@ Said first, so nobody downloads what is not there.
 
 | | State |
 |---|---|
-| **Termux** · one line, and Aurelius talks | **works today** |
+| **Termux** · one line, and PreceptorOS talks | **works today** |
 | **APK** · install and open, no terminal | **does not exist yet** — see §4 |
 
 ---
@@ -43,12 +43,12 @@ Two ways, and they solve different halves.
 **A shortcut that starts everything.** `bin/crear-acceso-directo-android`
 writes a script that starts the server *and* opens the browser in one go. To
 see it as an icon you need **Termux:Widget** (F-Droid): long-press the home
-screen → Widgets → Termux → choose *Aurelius*. If Termux:Widget is not
+screen → Widgets → Termux → choose *PreceptorOS*. If Termux:Widget is not
 installed, the script says so and tells you what to do — it does not create an
 icon that would never appear.
 
 **A browser shortcut.** With the face open in Chrome: menu **⋮ → Add to Home
-screen**. That gives a real icon that opens Aurelius full screen, with no
+screen**. That gives a real icon that opens PreceptorOS full screen, with no
 browser bar. What it does **not** do is start the server: if it is not
 running, the icon opens a page that will not load. That is why the first way
 exists.
@@ -62,7 +62,7 @@ remembering a command, and that is a wall for anyone who did not build it.
 
 ### If you made the shortcut
 
-Tap the **Aurelius** icon on your home screen. It starts the server and opens
+Tap the **PreceptorOS** icon on your home screen. It starts the server and opens
 the browser in one go.
 
 ### If you did not
@@ -107,7 +107,7 @@ settings, by hand. No script can grant itself either one.
 
 ## §3 · What gets downloaded, and when
 
-Nothing heavy arrives without your acceptance. On first run Aurelius offers,
+Nothing heavy arrives without your acceptance. On first run PreceptorOS offers,
 with its licence and its fingerprint in front of you:
 
 - the **brain**, 2.3 GB — without it, it asks and remembers but does not converse;
@@ -120,7 +120,7 @@ minutes, and the interface warns you. It has not frozen.
 
 ## §4 · Why there is no APK yet
 
-What was asked for is an APK that installs in one click and opens Aurelius. **A
+What was asked for is an APK that installs in one click and opens PreceptorOS. **A
 WebView wrapper does not do that**, and it is worth understanding why before
 commissioning one:
 
@@ -136,4 +136,4 @@ which is **not installed on the machine this is built on today** (only
 `platform-tools`; no Java, no Gradle, no SDK tools).
 
 **What can be promised without lying:** §1 plus the shortcut gives you, today,
-an Aurelius that opens from an icon on your home screen.
+an PreceptorOS that opens from an icon on your home screen.

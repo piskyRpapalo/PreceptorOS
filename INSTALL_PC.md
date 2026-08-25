@@ -1,6 +1,6 @@
-# Installing Aurelius on a computer
+# Installing PreceptorOS on a computer
 
-Two paths. The first is for using Aurelius; the second, for taking it apart.
+Two paths. The first is for using PreceptorOS; the second, for taking it apart.
 
 *Versión en español: [INSTALACION_PC.md](INSTALACION_PC.md).*
 
@@ -12,7 +12,7 @@ Two paths. The first is for using Aurelius; the second, for taking it apart.
 
 1. Download `aurelius`.
 2. Open it with a double click.
-3. Your browser opens on Aurelius. That is all.
+3. Your browser opens on PreceptorOS. That is all.
 
 To close it, close the black window that opened with it.
 
@@ -30,7 +30,7 @@ inside and **are not downloaded without your say-so**:
 | The engine | ~10 MB | It is somebody else's executable. This project signs data, not programs. |
 | The brain | **2.3 GB** | It is offered with its licence and its fingerprint in front of you, and you accept it. |
 
-Without them, **Aurelius asks and remembers but does not converse**. That is the
+Without them, **PreceptorOS asks and remembers but does not converse**. That is the
 honest description, and this file does not promise more than it carries.
 
 ### Where your things live
@@ -45,7 +45,7 @@ delete it. Nothing leaves your machine unless you export it.
 It happened to the author. It is not your fault: until today there was no way
 to reopen it without remembering a command.
 
-1. Look for **Aurelius** in your applications menu. If it is there, click it.
+1. Look for **PreceptorOS** in your applications menu. If it is there, click it.
 2. If it is not, open a terminal:
 
 ```
@@ -88,7 +88,7 @@ It gives the pid and whether it answers. If it says `parado`, start it.
 
 ## The icon in your applications menu
 
-If you cloned the repository, one line puts Aurelius in the menu:
+If you cloned the repository, one line puts PreceptorOS in the menu:
 
 ```
 bin/instalar-pc
@@ -109,7 +109,7 @@ For anyone who wants to read it, change it or audit it.
 
 ```
 git clone https://github.com/piskyRpapalo/PreceptorOS
-cd aurelius
+cd PreceptorOS
 python3 aurelius.py             # create your memory
 python3 aurelius.py --charla    # talk, if a brain is installed
 bin/aurelius-servicio arranca   # the web face

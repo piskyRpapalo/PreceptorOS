@@ -64,15 +64,15 @@ running without, instead of failing somewhere later and letting you guess.
 
 ---
 
-## Pace: `AURELIUS_RITMO`
+## Pace: `PRECEPTOROS_RITMO`
 
 PreceptorOS speaks with a cadence — it types at a readable speed and pauses at
-punctuation. That is a default, not a requirement. Set `AURELIUS_RITMO=0` and
+punctuation. That is a default, not a requirement. Set `PRECEPTOROS_RITMO=0` and
 every wait disappears; `1.0` is the normal pace, and any number in between
 scales it.
 
 ```
-AURELIUS_RITMO=0 python3 preceptoros.py
+PRECEPTOROS_RITMO=0 python3 preceptoros.py
 ```
 
 Turn it off if you are in a hurry, driving PreceptorOS from a script, or reading

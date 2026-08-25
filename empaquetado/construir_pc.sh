@@ -21,7 +21,7 @@ for m in memory guardrails captura conversacion cara casa textos tono estado \
 done
 
 exec $PY --onefile --name aurelius --noconfirm \
-  --icon "$R/empaquetado/aurelius.png" --paths "$R" \
+  --icon "$R/empaquetado/aurelius.ico" --paths "$R" \
   --add-data "$R/bin/preceptoros-pwa:bin" \
   --add-data "$R/interface:interface" \
   --add-data "$R/policies.default.json:." \

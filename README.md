@@ -240,15 +240,26 @@ porque sea lo mejor que puedes correr.
 | | |
 |---|---|
 | `--modelo <path>` | 🇬🇧 which GGUF the web face uses · 🇪🇸 qué GGUF usa la cara web |
-| `AURELIUS_MOTOR` | 🇬🇧 absolute path to the engine, when it is not on `PATH` · 🇪🇸 ruta absoluta al motor, cuando no está en el `PATH` |
-| `AURELIUS_TOPE_TOKENS` | 🇬🇧 how long an answer may get — 80 by default · 🇪🇸 cuánto puede alargarse una respuesta — 80 por defecto |
-| `AURELIUS_ESPERA` | 🇬🇧 seconds before a turn is called timed out — 420 by default · 🇪🇸 segundos antes de dar un turno por agotado — 420 por defecto |
+| `PRECEPTOROS_MOTOR` | 🇬🇧 absolute path to the engine, when it is not on `PATH` · 🇪🇸 ruta absoluta al motor, cuando no está en el `PATH` |
+| `PRECEPTOROS_TOPE_TOKENS` | 🇬🇧 how long an answer may get — 80 by default · 🇪🇸 cuánto puede alargarse una respuesta — 80 por defecto |
+| `PRECEPTOROS_ESPERA` | 🇬🇧 seconds before a turn is called timed out — 420 by default · 🇪🇸 segundos antes de dar un turno por agotado — 420 por defecto |
+
+<sub>🇬🇧 **Heritage aliases.** Every `PRECEPTOROS_*` variable also answers to its
+old `AURELIUS_*` name — the product was called Aurelius until 2026-08-24, and an
+existing install should not break because the name on the box changed. The old
+names are read but no longer documented, and they go away on **2026-11-23**
+(see `CHANGELOG.md`).<br>
+🇪🇸 **Alias heredados.** Cada variable `PRECEPTOROS_*` responde también a su
+nombre viejo `AURELIUS_*` — el producto se llamó Aurelius hasta el 2026-08-24, y
+una instalación que ya funciona no se rompe porque cambie el nombre de la caja.
+Los nombres viejos se leen pero ya no se documentan, y caducan el **2026-11-23**
+(ver `CHANGELOG.md`).</sub>
 
 🇬🇧 Two things worth knowing before you swap. The prompt is sent as plain
 completion, with no chat template, so **instruct** models behave best. And the
 machine decides the wait: on a mid-range phone a turn is minutes, not seconds —
 on a desktop with the same model it is seconds. If your turns time out, that is
-not a fault, it is the wrong `AURELIUS_ESPERA` for your hardware, and the
+not a fault, it is the wrong `PRECEPTOROS_ESPERA` for your hardware, and the
 product says which of the two it was instead of blaming the model.
 
 🇪🇸 Dos cosas que conviene saber antes de cambiarlo. La petición se manda como
@@ -256,7 +267,7 @@ completado a secas, sin plantilla de conversación, así que los modelos
 **instruct** se portan mejor. Y la máquina manda en la espera: en un teléfono de
 gama media un turno son minutos, no segundos — en un escritorio con el mismo
 modelo son segundos. Si tus turnos se agotan, no es una avería: es el
-`AURELIUS_ESPERA` equivocado para tu hardware, y el producto dice cuál de las
+`PRECEPTOROS_ESPERA` equivocado para tu hardware, y el producto dice cuál de las
 dos cosas pasó en vez de culpar al modelo.
 
 ### 3 · Train your own / Entrena el tuyo
@@ -308,7 +319,7 @@ opened. You can delete it whenever you like and it rebuilds itself on the next
 turn. To turn it off and trade speed for disk:
 
 ```bash
-AURELIUS_SIN_CACHE=1 python3 preceptoros.py
+PRECEPTOROS_SIN_CACHE=1 python3 preceptoros.py
 ```
 
 🇪🇸 PreceptorOS le pasa `--prompt-cache` al motor, para que el modelo no vuelva a
@@ -328,7 +339,7 @@ puerto. Puedes borrarlo cuando quieras y se rehace solo en el siguiente turno.
 Para apagarlo y cambiar velocidad por disco:
 
 ```bash
-AURELIUS_SIN_CACHE=1 python3 preceptoros.py
+PRECEPTOROS_SIN_CACHE=1 python3 preceptoros.py
 ```
 
 ---

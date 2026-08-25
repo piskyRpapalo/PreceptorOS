@@ -17,8 +17,18 @@
   var cadaMs = 30000;
   var viejoS = 3600;      // 1 h -> aviso naranja
   var antiguoS = 7200;    // 2 h -> aviso rojo
-  var modo = "camino";
   var temporizador = null;
+
+  // El modo se puede fijar por URL: `?compass=detalle`. Existe para que un
+  // enlace lleve a alguien exactamente a lo que le quieres ensenar -- y de paso
+  // hace que una captura sea reproducible en vez de depender de un toque.
+  function modoInicial() {
+    try {
+      var m = new URLSearchParams(location.search).get("compass");
+      return m === "detalle" ? "detalle" : "camino";
+    } catch (e) { return "camino"; }
+  }
+  var modo = modoInicial();
 
   function $(id) { return document.getElementById(id); }
 
@@ -156,6 +166,9 @@
   function arrancar() {
     var cont = $("compass-container");
     if (!cont) return;
+    var b0 = $("compass-modo-camino"), d0 = $("compass-modo-detalle");
+    if (b0) b0.setAttribute("aria-pressed", String(modo === "camino"));
+    if (d0) d0.setAttribute("aria-pressed", String(modo === "detalle"));
     fetch("/assets/compass.svg")
       .then(function (r) { return r.text(); })
       .then(function (svg) {

@@ -127,7 +127,7 @@ echo "  ${gris}$(python3 -V 2>&1) · $(command -v python3)${fin}"
 # es un rumor con decimales, y "donde escribio" es parte de la maquina. Sale
 # el tipo de sistema de ficheros porque es el dato que separa RAM de disco.
 echo "  ${gris}TMPDIR=${TMPDIR} · $(df -hT "$TMPDIR" 2>/dev/null | \
-      awk 'NR==2 {print $2" · "$5" libres"}')${fin}"
+      awk 'NR==2 {print $2" | "$5" libres"}')${fin}"
 # El rango probado sale de `interprete.py`, el mismo sitio del que lo saca el
 # producto: si viviera aqui tambien, el dia que se pruebe una version nueva
 # habria que acertar en dos ficheros. Una tanda fuera de rango se corre igual

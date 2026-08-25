@@ -3,7 +3,7 @@
 
 sistema: MVP · solo biblioteca estandar.
 
-Aurelius puede abrir el microfono (`oido`), sintetizar voz (`voz`) y sacar
+PreceptorOS puede abrir el microfono (`oido`), sintetizar voz (`voz`) y sacar
 audio por el altavoz (`fuga._reproducir_wav`). Las tres cosas son opcionales
 por doctrina, y las tres son inaceptables durante una tanda de pruebas: una
 suite que graba la habitacion de quien la corre tarda minutos, escucha lo que

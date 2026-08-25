@@ -159,7 +159,7 @@ def despertar(estado_texto):
     pone cadencia. Si la memoria dice que esta vacia, esto no lo disimula.
     """
     regla()
-    despacio("AURELIUS", cps=6)
+    despacio("PRECEPTOROS", cps=6)
     pausa(0.6)
     latido(3)
     pausa(0.3)
