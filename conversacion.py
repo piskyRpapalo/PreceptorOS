@@ -321,6 +321,28 @@ def elegir_modo(c, modo):
 
 # --- el prompt del sistema -------------------------------------------------
 
+def ya_nos_conocemos(c):
+    """¿Le hemos contestado a esta persona alguna vez? Solo lo medido.
+
+    POR QUE EXISTE. El turno se manda al modelo como `sistema + lo que dijo la
+    persona`, y nada mas: no hay historial. El modelo no tiene forma de saber si
+    es el primer turno o el vigesimo, asi que una regla del tipo «no vuelvas a
+    presentarte» seria papel mojado -- no puede obedecer lo que no sabe. El dato
+    se lo damos nosotros, y sale de la memoria.
+
+    Se cuenta `salidas`, no `turnos`: `turnos` es la tabla de la captura y solo
+    se llena si la persona la tiene encendida. Con la captura apagada, el
+    contador se quedaria a cero y el producto se presentaria para siempre.
+    `salidas` registra todo cruce de la frontera, consienta o no.
+    """
+    try:
+        fila = c.execute(
+            "select 1 from salidas where estado='ok' limit 1").fetchone()
+    except Exception:
+        return False           # sin tabla, es la primera vez. No se supone.
+    return fila is not None
+
+
 def _arquetipo(idioma):
     """El carácter, entero y al principio. Un idioma por sesión (ARQUETIPO §5)."""
     ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -371,7 +393,8 @@ GUIA = {
 }
 
 
-def prompt_sistema(fase_actual, idioma=None, instrucciones=None):
+def prompt_sistema(fase_actual, idioma=None, instrucciones=None,
+                   primer_encuentro=True):
     """Carácter + vocabulario + qué toca ahora + lo que pidió la persona.
 
     El orden no es casual y las instrucciones van LAS ULTIMAS, detrás del
@@ -391,12 +414,45 @@ def prompt_sistema(fase_actual, idioma=None, instrucciones=None):
     if glosario:
         partes.append(glosario)
     partes.append(GUIA.get(idioma, GUIA["es"]).get(fase_actual, ""))
+    tabla = PRIMER_ENCUENTRO if primer_encuentro else YA_NOS_CONOCEMOS
+    partes.append(tabla.get(idioma, tabla["es"]))
     if instrucciones and instrucciones.strip():
         marco = ("Esto te lo pidió la persona con la que hablas:"
                  if idioma != "en" else
                  "This is what the person you are talking to asked for:")
         partes.append(f"{marco}\n{instrucciones.strip()}")
     return "\n\n".join(p for p in partes if p).strip()
+
+
+# Se dice en positivo y con una accion concreta -- «contesta y devuelve el
+# turno» -- porque una instruccion solo negativa invita al modelo a nombrar
+# justo lo que se le prohibe. Medido: con la version negativa a secas, el 4B
+# repetia el nombre dentro de la frase que decia no repetirlo.
+# El guion de presentacion vive AQUI y no en el arquetipo, y ese es el punto.
+# Estaba en el arquetipo -- «cuando te pregunten quien eres, di: puedes llamarme
+# Preceptor» -- y entonces la regla de no repetirse chocaba de frente con una
+# orden del propio prompt. Medido: el modelo obedecia al arquetipo, que va
+# primero y es mas concreto. Lo que se puede apagar tiene que ser lo dinamico.
+PRIMER_ENCUENTRO = {
+    "es": ("Es vuestro primer turno. Preséntate UNA vez, en una frase: "
+           "«Puedes llamarme Preceptor». Después, entra en lo que te dice."),
+    "en": ("This is your first turn together. Introduce yourself ONCE, in one "
+           "sentence: \"You can call me Preceptor.\" Then go into what they say."),
+}
+
+# Y a partir del segundo. Ojo al matiz: NO se prohibe contestar «que eres»; se
+# prohibe presentarse sin que nadie lo haya pedido. Prohibirlo entero dejaria al
+# producto sin poder responder su mejor pregunta.
+YA_NOS_CONOCEMOS = {
+    "es": ("Ya conoces a esta persona: no es vuestro primer turno. No te "
+           "presentes por tu cuenta ni repitas tu nombre sin que te lo pidan. "
+           "Si te preguntan directamente qué eres, contesta corto y sigue. "
+           "Entra en lo que acaba de decir y devuélvele el turno."),
+    "en": ("You already know this person: this is not your first turn. Do not "
+           "introduce yourself unprompted and do not repeat your name unasked. "
+           "If they ask you directly what you are, answer briefly and move on. "
+           "Go into what they just said and hand the turn back."),
+}
 
 
 # --- el turno --------------------------------------------------------------
@@ -422,7 +478,8 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     idioma = TX.normalizar(idioma)
     perfil = M.leer_perfil(c)
     donde = fase(camino, perfil)
-    sistema = prompt_sistema(donde, idioma, perfil.get("instrucciones"))
+    sistema = prompt_sistema(donde, idioma, perfil.get("instrucciones"),
+                             primer_encuentro=not ya_nos_conocemos(c))
 
     if motor is None:
         raise SinCerebro("no hay motor de conversación en esta copia")

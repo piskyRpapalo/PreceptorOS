@@ -29,6 +29,7 @@ from unittest import mock
 import casa
 import conversacion as C
 import memory as M
+import output_guard
 import narrador as N
 
 
@@ -135,14 +136,45 @@ class TestBucle(unittest.TestCase):
 
     def test_rojo_cb_el_prompt_lleva_el_caracter(self):
         """Carácter entero y al principio, en el idioma de la sesión."""
-        self.assertIn("Eres Aurelius", C.prompt_sistema("nucleo", "es"))
-        self.assertIn("You are Aurelius", C.prompt_sistema("nucleo", "en"))
-        self.assertNotIn("You are Aurelius", C.prompt_sistema("nucleo", "es"),
+        self.assertIn("Eres PreceptorOS", C.prompt_sistema("nucleo", "es"))
+        self.assertIn("You are PreceptorOS", C.prompt_sistema("nucleo", "en"))
+        self.assertNotIn("You are PreceptorOS", C.prompt_sistema("nucleo", "es"),
                          "dos caracteres a la vez producen uno confuso")
 
     # ------------------------------------------------------------------
     # Rojo C-c: la respuesta cruza la puerta
     # ------------------------------------------------------------------
+    def test_f1_el_primer_encuentro_lleva_la_identidad_y_nada_mas(self):
+        """Turno uno: se presenta. Sin linea de «ya nos conocemos»."""
+        for idioma, nombre in (("es", "Eres PreceptorOS"), ("en", "You are PreceptorOS")):
+            p = C.prompt_sistema("nucleo", idioma, primer_encuentro=True)
+            self.assertIn(nombre, p)
+            self.assertIn(C.PRIMER_ENCUENTRO[idioma], p)
+            self.assertNotIn(C.YA_NOS_CONOCEMOS[idioma], p)
+
+    def test_f1_a_partir_del_segundo_no_se_vuelve_a_presentar(self):
+        """El modelo no tiene historial: el dato se lo damos nosotros."""
+        for idioma in ("es", "en"):
+            p = C.prompt_sistema("nucleo", idioma, primer_encuentro=False)
+            self.assertIn(C.YA_NOS_CONOCEMOS[idioma], p,
+                          "sin esta linea, el modelo no puede saber que ya os conoceis")
+            self.assertNotIn(C.PRIMER_ENCUENTRO[idioma], p)
+        # El arquetipo no puede llevar el guion: si lo llevara, mandaria el
+        # sobre la linea dinamica y la regla seria inaplicable.
+        self.assertNotIn("You can call me Preceptor",
+                         C.prompt_sistema("nucleo", "en", primer_encuentro=False))
+        self.assertIn("no se presente" if False else "Do not introduce yourself",
+                      C.YA_NOS_CONOCEMOS["en"])
+
+    def test_f1_la_senal_sale_de_salidas_y_no_de_la_captura(self):
+        """`turnos` solo se llena con la captura encendida; `salidas` siempre."""
+        with M.abrir(self.db) as c:
+            self.assertFalse(C.ya_nos_conocemos(c), "memoria nueva: primera vez")
+            M.cruzar_frontera(c, "modelo_local", "hola",
+                              output_guard.preparar_respuesta)
+            self.assertTrue(C.ya_nos_conocemos(c),
+                            "tras un cruce de frontera, ya os conoceis")
+
     def test_rojo_cc_la_respuesta_cruza_la_puerta(self):
         """Queda huella con su canal, y el output-guard mira antes de dejar pasar."""
         with M.abrir(self.db) as c:

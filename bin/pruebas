@@ -139,7 +139,15 @@ echo
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno
-          test_compass)
+          test_compass
+          # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
+          # dos roturas reales: el renombrado del output-guard y el de la
+          # identidad del arquetipo. Una suite que existe y no corre es una
+          # suite que miente sobre lo que cubre.
+          test_andamio test_borradores test_conversacion test_costura
+          test_frontera test_hilos test_identidad test_narrador
+          test_output_guard test_puente test_puerta test_recuperacion
+          test_traza)
 PROPIAS=(cara idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
