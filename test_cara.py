@@ -40,7 +40,15 @@ def caso(nombre):
 
 # El vocabulario de la casa. Vive en los comentarios del codigo interno, que
 # lee el equipo; no puede vivir en la cara, que lee cualquiera (D67).
-LEXICO_PRIVADO = ("soberano", "preceptor", "ironclaw", "hexelion")
+# «preceptor» SALE de la lista el 2026-08-26, y no de paso: la AI del producto
+# se presenta diciendo «You can call me Preceptor», asi que la palabra es el
+# nombre publico de la cara y ya no puede ser vocabulario de casa. Es la opcion
+# A del choque D67, firmada por el Soberano despues de haber elegido la B: la
+# decision cambio cuando cambio el producto, y esta escrita aqui para que dentro
+# de seis meses nadie la lea como un descuido.
+#
+# Los otros tres siguen: nombran el rack y su historia, no lo que se entrega.
+LEXICO_PRIVADO = ("soberano", "ironclaw", "hexelion")
 
 # Todo lo que abre un socket. La cara se abre con doble clic desde el disco y
 # tiene que funcionar entera sin una sola conexion (D68).
@@ -186,11 +194,18 @@ def t8():
         "generar() dejo de fijar la base: una prueba podria ir a la memoria real"
     real = os.path.expanduser("~/.aurelius")
 
+    # La foto mira LA MEMORIA, no la carpeta entera. Vigilar todo el directorio
+    # hacia esta prueba intermitente: el servicio de la cara, cuando esta
+    # corriendo, escribe ahi su bitacora y el diario WAL de `loops.db` por su
+    # cuenta, y la prueba lo leia como «generar la cara toco la memoria». Cazado
+    # el 2026-08-26 con el servicio vivo. Lo que el caso 8 promete proteger es
+    # `memory.db`, y eso es lo que se fotografia.
     def foto():
         if not os.path.isdir(real):
             return None
+        suyos = [n for n in os.listdir(real) if n.startswith("memory.db")]
         return sorted((n, os.stat(os.path.join(real, n)).st_mtime_ns)
-                      for n in os.listdir(real))
+                      for n in suyos)
 
     antes = foto()
     generar(base_con_recuerdos())

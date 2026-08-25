@@ -331,15 +331,18 @@ def _arquetipo(idioma):
         texto = fh.read()
     # Los dos bloques del arquetipo van entre vallas de código; se toma el que
     # toca y nunca los dos: dos caracteres a la vez producen uno confuso.
-    bloques = [b for b in texto.split("```") if "Aurelius" in b]
+    # Se acepta el nombre nuevo y el viejo: un arquetipo editado a mano por
+    # alguien que clono el repo antes del renombrado sigue siendo valido.
+    IDENTIDAD = ("PreceptorOS", "Aurelius")
+    bloques = [b for b in texto.split("```") if any(i in b for i in IDENTIDAD)]
     if not bloques:
         return ""
     if idioma == "es":
         for b in bloques:
-            if "Eres Aurelius" in b:
+            if any(f"Eres {i}" in b for i in IDENTIDAD):
                 return b.strip()
     for b in bloques:
-        if "You are Aurelius" in b:
+        if any(f"You are {i}" in b for i in IDENTIDAD):
             return b.strip()
     return bloques[0].strip()
 

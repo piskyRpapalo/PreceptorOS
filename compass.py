@@ -670,21 +670,27 @@ class LearningCompass:
         eta = self.eta(p, v, F, activo, ind["intensidad"], ind["coherencia"])
         kl = self.divergencia_kl(v, estado=p)
 
+        # El idioma lo declara la memoria de la persona, como en el resto del
+        # producto. Estaba clavado a "es": la rosa hablaba castellano aunque el
+        # perfil dijera English, que es la mitad de la promesa bilingue.
+        idioma = self._idioma()
         try:
             import cara as _cara
-            nombres = dict(_cara.CAMINO["es"])
+            nombres = dict(_cara.CAMINO.get(idioma, _cara.CAMINO["es"]))
         except Exception:
             nombres = {}
         peldanos = {}
         for k in claves:
             peldanos[k] = {
-                "nombre": nombres.get(k, k),
+                "nombre": nombres.get(
+                    k, self.NOMBRES_DETALLE.get(idioma, {}).get(k, k)),
                 "valor": round(p[k], 4),
                 "estado": self._etiqueta(k, p[k]),
             }
         import datetime
         salida = {
             "modo": modo,
+            "idioma": idioma,
             "peldaños": peldanos,
             "indicadores": {kk: (vv if isinstance(vv, bool) else round(vv, 4))
                             for kk, vv in ind.items()},
@@ -706,6 +712,30 @@ class LearningCompass:
             salida["calibrado"] = self._calibrado
             salida["max_F"] = round(self._max_F or MAX_F_FALLBACK, 4)
         return salida
+
+    def _idioma(self):
+        """El idioma del perfil, o «es» si no hay memoria que preguntar."""
+        c = self._abrir_ro(self.db_path)
+        if c is None:
+            return "es"
+        try:
+            import memory as M
+            perfil = M.leer_perfil(c)
+            valor = str(perfil.get("language", "") or "").strip().lower()
+            return valor if valor in ("es", "en") else "es"
+        except Exception:
+            return "es"
+        finally:
+            c.close()
+
+    # Los nombres de las cuatro dimensiones de detalle no viven en `cara`, asi
+    # que viven aqui, en los dos idiomas y no en uno.
+    NOMBRES_DETALLE = {
+        "es": {"memorias_tema": "Temas", "proyectos_activos": "Proyectos",
+               "preferencias": "Perfil", "ritmo": "Ritmo"},
+        "en": {"memorias_tema": "Topics", "proyectos_activos": "Projects",
+               "preferencias": "Profile", "ritmo": "Pace"},
+    }
 
     def _q(self, estado, n):
         claves = list(estado)[:3]

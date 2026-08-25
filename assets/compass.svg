@@ -1,41 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="compass-titulo" id="compass-svg">
-  <title id="compass-titulo">Brujula de aprendizaje</title>
+  <title id="compass-titulo">Learning compass</title>
   <defs>
-    <pattern id="tex-activo" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="2" opacity=".35"/>
-    </pattern>
-    <pattern id="tex-bloqueado" width="5" height="5" patternUnits="userSpaceOnUse">
-      <circle cx="1.5" cy="1.5" r="1" fill="currentColor" opacity=".28"/>
-    </pattern>
+    <linearGradient id="laton" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9b063"/><stop offset=".5" stop-color="#8a6a33"/>
+      <stop offset="1" stop-color="#c9a052"/></linearGradient>
+    <radialGradient id="sol" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffe9a8"/><stop offset=".6" stop-color="#e0a83c"/>
+      <stop offset="1" stop-color="#a9761f"/></radialGradient>
+    <linearGradient id="gema-oro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#e8b13f"/>
+      <stop offset="1" stop-color="#9c6f1c"/></linearGradient>
+    <linearGradient id="gema-violeta" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9c9ff"/><stop offset=".5" stop-color="#8b6ff0"/>
+      <stop offset="1" stop-color="#4b3399"/></linearGradient>
+    <linearGradient id="gema-verde" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8f0c8"/><stop offset=".5" stop-color="#3fa86a"/>
+      <stop offset="1" stop-color="#1c5c39"/></linearGradient>
+    <linearGradient id="pizarra" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a5060"/><stop offset=".5" stop-color="#333846"/>
+      <stop offset="1" stop-color="#232733"/></linearGradient>
+    <filter id="brillo" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <g id="anillo-peldanos">
-    <path id="sector-m0" class="sector bloqueado" d="M100.00,10.00 A90,90 0 0,1 163.64,36.36 L138.89,61.11 A55,55 0 0,0 100.00,45.00 Z"><title>M0 · Totem</title></path>
-    <path id="sector-m1" class="sector bloqueado" d="M163.64,36.36 A90,90 0 0,1 190.00,100.00 L155.00,100.00 A55,55 0 0,0 138.89,61.11 Z"><title>M1 · Fuego</title></path>
-    <path id="sector-m2" class="sector bloqueado" d="M190.00,100.00 A90,90 0 0,1 163.64,163.64 L138.89,138.89 A55,55 0 0,0 155.00,100.00 Z"><title>M2 · Agua</title></path>
-    <path id="sector-m3" class="sector bloqueado" d="M163.64,163.64 A90,90 0 0,1 100.00,190.00 L100.00,155.00 A55,55 0 0,0 138.89,138.89 Z"><title>M3 · Refugio</title></path>
-    <path id="sector-m4" class="sector bloqueado" d="M100.00,190.00 A90,90 0 0,1 36.36,163.64 L61.11,138.89 A55,55 0 0,0 100.00,155.00 Z"><title>M4 · Senal</title></path>
-    <path id="sector-m5" class="sector bloqueado" d="M36.36,163.64 A90,90 0 0,1 10.00,100.00 L45.00,100.00 A55,55 0 0,0 61.11,138.89 Z"><title>M5 · Pacto</title></path>
-    <path id="sector-m6" class="sector bloqueado" d="M10.00,100.00 A90,90 0 0,1 36.36,36.36 L61.11,61.11 A55,55 0 0,0 45.00,100.00 Z"><title>M6 · Bastion</title></path>
-    <path id="sector-m7" class="sector bloqueado" d="M36.36,36.36 A90,90 0 0,1 100.00,10.00 L100.00,45.00 A55,55 0 0,0 61.11,61.11 Z"><title>M7 · Tierra</title></path>
+  <g id="armadura">
+  <path id="corona" d="M92.33,12.33 L100.00,3.00 L107.67,12.33 Z M115.28,13.34 L124.20,9.69 L130.10,17.31 Z M137.19,20.24 L148.50,16.00 L150.47,27.91 Z M156.57,32.59 L166.11,33.89 L167.41,43.43 Z M172.09,49.53 L184.00,51.50 L179.76,62.81 Z M182.69,69.90 L190.31,75.80 L186.66,84.72 Z M187.67,92.33 L197.00,100.00 L187.67,107.67 Z M186.66,115.28 L190.31,124.20 L182.69,130.10 Z M179.76,137.19 L184.00,148.50 L172.09,150.47 Z M167.41,156.57 L166.11,166.11 L156.57,167.41 Z M150.47,172.09 L148.50,184.00 L137.19,179.76 Z M130.10,182.69 L124.20,190.31 L115.28,186.66 Z M107.67,187.67 L100.00,197.00 L92.33,187.67 Z M84.72,186.66 L75.80,190.31 L69.90,182.69 Z M62.81,179.76 L51.50,184.00 L49.53,172.09 Z M43.43,167.41 L33.89,166.11 L32.59,156.57 Z M27.91,150.47 L16.00,148.50 L20.24,137.19 Z M17.31,130.10 L9.69,124.20 L13.34,115.28 Z M12.33,107.67 L3.00,100.00 L12.33,92.33 Z M13.34,84.72 L9.69,75.80 L17.31,69.90 Z M20.24,62.81 L16.00,51.50 L27.91,49.53 Z M32.59,43.43 L33.89,33.89 L43.43,32.59 Z M49.53,27.91 L51.50,16.00 L62.81,20.24 Z M69.90,17.31 L75.80,9.69 L84.72,13.34 Z" fill="url(#sol)" opacity=".85"/>
+  <path d="M97.65,16.03 L98.56,13.81 L101.44,13.81 L102.35,16.03 Z M108.63,16.44 L109.82,14.36 L112.68,14.74 L113.29,17.06 Z M119.47,18.29 L120.91,16.38 L123.70,17.12 L124.00,19.50 Z M129.97,21.53 L131.65,19.82 L134.32,20.93 L134.30,23.32 Z M139.95,26.11 L141.84,24.64 L144.34,26.08 L144.01,28.45 Z M149.26,31.96 L151.32,30.74 L153.61,32.50 L152.98,34.81 Z M157.72,38.97 L159.92,38.03 L161.97,40.08 L161.03,42.28 Z M165.19,47.02 L167.50,46.39 L169.26,48.68 L168.04,50.74 Z M171.55,55.99 L173.92,55.66 L175.36,58.16 L173.89,60.05 Z M176.68,65.70 L179.07,65.68 L180.18,68.35 L178.47,70.03 Z M180.50,76.00 L182.88,76.30 L183.62,79.09 L181.71,80.53 Z M182.94,86.71 L185.26,87.32 L185.64,90.18 L183.56,91.37 Z M183.97,97.65 L186.19,98.56 L186.19,101.44 L183.97,102.35 Z M183.56,108.63 L185.64,109.82 L185.26,112.68 L182.94,113.29 Z M181.71,119.47 L183.62,120.91 L182.88,123.70 L180.50,124.00 Z M178.47,129.97 L180.18,131.65 L179.07,134.32 L176.68,134.30 Z M173.89,139.95 L175.36,141.84 L173.92,144.34 L171.55,144.01 Z M168.04,149.26 L169.26,151.32 L167.50,153.61 L165.19,152.98 Z M161.03,157.72 L161.97,159.92 L159.92,161.97 L157.72,161.03 Z M152.98,165.19 L153.61,167.50 L151.32,169.26 L149.26,168.04 Z M144.01,171.55 L144.34,173.92 L141.84,175.36 L139.95,173.89 Z M134.30,176.68 L134.32,179.07 L131.65,180.18 L129.97,178.47 Z M124.00,180.50 L123.70,182.88 L120.91,183.62 L119.47,181.71 Z M113.29,182.94 L112.68,185.26 L109.82,185.64 L108.63,183.56 Z M102.35,183.97 L101.44,186.19 L98.56,186.19 L97.65,183.97 Z M91.37,183.56 L90.18,185.64 L87.32,185.26 L86.71,182.94 Z M80.53,181.71 L79.09,183.62 L76.30,182.88 L76.00,180.50 Z M70.03,178.47 L68.35,180.18 L65.68,179.07 L65.70,176.68 Z M60.05,173.89 L58.16,175.36 L55.66,173.92 L55.99,171.55 Z M50.74,168.04 L48.68,169.26 L46.39,167.50 L47.02,165.19 Z M42.28,161.03 L40.08,161.97 L38.03,159.92 L38.97,157.72 Z M34.81,152.98 L32.50,153.61 L30.74,151.32 L31.96,149.26 Z M28.45,144.01 L26.08,144.34 L24.64,141.84 L26.11,139.95 Z M23.32,134.30 L20.93,134.32 L19.82,131.65 L21.53,129.97 Z M19.50,124.00 L17.12,123.70 L16.38,120.91 L18.29,119.47 Z M17.06,113.29 L14.74,112.68 L14.36,109.82 L16.44,108.63 Z M16.03,102.35 L13.81,101.44 L13.81,98.56 L16.03,97.65 Z M16.44,91.37 L14.36,90.18 L14.74,87.32 L17.06,86.71 Z M18.29,80.53 L16.38,79.09 L17.12,76.30 L19.50,76.00 Z M21.53,70.03 L19.82,68.35 L20.93,65.68 L23.32,65.70 Z M26.11,60.05 L24.64,58.16 L26.08,55.66 L28.45,55.99 Z M31.96,50.74 L30.74,48.68 L32.50,46.39 L34.81,47.02 Z M38.97,42.28 L38.03,40.08 L40.08,38.03 L42.28,38.97 Z M47.02,34.81 L46.39,32.50 L48.68,30.74 L50.74,31.96 Z M55.99,28.45 L55.66,26.08 L58.16,24.64 L60.05,26.11 Z M65.70,23.32 L65.68,20.93 L68.35,19.82 L70.03,21.53 Z M76.00,19.50 L76.30,17.12 L79.09,16.38 L80.53,18.29 Z M86.71,17.06 L87.32,14.74 L90.18,14.36 L91.37,16.44 Z" fill="url(#laton)" opacity=".9"/>
+  <circle cx="100" cy="100" r="84" fill="none" stroke="url(#laton)" stroke-width="3"/>
+  <circle cx="100" cy="100" r="79" fill="none" stroke="#6b5322" stroke-width="1"/>
   </g>
+  <g id="anillo-peldanos">
+    <path id="sector-m0" class="sector bloqueado" d="M101.59,24.02 A76,76 0 0,1 152.60,45.15 L135.99,62.47 A52,52 0 0,0 101.09,48.01 Z"><title>M0 · Totem</title></path>
+    <path id="sector-m1" class="sector bloqueado" d="M154.85,47.40 A76,76 0 0,1 175.98,98.41 L151.99,98.91 A52,52 0 0,0 137.53,64.01 Z"><title>M1 · Fire</title></path>
+    <path id="sector-m2" class="sector bloqueado" d="M175.98,101.59 A76,76 0 0,1 154.85,152.60 L137.53,135.99 A52,52 0 0,0 151.99,101.09 Z"><title>M2 · Water</title></path>
+    <path id="sector-m3" class="sector bloqueado" d="M152.60,154.85 A76,76 0 0,1 101.59,175.98 L101.09,151.99 A52,52 0 0,0 135.99,137.53 Z"><title>M3 · Refuge</title></path>
+    <path id="sector-m4" class="sector bloqueado" d="M98.41,175.98 A76,76 0 0,1 47.40,154.85 L64.01,137.53 A52,52 0 0,0 98.91,151.99 Z"><title>M4 · Signal</title></path>
+    <path id="sector-m5" class="sector bloqueado" d="M45.15,152.60 A76,76 0 0,1 24.02,101.59 L48.01,101.09 A52,52 0 0,0 62.47,135.99 Z"><title>M5 · Pact</title></path>
+    <path id="sector-m6" class="sector bloqueado" d="M24.02,98.41 A76,76 0 0,1 45.15,47.40 L62.47,64.01 A52,52 0 0,0 48.01,98.91 Z"><title>M6 · Bastion</title></path>
+    <path id="sector-m7" class="sector bloqueado" d="M47.40,45.15 A76,76 0 0,1 98.41,24.02 L98.91,48.01 A52,52 0 0,0 64.01,62.47 Z"><title>M7 · Earth</title></path>
+  </g>
+  <path d="M98.32,52.03 L98.96,50.21 L101.04,50.21 L101.68,52.03 Z M107.72,52.62 L108.69,50.96 L110.74,51.37 L111.00,53.28 Z M116.81,55.04 L118.09,53.60 L120.02,54.40 L119.91,56.32 Z M125.26,59.18 L126.79,58.02 L128.53,59.18 L128.04,61.04 Z M132.74,64.90 L134.47,64.06 L135.94,65.53 L135.10,67.26 Z M138.96,71.96 L140.82,71.47 L141.98,73.21 L140.82,74.74 Z M143.68,80.09 L145.60,79.98 L146.40,81.91 L144.96,83.19 Z M146.72,89.00 L148.63,89.26 L149.04,91.31 L147.38,92.28 Z M147.97,98.32 L149.79,98.96 L149.79,101.04 L147.97,101.68 Z M147.38,107.72 L149.04,108.69 L148.63,110.74 L146.72,111.00 Z M144.96,116.81 L146.40,118.09 L145.60,120.02 L143.68,119.91 Z M140.82,125.26 L141.98,126.79 L140.82,128.53 L138.96,128.04 Z M135.10,132.74 L135.94,134.47 L134.47,135.94 L132.74,135.10 Z M128.04,138.96 L128.53,140.82 L126.79,141.98 L125.26,140.82 Z M119.91,143.68 L120.02,145.60 L118.09,146.40 L116.81,144.96 Z M111.00,146.72 L110.74,148.63 L108.69,149.04 L107.72,147.38 Z M101.68,147.97 L101.04,149.79 L98.96,149.79 L98.32,147.97 Z M92.28,147.38 L91.31,149.04 L89.26,148.63 L89.00,146.72 Z M83.19,144.96 L81.91,146.40 L79.98,145.60 L80.09,143.68 Z M74.74,140.82 L73.21,141.98 L71.47,140.82 L71.96,138.96 Z M67.26,135.10 L65.53,135.94 L64.06,134.47 L64.90,132.74 Z M61.04,128.04 L59.18,128.53 L58.02,126.79 L59.18,125.26 Z M56.32,119.91 L54.40,120.02 L53.60,118.09 L55.04,116.81 Z M53.28,111.00 L51.37,110.74 L50.96,108.69 L52.62,107.72 Z M52.03,101.68 L50.21,101.04 L50.21,98.96 L52.03,98.32 Z M52.62,92.28 L50.96,91.31 L51.37,89.26 L53.28,89.00 Z M55.04,83.19 L53.60,81.91 L54.40,79.98 L56.32,80.09 Z M59.18,74.74 L58.02,73.21 L59.18,71.47 L61.04,71.96 Z M64.90,67.26 L64.06,65.53 L65.53,64.06 L67.26,64.90 Z M71.96,61.04 L71.47,59.18 L73.21,58.02 L74.74,59.18 Z M80.09,56.32 L79.98,54.40 L81.91,53.60 L83.19,55.04 Z M89.00,53.28 L89.26,51.37 L91.31,50.96 L92.28,52.62 Z" fill="url(#laton)" opacity=".75"/>
+  <circle cx="100" cy="100" r="48" fill="none" stroke="url(#laton)" stroke-width="2.2"/>
   <g id="anillo-detalle" class="oculto">
-    <path id="sector-d0" class="sector detalle bloqueado" d="M100.00,48.00 A52,52 0 0,1 152.00,100.00 L132.00,100.00 A32,32 0 0,0 100.00,68.00 Z"><title>memorias_tema</title></path>
-    <path id="sector-d1" class="sector detalle bloqueado" d="M152.00,100.00 A52,52 0 0,1 100.00,152.00 L100.00,132.00 A32,32 0 0,0 132.00,100.00 Z"><title>proyectos_activos</title></path>
-    <path id="sector-d2" class="sector detalle bloqueado" d="M100.00,152.00 A52,52 0 0,1 48.00,100.00 L68.00,100.00 A32,32 0 0,0 100.00,132.00 Z"><title>preferencias</title></path>
-    <path id="sector-d3" class="sector detalle bloqueado" d="M48.00,100.00 A52,52 0 0,1 100.00,48.00 L100.00,68.00 A32,32 0 0,0 68.00,100.00 Z"><title>ritmo</title></path>
+    <path id="sector-d0" class="sector detalle bloqueado" d="M101.54,56.03 A44,44 0 0,1 143.97,98.46 L127.98,99.02 A28,28 0 0,0 100.98,72.02 Z"><title>memorias_tema</title></path>
+    <path id="sector-d1" class="sector detalle bloqueado" d="M143.97,101.54 A44,44 0 0,1 101.54,143.97 L100.98,127.98 A28,28 0 0,0 127.98,100.98 Z"><title>proyectos_activos</title></path>
+    <path id="sector-d2" class="sector detalle bloqueado" d="M98.46,143.97 A44,44 0 0,1 56.03,101.54 L72.02,100.98 A28,28 0 0,0 99.02,127.98 Z"><title>preferencias</title></path>
+    <path id="sector-d3" class="sector detalle bloqueado" d="M56.03,98.46 A44,44 0 0,1 98.46,56.03 L99.02,72.02 A28,28 0 0,0 72.02,99.02 Z"><title>ritmo</title></path>
+  </g>
+  <circle cx="100" cy="100" r="27" fill="none" stroke="url(#laton)" stroke-width="1.6"/>
+  <g id="simbolos">
+    <text class="simbolo" x="127.0" y="34.9" font-size="7.5" text-anchor="middle" dominant-baseline="middle">◆</text>
+    <text class="simbolo" x="165.1" y="73.0" font-size="5.2" text-anchor="middle" dominant-baseline="middle">&lt;/&gt;</text>
+    <text class="simbolo" x="165.1" y="127.0" font-size="7.5" text-anchor="middle" dominant-baseline="middle">≈</text>
+    <text class="simbolo" x="127.0" y="165.1" font-size="7.5" text-anchor="middle" dominant-baseline="middle">⌂</text>
+    <text class="simbolo" x="73.0" y="165.1" font-size="5.2" text-anchor="middle" dominant-baseline="middle">((•))</text>
+    <text class="simbolo" x="34.9" y="127.0" font-size="7.5" text-anchor="middle" dominant-baseline="middle">∞</text>
+    <text class="simbolo" x="34.9" y="73.0" font-size="7.5" text-anchor="middle" dominant-baseline="middle">▣</text>
+    <text class="simbolo" x="73.0" y="34.9" font-size="7.5" text-anchor="middle" dominant-baseline="middle">⊕</text>
   </g>
   <g id="etiquetas">
-    <text class="etiqueta" x="127.7" y="33.0" text-anchor="middle" dominant-baseline="middle">M0</text>
-    <text class="etiqueta" x="167.0" y="72.3" text-anchor="middle" dominant-baseline="middle">M1</text>
-    <text class="etiqueta" x="167.0" y="127.7" text-anchor="middle" dominant-baseline="middle">M2</text>
-    <text class="etiqueta" x="127.7" y="167.0" text-anchor="middle" dominant-baseline="middle">M3</text>
-    <text class="etiqueta" x="72.3" y="167.0" text-anchor="middle" dominant-baseline="middle">M4</text>
-    <text class="etiqueta" x="33.0" y="127.7" text-anchor="middle" dominant-baseline="middle">M5</text>
-    <text class="etiqueta" x="33.0" y="72.3" text-anchor="middle" dominant-baseline="middle">M6</text>
-    <text class="etiqueta" x="72.3" y="33.0" text-anchor="middle" dominant-baseline="middle">M7</text>
+    <text class="etiqueta" x="123.2" y="44.1" text-anchor="middle" dominant-baseline="middle">M0</text>
+    <text class="etiqueta" x="155.9" y="76.8" text-anchor="middle" dominant-baseline="middle">M1</text>
+    <text class="etiqueta" x="155.9" y="123.2" text-anchor="middle" dominant-baseline="middle">M2</text>
+    <text class="etiqueta" x="123.2" y="155.9" text-anchor="middle" dominant-baseline="middle">M3</text>
+    <text class="etiqueta" x="76.8" y="155.9" text-anchor="middle" dominant-baseline="middle">M4</text>
+    <text class="etiqueta" x="44.1" y="123.2" text-anchor="middle" dominant-baseline="middle">M5</text>
+    <text class="etiqueta" x="44.1" y="76.8" text-anchor="middle" dominant-baseline="middle">M6</text>
+    <text class="etiqueta" x="76.8" y="44.1" text-anchor="middle" dominant-baseline="middle">M7</text>
   </g>
-  <circle id="nucleo" cx="100" cy="100" r="10"/>
-  <line id="aguja" x1="100" y1="100" x2="100" y2="70" stroke-linecap="round"/>
   <g id="ticks"></g>
-  <text id="eta" x="100" y="188" text-anchor="middle"></text>
+  <circle id="nucleo" cx="100" cy="100" r="10" fill="url(#sol)"/>
+  <circle cx="100" cy="100" r="4" fill="#3a2c10" opacity=".7"/>
+  <line id="aguja" x1="100" y1="100" x2="100" y2="72" stroke-linecap="round"/>
+  <text id="eta" x="100" y="196" text-anchor="middle"></text>
 </svg>

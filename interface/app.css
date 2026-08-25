@@ -175,3 +175,22 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 @media (min-width: 720px) {
   .barra, .pestanas, .panel { max-width: 44rem; margin-inline: auto; width: 100%; }
 }
+
+/* --- volver a la portada -----------------------------------------------
+   Estaba sin salida: se entraba a esta cara y solo se volvia con el boton del
+   navegador, que en una PWA instalada no siempre esta a mano. 44px de lado,
+   que es el minimo tactil que no obliga a apuntar. */
+.barra .inicio {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px;
+  margin-right: .4rem;
+  font-size: 1.35rem; line-height: 1;
+  text-decoration: none;
+  color: var(--acento);
+  border: 1px solid var(--line);
+  border-radius: var(--radio);
+  background: var(--paper);
+}
+.barra .inicio:hover, .barra .inicio:focus-visible {
+  background: var(--acento-tenue); border-color: var(--acento);
+}

@@ -10,19 +10,21 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/compass.css">
+<link rel="stylesheet" href="/compass.css?v=34">
 </head>
 <body>
 
 <header class="barra">
+  <a class="inicio" href="/" id="ir-inicio" data-i18n-aria="aria_inicio"
+     aria-label="Ir a la portada" title="Ir a la portada">⌂</a>
   <h1>PreceptorOS</h1>
-  <p class="estado" id="estado" aria-live="polite">comprobando…</p>
+  <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
 </header>
 
 <nav class="pestanas" role="tablist">
-  <button role="tab" aria-selected="true"  data-panel="chat">Hablar</button>
-  <button role="tab" aria-selected="false" data-panel="frontera">Frontera</button>
-  <button role="tab" aria-selected="false" data-panel="captura">Cuaderno</button>
+  <button role="tab" aria-selected="true"  data-panel="chat" data-i18n="tab_chat">Hablar</button>
+  <button role="tab" aria-selected="false" data-panel="frontera" data-i18n="tab_frontera">Frontera</button>
+  <button role="tab" aria-selected="false" data-panel="captura" data-i18n="tab_cuaderno">Cuaderno</button>
 </nav>
 
 <main id="carril" class="carril">
@@ -31,10 +33,11 @@
   <section class="panel" id="panel-compass" aria-label="Brújula de aprendizaje">
     <div id="compass-container">
       <div id="compass-svg-hueco"></div>
+      <p id="compass-rango"></p>
       <p id="compass-aviso" role="status" aria-live="polite"></p>
       <div id="compass-controles">
-        <button type="button" id="compass-modo-camino" aria-pressed="true">Camino</button>
-        <button type="button" id="compass-modo-detalle" aria-pressed="false">Detalle</button>
+        <button type="button" id="compass-modo-camino" aria-pressed="true">The Path</button>
+        <button type="button" id="compass-modo-detalle" aria-pressed="false">Detail</button>
       </div>
     </div>
   </section>
@@ -43,12 +46,12 @@
   <section class="panel" id="panel-chat" aria-label="Hablar">
     <ol class="hilo" id="hilo" aria-live="polite"></ol>
     <form class="redactar" id="form-chat">
-      <label class="sr" for="dicho">Lo que dices</label>
-      <textarea id="dicho" rows="2" placeholder="Escribe tu respuesta…"></textarea>
-      <button class="enviar" id="enviar" type="submit">Dilo</button>
+      <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
+      <textarea id="dicho" rows="2" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
+      <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
     </form>
     <p class="pie" id="pie-chat">
-      Cada turno tarda minutos en un teléfono. No es que se haya colgado.
+      <span data-i18n="pie_chat">Cada turno tarda minutos en un teléfono. No es que se haya colgado.</span>
     </p>
   </section>
 
@@ -57,15 +60,15 @@
     <div class="tarjeta" id="tarjeta-frontera">
       <div class="fila-switch">
         <button class="switch is-on" id="switch" role="switch"
-                aria-checked="true" aria-label="Redacción"><i></i></button>
-        <span class="switch-label" id="switch-label">Redacción activa</span>
-        <span class="insignia insignia-ok" id="insignia">sin medir</span>
+                aria-checked="true" data-i18n-aria="aria_redaccion" aria-label="Redacción"><i></i></button>
+        <span class="switch-label" id="switch-label" data-i18n="redaccion_on">Redacción activa</span>
+        <span class="insignia insignia-ok" id="insignia" data-i18n="sin_medir">sin medir</span>
       </div>
 
-      <label class="sr" for="prueba">Texto a comprobar</label>
+      <label class="sr" for="prueba" data-i18n="texto_comprobar">Texto a comprobar</label>
       <textarea id="prueba" rows="3"
-        placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
-      <button class="probar" id="probar" type="button">Pasar por el filtro</button>
+        data-i18n-ph="ph_prueba" placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
+      <button class="probar" id="probar" type="button" data-i18n="pasar_filtro">Pasar por el filtro</button>
 
       <ul class="hallazgos" id="hallazgos"></ul>
       <p class="vacio" id="vacio" hidden></p>
@@ -76,8 +79,8 @@
         Los números vienen del payload — esta interfaz no cuenta.
       </p>
       <details class="payload-caja">
-        <summary>El payload, tal cual llegó</summary>
-        <pre class="payload" id="payload">(sin llamada todavía)</pre>
+        <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
+        <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
       </details>
     </div>
   </section>
@@ -95,6 +98,6 @@
 </main>
 
 <script src="/app.js"></script>
-<script src="/compass.js"></script>
+<script src="/compass.js?v=34"></script>
 </body>
 </html>

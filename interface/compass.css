@@ -1,92 +1,151 @@
-/* compass.css · la rosa de los vientos. Colores del canon, nada inventado. */
+/* compass.css · la rosa de los vientos.
+ *
+ * Hereda los tokens de app.css en vez de traer su propia paleta: asi el modo
+ * claro y el oscuro salen gratis y el dia que cambie el acento de la app, la
+ * brujula cambia con ella. Una rosa con colores propios se desincroniza de la
+ * cara en el primer retoque.
+ *
+ * Solar-punk: violeta del acento para lo vivo, oro solar para lo conseguido,
+ * verde hoja para lo que crece. Nada saturado -- la rosa se mira mucho rato.
+ */
 
 #compass-container {
-  --marmol:   #F5F5F0;   /* completado */
-  --ambar:    #D4A574;   /* activo */
-  --pizarra:  #4A4A48;   /* bloqueado */
-  --bronce:   #8B7355;   /* en progreso */
-  --gris:     #C0C0C0;   /* no medible */
-  color: var(--bronce);
-  max-width: 320px;
+  --oro:     #d9a441;   /* completado · el sol */
+  --hoja:    #4f9d69;   /* en progreso · lo que crece */
+  --violeta: var(--acento);
+  --apagado: var(--line);
+  --hueco:   var(--ink-soft);
+  color: var(--ink-soft);
+  max-width: 330px;
   margin: 0 auto;
 }
 
-#compass-svg { width: 100%; height: auto; display: block; }
+#compass-svg { width: 100%; height: auto; display: block; overflow: visible; }
 
 .sector {
-  stroke: #2A2A28;
-  stroke-width: .6;
-  transition: fill .5s ease, opacity .5s ease;
+  stroke: #5b4720;          /* el engaste de laton entre placa y placa */
+  stroke-width: .8;
+  transition: opacity .45s ease;
 }
-.sector.completado   { fill: var(--marmol); }
-.sector.en_progreso  { fill: var(--bronce); }
-.sector.bloqueado    { fill: var(--pizarra); }
+/* Las placas son gemas engastadas en laton: lo conseguido brilla, lo que
+   crece es esmeralda, lo bloqueado es pizarra apagada. Los degradados viven en
+   el <defs> del propio SVG, asi que no hay un solo fichero externo. */
+.sector.completado  { fill: url(#gema-oro); }
+.sector.en_progreso { fill: url(#gema-verde); }
+.sector.bloqueado   { fill: url(#pizarra); }
 
-/* No medible NO se pinta como cero: se raya, para que se vea que es un hueco
-   declarado y no un peldano sin empezar. Son cosas distintas. */
+/* Un hueco declarado no se pinta como un cero: se raya. Son cosas distintas y
+   el color no puede confundirlas. */
 .sector.no_medible {
-  fill: var(--gris);
-  stroke-dasharray: 3 2;
-  opacity: .55;
+  fill: url(#pizarra);
+  opacity: .45;
+  stroke-dasharray: 3 2.5;
+  stroke: var(--hueco);
 }
 
 .sector.activo {
-  fill: var(--ambar);
-  animation: compass-pulse 2s ease-in-out infinite;
+  fill: url(#gema-violeta);
+  filter: url(#brillo);
+  animation: compass-latido 2.4s ease-in-out infinite;
 }
-@keyframes compass-pulse {
+@keyframes compass-latido {
   0%, 100% { opacity: 1; }
-  50%      { opacity: .62; }
+  50%      { opacity: .68; }
 }
 
 .etiqueta {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 8px;
-  fill: #2A2A28;
+  font-size: 8.5px;
+  fill: #f4e6c4;            /* sobre metal, no sobre papel */
   pointer-events: none;
+  letter-spacing: .3px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.6);
 }
-.sector.bloqueado + .etiqueta, .etiqueta.claro { fill: var(--marmol); }
 
-#aguja { stroke: var(--ambar); stroke-width: 3; transition: all .5s ease; }
-#aguja.coherente   { stroke: #2F6B4F; }
-#aguja.intermedia  { stroke: var(--ambar); }
-#aguja.incoherente { stroke: #8C3B2F; }
+#aguja {
+  stroke: var(--violeta);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: all .5s ease;
+}
+#aguja.coherente   { stroke: var(--hoja); }
+#aguja.intermedia  { stroke: var(--oro); }
+#aguja.incoherente { stroke: var(--stop); }
 /* Sin velocidad medible: gris y a trazos. No es «vas mal»; es «no se sabe». */
-#aguja.sin-medir   { stroke: var(--gris); stroke-dasharray: 4 3; }
+#aguja.sin-medir   { stroke: var(--hueco); stroke-dasharray: 4 3; opacity: .7; }
 
-#nucleo { fill: var(--bronce); transition: r .5s ease, fill .5s ease; }
-#nucleo.estancado { fill: #6B7280; animation: none; }
+#nucleo {
+  filter: url(#brillo);
+  transition: r .5s ease, fill .5s ease;
+}
+#nucleo.estancado { fill: var(--hueco); filter: none; }
 
-#ticks line { stroke: var(--bronce); stroke-width: 1.5; opacity: .7; }
-#eta { font-family: Georgia, serif; font-size: 9px; fill: #2A2A28; }
+#ticks line { stroke: var(--oro); stroke-width: 1.6; opacity: .55; }
+#eta { font-family: Georgia, serif; font-size: 9px; fill: var(--ink-soft); }
 
 #anillo-detalle.oculto { display: none; }
+.sector.detalle { stroke-width: .8; }
 
 #compass-aviso {
   font-size: .78rem;
   text-align: center;
-  margin-top: .4rem;
-  color: var(--bronce);
+  margin: .45rem 0 0;
+  color: var(--ink-soft);
 }
-#compass-aviso.viejo   { color: #B45309; }
-#compass-aviso.antiguo { color: #8C3B2F; }
+#compass-aviso.viejo   { color: var(--warn); }
+#compass-aviso.antiguo { color: var(--stop); }
 
 #compass-controles {
-  display: flex; gap: .5rem; justify-content: center; margin-top: .5rem;
+  display: flex; gap: .5rem; justify-content: center; margin-top: .55rem;
 }
 #compass-controles button {
-  font: inherit; font-size: .8rem; padding: .2rem .6rem;
-  background: transparent; border: 1px solid var(--bronce);
-  color: inherit; border-radius: 3px; cursor: pointer;
+  font: inherit; font-size: .8rem; padding: .25rem .8rem;
+  background: transparent;
+  border: 1px solid var(--violeta);
+  color: var(--violeta);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .25s ease, color .25s ease;
 }
 #compass-controles button[aria-pressed="true"] {
-  background: var(--bronce); color: var(--marmol);
+  background: var(--violeta);
+  color: var(--paper);
 }
 
 @media (max-width: 360px) {
-  #compass-container { transform: scale(.7); transform-origin: top center; }
+  #compass-container { transform: scale(.78); transform-origin: top center; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sector.activo { animation: none; }
   .sector, #aguja, #nucleo { transition: none; }
+}
+
+/* --- el simbolo de cada mision ---------------------------------------- */
+.simbolo {
+  font-family: "DejaVu Sans", "Segoe UI Symbol", sans-serif;
+  fill: #f7ecd2;
+  opacity: .9;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
+
+/* --- rango · la brujula sube de color como sube alguien --------------------
+   Empieza en gris apagado y va ganando metal segun avanza el Camino. No es
+   decoracion: el tinte sale de la media real de los peldanos, asi que no puede
+   subir sin que la persona haya subido. Un rango que se regala no se siente. */
+/* El tinte va sobre la armadura -- corona y aros -- y jamas sobre las gemas.
+   Las gemas son el dato medido; si el color del rango las apagara, el adorno
+   estaria tapando al sensor, que es justo lo que este producto no hace. */
+#armadura { transition: filter 1.2s ease; }
+#compass-container.rango-0 #armadura { filter: grayscale(.92) brightness(.62); }
+#compass-container.rango-1 #armadura { filter: grayscale(.55) brightness(.82); }
+#compass-container.rango-2 #armadura { filter: grayscale(.25) brightness(.95); }
+#compass-container.rango-3 #armadura { filter: none; }
+#compass-container.rango-4 #armadura {
+  filter: saturate(1.45) hue-rotate(-18deg) drop-shadow(0 0 5px rgba(220,90,60,.5));
+}
+
+#compass-rango {
+  font-size: .72rem; text-align: center; letter-spacing: .08em;
+  text-transform: uppercase; margin: .35rem 0 0; color: var(--ink-soft);
 }

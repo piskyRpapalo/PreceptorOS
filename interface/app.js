@@ -13,6 +13,83 @@
 
 const $ = (id) => document.getElementById(id);
 const paneles = ["chat", "frontera", "captura"];
+
+/* --- los dos idiomas -------------------------------------------------------
+ * Esta cara hablaba solo castellano mientras el resto del producto declaraba
+ * dos. Un producto que promete bilingue y traduce la mitad se nota mas que uno
+ * que no traduce: es la misma cicatriz que ya se curo en `dashboard.js`.
+ * El idioma lo manda la memoria, no el navegador. */
+const textos = {
+  es: {
+    comprobando: "comprobando…", tab_chat: "Hablar", tab_frontera: "Frontera",
+    tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
+    ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
+    pie_chat: "Cada turno tarda minutos en un teléfono. No es que se haya colgado.",
+    aria_inicio: "Ir a la portada", aria_redaccion: "Redacción", redaccion_on: "Redacción activa",
+    redaccion_off: "Redacción apagada", sin_medir: "sin medir",
+    texto_comprobar: "Texto a comprobar",
+    ph_prueba: "Pega aquí lo que quieras comprobar antes de que salga…",
+    pasar_filtro: "Pasar por el filtro", probando: "probar",
+    payload_titulo: "El payload, tal cual llegó", sin_llamada: "(sin llamada todavía)",
+    sin_servidor: "no alcanzo al servidor",
+    sin_cerebro: "sin cerebro: puedo preguntar y recordar, no conversar",
+    memoria: (t, c) => `memoria lista · ${t} turnos · ${c} consentidos`,
+    tardo: (m) => `tardó más de la cuenta: ${m}`,
+    no_pude: (m) => `no pude responder (${m})`,
+    tal_cual: "el texto sale tal cual", sin_contador: "Sin contador: no se ha mirado.",
+    sin_llamada2: "(no se hace ninguna llamada)", bloqueado: "envío bloqueado",
+    con_hallazgos: "con hallazgos", nada_redactado: "nada redactado",
+    no_llego: "(la llamada no llegó)",
+  },
+  en: {
+    comprobando: "checking…", tab_chat: "Talk", tab_frontera: "Border",
+    tab_cuaderno: "Notebook", lo_que_dices: "What you say",
+    ph_dicho: "Write your answer…", dilo: "Say it",
+    pie_chat: "Each turn takes minutes on a phone. It has not frozen.",
+    aria_inicio: "Go to the front page", aria_redaccion: "Redaction", redaccion_on: "Redaction on",
+    redaccion_off: "Redaction off", sin_medir: "not measured",
+    texto_comprobar: "Text to check",
+    ph_prueba: "Paste here whatever you want checked before it leaves…",
+    pasar_filtro: "Run it through the filter", probando: "check",
+    payload_titulo: "The payload, exactly as it arrived",
+    sin_llamada: "(no call yet)", sin_servidor: "cannot reach the server",
+    sin_cerebro: "no brain: I can ask and remember, not converse",
+    memoria: (t, c) => `memory ready · ${t} turns · ${c} consented`,
+    tardo: (m) => `it took too long: ${m}`,
+    no_pude: (m) => `could not answer (${m})`,
+    tal_cual: "the text leaves as it is", sin_contador: "No counter: nothing was looked at.",
+    sin_llamada2: "(no call is made)", bloqueado: "sending blocked",
+    con_hallazgos: "with findings", nada_redactado: "nothing redacted",
+    no_llego: "(the call never arrived)",
+  },
+};
+let t = textos.es;
+
+function pintarEstaticos() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const v = t[el.dataset.i18n];
+    if (typeof v === "string") el.textContent = v;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+    const v = t[el.dataset.i18nPh];
+    if (typeof v === "string") el.placeholder = v;
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    const v = t[el.dataset.i18nAria];
+    if (typeof v === "string") el.setAttribute("aria-label", v);
+  });
+  document.documentElement.lang = t === textos.en ? "en" : "es";
+}
+
+async function fijarIdioma() {
+  try {
+    const r = await fetch("/api/perfil");
+    const d = await r.json();
+    const l = (d.campos || d).language || d.idioma;
+    t = l === "en" ? textos.en : textos.es;
+  } catch { /* sin respuesta, se queda el de fabrica */ }
+  pintarEstaticos();
+}
 let panelActual = 0;
 let filtroCaido = false;
 
@@ -52,11 +129,11 @@ async function estado() {
     const r = await fetch("/api/estado");
     const d = await r.json();
     $("estado").textContent = d.motor
-      ? `memoria lista · ${d.turnos.turnos} turnos · ${d.turnos.consentidos} consentidos`
-      : "sin cerebro: puedo preguntar y recordar, no conversar";
+      ? t.memoria(d.turnos.turnos, d.turnos.consentidos)
+      : t.sin_cerebro;
     $("enviar").disabled = !d.motor;
   } catch {
-    $("estado").textContent = "no alcanzo al servidor";
+    $("estado").textContent = t.sin_servidor;
     $("enviar").disabled = true;
   }
 }
@@ -93,8 +170,8 @@ $("form-chat").addEventListener("submit", async (e) => {
       // Un motor que tardó y uno que falló se dicen distinto: se arreglan
       // distinto, y decirlos igual manda a mirar donde no es.
       burbuja(d.estado === "tarde"
-        ? `tardó más de la cuenta: ${d.motivo}`
-        : `no pude responder (${d.motivo || r.status})`, "malo");
+        ? t.tardo(d.motivo)
+        : t.no_pude(d.motivo || r.status), "malo");
     }
   } catch (err) {
     esperando.remove();
@@ -111,16 +188,16 @@ let redaccion = true;
 function pintarApagado() {
   $("tarjeta-frontera").classList.add("is-off");
   $("tarjeta-frontera").classList.remove("is-blocked");
-  $("switch-label").textContent = "Redacción apagada";
+  $("switch-label").textContent = t.redaccion_off;
   $("insignia").className = "insignia insignia-warn";
-  $("insignia").textContent = "el texto sale tal cual";
+  $("insignia").textContent = t.tal_cual;
   $("hallazgos").replaceChildren();
   $("bloqueado").hidden = true;
   // Estado 2: NINGÚN contador. Una lista vacía se leería como "no se encontró
   // nada", y no se buscó nada.
   $("vacio").hidden = false;
-  $("vacio").textContent = "Sin contador: no se ha mirado.";
-  $("payload").textContent = "(no se hace ninguna llamada)";
+  $("vacio").textContent = t.sin_contador;
+  $("payload").textContent = t.sin_llamada2;
 }
 
 sw.addEventListener("click", () => {
@@ -132,11 +209,11 @@ sw.addEventListener("click", () => {
   if (!redaccion) pintarApagado();
   else {
     $("tarjeta-frontera").classList.remove("is-off");
-    $("switch-label").textContent = "Redacción activa";
+    $("switch-label").textContent = t.redaccion_on;
     $("insignia").className = "insignia insignia-ok";
-    $("insignia").textContent = "sin medir";
+    $("insignia").textContent = t.sin_medir;
     $("vacio").hidden = true;
-    $("payload").textContent = "(sin llamada todavía)";
+    $("payload").textContent = t.sin_llamada;
   }
 });
 
@@ -156,7 +233,7 @@ $("probar").addEventListener("click", async () => {
       filtroCaido = true;
       $("tarjeta-frontera").classList.add("is-blocked");
       $("insignia").className = "insignia insignia-stop";
-      $("insignia").textContent = "envío bloqueado";
+      $("insignia").textContent = t.bloqueado;
       $("hallazgos").replaceChildren();
       $("vacio").hidden = true;
       $("bloqueado").hidden = false;
@@ -187,11 +264,11 @@ $("probar").addEventListener("click", async () => {
     // del servidor. Asi esta linea no puede volverse un numero por accidente.
     if (hallazgos[0]) {                      // Estado 1
       $("insignia").className = "insignia insignia-ok";
-      $("insignia").textContent = "con hallazgos";
+      $("insignia").textContent = t.con_hallazgos;
       $("vacio").hidden = true;
     } else {                                 // Estado 3 · declarado, no en blanco
       $("insignia").className = "insignia insignia-ok";
-      $("insignia").textContent = "nada redactado";
+      $("insignia").textContent = t.nada_redactado;
       $("vacio").hidden = false;
       $("vacio").textContent =
         "Nada redactado — el texto ya estaba limpio. Declarado, no en blanco.";
@@ -199,7 +276,7 @@ $("probar").addEventListener("click", async () => {
     $("bloqueado").hidden = true;
     $("probar").disabled = false;
   } catch {
-    $("payload").textContent = "(la llamada no llegó)";
+    $("payload").textContent = t.no_llego;
     $("probar").disabled = false;
   }
 });
@@ -238,7 +315,7 @@ async function cargarCuaderno() {
       ul.appendChild(li);
     }
   } catch {
-    $("recuento").textContent = "no alcanzo al servidor";
+    $("recuento").textContent = t.sin_servidor;
   }
 }
 
@@ -257,4 +334,6 @@ async function marcar(id, consent) {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
-estado();
+// El idioma primero: si `estado()` pinta antes, la barra sale en castellano y
+// cambia sola medio segundo despues, que se ve peor que tardar medio segundo.
+fijarIdioma().then(estado);

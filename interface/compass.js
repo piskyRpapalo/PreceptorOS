@@ -46,6 +46,30 @@
     } catch (e) { return null; }
   }
 
+  // La rosa habla el idioma que declara la memoria, como el resto del producto.
+  // Estaba en castellano fijo: media promesa bilingue cumplida se nota mas que
+  // ninguna.
+  var textos = {
+    es: { rangos: ["Sin templar", "Bronce", "Plata", "Oro", "Fuego"],
+          camino: "Camino", detalle: "Detalle", titulo: "Brújula de aprendizaje",
+          sinRed: function (m) { return "sin conexión · dato de hace " + m + " min"; },
+          sinDato: "sin dato" },
+    en: { rangos: ["Untempered", "Bronze", "Silver", "Gold", "Fire"],
+          camino: "The Path", detalle: "Detail", titulo: "Learning compass",
+          sinRed: function (m) { return "offline · data from " + m + " min ago"; },
+          sinDato: "no data" }
+  };
+  var t = textos.es;
+
+  function idioma(d) {
+    t = textos[d && d.idioma === "en" ? "en" : "es"];
+    var b = $("compass-modo-camino"), e = $("compass-modo-detalle");
+    if (b) b.textContent = t.camino;
+    if (e) e.textContent = t.detalle;
+    var titulo = $("compass-titulo");
+    if (titulo) titulo.textContent = t.titulo;
+  }
+
   function claseEstado(p) {
     if (p.estado === "no_medible") return "no_medible";
     if (p.estado === "completado") return "completado";
@@ -53,7 +77,25 @@
     return "bloqueado";
   }
 
+  // El rango sale de la media real de los peldanos, nunca de un contador
+  // aparte: no se puede subir de color sin haber subido de verdad.
+  function rango(d) {
+    var m = d["peldaños"] || d.peldanos || {};
+    var ks = Object.keys(m);
+    if (!ks.length) return 0;
+    var suma = 0;
+    for (var i = 0; i < ks.length; i++) suma += m[ks[i]].valor || 0;
+    var media = suma / ks.length;
+    return media >= 0.85 ? 4 : media >= 0.6 ? 3 : media >= 0.35 ? 2 : media > 0.08 ? 1 : 0;
+  }
+
   function pintar(d, edadSegundos) {
+    idioma(d);
+    // El dato primero, la decoracion despues y aparte. Antes el rotulo del
+    // rango se pintaba antes que los sectores, asi que una excepcion en algo
+    // ornamental dejaba la rosa entera sin estados -- y el `catch` de mas
+    // abajo se la tragaba. Una brujula que pierde el dato por un adorno es
+    // exactamente lo que este producto dice no hacer.
     var claves = Object.keys(d["peldaños"] || d.peldanos || {});
     var mapa = d["peldaños"] || d.peldanos || {};
 
@@ -65,7 +107,7 @@
         (d.activo === "M" + i ? " activo" : ""));
       el.setAttribute("aria-label", "M" + i + " " +
         (p ? p.nombre + ", " + p.estado + ", " + Math.round(p.valor * 100) + "%"
-           : "sin dato"));
+           : t.sinDato));
     }
 
     var anillo = $("anillo-detalle");
@@ -111,8 +153,8 @@
       var svis = Math.max(0, Math.min(1, ind.estabilidad || 0));
       ticks.innerHTML = "";
       var n = Math.round(svis * 8);
-      for (var t = 0; t < n; t++) {
-        var a = (t / 8) * 2 * Math.PI - Math.PI / 2;
+      for (var k = 0; k < n; k++) {
+        var a = (k / 8) * 2 * Math.PI - Math.PI / 2;
         var l = document.createElementNS("http://www.w3.org/2000/svg", "line");
         l.setAttribute("x1", (100 + 22 * Math.cos(a)).toFixed(2));
         l.setAttribute("y1", (100 + 22 * Math.sin(a)).toFixed(2));
@@ -128,6 +170,16 @@
         ? "" : "~" + Math.max(1, Math.round(d.eta_segundos / 86400)) + " d";
     }
 
+    // --- lo ornamental, cada pieza en su propia jaula ---------------------
+    try {
+      var r = rango(d);
+      var cont = $("compass-container");
+      if (cont) cont.className = "rango-" + r;
+      var rot = $("compass-rango");
+      var nombres = (t && t.rangos) || [];
+      if (rot) rot.textContent = nombres[r] || "";
+    } catch (e) { if (console && console.error) console.error("[compass] rango:", e); }
+
     var aviso = $("compass-aviso");
     if (aviso) {
       if (edadSegundos === 0) {
@@ -135,7 +187,7 @@
         aviso.className = "";
       } else {
         var min = Math.round(edadSegundos / 60);
-        aviso.textContent = "sin conexión · dato de hace " + min + " min";
+        aviso.textContent = t.sinRed(min);
         aviso.className = edadSegundos > antiguoS ? "antiguo"
           : (edadSegundos > viejoS ? "viejo" : "");
       }
@@ -149,9 +201,19 @@
         return r.json();
       })
       .then(function (d) { guardar(d); pintar(d, 0); })
-      .catch(function () {
+      .catch(function (e) {
+        // Se distingue «no llego la red» de «el widget reviento pintando». Antes
+        // los dos caian en el mismo catch y una excepcion de codigo se disfrazaba
+        // de fallo de conexion: el peor sitio donde esconder un error es el
+        // manejador del error.
+        if (e && e.name === "TypeError" && console && console.error) {
+          console.error("[compass] fallo pintando:", e);
+        }
         var c = recuperar();
-        if (c && c.datos) pintar(c.datos, Math.round((Date.now() - c.t) / 1000));
+        if (c && c.datos) {
+          try { pintar(c.datos, Math.round((Date.now() - c.t) / 1000)); }
+          catch (e2) { if (console && console.error) console.error("[compass]", e2); }
+        }
       });
   }
 
@@ -169,7 +231,7 @@
     var b0 = $("compass-modo-camino"), d0 = $("compass-modo-detalle");
     if (b0) b0.setAttribute("aria-pressed", String(modo === "camino"));
     if (d0) d0.setAttribute("aria-pressed", String(modo === "detalle"));
-    fetch("/assets/compass.svg")
+    fetch("/assets/compass.svg?v=34")
       .then(function (r) { return r.text(); })
       .then(function (svg) {
         var hueco = $("compass-svg-hueco");

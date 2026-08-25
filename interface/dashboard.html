@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/dashboard.css">
+<link rel="stylesheet" href="/compass.css?v=34">
 </head>
 <body>
 
@@ -131,6 +132,19 @@
   <button class="volver" type="button" data-volver>← Volver</button>
   <h2><span>El Camino</span></h2>
   <p class="nota" id="camino-intro"></p>
+
+  <!-- La brujula, en la puerta de entrada y no en una cara aparte: es donde
+       alguien mira cuando se pregunta por donde va. -->
+  <div id="compass-container">
+    <div id="compass-svg-hueco"></div>
+    <p id="compass-rango"></p>
+      <p id="compass-aviso" role="status" aria-live="polite"></p>
+    <div id="compass-controles">
+      <button type="button" id="compass-modo-camino" aria-pressed="true">The Path</button>
+      <button type="button" id="compass-modo-detalle" aria-pressed="false">Detail</button>
+    </div>
+  </div>
+
   <ul class="camino" id="camino"></ul>
 </section>
 
@@ -175,5 +189,6 @@
 </section>
 
 <script src="/dashboard.js"></script>
+<script src="/compass.js?v=34"></script>
 </body>
 </html>
