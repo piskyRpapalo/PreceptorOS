@@ -15,6 +15,7 @@ docs/*
 !docs/COMPASS.md
 !docs/compass_transfers.json
 !docs/compass_transfers_detalle.json
+!docs/ANALISIS_DOCTRINAL_v1_2.md
 # Las capturas del producto SI viajan: son la prueba visual del README, y
 # un README que describe una brujula sin ensenarla pide fe en vez de dar dato.
 !docs/screenshots/
