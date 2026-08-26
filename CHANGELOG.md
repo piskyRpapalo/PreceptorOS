@@ -3,6 +3,39 @@
 Every number here was measured on the machine that produced it. Where something
 was not measured, it says so.
 
+## v1.3 · 2026-08-26 · capas de soberanía y kill switch
+
+🇪🇸 **El producto arranca en el nivel 0 y no se sube solo.** Cuatro niveles —
+Santuario, Arnés, Expansión, Ecosistema— y un interruptor que los gobierna. Un
+nivel por encima del 0 existe porque alguien lo firmó; retirada la firma, o
+ilegible el nivel, el sistema **cae al 0 de golpe**, no de nivel en nivel.
+
+🇬🇧 **The product ships at level 0 and never raises itself.** Four levels —
+Sanctuary, Harness, Expansion, Ecosystem— and one switch that governs them. A
+level above 0 exists only because a person signed it; withdraw the signature, or
+fail to read the level, and the system **collapses to 0 at once**, not one step
+at a time.
+
+- **El 0 es el suelo ante cualquier duda** / *0 is the floor on any doubt*: sin
+  fichero, json roto, disco mudo, nivel fuera de rango, nivel escrito como texto
+  o colado como booleano, capacidad que nadie declaró. Todos terminan en 0, y
+  ninguno termina en una excepción.
+- **El colapso falla cerrado y callado** / *the collapse fails closed and
+  quietly*: sin errores de red visibles, sin datos a medio escribir, sin
+  funciones girando. Lo que dependía de un nivel superior declara su ausencia
+  con `NO_DATA` y su causa; el resto sigue funcionando.
+- **Dos formas de forzar el santuario sin pasar por la interfaz** / *two ways to
+  force sanctuary without the interface*: un fichero vacío `MODO_SANTUARIO` al
+  lado del estado, o el argumento `--santuario`. Cualquiera de los dos manda
+  sobre lo declarado, y no lo reescribe.
+- **El nivel es de la máquina, no de la persona** / *the level belongs to the
+  machine*: vive en `estado.json` como entero 0..3, jamás en tu memoria.
+- **Nada se sube el nivel a sí mismo** / *nothing raises itself*: el código puede
+  bajarlo; subirlo lo firma una persona.
+- Doctrina: [docs/SOBERANIA.md](docs/SOBERANIA.md) ·
+  [docs/CANON_NIVELES.md](docs/CANON_NIVELES.md). Mecanismo: `soberania.py`,
+  `estado.py`. Pruebas: 526/526 · 36 suites.
+
 ## v1.2 · 2026-08-26 · el temario emergente
 
 🇪🇸 **La doctrina pasa de reactiva a emergente.** Hasta v1.1 la regla era *«nunca
