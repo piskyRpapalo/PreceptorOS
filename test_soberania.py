@@ -275,5 +275,79 @@ class FalloCerrado(unittest.TestCase):
                              f"el guardian no puede depender de {prohibido}")
 
 
+class ElDecoradorFallaCerrado(unittest.TestCase):
+    """El guardian de arriba, atacado por donde los otros casos no llegan.
+
+    Los casos 11 y 12 mienten en `obtener_nivel`, asi que prueban el decorador
+    pero saltan por encima de la logica que decide el nivel. Estos mienten un
+    piso mas abajo -- en `estado` -- y dejan correr al guardian entero.
+    """
+
+    def test_27_capacidad_por_encima_del_nivel_declarado_da_no_data(self):
+        llamadas = []
+
+        @S.exige("hardware_local")                      # pide 3
+        def tocar_un_aparato():
+            llamadas.append(1)
+            return "aparato"
+
+        with mock.patch.object(E, "nivel", return_value=2), \
+             mock.patch.object(E, "santuario_forzado", return_value=False):
+            self.assertEqual(tocar_un_aparato(), S.NO_DATA)
+        self.assertEqual(llamadas, [])
+
+    def test_28_la_misma_capacidad_en_su_nivel_exacto_si_corre(self):
+        @S.exige("hardware_local")
+        def tocar_un_aparato():
+            return "aparato"
+
+        with mock.patch.object(E, "nivel", return_value=3), \
+             mock.patch.object(E, "santuario_forzado", return_value=False):
+            self.assertEqual(tocar_un_aparato(), "aparato")
+
+    def test_29_el_centinela_apaga_en_caliente_algo_ya_concedido(self):
+        """Concedido no es para siempre: el corte se nota en la siguiente llamada."""
+        @S.exige("recursos_externos")
+        def salir_fuera():
+            return "fuera"
+
+        with mock.patch.object(E, "nivel", return_value=3):
+            with mock.patch.object(E, "santuario_forzado", return_value=False):
+                self.assertEqual(salir_fuera(), "fuera")
+            with mock.patch.object(E, "santuario_forzado", return_value=True):
+                self.assertEqual(salir_fuera(), S.NO_DATA)
+
+    def test_30_el_hueco_puede_declararse_con_otra_cosa_que_no_sea_no_data(self):
+        @S.exige("recursos_externos", si_no=[])
+        def traer_una_lista():
+            return ["algo"]
+
+        with mock.patch.object(S, "obtener_nivel", return_value=S.SANTUARIO):
+            self.assertEqual(traer_una_lista(), [])
+
+    def test_31_el_decorador_no_borra_la_funcion_que_envuelve(self):
+        @S.exige("inferencia_local")
+        def pensar_aqui():
+            """Docstring que tiene que sobrevivir."""
+            return "pensado"
+
+        self.assertEqual(pensar_aqui.__name__, "pensar_aqui")
+        self.assertIn("sobrevivir", pensar_aqui.__doc__)
+        self.assertEqual(pensar_aqui.capacidad, "inferencia_local")
+
+    def test_32_un_estado_que_revienta_no_deja_correr_la_funcion(self):
+        llamadas = []
+
+        @S.exige("inferencia_local")
+        def pensar_aqui():
+            llamadas.append(1)
+            return "pensado"
+
+        with mock.patch.object(E, "santuario_forzado",
+                               side_effect=RuntimeError("estado roto")):
+            self.assertEqual(pensar_aqui(), S.NO_DATA)
+        self.assertEqual(llamadas, [], "un fallo del estado no puede abrir la puerta")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
