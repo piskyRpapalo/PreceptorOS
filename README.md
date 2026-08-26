@@ -18,7 +18,7 @@
 <img src="https://img.shields.io/badge/Python-3.10%2B-2F6B4F?style=flat" alt="Python 3.10 or newer">
 <img src="https://img.shields.io/badge/dependencies-standard%20library%20only-A9762B?style=flat" alt="Dependencies: standard library only">
 <img src="https://img.shields.io/badge/storage-one%20local%20file-2F6B4F?style=flat" alt="Storage: one local file">
-<img src="https://img.shields.io/badge/tests-479%2F479%20%C2%B7%2035%20suites-2F6B4F?style=flat" alt="Tests: 479 of 479 passing across 35 suites">
+<img src="https://img.shields.io/badge/tests-520%2F520%20%C2%B7%2036%20suites-2F6B4F?style=flat" alt="Tests: 520 of 520 passing across 36 suites">
 <img src="https://img.shields.io/badge/code-Apache--2.0-57534E?style=flat" alt="Code licence: Apache-2.0">
 
 </div>
