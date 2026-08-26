@@ -90,7 +90,7 @@ TEXTOS = {
         "charla_donde": "You are at {peldano}. {prueba}",
         "charla_decision": (
             "The core is done. From here you choose: go straight to your own\n"
-            "project, or take an optional stop. Both are the path.\n"),
+            "project, or reach an optional milestone. Both are the path.\n"),
         "charla_como_salir": "(empty line to leave; nothing is lost)",
         "charla_bloqueado": (
             "I stopped that: it had the shape of something that burns. The\n"
@@ -261,7 +261,7 @@ TEXTOS = {
         "charla_donde": "Estás en {peldano}. {prueba}",
         "charla_decision": (
             "El núcleo está hecho. A partir de aquí eliges: ir directo a tu\n"
-            "proyecto, o hacer una parada opcional. Las dos son el camino.\n"),
+            "proyecto, o alcanzar un hito opcional. Las dos son el camino.\n"),
         "charla_como_salir": "(línea vacía para salir; no se pierde nada)",
         "charla_bloqueado": (
             "Eso lo he parado: tenía forma de algo que quema. La marca queda\n"

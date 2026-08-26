@@ -484,7 +484,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     --losa-900:#0b0f1a; --losa-800:#131926; --losa-700:#1c2433; --losa-600:#2b3547;
     --vena:#a78bfa; --vena-tenue:#6d5bd0;
     --texto:#e8eaf2; --tenue:#98a2b8; --tuyo:#212a3b;
-    --cobre:#A9762B;   /* las paradas opcionales: se tocan o se ignoran */
+    --cobre:#A9762B;   /* los hitos opcionales: se alcanzan o se ignoran */
   }
   * { box-sizing: border-box; }
   html, body { margin:0; height:100%; }

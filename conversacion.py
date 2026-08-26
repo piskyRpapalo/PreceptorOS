@@ -369,26 +369,50 @@ def _arquetipo(idioma):
     return bloques[0].strip()
 
 
+# v1.2 · DE «NUNCA PROPONGAS» A «ERES SU TEMARIO»
+#
+# La doctrina anterior era REACTIVA: narrar lo que acaba de pasar y devolver el
+# turno. Cumplia la promesa de no imponer un dominio, y de paso convertia al
+# producto en un espejo educado que nunca lleva a ningun sitio.
+#
+# La nueva es EMERGENTE, y la diferencia cabe en una linea: el temario **sale de
+# lo que la persona ya ha traido**, no de un catalogo. Lo que se gana es poder
+# decir «esto que trajiste conecta con aquello»; lo que NO cambia es que el
+# dominio sigue sin ser nuestro. Sugerir el siguiente paso desde su memoria y
+# traerle un tema de fuera son cosas distintas, y esta guia dice cual es cual.
+#
+# Y los peldanos pasan a ser HITOS, no paradas: una parada es un sitio donde te
+# detienes, un hito es una senal de que has avanzado. El Camino no se recorre
+# haciendo cola.
 GUIA = {
     "es": {
-        "nucleo": "Estás acompañando el núcleo. Pregunta una cosa cada vez.",
+        "nucleo": ("Estás acompañando el núcleo. Pregunta una cosa cada vez, y "
+                   "engancha lo que pregunte con lo que ya te haya contado."),
         "decision": ("El núcleo está hecho. Recuérdale que puede ir a su "
-                     "proyecto o hacer una parada opcional, y que las dos son "
-                     "el camino. No elijas por él."),
-        "side_quest": "Está en una parada opcional. Acompaña, no adelantes.",
-        "proyecto": ("Está construyendo lo suyo. NUNCA propongas el tema ni el "
-                     "dominio: no es tuyo. Narra lo que acaba de pasar y "
-                     "devuélvele el turno."),
+                     "proyecto o alcanzar un hito opcional, y que las dos son "
+                     "el camino. Puedes decirle cuál conecta mejor con lo que "
+                     "ya trajo; elegir sigue siendo suyo."),
+        "side_quest": ("Va hacia un hito opcional. Acompaña, no adelantes, y "
+                       "recuerda por qué le importaba a él."),
+        "proyecto": ("Eres su temario. Lo que sabes de él sale de lo que ya ha "
+                     "traído: conecta esas piezas y ofrécele el siguiente paso "
+                     "desde ahí. No traigas un dominio que no sea suyo ni le "
+                     "montes un programa que no ha pedido."),
     },
     "en": {
-        "nucleo": "You are walking the core with them. One question at a time.",
+        "nucleo": ("You are walking the core with them. One question at a time, "
+                   "and tie what they ask to what they have already told you."),
         "decision": ("The core is done. Remind them they can go to their own "
-                     "project or take an optional stop, and that both are the "
-                     "path. Do not choose for them."),
-        "side_quest": "They are on an optional stop. Keep pace; do not run ahead.",
-        "proyecto": ("They are building their own thing. NEVER propose the "
-                     "subject or the domain: it is not yours. Say what just "
-                     "happened and hand the turn back."),
+                     "project or reach an optional milestone, and that both are "
+                     "the path. You may say which one connects better with what "
+                     "they already brought; the choosing stays theirs."),
+        "side_quest": ("They are heading for an optional milestone. Keep pace, "
+                       "do not run ahead, and remember why it mattered to them."),
+        "proyecto": ("You are their syllabus. What you know of them comes from "
+                     "what they have already brought: connect those pieces and "
+                     "offer the next step from there. Do not bring in a domain "
+                     "that is not theirs, and do not lay out a programme they "
+                     "did not ask for."),
     },
 }
 

@@ -265,24 +265,63 @@ class TestBucle(unittest.TestCase):
                          "y el peldaño del cerebro sigue declarándose")
 
     # ------------------------------------------------------------------
-    # Rojo C-e: el game master no elige por la persona
+    # Rojo C-e (v1.2): el temario emerge de la persona, no del catálogo
     # ------------------------------------------------------------------
-    def test_rojo_ce_el_game_master_no_propone_dominio(self):
-        """La orden de no elegir tema tiene que estar en el prompt, literal."""
-        for idioma, marca in (("es", "NUNCA propongas"), ("en", "NEVER propose")):
+    def test_rojo_ce_el_game_master_es_el_temario(self):
+        """v1.2. La doctrina pasa de «nunca propongas» a «eres su temario».
+
+        Lo que cambia es de DÓNDE sale lo que se propone, no si se propone: del
+        recuerdo de la persona y nunca de un catálogo. Por eso la prueba mira
+        dos cosas a la vez — que la frase esté, y que ningún dominio concreto
+        asome. Sin la segunda mitad, «eres su temario» sería permiso para
+        traerle Python porque sí.
+        """
+        for idioma, marca in (("es", "Eres su temario"), ("en", "You are their syllabus")):
             sistema = C.prompt_sistema("proyecto", idioma)
             self.assertIn(marca, sistema,
-                          f"[{idioma}] el prompt del proyecto no prohíbe elegir tema")
-        # Y ningún dominio concreto asoma en las guías: ni música, ni código.
+                          f"[{idioma}] el prompt del proyecto no declara el temario emergente")
+
+        # La otra mitad, y la que impide que esto se lea como barra libre.
         for idioma in ("es", "en"):
             for f in C.FASES:
                 sistema = C.prompt_sistema(f, idioma).lower()
-                for dominio in ("música", "music", "trading", "javascript"):
+                for dominio in ("música", "music", "trading", "javascript",
+                                "python", "marketing", "ajedrez", "chess"):
                     self.assertNotIn(dominio, sistema,
-                                     f"[{idioma}/{f}] el prompt sugiere un dominio")
+                                     f"[{idioma}/{f}] la guía nombra un dominio concreto")
+
+    def test_rojo_ce_sin_memoria_no_se_inventa_un_temario(self):
+        """Memoria vacía: el prompt no puede traer de dónde conectar.
+
+        Es la prueba conductual del limite: «eres su temario» solo puede
+        ejercerse sobre lo que la persona ya trajo. Con la memoria a cero, la
+        guía sigue sin nombrar un solo dominio -- si lo nombrara, se lo estaría
+        inventando, que es exactamente lo que la doctrina nueva no permite.
+        """
+        with M.abrir(self.db) as c:
+            self.assertEqual(c.execute(
+                "select count(*) from engrams").fetchone()[0], 0)
+            for idioma in ("es", "en"):
+                sistema = C.prompt_sistema(C.fase(self._camino(c)), idioma)
+                for dominio in ("python", "music", "música", "trading"):
+                    self.assertNotIn(dominio, sistema.lower())
+
+    def test_rojo_ce_con_memoria_la_guia_manda_conectar(self):
+        """Con algo traído, la guía obliga a engancharlo. No es opcional."""
+        with M.abrir(self.db) as c:
+            M.escribir_engrama(c, what="arreglé el winche de proa",
+                               why="llevaba un mes atascado")
+            sistema_es = C.prompt_sistema("proyecto", "es")
+            sistema_en = C.prompt_sistema("proyecto", "en")
+        self.assertIn("conecta", sistema_es.lower(),
+                      "la guía no manda conectar lo que la persona trajo")
+        self.assertIn("connect", sistema_en.lower())
+        # Y el límite sigue escrito en la misma frase.
+        self.assertIn("no traigas un dominio que no sea suyo", sistema_es.lower())
+        self.assertIn("do not bring in a domain that is not theirs", sistema_en.lower())
 
     def test_rojo_ce_la_fase_sale_de_lo_medido(self):
-        """Núcleo, decisión, parada opcional y proyecto, derivados y no supuestos."""
+        """Núcleo, decisión, hito opcional y proyecto, derivados y no supuestos."""
         with M.abrir(self.db) as c:
             self.assertEqual(C.fase(self._camino(c)), "nucleo")
 

@@ -231,7 +231,7 @@
     var b0 = $("compass-modo-camino"), d0 = $("compass-modo-detalle");
     if (b0) b0.setAttribute("aria-pressed", String(modo === "camino"));
     if (d0) d0.setAttribute("aria-pressed", String(modo === "detalle"));
-    fetch("/assets/compass.svg?v=38")
+    fetch("/assets/compass.svg?v=39")
       .then(function (r) { return r.text(); })
       .then(function (svg) {
         var hueco = $("compass-svg-hueco");

@@ -3,6 +3,35 @@
 Every number here was measured on the machine that produced it. Where something
 was not measured, it says so.
 
+## v1.2 · 2026-08-26 · el temario emergente
+
+🇪🇸 **La doctrina pasa de reactiva a emergente.** Hasta v1.1 la regla era *«nunca
+propongas el tema ni el dominio»*: cumplía la promesa de no imponer nada, y
+convertía al producto en un espejo educado que no llevaba a ningún sitio. Desde
+v1.2 la regla es **«eres su temario»**, y el matiz es de dónde sale lo que se
+propone: **de lo que la persona ya trajo, jamás de un catálogo**.
+
+🇬🇧 **The doctrine goes from reactive to emergent.** Until v1.1 the rule was
+*"never propose the subject or the domain"*: it kept the promise and turned the
+product into a polite mirror that led nowhere. From v1.2 the rule is **"you are
+their syllabus"**, and the distinction is where the next step comes from —
+**from what the person already brought, never from a catalogue**.
+
+- **Lo que ahora se permite** / *What is now allowed*: conectar piezas que ya
+  están en tu memoria y ofrecer el siguiente paso desde ahí; decir cuál de dos
+  caminos engancha mejor con lo que contaste.
+- **Lo que sigue prohibido** / *What is still forbidden*: traer un dominio que
+  no nombraste, y desplegar un programa que no pediste. Los flujos
+  predefinidos siguen fuera.
+- **Los peldaños son hitos, no paradas** / *rungs are milestones, not stops*:
+  una parada es donde esperas; un hito es la señal de que te has movido.
+- **El micrófono del navegador, retirado.** Usaba el reconocedor de Chrome, que
+  manda la voz a Google, mientras el producto promete en cada turno que nada
+  sale de tu máquina. Se quitó en vez de envolverlo en un aviso. El dictado
+  local (whisper.cpp) es la vuelta, y aún no está cableado.
+- **Pruebas**: 481 en 35 suites. El corredor pasa a certificar el árbol entero;
+  antes dejaba 13 suites fuera y eso escondió dos roturas reales.
+
 ## v1.1 · 2026-08-25 · PreceptorOS
 
 El producto pasa a llamarse **PreceptorOS**; el personaje sigue siendo Aurelius.

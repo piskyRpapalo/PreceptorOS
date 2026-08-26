@@ -5,9 +5,9 @@
 
 # PreceptorOS
 
-🇬🇧 **It has no syllabus. It walks yours — one question at a time, and it never picks the subject.**
+🇬🇧 **It is your syllabus — the one that emerges from what you already brought, one question at a time. It never imports a subject that is not yours.**
 
-🇪🇸 **No tiene temario. Recorre el tuyo — una pregunta cada vez, y jamás elige el tema.**
+🇪🇸 **Es tu temario — el que emerge de lo que ya trajiste, una pregunta cada vez. Jamás importa un tema que no sea tuyo.**
 
 <sub>🇬🇧 Your memory is one file you can carry. It starts empty, and says so.<br>
 🇪🇸 Tu memoria es un fichero que puedes llevarte. Empieza vacía, y lo dice.</sub>
@@ -49,7 +49,7 @@ sigues sabiendo exactamente lo mismo que antes. PreceptorOS guarda lo que le
 cuentas porque necesita saber **dónde estás de verdad** — y desde ahí camina.
 La memoria es el suelo. El Camino es el asunto.
 
-### It does not choose your subject / No elige tu tema
+### It is your syllabus, not a catalogue / Es tu temario, no un catálogo
 
 🇬🇧 This is the rule the whole thing is built around, and it is written into
 what the model is told on every single turn:
@@ -57,31 +57,38 @@ what the model is told on every single turn:
 🇪🇸 Esta es la regla sobre la que está construido todo, y va escrita en lo que
 se le dice al modelo en cada turno:
 
-> 🇬🇧 *They are building their own thing. **Never propose the subject or the
-> domain: it is not yours.** Say what just happened and hand the turn back.*
+> 🇬🇧 *You are their syllabus. What you know of them comes from what they have
+> already brought: **connect those pieces and offer the next step from there.
+> Do not bring in a domain that is not theirs**, and do not lay out a programme
+> they did not ask for.*
 >
-> 🇪🇸 *Está construyendo lo suyo. **Nunca propongas el tema ni el dominio: no es
-> tuyo.** Narra lo que acaba de pasar y devuélvele el turno.*
+> 🇪🇸 *Eres su temario. Lo que sabes de él sale de lo que ya ha traído:
+> **conecta esas piezas y ofrécele el siguiente paso desde ahí. No traigas un
+> dominio que no sea suyo** ni le montes un programa que no ha pedido.*
 
-🇬🇧 So it has no course to sell you. You bring Python, and it walks Python with
-you: one question at a time, at your pace, starting from what you already said
-you knew — not from lesson one of a syllabus written for nobody. Bring boats,
-or bookkeeping, or your own language. The behaviour is the same, because the
-behaviour is not about the topic.
+🇬🇧 The difference is where the next step comes from, not whether there is one.
+Earlier versions never proposed anything: that kept the promise and turned the
+product into a polite mirror that led nowhere. Now it may say *"this connects
+with what you told me last week"* — because it read that in **your** memory, on
+**your** machine. What it still cannot do is hand you a subject you never
+mentioned, or unroll a course written for nobody.
 
-🇪🇸 Así que no tiene ningún curso que venderte. Traes Python, y recorre Python
-contigo: una pregunta cada vez, a tu ritmo, partiendo de lo que ya dijiste que
-sabías — no de la lección uno de un temario escrito para nadie. Trae barcos, o
-contabilidad, o tu propio idioma. El comportamiento es el mismo, porque el
-comportamiento no va del tema.
+🇪🇸 La diferencia está en de dónde sale el siguiente paso, no en si lo hay. Las
+versiones anteriores no proponían nada: eso cumplía la promesa y convertía al
+producto en un espejo educado que no llevaba a ningún sitio. Ahora puede decir
+*«esto conecta con lo que me contaste la semana pasada»* — porque lo leyó en
+**tu** memoria, en **tu** máquina. Lo que sigue sin poder hacer es traerte un
+tema que nunca nombraste, ni desplegarte un curso escrito para nadie.
 
 ### Eight rungs, and five of them are yours to skip / Ocho peldaños, y cinco puedes saltártelos
 
 🇬🇧 Three rungs are the core — everyone walks those. The other five are optional
-stops, taken one at a time and in any order. From the code that draws them:
+**milestones**, reached one at a time and in any order. A stop is somewhere you
+wait; a milestone is a sign that you moved. From the code that draws them:
 
 🇪🇸 Tres peldaños son el núcleo — esos los anda todo el mundo. Los otros cinco
-son paradas opcionales, de una en una y en cualquier orden. Del código que los
+son **hitos** opcionales, de uno en uno y en cualquier orden. Una parada es
+donde esperas; un hito es la señal de que te has movido. Del código que los
 dibuja:
 
 > 🇬🇧 *The core is everyone's. The rest you choose. **A path that forces you
