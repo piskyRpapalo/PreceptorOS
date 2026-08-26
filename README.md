@@ -434,6 +434,14 @@ and how to verify any of it yourself.
 las cifras medidas con la máquina que las produjo, las versiones de Python
 realmente probadas, y cómo comprobar cualquiera de ellas por tu cuenta.
 
+🇬🇧 **The switch:** [docs/SOBERANIA.md](docs/SOBERANIA.md) — the four levels, what
+each one may and may not do, and the two ways to force sanctuary without the
+interface.
+
+🇪🇸 **El interruptor:** [docs/SOBERANIA.md](docs/SOBERANIA.md) — los cuatro
+niveles, qué puede y qué no puede cada uno, y las dos formas de forzar el
+santuario sin pasar por la interfaz.
+
 ---
 
 ## Licence / Licencia
