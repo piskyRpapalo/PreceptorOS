@@ -9,13 +9,23 @@
  * verde hoja para lo que crece. Nada saturado -- la rosa se mira mucho rato.
  */
 
+/* Cada token prestado lleva respaldo, y no es cinturon y tirantes: la brujula
+   vive en DOS caras. `app.css` define `--acento`, `--halo-alto` y `--warn`;
+   `dashboard.css` no. Sin respaldo, esos `var()` quedan invalidos en el cajon
+   del Camino y los botones salen sin color -- que es exactamente como se veian
+   en el telefono. Con el respaldo puesto, la brujula toma la paleta de la casa
+   cuando la hay y se sostiene sola cuando no. */
 #compass-container {
   --oro:     #d9a441;   /* completado · el sol */
   --hoja:    #4f9d69;   /* en progreso · lo que crece */
-  --violeta: var(--acento);
-  --apagado: var(--line);
-  --hueco:   var(--ink-soft);
-  color: var(--ink-soft);
+  --violeta: var(--acento, #6d5ae0);
+  --apagado: var(--line, #dfe3ea);
+  --hueco:   var(--ink-soft, #5b6270);
+  --halo:    var(--halo-alto, #ddd6ff);
+  --aviso:   var(--warn, #8a5b00);
+  --alto:    var(--stop, #a3242b);
+  --hoja-papel: var(--paper, #ffffff);
+  color: var(--ink-soft, #5b6270);
   max-width: 330px;
   margin: 0 auto;
 }
@@ -70,7 +80,7 @@
 }
 #aguja.coherente   { stroke: var(--hoja); }
 #aguja.intermedia  { stroke: var(--oro); }
-#aguja.incoherente { stroke: var(--stop); }
+#aguja.incoherente { stroke: var(--alto); }
 /* Sin velocidad medible: gris y a trazos. No es «vas mal»; es «no se sabe». */
 #aguja.sin-medir   { stroke: var(--hueco); stroke-dasharray: 4 3; opacity: .7; }
 
@@ -81,7 +91,7 @@
 #nucleo.estancado { fill: var(--hueco); filter: none; }
 
 #ticks line { stroke: var(--oro); stroke-width: 1.6; opacity: .55; }
-#eta { font-family: Georgia, serif; font-size: 9px; fill: var(--ink-soft); }
+#eta { font-family: Georgia, serif; font-size: 9px; fill: var(--hueco); }
 
 #anillo-detalle.oculto { display: none; }
 .sector.detalle { stroke-width: .8; }
@@ -90,10 +100,10 @@
   font-size: .78rem;
   text-align: center;
   margin: .45rem 0 0;
-  color: var(--ink-soft);
+  color: var(--hueco);
 }
-#compass-aviso.viejo   { color: var(--warn); }
-#compass-aviso.antiguo { color: var(--stop); }
+#compass-aviso.viejo   { color: var(--aviso); }
+#compass-aviso.antiguo { color: var(--alto); }
 
 #compass-controles {
   display: flex; gap: .5rem; justify-content: center; margin-top: .55rem;
@@ -109,7 +119,7 @@
 }
 #compass-controles button[aria-pressed="true"] {
   background: var(--violeta);
-  color: var(--paper);
+  color: var(--hoja-papel);
 }
 
 @media (max-width: 360px) {
@@ -147,5 +157,5 @@
 
 #compass-rango {
   font-size: .72rem; text-align: center; letter-spacing: .08em;
-  text-transform: uppercase; margin: .35rem 0 0; color: var(--ink-soft);
+  text-transform: uppercase; margin: .35rem 0 0; color: var(--hueco);
 }

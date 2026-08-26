@@ -10,14 +10,14 @@
 // Medido en un telefono el 2026-08-22 -- se veia la interfaz anterior y el
 // servidor decia la verdad. **Al tocar cualquier fichero de esta lista, se
 // sube el numero.** Es lo unico que hace que una actualizacion llegue.
-const Cache = "aurelius-armazon-v34";
+const Cache = "aurelius-armazon-v35";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
                  // red no se dibuja ninguna rosa y el `catch` de compass.js se
                  // lo traga en silencio: la brujula desapareceria justo cuando
                  // el producto promete funcionar sin conexion.
-                 "/compass.css?v=35", "/compass.js?v=35", "/assets/compass.svg?v=35"];
+                 "/compass.css?v=36", "/compass.js?v=36", "/assets/compass.svg?v=36"];
 
 self.addEventListener("install", (e) => {
   // skipWaiting: sin esto, el service worker nuevo espera a que se cierren

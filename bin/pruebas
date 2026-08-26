@@ -147,7 +147,7 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           test_andamio test_borradores test_conversacion test_costura
           test_frontera test_hilos test_identidad test_narrador
           test_output_guard test_puente test_puerta test_recuperacion
-          test_traza)
+          test_traza test_version)
 PROPIAS=(cara idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done

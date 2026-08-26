@@ -175,6 +175,39 @@ class TestBucle(unittest.TestCase):
             self.assertTrue(C.ya_nos_conocemos(c),
                             "tras un cruce de frontera, ya os conoceis")
 
+    def test_f1_memoria_fresca_se_presenta_y_al_siguiente_turno_no(self):
+        """El caso NOVATO, sin modelo y con memoria nueva.
+
+        Es el unico sitio donde se puede probar: el telefono del laboratorio ya
+        tiene 26 cruces de frontera, asi que una navegacion real nunca volvera a
+        ver un primer turno. Aqui la memoria nace vacia en una carpeta temporal.
+
+        Se captura el prompt que recibe el motor en vez de mirar la respuesta:
+        la respuesta la escribe un modelo y seria distinta cada vez; el prompt lo
+        escribimos nosotros y es lo que de verdad estamos probando.
+        """
+        vistos = []
+
+        def motor_espia(prompt):
+            vistos.append(prompt)
+            return "de acuerdo"
+
+        with M.abrir(self.db) as c:
+            camino = self._camino(c)
+            C.turno(c, "hola", camino, motor=motor_espia, idioma="en")
+            self.assertIn(C.PRIMER_ENCUENTRO["en"], vistos[0],
+                          "memoria nueva: el primer turno lleva la presentacion")
+            self.assertNotIn(C.YA_NOS_CONOCEMOS["en"], vistos[0])
+
+            # El primer turno ya cruzo la frontera: a partir de aqui os conoceis.
+            camino = self._camino(c)
+            C.turno(c, "y ahora?", camino, motor=motor_espia, idioma="en")
+            self.assertIn(C.YA_NOS_CONOCEMOS["en"], vistos[1],
+                          "segundo turno: la presentacion se apaga sola")
+            self.assertNotIn(C.PRIMER_ENCUENTRO["en"], vistos[1])
+            self.assertNotIn("call me Preceptor", vistos[1],
+                             "el guion no puede colarse por el arquetipo")
+
     def test_rojo_cc_la_respuesta_cruza_la_puerta(self):
         """Queda huella con su canal, y el output-guard mira antes de dejar pasar."""
         with M.abrir(self.db) as c:

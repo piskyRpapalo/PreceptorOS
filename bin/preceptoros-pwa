@@ -46,6 +46,7 @@ import proyectos as PR                                         # noqa: E402
 import conversacion as _charla                              # noqa: E402
 import cara as _cara                                        # noqa: E402
 import casa as _casa
+import version as _version
 import voz as _voz                                        # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
@@ -184,6 +185,11 @@ class PWA(BaseHTTPRequestHandler):
                           and os.path.isfile(self.server.modelo)),
             "captura_activa": C.activa(perfil),
             "turnos": cuenta,
+            # La huella del armazon que sirve esta copia. Existe para poder
+            # comparar dos instalaciones: el telefono guarda la cara en el
+            # service worker y puede seguir ensenando la de anteayer sin que
+            # nadie lo note -- todo funciona, y los dos creen mirar lo mismo.
+            "version": _version.version(),
         })
 
     # 100.64.0.0/10 es el rango que usa Tailscale. Se comprueba por prefijo y no

@@ -18,7 +18,7 @@
 <img src="https://img.shields.io/badge/Python-3.10%2B-2F6B4F?style=flat" alt="Python 3.10 or newer">
 <img src="https://img.shields.io/badge/dependencies-standard%20library%20only-A9762B?style=flat" alt="Dependencies: standard library only">
 <img src="https://img.shields.io/badge/storage-one%20local%20file-2F6B4F?style=flat" alt="Storage: one local file">
-<img src="https://img.shields.io/badge/tests-356%2F356-2F6B4F?style=flat" alt="Tests: 356 of 356 passing">
+<img src="https://img.shields.io/badge/tests-479%2F479%20%C2%B7%2035%20suites-2F6B4F?style=flat" alt="Tests: 479 of 479 passing across 35 suites">
 <img src="https://img.shields.io/badge/code-Apache--2.0-57534E?style=flat" alt="Code licence: Apache-2.0">
 
 </div>
@@ -178,7 +178,8 @@ dice exactamente lo mismo.
 
 <sub>🇬🇧 Captured on a DOOGEE Tank 3 over a private tailnet, Chrome for Android.
 Every number on screen is measured from the memory on that machine — nothing here
-is a mockup.<br>
+is a mockup. The compass and the memory panel were captured on a DOOGEE S110;
+the conversation on a Tank 3.<br>
 🇪🇸 Capturado en un DOOGEE Tank 3 por tailnet privada, Chrome de Android. Cada
 número de la pantalla sale de la memoria de esa máquina: aquí no hay maqueta.</sub>
 
@@ -186,6 +187,7 @@ número de la pantalla sale de la memoria de esa máquina: aquí no hay maqueta.
 |---|---|
 | <img src="docs/screenshots/03_brujula_camino.png" width="230"> | 🇬🇧 **The learning compass**, mode *The Path*: eight rungs, each with its own state. Gold is done, emerald is growing, violet is where the field pushes now, and the **hatched** sector is a rung that cannot be measured — declared, never painted as zero. The rank (*Bronze*) is the measured mean, not a score you are given.<br>🇪🇸 **La brújula**, modo *Camino*. El sector rayado es un peldaño que no se puede medir: declarado, nunca pintado como cero. |
 | <img src="docs/screenshots/04_brujula_detalle.png" width="230"> | 🇬🇧 **Mode *Detail***: the same eight rungs plus four dimensions of your own — topics, projects, profile, pace. Two of them are hatched here because a fresh memory has nothing to measure yet.<br>🇪🇸 **Modo *Detalle***: los ocho peldaños más cuatro dimensiones tuyas. |
+| <img src="docs/screenshots/06_memoria_en.png" width="230"> | 🇬🇧 **Your memory**, in the language your profile declares. The product ships bilingual and now proves it: two guards in the test suite fail the build if any face carries text with no way to translate it, or if the two dictionaries stop having the same keys.<br>🇪🇸 **Tu memoria**, en el idioma que declara tu perfil. |
 | <img src="docs/screenshots/05_conversacion.png" width="230"> | 🇬🇧 **A turn.** Asked what it is, it answers *"You can call me Preceptor. I am a presence that walks with you through what you already know. I don't explain—I show."* Four seconds, on a phone, with no network beyond the private tailnet.<br>🇪🇸 **Un turno.** Cuatro segundos, en un teléfono. |
 
 ## What it does NOT do / Qué NO hace
