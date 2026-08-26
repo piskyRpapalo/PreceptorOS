@@ -201,6 +201,12 @@ número de la pantalla sale de la memoria de esa máquina: aquí no hay maqueta.
 - **It does not redact what you store.** Your machine, your data, your words.
   Redaction happens at the border, when something is about to *leave*.
 - **It does not need the network, a GPU, or anything beyond Python 3.**
+- **It does not listen.** The web face used to offer dictation through the
+  browser's recogniser, which on Chrome ships your voice to Google. That broke
+  the one promise the product makes on every turn, so it was removed on
+  2026-08-26 rather than wrapped in a warning — a warning leaves the leak in
+  place and hands the decision to whoever knows least. Local dictation
+  (whisper.cpp, already on disk) is the way back, and it is not wired yet.
 - **It does not talk without a brain installed.** Without one it asks and
   remembers, but it does not converse — and it tells you so instead of
   pretending.
@@ -214,6 +220,12 @@ número de la pantalla sale de la memoria de esa máquina: aquí no hay maqueta.
 - **No redacta lo que guardas.** Tu máquina, tus datos, tus palabras. La
   redacción ocurre en la frontera, cuando algo está a punto de *salir*.
 - **No necesita red, ni GPU, ni nada más allá de Python 3.**
+- **No escucha.** La cara web ofrecía dictado con el reconocedor del navegador,
+  que en Chrome manda tu voz a Google. Eso rompía la única promesa que el
+  producto hace en cada turno, así que se retiró el 2026-08-26 en vez de
+  envolverlo en un aviso — un aviso deja la fuga puesta y le pasa la decisión a
+  quien menos sabe. El dictado local (whisper.cpp, ya en disco) es la vuelta, y
+  todavía no está cableado.
 - **No conversa sin un cerebro instalado.** Sin él pregunta y recuerda, pero no
   conversa — y te lo dice en vez de disimular.
 

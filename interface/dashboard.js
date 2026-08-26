@@ -22,6 +22,7 @@ const T = {
     tarde: "tardó más de la cuenta. Prueba con algo más corto.",
     fallo: "no pude responder ahora mismo.",
     sin_red: "no alcancé al servidor.",
+    voz_local_no: "el dictado todavía no es local, así que no lo hay. Escribe y ya está: lo que escribes no sale de esta máquina, y lo que decías por el micrófono del navegador sí salía.",
     sin_micro: "no me diste permiso para el micrófono.",
     sin_oir: "no te oí bien. Prueba a escribirlo.",
     hablar: "Hablar", escribir: "Escribir",
@@ -65,6 +66,7 @@ const T = {
     tarde: "it took too long. Try something shorter.",
     fallo: "I could not answer just now.",
     sin_red: "I could not reach the server.",
+    voz_local_no: "local dictation is not wired yet, so there is none. Write instead: what you type never leaves this machine, and what you said through the browser microphone did.",
     sin_micro: "you did not give me microphone permission.",
     sin_oir: "I did not hear you. Try writing it.",
     hablar: "Talk", escribir: "Write",
@@ -151,9 +153,12 @@ document.querySelectorAll(".cajon").forEach((c) => {
  * escribia su cadena. Cuatro sitios que dicen lo mismo son cuatro sitios donde
  * se puede quedar uno sin traducir. */
 function rotulo() {
-  const hay = window.SpeechRecognition || window.webkitSpeechRecognition;
+  // Ya no se pregunta al navegador si sabe escuchar: aunque sepa, no se usa.
+  // El rotulo dice «Escribir» siempre, porque es lo que el boton hace. Un
+  // rotulo que promete escuchar y lleva a un campo de texto es peor que uno
+  // honesto y aburrido.
   const r = $("rotulo-hablar");
-  if (r) r.textContent = hablando ? t("escuchando") : (hay ? t("hablar") : t("escribir"));
+  if (r) r.textContent = t("escribir");
 }
 
 async function pulso() {
@@ -330,41 +335,38 @@ $("escribir").addEventListener("submit", (e) => {
 });
 
 /* --- voz --------------------------------------------------------------- */
-/* Reconocimiento del navegador. Se comprueba que existe antes de ofrecerlo:
- * un boton "Hablar" que no escucha es peor que un boton que no esta. */
-const Reconocedor = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!Reconocedor) {
-  rotulo();
-  $("hablar").addEventListener("click", () => $("dicho").focus());
-} else {
-  const oido = new Reconocedor();
-  oido.lang = idioma === "en" ? "en-US" : "es-ES";
-  oido.interimResults = false;
-  oido.maxAlternatives = 1;
+/* El reconocedor del navegador se retiro el 2026-08-26, y el motivo importa.
+ *
+ * `webkitSpeechRecognition` no transcribe en tu maquina: Chrome manda el audio
+ * a servidores de Google. Este producto promete, en el caracter que se envia en
+ * cada turno, «nothing said here leaves this machine» -- y esa promesa era
+ * cierta para lo que se escribe y falsa para lo que se dice. Ofrecer el boton
+ * sin decirlo era vender una cosa y entregar otra.
+ *
+ * No se sustituye por un aviso: un aviso deja la fuga puesta y le pasa la
+ * decision a quien menos informacion tiene. Se quita.
+ *
+ * Lo que falta para que vuelva, escrito para que no se olvide: `oido.py` ya
+ * envuelve whisper.cpp y en este nodo responde `oido_disponible() -> True`. Le
+ * falta un canal para subir el audio, y crear endpoints esta congelado hasta
+ * que lo firme el carbono. El dictado local es la condicion de despertar de
+ * este bloque; el de Google no vuelve.
+ */
+$("hablar").addEventListener("click", () => {
+  if (!avisoVozVisto()) {
+    linea(t("voz_local_no"), "malo");
+    guardarAvisoVoz();
+  }
+  $("dicho").focus();
+});
 
-  $("hablar").addEventListener("click", () => {
-    if (hablando) { oido.stop(); return; }
-    try { oido.start(); } catch { /* ya estaba */ }
-  });
-  oido.addEventListener("start", () => {
-    hablando = true;
-    $("hablar").classList.add("escuchando");
-    rotulo();
-  });
-  oido.addEventListener("end", () => {
-    hablando = false;
-    $("hablar").classList.remove("escuchando");
-    rotulo();
-  });
-  oido.addEventListener("result", (e) => {
-    const dicho = e.results[0][0].transcript;
-    $("dicho").value = dicho;
-    turno(dicho);
-  });
-  oido.addEventListener("error", (e) => {
-    // Se dice cual fallo. "No se pudo" manda a mirar donde no es.
-    linea(e.error === "not-allowed" ? t("sin_micro") : t("sin_oir"), "malo");
-  });
+function avisoVozVisto() {
+  try { return localStorage.getItem("preceptoros.voz-avisada") === "si"; }
+  catch { return false; }
+}
+function guardarAvisoVoz() {
+  try { localStorage.setItem("preceptoros.voz-avisada", "si"); }
+  catch { /* modo privado: se avisa cada vez, que es lo seguro */ }
 }
 
 /* La primera carga sube 2-3 GB de disco a memoria. Se avisa UNA vez por

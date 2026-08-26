@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""oido.py · El oído de Aurelius.
+"""oido.py · El oído de PreceptorOS.
 
 Encapsula whisper.cpp para transcribir audio local. Sin red.
 
 Doctrina:
-- Si whisper-cli no existe o falla, oido.py devuelve None y Aurelius
+- Si whisper-cli no existe o falla, oido.py devuelve None y PreceptorOS
   pide al usuario que escriba. Nunca bloquea la misión.
 - El modelo tiny es el default (75MB). El usuario puede elegir base/small
   para mejor precisión.
