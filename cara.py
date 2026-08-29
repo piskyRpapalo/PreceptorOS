@@ -56,7 +56,7 @@ CLAVES_CARA = (
 # de la Pizarra, los peldanos del Camino. Viven aqui porque son de la cara.
 CARA_TEXTOS = {
     "en": {
-        "titulo": "Aurelius",
+        "titulo": "Preceptor",
         "sub": "the Water · your memory, on your machine",
         "saludo": "I am awake. Nothing here left this machine.",
         "saludo_vuelta": "I am awake, and I still have what you wrote.",
@@ -114,7 +114,7 @@ CARA_TEXTOS = {
                          "regenerate it — it reads your memory and your seal as they are now:"),
     },
     "es": {
-        "titulo": "Aurelius",
+        "titulo": "Preceptor",
         "sub": "el Agua · tu memoria, en tu máquina",
         "saludo": "Estoy despierto. Nada de esto ha salido de esta máquina.",
         "saludo_vuelta": "Estoy despierto, y sigo teniendo lo que escribiste.",
@@ -476,7 +476,7 @@ PLANTILLA = r"""<!DOCTYPE html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <meta name="aurelius:audio" content="__N_AUDIO__" />
-<title>Aurelius</title>
+<title>Preceptor</title>
 <style>
   /* Losa y vena: gris pizarra de fondo, violeta para lo que responde al dedo.
      Dos colores y sus sombras. Una paleta corta se lee de un vistazo. */
@@ -586,8 +586,8 @@ PLANTILLA = r"""<!DOCTYPE html>
 </head>
 <body>
 <header>
-  <div class="marco"><div id="busto" class="sprite" role="img" aria-label="Aurelius"></div></div>
-  <div class="titulo"><h1 id="t-titulo">Aurelius</h1><span class="sub" id="t-sub"></span></div>
+  <div class="marco"><div id="busto" class="sprite" role="img" aria-label="Preceptor"></div></div>
+  <div class="titulo"><h1 id="t-titulo">Preceptor</h1><span class="sub" id="t-sub"></span></div>
   <div class="huecos"></div>
   <select id="lang" aria-label="Language"><option value="en">EN</option><option value="es">ES</option></select>
   <button type="button" class="boton" id="b-voz" aria-pressed="false"
@@ -1131,7 +1131,7 @@ __JS_PUENTE__
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Aurelius M2 · the face")
+    ap = argparse.ArgumentParser(description="Preceptor M2 · the face")
     ap.add_argument("--db", default=RUTA_DEFECTO)
     ap.add_argument("--out", default=SALIDA_DEFECTO)
     ap.add_argument("--aplicar", metavar="FILE",

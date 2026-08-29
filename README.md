@@ -281,12 +281,12 @@ porque sea lo mejor que puedes correr.
 | `PRECEPTOROS_ESPERA` | 🇬🇧 seconds before a turn is called timed out — 420 by default · 🇪🇸 segundos antes de dar un turno por agotado — 420 por defecto |
 
 <sub>🇬🇧 **Heritage aliases.** Every `PRECEPTOROS_*` variable also answers to its
-old `AURELIUS_*` name — the product was called Aurelius until 2026-08-24, and an
+old `AURELIUS_*` name — the product was called Preceptor until 2026-08-24, and an
 existing install should not break because the name on the box changed. The old
 names are read but no longer documented, and they go away on **2026-11-23**
 (see `CHANGELOG.md`).<br>
 🇪🇸 **Alias heredados.** Cada variable `PRECEPTOROS_*` responde también a su
-nombre viejo `AURELIUS_*` — el producto se llamó Aurelius hasta el 2026-08-24, y
+nombre viejo `AURELIUS_*` — el producto se llamó Preceptor hasta el 2026-08-24, y
 una instalación que ya funciona no se rompe porque cambie el nombre de la caja.
 Los nombres viejos se leen pero ya no se documentan, y caducan el **2026-11-23**
 (ver `CHANGELOG.md`).</sub>

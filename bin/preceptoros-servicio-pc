@@ -10,7 +10,7 @@ mkdir -p "$SERVICE_DIR"
 
 cat > "$SERVICE_FILE" <<EOF
 [Unit]
-Description=Aurelius Brain Service
+Description=Preceptor Brain Service
 After=network.target
 
 [Service]

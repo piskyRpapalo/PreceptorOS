@@ -21,7 +21,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 RUTA = os.path.join(AQUI, "LORE.md")
 
 # Que palabras hacen pertinente cada pieza. Se busca en la pregunta Y en la
-# respuesta: a veces el tema real solo aparece en lo que Aurelius contesto.
+# respuesta: a veces el tema real solo aparece en lo que Preceptor contesto.
 CLAVES = {
     "El libro que no era para nadie": (
         "diario", "cuaderno", "escribir", "escrib", "para mi", "privado",

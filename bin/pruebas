@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# El numero de pruebas de Aurelius sale de AQUI, y de un solo sitio.
+# El numero de pruebas de Preceptor sale de AQUI, y de un solo sitio.
 #
 # Por que existe: `python3 -m unittest discover` dice OK habiendo corrido la
 # mitad de la suite, porque cinco ficheros traen corredor propio y discover no

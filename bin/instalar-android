@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# instalar-android · una línea, y Aurelius habla.
+# instalar-android · una línea, y Preceptor habla.
 #
 # sistema: MVP · instalador para Termux (Android). Sin dependencias más allá de
 # lo que este propio guion instala.
@@ -110,7 +110,7 @@ fi
 
 # --- 4 · el cerebro y la voz, por el ritual del producto -------------------
 paso "El cerebro y la voz"
-nota "los ofrece Aurelius, con su licencia y su huella delante"
+nota "los ofrece Preceptor, con su licencia y su huella delante"
 nota "la verificación del sha256 la hace él, no este guion"
 
 printf "\n${AZUL}Listo.${FIN} Lo que sigue lo decides tú:\n\n"

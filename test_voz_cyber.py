@@ -233,7 +233,7 @@ class TestVozReal(unittest.TestCase):
                           "M3 se completa escribiendo.")
         if not os.path.isfile(voz.MODELO_DEFECTO):
             self.skipTest(f"falta el modelo de voz en {voz.MODELO_DEFECTO}. "
-                          "Se baja en el arranque; sin el, Aurelius escribe.")
+                          "Se baja en el arranque; sin el, Preceptor escribe.")
         with tempfile.TemporaryDirectory() as d:
             salida = os.path.join(d, "real.wav")
             ruta = voz.hablar("Prueba de la garganta.", salida)

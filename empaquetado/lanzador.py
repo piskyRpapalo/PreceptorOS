@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lanzador · doble clic, y Aurelius abre. Solo biblioteca estándar.
+"""Lanzador · doble clic, y Preceptor abre. Solo biblioteca estándar.
 
 Esto NO es una capa nueva sobre el producto: es la puerta para quien no abre
 una terminal. Arranca el mismo servidor de `bin/preceptoros-pwa`, en el mismo
@@ -16,7 +16,7 @@ piezas grandes, y el lanzador **lo dice en vez de fingir**:
 * el cerebro (2,3 GiB), que se descarga con su licencia y su huella delante,
   y lo acepta la persona.
 
-Sin ellos, Aurelius **pregunta y recuerda pero no conversa**. Es exactamente la
+Sin ellos, Preceptor **pregunta y recuerda pero no conversa**. Es exactamente la
 descripción honesta que ya está en el README, y esta puerta no promete más.
 """
 from __future__ import annotations
@@ -65,7 +65,7 @@ def main():
     # persona vea una cosa y el fichero diga otra.
     if puerto_ocupado(PUERTO):
         webbrowser.open(f"http://127.0.0.1:{PUERTO}/")
-        print("Aurelius ya estaba abierto.")
+        print("Preceptor ya estaba abierto.")
         return 0
 
     os.chdir(raiz)
@@ -99,7 +99,7 @@ def main():
         return 1
 
     webbrowser.open(f"http://127.0.0.1:{PUERTO}/")
-    print(f"Aurelius está abierto en http://127.0.0.1:{PUERTO}")
+    print(f"Preceptor está abierto en http://127.0.0.1:{PUERTO}")
     print("Cierra esta ventana para apagarlo.")
     try:
         while hilo.is_alive():

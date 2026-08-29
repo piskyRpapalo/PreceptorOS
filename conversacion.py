@@ -355,7 +355,7 @@ def _arquetipo(idioma):
     # toca y nunca los dos: dos caracteres a la vez producen uno confuso.
     # Se acepta el nombre nuevo y el viejo: un arquetipo editado a mano por
     # alguien que clono el repo antes del renombrado sigue siendo valido.
-    IDENTIDAD = ("PreceptorOS", "Aurelius")
+    IDENTIDAD = ("PreceptorOS", "Preceptor")
     bloques = [b for b in texto.split("```") if any(i in b for i in IDENTIDAD)]
     if not bloques:
         return ""

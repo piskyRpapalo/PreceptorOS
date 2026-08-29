@@ -835,7 +835,7 @@ def sesion(ruta):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Aurelius M2 · the Water")
+    ap = argparse.ArgumentParser(description="Preceptor M2 · the Water")
     ap.add_argument("--db", default=RUTA_DEFECTO)
     ap.add_argument("--view", action="store_true")
     ap.add_argument("--export", action="store_true")

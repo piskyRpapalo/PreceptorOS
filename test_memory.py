@@ -264,7 +264,7 @@ def t10b():
 
 # --- perfil · quien eres y donde estoy, que NO son recuerdos ---------------
 # Dispositivo y nombre no son engramas. Un recuerdo es algo que a la persona le
-# paso y decidio escribir; el aparato donde corre Aurelius y como quiere que la
+# paso y decidio escribir; el aparato donde corre Preceptor y como quiere que la
 # llamen son el marco, no el contenido. Meterlos en engrams contaminaria el
 # recuento de huecos con dos filas que la persona nunca escribio, y la mision
 # ("con UN recuerdo basta") se daria por cumplida sola. Tabla aparte.

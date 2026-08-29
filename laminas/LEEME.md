@@ -10,7 +10,7 @@ un recorte sin volver a pedir el dibujo.
 
 | Fichero | Qué es | Derivados en `assets/` |
 |---|---|---|
-| `1787443886.png` | Las letras «Aurelius» con engranajes | `titulo-aurelius.png` |
+| `1787443886.png` | Las letras «Preceptor» con engranajes | `titulo-aurelius.png` |
 | `1787443916.png` | Fondo violeta de circuitos | *(sin uso desde que el tablero es de mármol)* |
 | `1787444210.png` | La pizarra de mármol con marco de bronce | `marco-marmol.png`, `fondo-marmol.jpg` |
 | `1787444220.png` | Tira de los cinco iconos | `icono-{memoria,frontera,camino,perfil,proyectos}.png` |

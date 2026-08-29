@@ -1155,7 +1155,7 @@ def resumen_salidas(c, limite=50):
 # --- componente 4b · D69 · la capa de borradores --------------------------
 
 def proponer_borrador(c, texto, origen="aurelius"):
-    """Aurelius propone. No escribe memoria: deja una propuesta esperando.
+    """Preceptor propone. No escribe memoria: deja una propuesta esperando.
 
     Es la mitad de la maquina en IronClaw: el gerente escribe por quien no
     puede, y la persona firma. Esta funcion no toca `engrams` ni de lejos.

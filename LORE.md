@@ -4,7 +4,7 @@
 
 Documento del producto. Viaja al clon público, bajo la licencia del repo.
 
-De aquí sale el párrafo que Aurelius añade cuando la persona ha elegido el
+De aquí sale el párrafo que Preceptor añade cuando la persona ha elegido el
 filtro `lector` (ver `ARQUETIPO.md` §3b). Nada de esto se dice sin que lo pidan,
 y nunca en lugar de la respuesta.
 
@@ -44,12 +44,12 @@ porque el párrafo se dice en el idioma de la sesión.
 **Una cosa, bien hecha**
 > The Unix rule was written down by Doug McIlroy: make each program do one thing
 > well, and make them talk through a common stream. That is why a program can be
-> replaced without rewriting its neighbours. Aurelius speaks to its voice the
+> replaced without rewriting its neighbours. Preceptor speaks to its voice the
 > same way, by pipe, not by port.
 
 > La regla de Unix la escribió Doug McIlroy: que cada programa haga una cosa
 > bien, y que se hablen por un flujo común. Por eso se puede cambiar un programa
-> sin reescribir a sus vecinos. Aurelius habla con su voz igual: por tubería, no
+> sin reescribir a sus vecinos. Preceptor habla con su voz igual: por tubería, no
 > por puerto.
 
 **Un formato que promete durar**

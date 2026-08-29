@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# crear-acceso-directo-android · un icono, y Aurelius vuelve.
+# crear-acceso-directo-android · un icono, y Preceptor vuelve.
 #
-# EL PROBLEMA QUE RESUELVE, dicho por quien lo sufrio: cerraste Aurelius y no
+# EL PROBLEMA QUE RESUELVE, dicho por quien lo sufrio: cerraste Preceptor y no
 # sabes como volver. Le paso al autor del propio producto. Un comando que hay
 # que recordar no es una puerta: es una contrasena que nadie te dio.
 #
@@ -21,7 +21,7 @@ set -uo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ATAJOS="$HOME/.shortcuts"
 ICONOS="$HOME/.shortcuts/icons"
-NOMBRE="Aurelius"
+NOMBRE="Preceptor"
 PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
 # La ruta real de bash en este telefono, no una suposicion.
 BASH="$(command -v bash)"

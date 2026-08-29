@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """D69 · La capa de BORRADORES · Batería Roja B-a…B-e.
 
-Rojo B-a: lo que propone Aurelius NUNCA entra en engrams.
+Rojo B-a: lo que propone Preceptor NUNCA entra en engrams.
 Rojo B-b: promover sin acto de la persona ⇒ excepción, y cero engramas nuevos.
 Rojo B-c: descartar no borra la fila.
 Rojo B-d: promovido con acto ⇒ el engrama existe y el borrador apunta a él.
@@ -44,7 +44,7 @@ class TestBorradores(unittest.TestCase):
     # Rojo B-a: proponer no es escribir
     # ------------------------------------------------------------------
     def test_rojo_ba_proponer_no_toca_engrams(self):
-        """Lo que propone Aurelius no entra en la memoria firmada."""
+        """Lo que propone Preceptor no entra en la memoria firmada."""
         with memory.abrir(self.db_path) as c:
             antes = self._engramas(c)
             memory.proponer_borrador(c, "creo que aprendiste algo del cable")

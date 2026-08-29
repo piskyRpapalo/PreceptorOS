@@ -5,7 +5,7 @@ Encapsula Piper TTS + efectos de post-procesamiento (pitch, saturación,
 reverb, filtros). Todo el audio se genera localmente, sin red.
 
 Doctrina:
-- Si Piper no existe o falla, voz.py devuelve None y Aurelius escribe en
+- Si Piper no existe o falla, voz.py devuelve None y Preceptor escribe en
   texto plano. Nunca bloquea la misión.
 - Los efectos son opcionales y configurables por perfil.
 """
@@ -226,4 +226,4 @@ if __name__ == "__main__":
         if ruta:
             print(f"✓ Audio generado ({os.path.getsize(ruta)} bytes)")
         else:
-            print("✗ Piper no disponible. Aurelius escribirá en texto plano.")
+            print("✗ Piper no disponible. Preceptor escribirá en texto plano.")

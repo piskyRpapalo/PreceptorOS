@@ -92,4 +92,4 @@ if __name__ == "__main__":
         print(f"✓ OÍDO disponible: {WHISPER_CLI}")
         print(f"  Modelo: {WHISPER_MODEL}")
     else:
-        print("✗ OÍDO no disponible. Aurelius pedirá texto.")
+        print("✗ OÍDO no disponible. Preceptor pedirá texto.")

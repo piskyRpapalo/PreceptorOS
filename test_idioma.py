@@ -406,7 +406,7 @@ ENGANCHES = ("data-rotulo", "data-i18n", "data-volver", "data-cajon", "id=")
 
 # Lo que puede quedarse literal: nombres propios, marcas, simbolos y lore.
 BLANCA = {
-    "PreceptorOS", "Preceptor", "Aurelius", "M0", "M1", "M2", "M3", "M4",
+    "PreceptorOS", "Preceptor", "Preceptor", "M0", "M1", "M2", "M3", "M4",
     "M5", "M6", "M7", "The Path", "Detail", "—", "·", "…", "⌂",
     # Los nombres de idioma se escriben en SU idioma: un selector que dice
     # «Spanish» en ingles obliga a saber ingles para elegir castellano.
