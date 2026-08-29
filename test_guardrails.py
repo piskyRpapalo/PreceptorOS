@@ -11,6 +11,7 @@ Sin dependencias externas: librería estándar. Se ejecuta con
 import ast
 import hashlib
 import inspect
+import getpass
 import json
 import os
 import re
@@ -662,7 +663,22 @@ class CC_CorpusDeFalsosNegativos(unittest.TestCase):
         # Un corpus de muestras es el sitio más fácil del mundo para pegar sin
         # querer algo real. Se comprueba que no coincida con lo que hay en disco.
         contenido = self.CORPUS.read_text(encoding="utf-8")
-        for sospechoso in (str(Path.home()), Path.home().name):
+        # `Path.home().name` sirve como identificador en un Linux normal, donde
+        # la carpeta se llama como quien la usa. En Termux NO: alli $HOME es
+        # /data/data/com.termux/files/home y ese nombre es literalmente «home»,
+        # que aparece decenas de veces en el corpus (/home/marta/...). El test
+        # se acusaba a si mismo y ponia la suite en rojo en TODO Android, que
+        # es un objetivo de primera clase de este producto.
+        #
+        # Se arregla haciendolo mas fuerte, no mas debil: entra el usuario real
+        # del sistema —en Termux `u0_a206`, que si identifica la maquina— y se
+        # descartan los nombres de carpeta que no identifican a nadie.
+        GENERICOS = {"home", "root", "user", "users", "data", "files",
+                     "usr", "storage", "emulated", "mnt", "srv"}
+        sospechosos = [str(Path.home()), getpass.getuser()]
+        if Path.home().name.lower() not in GENERICOS:
+            sospechosos.append(Path.home().name)
+        for sospechoso in sospechosos:
             if len(sospechoso) > 3:
                 self.assertNotIn(sospechoso, contenido, "el corpus nombra esta máquina")
 
