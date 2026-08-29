@@ -201,12 +201,42 @@ def exportar(tema, ruta_db=None, limite=40):
     return texto, hallazgos, extra
 
 
+# El portapapeles, con la orden de cada sitio. Se prueban en orden y la
+# primera que exista manda. Si no hay ninguna NO se falla: el fichero ya esta
+# escrito y eso era lo importante — se dice que no se pudo copiar y se sigue.
+# Un export que se cae porque falta xclip seria perder el trabajo por el ultimo
+# paso, que ademas es el mas prescindible.
+PORTAPAPELES = (
+    ["termux-clipboard-set"],          # Android
+    ["wl-copy"],                       # Wayland
+    ["xclip", "-selection", "clipboard"],
+    ["xsel", "--clipboard", "--input"],
+    ["pbcopy"],                        # macOS
+)
+
+
+def copiar(texto):
+    import shutil as _sh
+    import subprocess
+    for orden in PORTAPAPELES:
+        if _sh.which(orden[0]) is None:
+            continue
+        try:
+            subprocess.run(orden, input=texto.encode("utf-8"), check=True, timeout=10)
+            return orden[0]
+        except Exception:                        # noqa: BLE001
+            continue
+    return None
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Exporta contexto saneado para una IA externa")
     ap.add_argument("tema")
     ap.add_argument("--db", default=None)
     ap.add_argument("--salida", default="contexto_seguro.md")
     ap.add_argument("--limite", type=int, default=40)
+    ap.add_argument("--sin-portapapeles", action="store_true",
+                    help="no intentar copiar; solo escribir el fichero")
     a = ap.parse_args(argv)
     try:
         texto, hallazgos, extra = exportar(a.tema, a.db, a.limite)
@@ -219,6 +249,13 @@ def main(argv=None):
     print(f"[exportar] escrito {a.salida} · {len(texto)} B")
     print(f"[exportar] redactado: {total} coincidencia(s) · {sorted(hallazgos) or 'ninguna política'}")
     print("[exportar] huecos declarados incluidos en la cabecera del fichero")
+    if not a.sin_portapapeles:
+        cual = copiar(texto)
+        if cual:
+            print(f"[exportar] copiado al portapapeles con {cual}")
+        else:
+            print("[exportar] NO_DATA — sin portapapeles en este sistema; "
+                  "el fichero esta escrito y es lo que cuenta")
     return 0
 
 
