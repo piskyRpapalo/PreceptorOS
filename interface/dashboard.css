@@ -26,6 +26,11 @@
   --ground:   rgba(255,255,255,.62);
   --ok: #1e7a52;  --stop: #a52218;
   --radio: 16px;
+  /* --- cristal: los mismos materiales que preceptoros.org --------------- */
+  --glass:      rgba(255,255,255,.55);
+  --edge-metal: url("/assets/edge-violet.png");
+  --depth:      0 8px 32px rgba(36,26,53,.10);
+  --spring:     cubic-bezier(.34,1.56,.64,1);
 }
 
 * { box-sizing: border-box; }
@@ -41,7 +46,7 @@ body {
      no se repinte al desplazar: en esta CPU eso se nota. El color de debajo es
      el mismo violeta, asi que si la imagen tarda no hay destello blanco. */
   background-color: var(--fondo);
-  background-image: url("/assets/fondo-marmol.jpg");
+  background-image: url("/assets/marble-violet.webp");
   background-size: 240px auto;
   background-repeat: repeat;
   background-attachment: fixed;
@@ -487,4 +492,50 @@ body {
   margin-top: .4rem; font: inherit; font-size: .75rem; font-weight: 600;
   color: var(--stop); background: transparent; border: 1px solid var(--line);
   border-radius: 999px; padding: .25rem .7rem; min-height: 36px; cursor: pointer;
+}
+
+
+/* --- v4.0 «Liquid Glass Solar-Punk» · hermano del canon de la web ---------
+   La app ya tenia superficies semitransparentes y esquinas de 16 px: estaba
+   mas cerca del cristal que la web, que venia de bordes de bronce macizos. Lo
+   que faltaba era el desenfoque detras, el canto metalico y el marmol violeta.
+   Los tres materiales son los mismos ficheros que sirve preceptoros.org, no
+   una version parecida: si se retocan, se retocan una vez.
+
+   El canto NO usa `border-image`, que ignora el border-radius y obligaria a
+   elegir entre el filo y las esquinas. Van dos capas de fondo: la textura en
+   `border-box` y el cristal en `padding-box`, y el radio recorta las dos. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .cajon, .velo, .escudo-caja {
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: var(--depth);
+  }
+}
+/* El canto va en un Anillo enmascarado, no en el fondo. Pintarlo con
+   `border-box` lo mete por Todo el panel, y con el cristal translucido encima
+   se ve a traves como una rejilla — pasó en la web y se corrigió allí primero.
+   `border-image` tampoco vale: ignora el border-radius. */
+.cajon, .escudo-caja { position: relative; }
+@supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  .cajon::before, .escudo-caja::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit; padding: 4px;
+    background: var(--edge-metal) repeat;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+}
+/* Muelle en los mandos: sobrepasa y vuelve. */
+.hablar, .enlace, button {
+  transition: transform .2s var(--spring), background .2s ease;
+}
+.hablar:hover, button:hover { transform: scale(1.02); }
+.hablar:active, button:active { transform: scale(.98); }
+/* Quien pide menos movimiento manda sobre todo lo de arriba. */
+@media (prefers-reduced-motion: reduce) {
+  .hablar, .enlace, button { transition: none; }
+  .hablar:hover, button:hover { transform: none; }
 }
