@@ -34,6 +34,28 @@ ORDEN="${1:-arranca}"
 
 vivo() { pgrep -f "(preceptoros|aurelius)-pwa" >/dev/null 2>&1; }
 
+# ¿El proceso vivo es MÁS VIEJO que el código en disco? Encontrado usando la
+# app en el Doogee: tras `git pull` el servicio sigue sirviendo lo de antes y
+# nada lo dice. La cara se ve igual, responde igual, y enseña otra versión --
+# «todo funciona» es exactamente el síntoma que cuesta más caro diagnosticar.
+# Se compara el arranque del proceso con la fecha del código, no una versión
+# declarada: el disco manda sobre lo que diga un fichero.
+codigo_mas_nuevo() {
+  local pid inicio codigo
+  pid="$(pgrep -f "(preceptoros|aurelius)-pwa" | head -1)" || return 1
+  [ -n "$pid" ] || return 1
+  # `etimes` da SEGUNDOS TRANSCURRIDOS, no una fecha. Es a proposito: la
+  # primera version leia `ps -o lstart=` y se la pasaba a `date -d`, que
+  # devuelve «fecha no válida» en cuanto el sistema no habla ingles — aqui
+  # imprimia «dom ago 30» y no lo parseaba. Un numero no tiene idioma.
+  local transcurridos
+  transcurridos="$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d ' ')"
+  case "$transcurridos" in ''|*[!0-9]*) return 1 ;; esac
+  inicio=$(( $(date +%s) - transcurridos ))
+  codigo="$(find "$AQUI" -maxdepth 2 -name '*.py' -newermt "@$inicio" -print -quit 2>/dev/null)"
+  [ -n "$codigo" ]
+}
+
 case "$ORDEN" in
   para)
     pkill -f "(preceptoros|aurelius)-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
@@ -50,7 +72,13 @@ case "$ORDEN" in
   arranca)
     if vivo; then
       echo "ya había uno vivo; no arranco un segundo."
-      echo "  para reiniciarlo:  $0 para && $0 arranca"
+      if codigo_mas_nuevo; then
+        echo "  AVISO: hay código en disco más nuevo que el proceso vivo."
+        echo "  Estás usando la versión anterior sin notarlo. Reinícialo:"
+      else
+        echo "  para reiniciarlo:  $0 para && $0 arranca"
+      fi
+      echo "  $0 para && $0 arranca"
       exit 0
     fi
     mkdir -p "$(dirname "$BITACORA")"
