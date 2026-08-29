@@ -30,6 +30,7 @@ const T = {
     nota_motor: "En un teléfono cada respuesta tarda minutos. No es que se haya colgado.",
     nota_sin: "Sin cerebro instalado, PreceptorOS pregunta y recuerda pero no conversa.",
     instalado: "instalado", sin_instalar: "sin instalar",
+    et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
     encendido: "encendido", apagado: "apagado",
     dilo: "Dilo", memoria: "Memoria", frontera: "Frontera", ajustes: "Ajustes",
     tu_memoria: "Tu memoria", la_frontera: "La frontera", los_ajustes: "Ajustes",
@@ -74,6 +75,7 @@ const T = {
     nota_motor: "On a phone each answer takes minutes. It has not frozen.",
     nota_sin: "With no brain installed, PreceptorOS asks and remembers but does not converse.",
     instalado: "installed", sin_instalar: "not installed",
+    et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
     encendido: "on", apagado: "off",
     dilo: "Say it", memoria: "Memory", frontera: "Border", ajustes: "Settings",
     tu_memoria: "Your memory", la_frontera: "The border", los_ajustes: "Settings",
@@ -211,6 +213,7 @@ function pintarEstado(d) {
       "et-nombre": "et_nombre", "et-intereses": "et_intereses",
       "et-idioma": "et_idioma", "et-instrucciones": "et_instrucciones",
       "et-cerebro": "et_cerebro", "et-cuaderno": "et_cuaderno",
+      "et-modelo": "et_modelo",
       "et-titulo": "et_titulo", "et-ruta": "et_ruta",
       "nota-instrucciones": "nota_instrucciones", "proy-intro": "proy_intro",
       "nota-memoria": "nota_memoria"})) {
@@ -238,6 +241,16 @@ function pintarEstado(d) {
   $("m-consent").textContent = d.turnos.consentidos;
   $("m-corr").textContent = d.turnos.corregidos;
   $("a-motor").textContent = d.motor ? t("instalado") : t("sin_instalar");
+  // QUE cerebro, y donde. «Instalado» no distingue un 4B de un 27B, y quien
+  // mide tok/s necesita saber cual midio. Sin modelo se declara la causa: la
+  // ruta esperada tambien es un dato, y es la que hace falta para arreglarlo.
+  const cb = d.cerebro || {};
+  $("a-modelo").textContent = cb.nombre
+    ? cb.nombre + (cb.bytes ? "  " + (cb.bytes / 1e9).toFixed(2) + " GB" : "")
+    : t("sin_modelo");
+  $("a-ruta").textContent = cb.ruta
+    ? t("ruta_es") + " " + cb.ruta
+    : (cb.causa || "");
   $("a-captura").textContent = d.captura_activa ? t("encendido") : t("apagado");
   $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
 }

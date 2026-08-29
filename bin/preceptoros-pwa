@@ -178,11 +178,50 @@ class PWA(BaseHTTPRequestHandler):
             perfil = M.leer_perfil(c)
             cuenta = C.recuento(c)
         motor = _charla.motor_disponible()
+        ruta = self.server.modelo
+        hay = bool(ruta and os.path.isfile(ruta))
+        # QUE cerebro y DONDE, no solo que hay uno. «Instalado» no distingue un
+        # 4B de un 27B, y quien mide tok/s necesita saber cual midio. Si falta,
+        # se dice que falta y por que: la ruta esperada tambien es un dato.
+        # La ruta NO sale cruda. `HOME_PATH` es una politica de redaccion ACTIVA
+        # de este producto: escupir /home/<quien> en el tablero seria saltarse
+        # su propio guardian.
+        #
+        # Y no basta con pasarla por `redactar_salida`: eso devuelve la ruta
+        # entera como [REDACTED:HOME_PATH], que cumple la politica y no informa
+        # de nada. Quien pregunta donde esta su cerebro necesita una respuesta,
+        # no un tachon. Asi que se acorta a proposito:
+        #   dentro de casa  -> `~/loquesea/modelo.gguf`  (dice donde, no quien)
+        #   fuera de casa   -> `…/carpeta/modelo.gguf`   (dice donde, sin prefijo)
+        # Ninguna de las dos formas casa con el patron de la politica, y eso se
+        # COMPRUEBA aqui abajo en vez de suponerse.
+        visible = None
+        if ruta:
+            casa = os.path.expanduser("~")
+            if ruta.startswith(casa):
+                visible = "~" + ruta[len(casa):]
+            else:
+                trozos = ruta.strip("/").split("/")
+                visible = "…/" + "/".join(trozos[-2:])
+            # Si algun dia un caso raro colase un prefijo vigilado, manda la
+            # politica y se tacha. Fallar cerrado, no confiar en el razonamiento
+            # de arriba.
+            tachado, hallazgos = G.redactar_salida(visible)
+            if hallazgos:
+                visible = tachado
+        cerebro = {
+            "nombre": os.path.basename(ruta) if hay else None,
+            "ruta": visible,
+            "bytes": os.path.getsize(ruta) if hay else None,
+            "causa": None if hay else (
+                "no hay ruta de modelo declarada en esta copia" if not ruta
+                else "la ruta declarada no existe en el disco"),
+        }
         return self._json(200, {
             "estado": "ok",
             "idioma": perfil.get("language", "es"),
-            "motor": bool(motor and self.server.modelo
-                          and os.path.isfile(self.server.modelo)),
+            "motor": bool(motor and hay),
+            "cerebro": cerebro,
             "captura_activa": C.activa(perfil),
             "turnos": cuenta,
             # La huella del armazon que sirve esta copia. Existe para poder
