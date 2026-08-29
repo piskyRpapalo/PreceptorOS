@@ -363,7 +363,7 @@ body {
   position: fixed; inset: 0; z-index: 20;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 1.3rem;
-  background: var(--fondo) url("/assets/fondo-marmol.jpg") 0 0 / 240px auto repeat;
+  background: var(--fondo) url("/assets/marble-violet.webp") 0 0 / 340px auto repeat;
   animation: caer .45s ease-out 1.8s both;
 }
 /* El telon no es un cartel: es el despertar. Los mismos cuatro fotogramas de
@@ -457,7 +457,10 @@ body {
 
 /* Los cajones heredan el fondo del tablero: se cruza de uno a otro y no hay
    salto. Antes eran papel claro sobre tierra violeta. */
-.cajon { background: var(--fondo) url("/assets/fondo-marmol.jpg") 0 0 / 240px auto repeat; }
+/* El cajon es Cristal: deja ver el marmol del cuerpo detras en vez de
+   traerse el suyo. Un panel translucido con su propia textura dentro no
+   es cristal, es una calcomania. */
+.cajon { background: var(--glass); }
 
 /* --- perfil y proyectos -------------------------------------------------- */
 .campo { display: block; margin: .7rem 0 0; }

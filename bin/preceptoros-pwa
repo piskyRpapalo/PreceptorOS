@@ -41,6 +41,8 @@ sys.path.insert(0, AQUI)
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
+import afinado as _afinado                                  # noqa: E402
+import casa as _casa                                        # noqa: E402
 import captura as C
 import proyectos as PR                                         # noqa: E402
 import conversacion as _charla                              # noqa: E402
@@ -195,8 +197,9 @@ class PWA(BaseHTTPRequestHandler):
         #   fuera de casa   -> `…/carpeta/modelo.gguf`   (dice donde, sin prefijo)
         # Ninguna de las dos formas casa con el patron de la politica, y eso se
         # COMPRUEBA aqui abajo en vez de suponerse.
-        visible = None
-        if ruta:
+        def _visible(ruta):
+            if not ruta:
+                return None
             casa = os.path.expanduser("~")
             if ruta.startswith(casa):
                 visible = "~" + ruta[len(casa):]
@@ -209,9 +212,26 @@ class PWA(BaseHTTPRequestHandler):
             tachado, hallazgos = G.redactar_salida(visible)
             if hallazgos:
                 visible = tachado
+            return visible
+
+        # Que cerebro manda HOY: el base o el afinado. `elegir` verifica la
+        # huella del afinado contra el disco, asi que un LoRA declarado y
+        # ausente —o cambiado— cae al base y lo dice. La marca del producto es
+        # el modelo que de verdad contesta, no el que figura en un registro.
+        try:
+            eleccion = _afinado.elegir(_casa.raiz(), ruta or "")
+            afinado_vivo = eleccion.cual == "afinado"
+            afinado_motivo = eleccion.motivo
+            if afinado_vivo and os.path.isfile(eleccion.ruta):
+                ruta = eleccion.ruta
+                hay = True
+        except Exception as e:                       # nunca tumba el tablero
+            afinado_vivo, afinado_motivo = False, f"no se pudo consultar: {e}"
         cerebro = {
             "nombre": os.path.basename(ruta) if hay else None,
-            "ruta": visible,
+            "afinado": afinado_vivo,
+            "motivo": afinado_motivo,
+            "ruta": _visible(ruta),
             "bytes": os.path.getsize(ruta) if hay else None,
             "causa": None if hay else (
                 "no hay ruta de modelo declarada en esta copia" if not ruta

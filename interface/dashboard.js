@@ -31,6 +31,7 @@ const T = {
     nota_sin: "Sin cerebro instalado, PreceptorOS pregunta y recuerda pero no conversa.",
     instalado: "instalado", sin_instalar: "sin instalar",
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
+    afinado_vivo: "afinado · vivo", base_vivo: "base · vivo",
     encendido: "encendido", apagado: "apagado",
     dilo: "Dilo", memoria: "Memoria", frontera: "Frontera", ajustes: "Ajustes",
     tu_memoria: "Tu memoria", la_frontera: "La frontera", los_ajustes: "Ajustes",
@@ -76,6 +77,7 @@ const T = {
     nota_sin: "With no brain installed, PreceptorOS asks and remembers but does not converse.",
     instalado: "installed", sin_instalar: "not installed",
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
+    afinado_vivo: "fine-tuned · live", base_vivo: "base · live",
     encendido: "on", apagado: "off",
     dilo: "Say it", memoria: "Memory", frontera: "Border", ajustes: "Settings",
     tu_memoria: "Your memory", la_frontera: "The border", los_ajustes: "Settings",
@@ -245,11 +247,15 @@ function pintarEstado(d) {
   // mide tok/s necesita saber cual midio. Sin modelo se declara la causa: la
   // ruta esperada tambien es un dato, y es la que hace falta para arreglarlo.
   const cb = d.cerebro || {};
+  // Que cerebro contesta HOY, y si es el afinado o el base. Un LoRA propio es
+  // marca personal: si esta vivo, se anuncia; si esta declarado y no cuadra su
+  // huella, el servidor ya cayo al base y aqui se dice base, no afinado.
   $("a-modelo").textContent = cb.nombre
-    ? cb.nombre + (cb.bytes ? "  " + (cb.bytes / 1e9).toFixed(2) + " GB" : "")
+    ? cb.nombre + (cb.bytes ? "  " + (cb.bytes / 1e9).toFixed(2) + " GB" : "") +
+      (d.motor ? "  · " + t(cb.afinado ? "afinado_vivo" : "base_vivo") : "")
     : t("sin_modelo");
   $("a-ruta").textContent = cb.ruta
-    ? t("ruta_es") + " " + cb.ruta
+    ? t("ruta_es") + " " + cb.ruta + (cb.motivo ? "  · " + cb.motivo : "")
     : (cb.causa || "");
   $("a-captura").textContent = d.captura_activa ? t("encendido") : t("apagado");
   $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
