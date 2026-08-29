@@ -841,6 +841,8 @@ def main():
     ap.add_argument("--export", action="store_true")
     ap.add_argument("--charla", action="store_true",
                     help="hablar con el cerebro local, si lo hay")
+    ap.add_argument("--exportar-contexto", metavar="TEMA", default=None,
+                    help="prepara contexto saneado para pegar en una IA externa")
     ap.add_argument("--registro", action="store_true",
                     help="qué cruzó la frontera y qué se frenó")
     ap.add_argument("--restore", metavar="FILE",
@@ -862,6 +864,13 @@ def main():
         print(nota, file=sys.stderr)
 
     est, rec = M.estado(a.db)
+    # La Puerta de Enlace de Privacidad. Vive en su modulo y aqui solo se
+    # despacha: el saneado es una pieza con su propia suite, no una rama de
+    # este `main` que ya hace demasiadas cosas.
+    if a.exportar_contexto:
+        import exportar_contexto as _ex
+        return _ex.main([a.exportar_contexto, "--db", a.db])
+
     if a.restore:
         return restaurar(a.db, a.restore)
     if a.backup is not None:

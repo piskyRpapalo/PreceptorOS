@@ -139,7 +139,7 @@ echo
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno
-          test_compass
+          test_compass test_exportar
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
           # dos roturas reales: el renombrado del output-guard y el de la
           # identidad del arquetipo. Una suite que existe y no corre es una
