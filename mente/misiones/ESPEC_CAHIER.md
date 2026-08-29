@@ -137,12 +137,14 @@ parcial**, no la fuente. Reglas:
 Exportación e importación del Cahier cifrado con AES-256-GCM y firmado con
 ed25519, en un fichero portable.
 
-> **MARCADO, NO APLICADO.** El Handoff v8.3 fija la extensión de ese fichero como
-> `.aurelius`. Ese nombre se retiró del ecosistema el 2026-08-29. Una extensión
-> es un identificador de formato y no se cambia por gusto: cambiarla rompe a quien
-> ya tenga ficheros exportados. La decisión —conservarla como fósil declarado o
-> fijar otra antes de que exista el primer fichero— es del Soberano. Hoy no hay
-> ninguno exportado, así que es el momento más barato para decidirlo.
+La extensión del fichero portable es **`.preceptoros`**. Firmada por el Soberano
+el 2026-08-29, sustituyendo a la `.aurelius` que fijaba el Handoff v8.3.
+
+Se decide **antes** de que exista el primer fichero exportado, y eso no es un
+detalle de calendario: una extensión es un identificador de formato, y cambiarla
+después habría roto los ficheros de quien ya se hubiera llevado su Cahier. Hoy no
+hay ninguno, así que el cambio no le cuesta nada a nadie. Más adelante habría
+tenido dueños.
 
 ---
 
@@ -184,5 +186,5 @@ mente/feedback/PENDIENTES.md. PARA.
 Tres cosas salen de medir y no del documento de partida: el esquema real son
 **trece** tablas y no once (faltaban `latidos` y `engrams_fts`); la sonda de FTS5
 ya existe en `memory.py` y se eleva a regla en vez de inventar otra; y la
-extensión `.aurelius` del Éxodo queda **marcada para firma**, porque nombra un
-formato con una palabra que el ecosistema retiró.
+extensión del Éxodo queda fijada en `.preceptoros` por firma del Soberano del
+mismo día, retirando la `.aurelius` que traía el documento de partida.
