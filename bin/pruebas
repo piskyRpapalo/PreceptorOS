@@ -150,6 +150,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           test_traza test_version
           # El guardian. Entra en el corredor en su MISMO commit: una suite que
           # existe y no corre miente sobre lo que cubre, y esta cubre el suelo.
+          #
+          # test_superficie: el candado de la firma de wasmtime (2026-08-30).
+          # Recorre el grafo de imports desde las tres puertas del producto y
+          # exige que el camino por defecto sea stdlib puro. Entra aqui en su
+          # mismo commit por la misma razon: un candado que no corre no cierra.
+          test_superficie
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 
