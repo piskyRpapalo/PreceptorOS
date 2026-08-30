@@ -50,3 +50,15 @@ dist/
 # Corpus de pruebas: contiene cadenas tipo sk- FALSAS (inventadas).
 # Un scanner de secretos las marca como fuga aunque el archivo lo declare.
 corpus/muestras.json
+
+# Material de credencial de la API Guia. NO se abre, NO se transcribe, NO se
+# versiona -- solo se ignora. Aparecio como untracked en la auditoria del
+# 2026-08-30 y `git check-ignore` confirmo que ninguna regla lo cubria: un
+# `git add -A` distraido lo habria subido.
+#
+# Se ignora el patron entero y no solo este fichero: si Open WebUI o quien sea
+# genera otro secreto con nombre parecido, el dia que aparezca ya esta cubierto.
+# Una regla que solo tapa el agujero que ya viste no tapa el siguiente.
+.webui_secret_key
+**/.webui_secret_key
+*.secret_key
