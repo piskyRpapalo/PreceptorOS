@@ -121,7 +121,7 @@ suite_propia() {
 # poder ver. Va en la cabecera y no al final, para que salga aunque la tanda se
 # corte a la mitad -- si se corta, el interprete es el primer dato que hace
 # falta.
-echo "── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────"
+echo "── PRECEPTOROS · TODAS LAS PRUEBAS ────────────────────────────────"
 echo "  ${gris}$(python3 -V 2>&1) · $(command -v python3)${fin}"
 # El temporal, por el mismo motivo que el interprete: una cifra sin su maquina
 # es un rumor con decimales, y "donde escribio" es parte de la maquina. Sale

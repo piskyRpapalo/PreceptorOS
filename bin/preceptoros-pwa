@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""aurelius-pwa · la cara premium, y los tres endpoints que necesita.
+"""preceptoros-pwa · la cara premium, y los tres endpoints que necesita.
 
 sistema: solo biblioteca estándar. Sin dependencias.
 
@@ -7,7 +7,7 @@ POR QUÉ EXISTE, Y POR QUÉ SIGUE FUERA DEL PRODUCTO
 ---------------------------------------------------
 La cara de `cara.py` se abre con doble clic y no habla con nadie: esa es su
 gracia. Pero un chat de verdad necesita ida y vuelta, y eso pide que algo
-escuche. Igual que `aurelius-puente`, esto **vive en `bin/`, se arranca a mano,
+escuche. Igual que `preceptoros-puente`, esto **vive en `bin/`, se arranca a mano,
 y ningún módulo del producto lo importa**. Un clon que lo tenga no lo ejecuta.
 
 LOS TRES ENDPOINTS, Y LA REGLA QUE COMPARTEN

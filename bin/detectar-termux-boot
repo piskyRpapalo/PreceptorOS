@@ -6,7 +6,7 @@ if [ ! -d "$HOME/.termux/boot" ]; then
   exit 0
 fi
 
-if [ ! -f "$HOME/.termux/boot/aurelius.sh" ]; then
+if [ ! -f "$HOME/.termux/boot/preceptoros.sh" ]; then
   echo "SIN_SCRIPT"
   exit 0
 fi

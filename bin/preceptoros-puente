@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""aurelius-puente · el camino de vuelta cuando no hay terminal.
+"""preceptoros-puente · el camino de vuelta cuando no hay terminal.
 
 sistema: MVP · solo biblioteca estándar. Sin dependencias.
 

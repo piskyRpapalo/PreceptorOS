@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Crea un servicio systemd user para que aurelius arranque al login
+# Crea un servicio systemd user para que preceptoros arranque al login
 
 set -euo pipefail
 
 SERVICE_DIR="$HOME/.config/systemd/user"
-SERVICE_FILE="$SERVICE_DIR/aurelius.service"
+SERVICE_FILE="$SERVICE_DIR/preceptoros.service"
 
 mkdir -p "$SERVICE_DIR"
 
@@ -25,9 +25,9 @@ WantedBy=default.target
 EOF
 
 systemctl --user daemon-reload
-systemctl --user enable aurelius.service
-systemctl --user start aurelius.service
+systemctl --user enable preceptoros.service
+systemctl --user start preceptoros.service
 
 echo "✓ Servicio systemd creado y arrancado"
-echo "  Verifica: systemctl --user status aurelius.service"
-echo "  Logs: journalctl --user -u aurelius.service -f"
+echo "  Verifica: systemctl --user status preceptoros.service"
+echo "  Logs: journalctl --user -u preceptoros.service -f"

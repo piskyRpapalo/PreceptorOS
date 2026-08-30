@@ -47,7 +47,7 @@ muere_con() {
 }
 
 REPO="${PRECEPTOROS_REPO:-${AURELIUS_REPO:-https://github.com/piskyRpapalo/PreceptorOS}}"
-DESTINO="${PRECEPTOROS_DESTINO:-${AURELIUS_DESTINO:-$HOME/aurelius}}"
+DESTINO="${PRECEPTOROS_DESTINO:-${AURELIUS_DESTINO:-$HOME/preceptoros}}"
 LLAMA="$HOME/.llama.cpp"
 MOTOR="llama-completion"
 

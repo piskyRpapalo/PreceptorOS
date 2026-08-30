@@ -19,7 +19,7 @@ LO QUE NO HACE
 * **No sale de la máquina.** Habla con `127.0.0.1` y nada más. Del otro lado del
   túnel hay un proceso local; si el túnel no está, falla y lo dice.
 * **No entra al producto.** Vive en `bin/`, se invoca a mano, y nada de
-  `aurelius-mvp` lo importa. Un clon que lo tenga no lo ejecuta nunca.
+  `preceptoros-mvp` lo importa. Un clon que lo tenga no lo ejecuta nunca.
 * **No decide nada.** Ejecuta lo que se le da y repite lo que salió, incluido el
   código de salida.
 

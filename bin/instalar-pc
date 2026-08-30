@@ -6,7 +6,7 @@
 #
 # CUBRE LAS DOS RUTAS, porque son dos personas distintas:
 #   · quien clono el repo  -> el icono arranca `bin/preceptoros-servicio`
-#   · quien bajo el fichero -> el icono arranca `dist/aurelius`
+#   · quien bajo el fichero -> el icono arranca `dist/preceptoros`
 # Se detecta cual hay. Si estan las dos, manda el repo: es la puerta
 # documentada, y la que se actualiza con un `git pull`.
 #
@@ -19,7 +19,7 @@ set -uo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APPS="$HOME/.local/share/applications"
 ICONOS="$HOME/.local/share/icons/hicolor/256x256/apps"
-DESKTOP="$APPS/aurelius.desktop"
+DESKTOP="$APPS/preceptoros.desktop"
 PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
 
 az()   { printf '\033[38;5;141m··\033[0m %s\n' "$1"; }
@@ -29,7 +29,7 @@ muere(){ printf '\n✗ %s\n' "$1" >&2; exit 1; }
 # --- desinstalar ----------------------------------------------------------
 if [ "${1:-}" = "--desinstalar" ]; then
   printf '\n\033[38;5;141mPRECEPTOROS\033[0m · quitando el acceso\n\n'
-  rm -f "$DESKTOP" "$ICONOS/aurelius.png"
+  rm -f "$DESKTOP" "$ICONOS/preceptoros.png"
   command -v update-desktop-database >/dev/null 2>&1 && \
     update-desktop-database "$APPS" 2>/dev/null || true
   az "Quitado el icono y su entrada"
@@ -52,11 +52,11 @@ MODO=""
 if [ -f "$AQUI/bin/preceptoros-servicio" ] && [ -f "$AQUI/preceptoros.py" ]; then
   RUTA_LANZA="$AQUI/bin/preceptoros-servicio"
   MODO="repositorio"
-elif [ -x "$AQUI/dist/aurelius" ]; then
-  RUTA_LANZA="$AQUI/dist/aurelius"
+elif [ -x "$AQUI/dist/preceptoros" ]; then
+  RUTA_LANZA="$AQUI/dist/preceptoros"
   MODO="ejecutable"
 else
-  muere "no encuentro ni el repositorio ni dist/aurelius en $AQUI"
+  muere "no encuentro ni el repositorio ni dist/preceptoros en $AQUI"
 fi
 nota "modo     $MODO"
 nota "arranca  $RUTA_LANZA"
@@ -67,10 +67,10 @@ mkdir -p "$ICONOS" "$APPS"
 # El busto cyborg del propio producto, no un dibujo aparte: el icono del
 # escritorio y la cara de la aplicacion son la misma imagen, y eso se nota.
 if [ -f "$AQUI/assets/icono-cyborg.png" ]; then
-  cp "$AQUI/assets/icono-cyborg.png" "$ICONOS/aurelius.png"
+  cp "$AQUI/assets/icono-cyborg.png" "$ICONOS/preceptoros.png"
   nota "el busto cyborg, del sprite del producto"
-elif [ -f "$AQUI/empaquetado/aurelius.png" ]; then
-  cp "$AQUI/empaquetado/aurelius.png" "$ICONOS/aurelius.png"
+elif [ -f "$AQUI/empaquetado/preceptoros.png" ]; then
+  cp "$AQUI/empaquetado/preceptoros.png" "$ICONOS/preceptoros.png"
   nota "copiado de empaquetado/"
 else
   nota "sin icono propio; el escritorio pondra el generico"
@@ -80,7 +80,7 @@ fi
 # El guion intermedio existe porque un .desktop no espera: si lanzara el
 # navegador directamente, se abriria antes de que el servidor respondiera y la
 # primera impresion del producto seria una pagina de error.
-LANZADOR="$HOME/.local/bin/aurelius-abrir"
+LANZADOR="$HOME/.local/bin/preceptoros-abrir"
 mkdir -p "$(dirname "$LANZADOR")"
 cat > "$LANZADOR" <<LANZA
 #!/usr/bin/env bash
@@ -93,7 +93,7 @@ bin/preceptoros-servicio arranca || exit 1
 LANZA
 else
   cat >> "$LANZADOR" <<LANZA
-"$AQUI/dist/aurelius" >/dev/null 2>&1 &
+"$AQUI/dist/preceptoros" >/dev/null 2>&1 &
 for _ in \$(seq 1 40); do
   sleep .25
   curl -s -o /dev/null "http://127.0.0.1:$PUERTO/api/estado" 2>/dev/null && break
@@ -112,7 +112,7 @@ Name=PreceptorOS
 Comment=Your memory, in one file you can carry
 Comment[es]=Tu memoria, en un fichero que puedes llevarte
 Exec=$LANZADOR
-Icon=aurelius
+Icon=preceptoros
 Terminal=false
 Categories=Utility;
 Keywords=memory;privacy;offline;
@@ -133,7 +133,7 @@ printf '    %s/bin/preceptoros-servicio estado\n' "$AQUI"
 printf '    %s/bin/preceptoros-servicio para\n\n' "$AQUI"
 printf '  Y si el puerto sigue ocupado, el que queda es el ejecutable, que\n'
 printf '  tiene otro nombre:\n'
-printf '    pkill -f aurelius-pwa\n'
-printf '    pkill -f "dist/aurelius"\n\n'
+printf '    pkill -f preceptoros-pwa\n'
+printf '    pkill -f "dist/preceptoros"\n\n'
 printf '  \033[1mPara quitar el icono:\033[0m  bin/instalar-pc --desinstalar\n'
 printf '  (no toca tu memoria ni el producto)\n\n'

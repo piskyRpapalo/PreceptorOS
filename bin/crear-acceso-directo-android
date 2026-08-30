@@ -63,7 +63,7 @@ cat > "$ATAJOS/$NOMBRE" <<ATAJO
 # carga \`libtermux-exec\` por LD_PRELOAD y reescribe el shebang al vuelo --
 # pero el widget no lo lleva, y ahi el shebang falla.
 #
-# El sintoma engaña: la shell dice "aurelius-servicio: not found" cuando el
+# El sintoma engaña: la shell dice "preceptoros-servicio: not found" cuando el
 # fichero ESTA. Lo que no esta es su interprete. Medido en el Doogee el
 # 2026-08-22.
 #
@@ -86,7 +86,7 @@ if [ "$WIDGET" = "no" ]; then
   printf '    1. Instala Termux:Widget desde F-Droid\n'
   printf '    2. Manten pulsada la pantalla de inicio → Widgets → Termux\n'
   printf '    3. Elige "%s"\n\n' "$NOMBRE"
-  printf '  Mientras tanto, para reabrir Aurelius:\n'
+  printf '  Mientras tanto, para reabrir PreceptorOS:\n'
   printf '    cd %s && bin/preceptoros-servicio arranca\n\n' "$AQUI"
   exit 0
 fi
