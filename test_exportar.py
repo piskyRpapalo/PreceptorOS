@@ -102,5 +102,54 @@ class Exportar(unittest.TestCase):
             self.E.exportar("riego", str(Path(self.tmp) / "no-existe.db"))
 
 
+class PortapapelesNoSecuestraLaSalida(unittest.TestCase):
+    """El export tiene que poder canalizarse. `| head`, `| tee`, un script, un CI.
+
+    Medido el 2026-08-30: `xclip` se DEMONIZA para servir la seleccion y, al
+    hacerlo, heredaba la salida de su padre. Con la salida en una tuberia, el
+    extremo de escritura no se cerraba nunca: el proceso de Python ya habia
+    terminado y `head` seguia bloqueado en `anon_pipe_read`, con `/proc`
+    enseñando el fd 1 de `xclip` sobre el mismo `pipe:[...]`.
+
+    Un comando que no se puede canalizar no se puede automatizar, que es justo
+    lo que este export existe para permitir.
+    """
+
+    def test_copiar_no_deja_la_tuberia_abierta(self):
+        """Se corre en un hijo con la salida en tuberia y se exige EOF.
+
+        Se comprueba el COMPORTAMIENTO (la tuberia se cierra), no la llamada
+        (que se pase DEVNULL). Un test sobre el argumento pasaria igual el dia
+        que alguien añada otra herramienta de portapapeles y se olvide de ella.
+        """
+        import shutil
+        import subprocess
+
+        import exportar_contexto as E
+        disponible = next((o[0] for o in E.PORTAPAPELES if shutil.which(o[0])), None)
+        if not disponible:
+            self.skipTest("no hay herramienta de portapapeles en este sistema")
+
+        guion = (
+            "import sys; sys.path.insert(0, %r)\n"
+            "import exportar_contexto as E\n"
+            "E.copiar('texto de prueba')\n"
+        ) % str(Path(__file__).resolve().parent)
+
+        p = subprocess.Popen([sys.executable, "-c", guion],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            # Si algun hijo se queda con el extremo de escritura, esto NO
+            # devuelve y el timeout salta. Ese timeout ES el fallo que
+            # describe el docstring.
+            p.communicate(timeout=25)
+        except subprocess.TimeoutExpired:
+            p.kill()
+            p.communicate()
+            self.fail(
+                f"la tuberia sigue abierta tras terminar: {disponible} heredo la "
+                "salida y se quedo vivo. El export no se puede canalizar")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

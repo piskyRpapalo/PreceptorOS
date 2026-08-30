@@ -232,13 +232,34 @@ PORTAPAPELES = (
 
 
 def copiar(texto):
+    """Copia al portapapeles sin secuestrar la salida del programa.
+
+    `stdout`/`stderr` a DEVNULL no es cosmetica, es lo que hace que el comando
+    se pueda encadenar. `xclip` se DEMONIZA para servir la seleccion mientras
+    alguien pueda pegarla, y al hacerlo hereda la salida de su padre. Si esa
+    salida es una tuberia -- `--exportar-contexto | head`, `| tee`, un script,
+    un CI -- el extremo de escritura no se cierra nunca y **el comando de la
+    derecha se queda colgado para siempre**.
+
+    Medido el 2026-08-30: el proceso de Python ya habia terminado y `head`
+    seguia bloqueado en `anon_pipe_read`; `/proc` mostraba a `xclip` con su fd 1
+    apuntando exactamente al mismo `pipe:[...]`.
+
+    El `timeout` no salvaba de esto: `run()` vuelve cuando termina el proceso
+    que lanzo, y el que se queda vivo es el hijo que ese proceso dejo detras.
+
+    Un comando que no se puede canalizar no se puede automatizar, que es justo
+    lo que este export existe para permitir.
+    """
     import shutil as _sh
     import subprocess
     for orden in PORTAPAPELES:
         if _sh.which(orden[0]) is None:
             continue
         try:
-            subprocess.run(orden, input=texto.encode("utf-8"), check=True, timeout=10)
+            subprocess.run(orden, input=texto.encode("utf-8"), check=True,
+                           timeout=10, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
             return orden[0]
         except Exception:                        # noqa: BLE001
             continue
