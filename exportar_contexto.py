@@ -113,8 +113,24 @@ def sustituir_roles(texto, roles):
     return texto
 
 
-def recoger(ruta_db, tema, limite):
+def recoger(ruta_db, tema, limite, indexar=False):
     with M.abrir(ruta_db) as c:
+        estado, detalle = M.estado_busqueda(c)
+        if estado != "DISPONIBLE":
+            # «el indice no esta creado todavia» es cierto y es un callejon sin
+            # salida: quien lo lee no sabe que hacer. Se dice el remedio EXACTO.
+            # Y no se construye en silencio: el export es de lectura, y tocar la
+            # base de alguien sin decirlo cruza una frontera que no me toca.
+            if "indice no esta creado" in detalle and indexar:
+                M.asegurar_busqueda(c)
+                print("[exportar] indice de busqueda construido desde tus recuerdos")
+            elif "indice no esta creado" in detalle:
+                raise NoSePuedeExportar(
+                    "la busqueda no esta indexada en esta memoria. "
+                    "Anade --indexar para construir el indice desde tus recuerdos: "
+                    "no borra nada, solo crea el indice que falta")
+            else:
+                raise NoSePuedeExportar(f"la busqueda no esta disponible: {detalle}")
         try:
             filas = M.buscar(c, tema, limite=limite)
         except Exception as e:                   # noqa: BLE001
@@ -175,12 +191,12 @@ def render(tema, partes, hallazgos, roles, nombres):
     return "\n".join(L) + "\n"
 
 
-def exportar(tema, ruta_db=None, limite=40):
+def exportar(tema, ruta_db=None, limite=40, indexar=False):
     roles, nombres = roles_declarados()
     db = Path(ruta_db) if ruta_db else Path(_casa.raiz()) / "memory.db"
     if not db.is_file():
         raise NoSePuedeExportar(f"no hay memoria en {db}")
-    filas = recoger(db, tema, limite)
+    filas = recoger(db, tema, limite, indexar)
     hallazgos = {}
     partes = componer(tema, filas, roles, hallazgos)
     texto = render(tema, partes, hallazgos, roles, nombres)
@@ -235,11 +251,13 @@ def main(argv=None):
     ap.add_argument("--db", default=None)
     ap.add_argument("--salida", default="contexto_seguro.md")
     ap.add_argument("--limite", type=int, default=40)
+    ap.add_argument("--indexar", action="store_true",
+                    help="construye el indice de busqueda si falta (no borra nada)")
     ap.add_argument("--sin-portapapeles", action="store_true",
                     help="no intentar copiar; solo escribir el fichero")
     a = ap.parse_args(argv)
     try:
-        texto, hallazgos, extra = exportar(a.tema, a.db, a.limite)
+        texto, hallazgos, extra = exportar(a.tema, a.db, a.limite, a.indexar)
     except NoSePuedeExportar as e:
         print(f"[exportar] PARADO: {e}")
         print("[exportar] no se escribe nada: un export a medias es peor que ninguno")

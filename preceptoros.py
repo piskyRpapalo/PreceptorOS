@@ -843,6 +843,8 @@ def main():
                     help="hablar con el cerebro local, si lo hay")
     ap.add_argument("--exportar-contexto", metavar="TEMA", default=None,
                     help="prepara contexto saneado para pegar en una IA externa")
+    ap.add_argument("--indexar", action="store_true",
+                    help="con --exportar-contexto: construye el indice si falta")
     ap.add_argument("--registro", action="store_true",
                     help="qué cruzó la frontera y qué se frenó")
     ap.add_argument("--restore", metavar="FILE",
@@ -869,7 +871,10 @@ def main():
     # este `main` que ya hace demasiadas cosas.
     if a.exportar_contexto:
         import exportar_contexto as _ex
-        return _ex.main([a.exportar_contexto, "--db", a.db])
+        argv_ex = [a.exportar_contexto, "--db", a.db]
+        if a.indexar:
+            argv_ex.append("--indexar")
+        return _ex.main(argv_ex)
 
     if a.restore:
         return restaurar(a.db, a.restore)
