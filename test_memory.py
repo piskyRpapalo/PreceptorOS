@@ -1078,5 +1078,64 @@ def main():
     return 1 if fallos else 0
 
 
+ESQUEMA_ANTES_DE_D11 = """
+create table engrams (
+  id integer primary key autoincrement,
+  what text not null, why text, where_ref text, learned text,
+  origin text not null default 'persona',
+  status text not null default 'ok',
+  created_at text not null default (datetime('now')),
+  updated_at text not null default (datetime('now')));
+create table links (
+  id integer primary key autoincrement,
+  src integer not null, dst integer not null, label text);
+"""
+
+
+def _memoria_vieja():
+    """Una memoria con el esquema de ANTES de `origen_dispositivo` (D11).
+
+    Se escribe el esquema a mano en vez de llamar a `M.crear()` a proposito: el
+    dia que alguien vuelva a anyadir una columna solo en `crear()`, este caso
+    tiene que detenerlo, y no podria si partiera del esquema nuevo.
+    """
+    ruta = tmp_ruta()
+    with M.abrir(ruta) as c:
+        c.executescript(ESQUEMA_ANTES_DE_D11)
+    return ruta
+
+
+@caso("una memoria vieja admite recuerdos nuevos tras asegurar_tablas")
+def test_memoria_vieja_admite_recuerdo_nuevo():
+    # Reproducido contra la memoria viva del Soberano el 2026-08-30:
+    # `engrams.origen_dispositivo` se anyadia solo en `crear()`, y una memoria
+    # que ya existe no vuelve a pasar por ahi NUNCA. `escribir_engrama`
+    # reventaba con «table engrams has no column named origen_dispositivo»: la
+    # memoria no admitia ni un recuerdo mas, y el error salia en ingles de
+    # sqlite sin decir que la causa era la edad de la propia base.
+    ruta = _memoria_vieja()
+    with M.abrir(ruta) as c:
+        cols = [d[1] for d in c.execute("pragma table_info(engrams)")]
+        assert "origen_dispositivo" not in cols, (
+            "el esquema de partida ya trae la columna: este test no prueba nada")
+        M.asegurar_tablas(c)
+        e = M.escribir_engrama(c, what="un recuerdo en una memoria vieja",
+                               why="que la edad de la base no impida recordar",
+                               where_ref="banco", learned="migracion aditiva D12",
+                               origen_dispositivo="banco-de-pruebas")
+    assert e["origen_dispositivo"] == "banco-de-pruebas"
+
+
+@caso("la migracion aditiva de engrams es idempotente")
+def test_migracion_engrams_idempotente():
+    ruta = _memoria_vieja()
+    with M.abrir(ruta) as c:
+        M.asegurar_tablas(c)
+        M.asegurar_tablas(c)      # dos veces no puede romper ni duplicar
+        cols = [d[1] for d in c.execute("pragma table_info(engrams)")]
+    assert cols.count("origen_dispositivo") == 1, (
+        f"la columna aparece {cols.count('origen_dispositivo')} veces")
+
+
 if __name__ == "__main__":
     sys.exit(main_sabotaje() if "--sabotaje" in sys.argv[1:] else main())

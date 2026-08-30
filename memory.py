@@ -753,6 +753,21 @@ def asegurar_tablas(c):
     Idempotente y aditivo: cero DELETE, cero DROP, cero valores tocados.
     """
     c.executescript(ESQUEMA_SALIDAS + ESQUEMA_HILOS + ESQUEMA_BORRADORES)
+    # `engrams.origen_dispositivo` (D11) nacio solo en `crear()`, y esta funcion
+    # existe precisamente porque una memoria que ya existe no vuelve a pasar por
+    # ahi NUNCA. El resultado, medido contra la memoria viva del Soberano el
+    # 2026-08-30: `escribir_engrama` reventaba con «table engrams has no column
+    # named origen_dispositivo». No es que se guardara mal -- es que **no se
+    # podia guardar un solo recuerdo nuevo**, y el error salia en ingles de
+    # sqlite, sin decir que la causa era la edad de la propia memoria.
+    #
+    # Es la misma leccion que ya cuenta el docstring sobre `salidas` e `hilos`,
+    # aplicada a la tabla que mas duele: la de los recuerdos.
+    try:
+        c.execute("alter table engrams add column origen_dispositivo "
+                  "text not null default 'NO_DATA'")
+    except sqlite3.OperationalError:
+        pass  # La columna ya existe (D12: migracion aditiva)
     for columna, defecto in (("estado", "'ok'"), ("motivo", f"'{AUSENTE}'")):
         try:
             c.execute(f"alter table salidas add column {columna} "
