@@ -40,7 +40,7 @@ import captura
 from importlib.machinery import SourceFileLoader          # noqa: E402
 _ruta = os.path.join(AQUI, "bin", "preceptoros-pwa")
 _spec = importlib.util.spec_from_loader(
-    "aurelius_pwa", SourceFileLoader("aurelius_pwa", _ruta))
+    "preceptoros_pwa", SourceFileLoader("preceptoros_pwa", _ruta))
 PWA = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(PWA)
 

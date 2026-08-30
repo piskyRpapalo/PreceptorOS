@@ -20,14 +20,14 @@ for m in memory guardrails captura conversacion cara casa textos tono estado \
   OCULTOS="$OCULTOS --hidden-import $m"
 done
 
-exec $PY --onefile --name aurelius --noconfirm \
-  --icon "$R/empaquetado/aurelius.ico" --paths "$R" \
+exec $PY --onefile --name preceptoros --noconfirm \
+  --icon "$R/empaquetado/preceptoros.ico" --paths "$R" \
   --add-data "$R/bin/preceptoros-pwa:bin" \
   --add-data "$R/interface:interface" \
   --add-data "$R/policies.default.json:." \
   --add-data "$R/assets:assets" \
   $DATOS $OCULTOS \
   --distpath "$R/dist" \
-  --workpath "${TMPDIR:-/tmp}/aurelius-build" \
-  --specpath "${TMPDIR:-/tmp}/aurelius-build" \
+  --workpath "${TMPDIR:-/tmp}/preceptoros-build" \
+  --specpath "${TMPDIR:-/tmp}/preceptoros-build" \
   "$R/empaquetado/lanzador.py"

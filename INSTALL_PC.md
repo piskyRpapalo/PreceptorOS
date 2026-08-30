@@ -10,7 +10,7 @@ Two paths. The first is for using PreceptorOS; the second, for taking it apart.
 
 **One file, 14 MB. No Python to install, nothing else either.**
 
-1. Download `aurelius`.
+1. Download `preceptoros`.
 2. Open it with a double click.
 3. Your browser opens on PreceptorOS. That is all.
 
@@ -35,7 +35,7 @@ honest description, and this file does not promise more than it carries.
 
 ### Where your things live
 
-In `~/.aurelius/memory.db`. **One file.** Copy it, carry it on a USB stick, or
+In `~/.preceptoros/memory.db`. **One file.** Copy it, carry it on a USB stick, or
 delete it. Nothing leaves your machine unless you export it.
 
 ---
@@ -49,7 +49,7 @@ to reopen it without remembering a command.
 2. If it is not, open a terminal:
 
 ```
-cd ~/aurelius && bin/aurelius-servicio arranca
+cd ~/preceptoros && bin/preceptoros-servicio arranca
 ```
 
 It will say `arrancado · http://127.0.0.1:8740`. Open that address in your
@@ -61,25 +61,25 @@ An earlier copy is still running. **Watch out here**, because there is a trap:
 the server can be called two different things depending on how you started it.
 
 ```
-bin/aurelius-servicio para      # the clean way: stops whatever is there
+bin/preceptoros-servicio para      # the clean way: stops whatever is there
 ```
 
 And if it is still busy, what is left is the packaged executable, which has a
 different name:
 
 ```
-pkill -f aurelius-pwa           # the server launched from the repository
-pkill -f 'dist/aurelius'        # the single-file executable
+pkill -f preceptoros-pwa           # the server launched from the repository
+pkill -f 'dist/preceptoros'        # the single-file executable
 ```
 
-**A plain `pkill -f aurelius-pwa` does not catch the executable.** It happened
+**A plain `pkill -f preceptoros-pwa` does not catch the executable.** It happened
 four times during development: the old process kept answering, the new one died
 at birth, and everything looked fine while the wrong version was being measured.
 
 ### How to tell whether it is alive
 
 ```
-bin/aurelius-servicio estado
+bin/preceptoros-servicio estado
 ```
 
 It gives the pid and whether it answers. If it says `parado`, start it.
@@ -110,9 +110,9 @@ For anyone who wants to read it, change it or audit it.
 ```
 git clone https://github.com/piskyRpapalo/PreceptorOS
 cd PreceptorOS
-python3 aurelius.py             # create your memory
-python3 aurelius.py --charla    # talk, if a brain is installed
-bin/aurelius-servicio arranca   # the web face
+python3 preceptoros.py             # create your memory
+python3 preceptoros.py --charla    # talk, if a brain is installed
+bin/preceptoros-servicio arranca   # the web face
 ```
 
 Python 3.10 or newer. **No dependencies**: the standard library only. That is
@@ -128,7 +128,7 @@ uv pip install pyinstaller
 bash empaquetado/construir_pc.sh
 ```
 
-It lands in `dist/aurelius`. The script declares the pieces the packager cannot
+It lands in `dist/preceptoros`. The script declares the pieces the packager cannot
 see on its own — see the comment in `empaquetado/lanzador.py`, which exists
 because the first version built a binary that died with
 `No module named 'json'`.

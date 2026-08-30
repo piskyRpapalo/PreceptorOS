@@ -20,8 +20,8 @@ Pide teclear una vez. Después no hace falta la terminal para usarlo.
 
 ```
 pkg install -y git
-git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/aurelius
-cd ~/aurelius && bash bin/instalar-android
+git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/preceptoros
+cd ~/preceptoros && bash bin/instalar-android
 ```
 
 3. Cuando termine:
@@ -76,7 +76,7 @@ el navegador de una vez. Si no lo creaste, ver §1.
 2. Escribe:
 
 ```
-cd ~/aurelius && bin/preceptoros-servicio arranca
+cd ~/preceptoros && bin/preceptoros-servicio arranca
 ```
 
 3. Abre el navegador del teléfono en **http://127.0.0.1:8740**
@@ -92,7 +92,7 @@ bin/preceptoros-servicio para
 Y si aun así sigue ocupado:
 
 ```
-pkill -f aurelius-pwa
+pkill -f preceptoros-pwa
 ```
 
 ### Cómo saber si está vivo

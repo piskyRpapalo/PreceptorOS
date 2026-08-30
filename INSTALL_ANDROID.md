@@ -22,16 +22,16 @@ It asks you to type once. After that you do not need the terminal to use it.
 
 ```
 pkg install -y git
-git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/aurelius
-cd ~/aurelius && bash bin/instalar-android
+git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS ~/preceptoros
+cd ~/preceptoros && bash bin/instalar-android
 ```
 
 3. When it finishes:
 
 ```
-python3 aurelius.py                  # create your memory
+python3 preceptoros.py                  # create your memory
 bin/crear-acceso-directo-android     # the shortcut (optional, recommended)
-bin/aurelius-servicio arranca        # the web face
+bin/preceptoros-servicio arranca        # the web face
 ```
 
 4. Open your phone's browser at **http://127.0.0.1:8740**
@@ -71,7 +71,7 @@ the browser in one go.
 2. Type:
 
 ```
-cd ~/aurelius && bin/aurelius-servicio arranca
+cd ~/preceptoros && bin/preceptoros-servicio arranca
 ```
 
 3. Open your phone's browser at **http://127.0.0.1:8740**
@@ -81,19 +81,19 @@ cd ~/aurelius && bin/aurelius-servicio arranca
 An earlier copy is still running:
 
 ```
-bin/aurelius-servicio para
+bin/preceptoros-servicio para
 ```
 
 And if it is still busy:
 
 ```
-pkill -f aurelius-pwa
+pkill -f preceptoros-pwa
 ```
 
 ### How to tell whether it is alive
 
 ```
-bin/aurelius-servicio estado
+bin/preceptoros-servicio estado
 ```
 
 ### After restarting the phone

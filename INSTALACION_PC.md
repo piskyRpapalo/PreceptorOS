@@ -8,7 +8,7 @@ Dos caminos. El primero es para usar PreceptorOS; el segundo, para trastearlo.
 
 **Un solo fichero, 14 MB. No hace falta instalar Python ni nada más.**
 
-1. Descarga `aurelius`.
+1. Descarga `preceptoros`.
 2. Ábrelo con doble clic.
 3. Se abre tu navegador en PreceptorOS. Ya está.
 
@@ -33,7 +33,7 @@ honesta, y este fichero no promete más de lo que trae dentro.
 
 ### Dónde queda lo tuyo
 
-En `~/.aurelius/memory.db`. **Un solo fichero.** Puedes copiarlo, llevártelo en
+En `~/.preceptoros/memory.db`. **Un solo fichero.** Puedes copiarlo, llevártelo en
 un USB, o borrarlo. Nada sale de tu máquina si tú no lo exportas.
 
 ### Si algo va mal
@@ -59,7 +59,7 @@ reabrirlo sin recordar un comando.
 2. Si no está, abre una terminal:
 
 ```
-cd ~/aurelius && bin/preceptoros-servicio arranca
+cd ~/preceptoros && bin/preceptoros-servicio arranca
 ```
 
 Te dirá `arrancado · http://127.0.0.1:8740`. Abre esa dirección en el
@@ -78,11 +78,11 @@ Y si aun así sigue ocupado, el que queda es el ejecutable empaquetado, que
 tiene otro nombre:
 
 ```
-pkill -f aurelius-pwa           # el servidor lanzado desde el repo
-pkill -f 'dist/aurelius'        # el ejecutable de un solo fichero
+pkill -f preceptoros-pwa           # el servidor lanzado desde el repo
+pkill -f 'dist/preceptoros'        # el ejecutable de un solo fichero
 ```
 
-**Un `pkill -f aurelius-pwa` a secas no caza al ejecutable.** Pasó cuatro
+**Un `pkill -f preceptoros-pwa` a secas no caza al ejecutable.** Pasó cuatro
 veces durante el desarrollo: el proceso viejo seguía respondiendo, el nuevo
 moría al nacer, y todo parecía funcionar mientras se miraba la versión
 equivocada.
@@ -139,7 +139,7 @@ uv pip install pyinstaller
 bash empaquetado/construir_pc.sh
 ```
 
-Sale en `dist/aurelius`. El guion declara las piezas que el empaquetador no
+Sale en `dist/preceptoros`. El guion declara las piezas que el empaquetador no
 puede ver solo — ver el comentario en `empaquetado/lanzador.py`, que existe
 porque la primera versión construyó un binario que moría con
 `No module named 'json'`.

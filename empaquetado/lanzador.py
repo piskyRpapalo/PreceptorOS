@@ -74,11 +74,11 @@ def main():
         from importlib.machinery import SourceFileLoader
         ruta = os.path.join(raiz, "bin", "preceptoros-pwa")
         spec = importlib.util.spec_from_loader(
-            "aurelius_pwa", SourceFileLoader("aurelius_pwa", ruta))
+            "preceptoros_pwa", SourceFileLoader("preceptoros_pwa", ruta))
         modulo = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(modulo)
     except Exception as e:
-        print(f"No pude arrancar Aurelius: {type(e).__name__}: {e}",
+        print(f"No pude arrancar PreceptorOS: {type(e).__name__}: {e}",
               file=sys.stderr)
         input("Pulsa Enter para cerrar. ")
         return 1
