@@ -80,6 +80,14 @@
       <path d="M 4 21 v-3"></path><path d="M 20 4 v2"></path>
     </svg><i aria-hidden="true"></i><span data-rotulo="camino">Camino</span>
   </button>
+  <button type="button" data-cajon="medicion" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M 3 20 h18"></path><path d="M 6 20 v-6"></path>
+      <path d="M 11 20 v-11"></path><path d="M 16 20 v-8"></path>
+      <path d="M 21 20 v-14"></path>
+    </svg><i aria-hidden="true"></i><span data-rotulo="medicion">Medición</span>
+  </button>
   <button type="button" data-cajon="perfil" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -107,6 +115,15 @@
   <div class="dato"><span data-rotulo="m_consentidos">Consentidos para aprender</span><b id="m-consent">—</b></div>
   <div class="dato"><span data-rotulo="m_corregidos">Corregidos por ti</span><b id="m-corr">—</b></div>
   <p class="nota" id="nota-memoria"></p>
+</section>
+
+<section class="cajon" id="cajon-medicion" aria-label="Medición" hidden>
+  <h2 data-rotulo="medicion">Medición</h2>
+  <p class="nota" data-rotulo="med_intro">Once campos. Lo que no se puede medir
+    sale declarado, nunca en cero.</p>
+  <div id="med-modelo" class="dato"></div>
+  <div id="med-tabla"></div>
+  <p class="nota" id="med-norma"></p>
 </section>
 
 <section class="cajon" id="cajon-frontera" aria-label="Frontera" hidden>

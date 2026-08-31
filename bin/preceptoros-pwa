@@ -39,6 +39,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 AQUI = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, AQUI)
 
+import metricas as MET
+
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
 import afinado as _afinado                                  # noqa: E402
@@ -103,6 +105,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._estado()
         if ruta == "/api/camino":
             return self._camino()
+        if ruta == "/api/metricas":
+            return self._metricas()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -174,6 +178,25 @@ class PWA(BaseHTTPRequestHandler):
         if ruta == "/api/proyectos":
             return self._proyectos_guardar(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    def _metricas(self):
+        """Las once de METRICAS_NORMA. La interfaz PINTA; aqui se MIDE.
+
+        El paquete se arma con el cerebro que ya declara `/api/estado`, asi que
+        no hay dos verdades sobre que modelo hay: si algun dia cambia el
+        cerebro, cambia en un sitio. Y lo que no se pueda medir sale NO_DATA
+        con su causa -- `vram_mb` SIEMPRE, porque en esta maquina esa magnitud
+        no existe.
+        """
+        ruta = self.server.modelo
+        cerebro = None
+        if ruta and os.path.isfile(ruta):
+            cerebro = {"nombre": os.path.basename(ruta),
+                       "bytes": os.path.getsize(ruta)}
+        return self._json(200, MET.paquete(
+            cerebro=cerebro,
+            turno=getattr(self.server, "ultimo_turno", None),
+            tokens_sesion=getattr(self.server, "tokens_sesion", 0)))
 
     def _estado(self):
         with M.abrir(self.server.ruta_db) as c:

@@ -31,6 +31,11 @@ const T = {
     nota_sin: "Sin cerebro instalado, PreceptorOS pregunta y recuerda pero no conversa.",
     instalado: "instalado", sin_instalar: "sin instalar",
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
+    medicion: "Medición",
+    med_intro: "Once campos. Lo que no se puede medir sale declarado, nunca en cero.",
+    med_medido: "medido", med_norma: "norma", med_nodata: "sin dato",
+    med_fallo: "No se pudo leer la medición",
+    med_pie: "Solo son comparables los paquetes que declaran la misma ventana y los mismos tokens de sesión.",
     afinado_vivo: "afinado · vivo", base_vivo: "base · vivo",
     encendido: "encendido", apagado: "apagado",
     dilo: "Dilo", memoria: "Memoria", frontera: "Frontera", ajustes: "Ajustes",
@@ -77,6 +82,11 @@ const T = {
     nota_sin: "With no brain installed, PreceptorOS asks and remembers but does not converse.",
     instalado: "installed", sin_instalar: "not installed",
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
+    medicion: "Measurement",
+    med_intro: "Eleven fields. What cannot be measured is declared, never zeroed.",
+    med_medido: "measured", med_norma: "norm", med_nodata: "no data",
+    med_fallo: "The measurement could not be read",
+    med_pie: "Only packages declaring the same window and the same session tokens are comparable.",
     afinado_vivo: "fine-tuned · live", base_vivo: "base · live",
     encendido: "on", apagado: "off",
     dilo: "Say it", memoria: "Memory", frontera: "Border", ajustes: "Settings",
@@ -124,6 +134,10 @@ function abrir(cual) {
   if (cual === "camino") cargarCamino();
   if (cual === "perfil") cargarPerfil();
   if (cual === "proyectos") cargarProyectos();
+  // Se mide al abrir el cajon, no al cargar la pagina: una temperatura leida
+  // hace diez minutos y pintada como actual es un sensor deshonesto con
+  // buena cara.
+  if (cual === "medicion") pintaMedicion();
 }
 function cerrar() {
   document.querySelectorAll(".cajon").forEach((c) => {
@@ -555,3 +569,67 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 pulso();
+
+
+/* --- el cajon de Medicion -----------------------------------------------
+   Pinta las once cifras de la norma de metricas. La interfaz no calcula ni
+   una: todas llegan de /api/metricas ya medidas. Si aqui se hiciera una
+   division habria dos verdades sobre la misma cifra, y la de la pantalla
+   ganaria por ser la que se ve.
+
+   Un hueco se reconoce por `valor === null`, no por el nombre de su estado:
+   el modulo garantiza esa equivalencia con una prueba, y comparar contra el
+   valor evita escribir aqui nombres que este fichero no puede nombrar. */
+async function pintaMedicion() {
+  const tabla = $("med-tabla");
+  const cab = $("med-modelo");
+  if (!tabla) return;
+  try {
+    const r = await fetch("/api/metricas");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const por = {};
+    d.metricas.forEach((m) => { por[m.clave] = m; });
+
+    // La cabecera: que cerebro y de que base sale. `modelo_base` es
+    // obligatorio en la norma, asi que si falta se dice, y no se omite.
+    const nom = por.modelo_nombre, tam = por.modelo_tamano_gb, base = por.modelo_base;
+    cab.textContent = "";
+    const t1 = document.createElement("b");
+    t1.textContent = nom.valor !== null ? nom.valor : t("sin_modelo");
+    cab.appendChild(t1);
+    if (tam.valor !== null) {
+      const t2 = document.createElement("span");
+      t2.textContent = "  " + tam.valor + " GB";
+      cab.appendChild(t2);
+    }
+    const t3 = document.createElement("p");
+    t3.className = "nota";
+    t3.textContent = "base: " + (base.valor !== null ? base.valor : base.causa);
+    cab.appendChild(t3);
+
+    tabla.textContent = "";
+    const orden = ["consumo_ram_mb", "tokens_sesion", "ventana_contexto",
+                   "tokens_por_segundo", "latencia_primer_token_ms",
+                   "duracion_ms", "temp_cpu_c", "vram_mb"];
+    orden.forEach((clave) => {
+      const m = por[clave];
+      if (!m) return;
+      const fila = document.createElement("div");
+      fila.className = "dato";
+      const et = document.createElement("span");
+      et.textContent = clave.replace(/_/g, " ");
+      const val = document.createElement("b");
+      // Un hueco se pinta como raya y lleva su causa en el title. Poner un
+      // cero aqui seria la mentira mas barata que hay.
+      val.textContent = m.valor === null ? "—" : m.valor + " " + m.unidad;
+      val.dataset.estado = m.estado;
+      val.title = m.causa || m.como || "";
+      fila.appendChild(et); fila.appendChild(val);
+      tabla.appendChild(fila);
+    });
+    $("med-norma").textContent = t("med_pie");
+  } catch (e) {
+    tabla.textContent = t("med_fallo") + " — " + e.message;
+  }
+}
