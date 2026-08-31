@@ -72,7 +72,26 @@ M» es un dato con el que la persona decide, y quizá vuelva con otra máquina.
 Si la medida es `NO_DATA`, se ofrecen las tres y se declara la causa. Cerrar una
 puerta por ignorancia es peor que abrirla de más.
 
-### La senda de los muertos · `dead_path.jsonl`
+### La senda de los muertos · `dead_path.jsonl` — **@sleeping desde 2026-08-31**
+
+> **Dormida por firma del Soberano, no borrada.** Se retira con la llave
+> puesta, según la regla (b) de `ARQ_LOOPS.md`: *«una capacidad que deja de
+> aplicar se marca dormida con motivo y con condición de despertar escrita»*.
+>
+> **Motivo:** ningún bucle la escribía, y `Alejandria/digesto/digesto.py` la
+> declaraba como hueco en **cada** digesto — once veces en el historial de un
+> solo día — con el mismo remedio: «construir F1, o retirarlo de la lista». Un
+> hueco que se repite para siempre y que nadie va a tapar deja de ser un sensor
+> honesto: entrena a quien lee el informe a saltarse la sección NO_DATA, que es
+> la única que no puede saltarse nadie. La fuente ya se retiró del digesto.
+>
+> **Condición de despertar:** que exista una puerta del Tenedor sirviendo ramas
+> a personas reales (F2 cerrada). Antes de eso no hay ramas ofrecidas y no
+> tomadas que registrar, así que el fichero sólo podría contener ceros.
+>
+> Lo de abajo se conserva íntegro: es el diseño que se despierta, no un
+> borrador. Dormir no es tirar.
+
 
 Cada rama **ofrecida y no tomada** escribe una línea:
 
@@ -106,9 +125,13 @@ Determinar, midiendo y no estimando, qué hace falta de verdad para completar 3A
 memoria mínima, tok/s mínimo, minutos de entrenamiento. Hasta que ese número
 exista, la puerta de 3A no se puede programar sin mentir.
 
-### F1 · El esquema de `dead_path.jsonl`
+### F1 · El esquema de `dead_path.jsonl` — **@sleeping desde 2026-08-31**
 Fichero, campos, y la prueba de que no lleva nada identificable. Gate: un revisor
 externo lee cien líneas y no puede decir de quién son.
+
+**Dormida.** No se construye hasta que F2 sirva ramas a personas reales. El
+diseño queda escrito arriba; lo que se retira es la obligación de construirlo
+ahora, y con ella el hueco que se reportaba en cada digesto.
 
 ### F2 · La puerta
 Implementar la oferta de ramas contra la medida de la Misión 1, con los tres
@@ -125,8 +148,10 @@ explicación. Gate: el Cahier después de volver conserva las cicatrices de la r
 abandonada.
 
 ### F5 · Verificación
-Recorrido completo desde una instalación limpia, en las tres ramas, comprobando
-que `dead_path.jsonl` cuadra con lo que realmente ocurrió.
+Recorrido completo desde una instalación limpia, en las tres ramas. La
+comprobación de que `dead_path.jsonl` cuadra con lo ocurrido queda **dormida
+con F1**: mientras F1 duerma, F5 verifica las tres ramas sin ese cotejo, y lo
+declara en vez de darlo por hecho.
 
 ---
 
