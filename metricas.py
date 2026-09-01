@@ -30,8 +30,11 @@ arranques: leer un indice a ciegas da una cifra, y es de otro sensor.
 from __future__ import annotations
 
 import glob
+import json
 import os
 import subprocess
+import urllib.error
+import urllib.request
 
 CAMPOS = {
     "modelo_nombre", "modelo_base", "modelo_tamano_gb", "consumo_ram_mb",
@@ -42,6 +45,15 @@ CAMPOS = {
 # La ventana medida en este nodo el 2026-08-25: `-c 32768` con `-ngl 99` carga
 # y responde. Por encima no hay medida, asi que no hay norma.
 VENTANA_MEDIDA = 32768
+
+# El enchufe medidor del rack (Nous A1T con Tasmota). Se deja en una constante
+# y no incrustado en la funcion porque es una direccion de LAN: el dia que
+# cambie de IP se cambia aqui, y quien corra esto en otra red la sobreescribe
+# sin editar el codigo.
+ENCHUFE = os.environ.get("P0X_ENCHUFE", "http://192.168.50.162")
+# Solo la parte que un humano reconoce, para la frase del hueco: «no responde
+# en http://192.168.50.162» se lee peor que «no responde en 192.168.50.162».
+ENCHUFE_IP = ENCHUFE.split("//")[-1].rstrip("/")
 
 
 def medido(clave, valor, unidad, como):
@@ -96,6 +108,42 @@ def _temperatura():
                         "grados C")
     return medido("temp_cpu_c", round(crudo / 1000.0, 1), "grados C",
                   "temp1_input del hwmon cuyo name es k10temp, en milesimas")
+
+
+def _consumo_w():
+    """Los vatios que el rack esta chupando AHORA, leidos del enchufe.
+
+    ES LA UNICA METRICA DE ESTE MODULO QUE SALE DE LA MAQUINA
+    ---------------------------------------------------------
+    Las otras once se leen de /sys, de /proc o de un subproceso local. Esta
+    cruza la LAN hasta el Nous A1T, y por eso lleva `timeout=2`: un panel que
+    se cuelga esperando a un enchufe es peor panel que uno que declara
+    NO_DATA en dos segundos. La causa viaja en el hueco -- si el enchufe se
+    apaga, quien mire tiene que poder distinguirlo de un consumo de cero.
+
+    Y no entra en `paquete()`: METRICAS_NORMA compara PAQUETES DE MODELO entre
+    maquinas, y el vatiaje de un enchufe describe el rack, no el modelo. Ver
+    la nota de `paquete()`.
+    """
+    url = f"{ENCHUFE}/cm?cmnd=Status+8"
+    try:
+        with urllib.request.urlopen(url, timeout=2) as r:
+            datos = json.loads(r.read().decode("utf-8"))
+        w = datos["StatusSNS"]["ENERGY"]["Power"]
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        # La causa es la frase fija que el Soberano quiere leer en el panel; el
+        # TIPO de averia va en `detalle`, porque «tardo mas de 2 s» y «me
+        # cerraron el puerto» se arreglan de forma distinta y perderlo seria
+        # cambiar un hueco con causa por un hueco con excusa.
+        return sin_dato("consumo_w", f"Nous A1T no responde en {ENCHUFE_IP}",
+                        "W", f"{type(e).__name__} pidiendo {url}")
+    except (KeyError, TypeError) as e:
+        # Contesto, pero no con lo que se le pidio. Es una averia distinta
+        # --firmware cambiado, otro aparato en esa IP-- y se dice distinta.
+        return sin_dato("consumo_w",
+                        f"Nous A1T responde en {ENCHUFE_IP} pero sin "
+                        "StatusSNS.ENERGY.Power", "W", f"{type(e).__name__}: {e}")
+    return medido("consumo_w", w, "W", "Nous A1T por HTTP local")
 
 
 def _modelos_cargados():
@@ -215,7 +263,14 @@ def _del_turno(turno):
 
 
 def paquete(cerebro=None, turno=None, tokens_sesion=0, ventana=VENTANA_MEDIDA):
-    """El paquete entero, listo para pintar o para firmar."""
+    """El paquete entero, listo para pintar o para firmar.
+
+    `consumo_w` NO esta aqui a proposito. Este paquete es la unidad de
+    comparacion entre maquinas: once campos, los mismos siempre. El vatiaje
+    del enchufe mide el RACK, no el modelo, y meterlo dentro romperia la
+    comparabilidad con cualquier paquete que venga de una maquina sin enchufe.
+    Se pide aparte, con `_consumo_w()`, y lo consume el Ojo.
+    """
     m = []
     m += _modelo(cerebro)
     m.append(_rss_del_runner())
