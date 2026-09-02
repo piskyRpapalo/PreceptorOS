@@ -150,3 +150,36 @@ def rollback(raiz, motivo):
     reg["rollback"] = {"motivo": motivo}
     escribir_registro(raiz, reg)
     return True
+
+
+def restaurar(raiz, motivo):
+    """Deshace un rollback: vuelve al afinado que YA estaba declarado.
+
+    Faltaba la vuelta. `rollback` escribe `preferencia: base`, y la única
+    función que quitaba esa preferencia era `promover` -- que exige una ruta de
+    GGUF y mide su huella. Para volver a un afinado que ya estaba declarado y
+    verificado había que re-promoverlo, o sea pasarle una ruta de fichero a la
+    función. Desde una interfaz eso es inaceptable: una interfaz que manda
+    rutas al servidor es una interfaz que puede mandar cualquier ruta.
+
+    Con esto, la elección que ve la persona se queda en dos verbos que no
+    tocan el disco de nadie -- `rollback` y `restaurar` -- y `promover` sigue
+    siendo lo que era: una operación de la forja, no del producto.
+
+    Devuelve False si no hay afinado que restaurar, y NO toca el registro. Un
+    True incondicional haría que la interfaz dijera «ahora usas el afinado»
+    con el registro vacío, que es una respuesta falsa a una pregunta honesta.
+
+    El motivo del rollback NO se borra. Un rollback ocurrió de verdad, y el
+    porqué es justo lo que hará falta el día que vuelva a fallar.
+    """
+    reg = _registro(raiz)
+    afinado = reg.get("afinado") or {}
+    if not (afinado.get("destino") and afinado.get("sha256")):
+        return False
+    if "preferencia" not in reg:
+        return True                 # ya estaba en el afinado: nada que escribir
+    reg.pop("preferencia")
+    reg["restaurado"] = {"motivo": motivo}
+    escribir_registro(raiz, reg)
+    return True

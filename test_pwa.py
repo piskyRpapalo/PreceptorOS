@@ -13,6 +13,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import pathlib
 import sys
 import tempfile
 import unittest
@@ -277,6 +278,149 @@ class TestCaptura(unittest.TestCase):
     def test_7_id_que_no_es_id(self):
         PWA.PWA._captura_marcar(self.h, {"id": "todos", "consent": True})
         self.assertEqual(self.h.codigo, 400)
+
+
+class TestCerebro(unittest.TestCase):
+    """El selector de cerebro: la unica eleccion que la persona puede hacer
+    sobre que modelo le contesta, y sus dos limites.
+
+    `afinado.py` sabia elegir desde hacia tiempo, pero ninguna ruta lo exponia:
+    la logica estaba escrita y desconectada. Esto la conecta -- y con la puerta
+    cerrada por donde no debe entrar nada.
+
+    EL LIMITE QUE IMPORTA: por aqui NO viaja NUNCA una ruta de fichero. La
+    interfaz dice `base` o `afinado`, dos palabras de un vocabulario cerrado, y
+    el servidor resuelve las rutas con `casa.raiz()`. `promover()` -- que si
+    acepta una ruta y mide su huella -- se queda en la forja y no se expone.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.raiz = self.tmp.name
+        self.db = os.path.join(self.raiz, "memory.db")
+        memory.crear(self.db)
+        self.base = os.path.join(self.raiz, "base.gguf")
+        with open(self.base, "wb") as fh:
+            fh.write(b"x" * 64)
+        self.fino = os.path.join(self.raiz, "modelos", "afinado-v1.gguf")
+        os.makedirs(os.path.dirname(self.fino), exist_ok=True)
+        with open(self.fino, "wb") as fh:
+            fh.write(b"y" * 128)
+        self.h = Fingida(self.db)
+        self.h.server.modelo = self.base
+        # Un Mock devuelve un Mock por cada atributo que no se declare, y
+        # `metricas` intenta redondearlo. Se declaran los dos que lee.
+        self.h.server.tokens_sesion = 0
+        self.h.server.ultimo_turno = None
+        # `casa.raiz()` devuelve un Path, no una cadena. Un doble que devuelve
+        # str hace fallar al producto por una razon que el producto no tiene:
+        # se copia el tipo real, no el que resulte comodo de escribir.
+        self.parche = mock.patch.object(PWA._casa, "raiz",
+                                        return_value=pathlib.Path(self.raiz))
+        self.parche.start()
+
+    def tearDown(self):
+        self.parche.stop()
+        self.tmp.cleanup()
+
+    def _leer(self):
+        PWA.PWA._cerebro_leer(self.h)
+        return self.h.codigo, self.h.cuerpo
+
+    def _elegir(self, datos):
+        PWA.PWA._cerebro_elegir(self.h, datos)
+        return self.h.codigo, self.h.cuerpo
+
+    def test_16_sin_afinado_dice_que_usa_el_base_y_por_que(self):
+        cod, cuerpo = self._leer()
+        self.assertEqual(cod, 200)
+        self.assertEqual(cuerpo["en_uso"]["cual"], "base")
+        self.assertTrue(cuerpo["en_uso"]["motivo"],
+                        "un cerebro elegido sin motivo no es auditable")
+        # La opcion del afinado se declara AUSENTE, no se omite: una lista de
+        # una sola opcion se lee como «no hay mas», y si la hay pero no cuadra
+        # la persona necesita saberlo.
+        opciones = {o["cual"]: o for o in cuerpo["opciones"]}
+        self.assertIn("afinado", opciones)
+        self.assertFalse(opciones["afinado"]["disponible"])
+        self.assertTrue(opciones["afinado"]["causa"])
+
+    def test_17_con_afinado_promovido_se_puede_alternar(self):
+        PWA._afinado.promover(self.raiz, self.fino, "v1", "caza-nido")
+        _, cuerpo = self._leer()
+        self.assertEqual(cuerpo["en_uso"]["cual"], "afinado")
+
+        cod, cuerpo = self._elegir({"cual": "base", "motivo": "quiero comparar"})
+        self.assertEqual(cod, 200)
+        self.assertEqual(cuerpo["en_uso"]["cual"], "base")
+
+        cod, cuerpo = self._elegir({"cual": "afinado", "motivo": "ya compare"})
+        self.assertEqual(cod, 200)
+        self.assertEqual(cuerpo["en_uso"]["cual"], "afinado")
+
+    def test_18_no_se_acepta_una_ruta_por_el_cuerpo(self):
+        """El agujero obvio. `cual` es un vocabulario cerrado de dos palabras."""
+        for veneno in ("/etc/passwd", "../../base.gguf", self.fino,
+                       "afinado; rm -rf", "", None, 3, {"cual": "base"}):
+            cod, _ = self._elegir({"cual": veneno})
+            self.assertEqual(cod, 400, f"acepto {veneno!r} como eleccion")
+
+    def test_19_la_ruta_no_sale_cruda_al_tablero(self):
+        """`HOME_PATH` es politica activa de este producto. Su propio tablero
+        no puede saltarsela."""
+        PWA._afinado.promover(self.raiz, self.fino, "v1")
+        _, cuerpo = self._leer()
+        crudo = json.dumps(cuerpo)
+        self.assertNotIn(self.fino, crudo)
+        self.assertNotIn(self.raiz, crudo)
+
+    def test_20_un_afinado_con_la_huella_cambiada_no_se_ofrece(self):
+        """La 4 de test_afinado, pero vista desde la puerta.
+
+        Si el fichero cambia despues de promoverlo, el registro sigue diciendo
+        que hay un afinado. `elegir` cae al base -- y esta puerta tiene que
+        contarlo, no ensenar una opcion que no se puede usar.
+        """
+        PWA._afinado.promover(self.raiz, self.fino, "v1")
+        with open(self.fino, "wb") as fh:
+            fh.write(b"otro fichero distinto")
+        _, cuerpo = self._leer()
+        self.assertEqual(cuerpo["en_uso"]["cual"], "base")
+        opciones = {o["cual"]: o for o in cuerpo["opciones"]}
+        self.assertFalse(opciones["afinado"]["disponible"])
+        self.assertIn("huella", opciones["afinado"]["causa"].lower())
+
+    def test_22_medicion_mide_el_cerebro_que_de_verdad_contesta(self):
+        """Dos verdades en la misma pantalla, vistas en la app viva.
+
+        `/api/metricas` armaba su cabecera con `self.server.modelo`, que es
+        SIEMPRE el base: la ruta que entro por la linea de ordenes. Con un
+        afinado verificado en uso, el cajon de Medicion decia el nombre del
+        base mientras el selector de justo debajo decia el del afinado --
+        medido el 2026-09-02 en el tablero, uno encima del otro.
+
+        Importa mas de lo que parece: la promesa del Banco de Pruebas es
+        «estos tokens por segundo son los de TU cerebro». Si el nombre de la
+        cabecera no es el del fichero que contesta, la medida queda atribuida
+        al modelo equivocado, y comparar dos medidas deja de significar nada.
+
+        `_estado` ya lo hacia bien -- consulta `elegir`. Esta puerta no.
+        """
+        PWA._afinado.promover(self.raiz, self.fino, "v1")
+        PWA.PWA._metricas(self.h)
+        self.assertEqual(self.h.codigo, 200)
+        por = {m["clave"]: m for m in self.h.cuerpo["metricas"]}
+        self.assertEqual(por["modelo_nombre"]["valor"],
+                         os.path.basename(self.fino),
+                         "Medicion nombra un cerebro distinto del que contesta")
+
+    def test_21_pedir_un_afinado_que_no_esta_no_miente(self):
+        """Sin afinado declarado, elegirlo devuelve 409 y sigue en el base."""
+        cod, cuerpo = self._elegir({"cual": "afinado", "motivo": "a ver"})
+        self.assertEqual(cod, 409)
+        self.assertEqual(cuerpo["estado"], "bloqueado")
+        _, leido = self._leer()
+        self.assertEqual(leido["en_uso"]["cual"], "base")
 
 
 class TestLaCaraNoSeApaga(unittest.TestCase):

@@ -58,6 +58,107 @@ PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIU
 LIMITE = 512 * 1024
 INTERFAZ = os.path.join(AQUI, "interface")
 
+# El vocabulario cerrado del selector de cerebro. Constante del producto, no
+# estado de una peticion: por eso vive aqui y no como atributo de la clase.
+CEREBROS = ("base", "afinado")
+
+
+def _ruta_visible(ruta):
+    """Una ruta que se puede ensenar. Vivia dentro de `_estado` y ahora la
+    comparten dos puertas: si la regla cambiara en un sitio y no en el otro,
+    una de las dos escupiria el nombre de la persona en su propio tablero.
+
+    `HOME_PATH` es una politica de redaccion activa de este producto, asi que
+    su tablero no puede saltarsela. Pero pasar la ruta entera por
+    `redactar_salida` devuelve un tachon completo, que cumple la politica y no
+    informa de nada: quien pregunta donde esta su cerebro necesita una
+    respuesta. Asi que se acorta a proposito:
+        dentro de casa -> `~/loquesea/modelo.gguf`  (dice donde, no quien)
+        fuera de casa  -> `.../carpeta/modelo.gguf` (dice donde, sin prefijo)
+    Y despues se COMPRUEBA contra la politica, en vez de suponer que basta.
+    """
+    if not ruta:
+        return None
+    casa = os.path.expanduser("~")
+    if ruta.startswith(casa):
+        visible = "~" + ruta[len(casa):]
+    else:
+        trozos = ruta.strip("/").split("/")
+        visible = "…/" + "/".join(trozos[-2:])
+    tachado, hallazgos = G.redactar_salida(visible)
+    if hallazgos:
+        visible = tachado
+    return visible
+
+
+def _cerebro_paquete(modelo):
+    """Que cerebro manda ahora, y cual seria el otro.
+
+    Funcion de modulo y no metodo, por dos razones que apuntan igual: no
+    necesita nada del manejador salvo la ruta del base, y el arnes de pruebas
+    llama a los metodos sin instanciar la clase -- ahi un `self.otro_metodo()`
+    revienta con AttributeError. Lo que no depende de la peticion no vive en
+    el manejador.
+
+    `elegir` es quien decide, aqui y en `_estado` y en cada turno. Esta puerta
+    no repite su razonamiento: lo consulta. Si lo repitiera, el tablero podria
+    decir «usas el afinado» mientras el turno de al lado usa el base.
+    """
+    raiz = _casa.raiz()
+    base = modelo or ""
+    eleccion = _afinado.elegir(raiz, base)
+
+    hay_base = bool(base and os.path.isfile(base))
+    opciones = [{
+        "cual": "base",
+        "disponible": hay_base,
+        "causa": None if hay_base else (
+            "no hay ruta de modelo declarada en esta copia" if not base
+            else "la ruta declarada no existe en el disco"),
+        "nombre": os.path.basename(base) if base else None,
+        "ruta": _ruta_visible(base) if hay_base else None,
+        "bytes": os.path.getsize(base) if hay_base else None,
+        "version": None,
+        "notas": None,
+    }]
+
+    # El afinado se declara SIEMPRE, disponible o no. Una lista de una sola
+    # opcion se lee como «no hay mas»; si la hay pero no cuadra, la persona
+    # necesita saber que existe y por que no puede usarla.
+    declarado = (_afinado._registro(raiz) or {}).get("afinado") or {}
+    vivo = eleccion.cual == "afinado"
+    if not declarado.get("destino"):
+        causa = "no hay cerebro afinado declarado"
+    elif vivo:
+        causa = None
+    else:
+        # El motivo lo da `elegir`, que es quien lo midio. Escribirlo aqui a
+        # mano seria una segunda verdad sobre el mismo hecho.
+        causa = eleccion.motivo
+    opciones.append({
+        "cual": "afinado",
+        "disponible": bool(declarado.get("destino")) and causa is None,
+        "causa": causa,
+        "nombre": (os.path.basename(declarado["destino"])
+                   if declarado.get("destino") else None),
+        "ruta": _ruta_visible(eleccion.ruta) if vivo else None,
+        "bytes": declarado.get("bytes"),
+        "version": declarado.get("version"),
+        "notas": declarado.get("notas"),
+    })
+
+    return {
+        "estado": "ok",
+        "en_uso": {
+            "cual": eleccion.cual,
+            "motivo": eleccion.motivo,
+            "nombre": os.path.basename(eleccion.ruta) if eleccion.ruta else None,
+            "ruta": _ruta_visible(eleccion.ruta),
+        },
+        "opciones": opciones,
+    }
+
+
 ESTATICOS = {
     # La puerta es el tablero. `app.html` sigue existiendo y se llega desde el
     # -- es el panel de detalle, no la portada.
@@ -107,6 +208,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._camino()
         if ruta == "/api/metricas":
             return self._metricas()
+        if ruta == "/api/cerebro":
+            return self._cerebro_leer()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -171,6 +274,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._frontera(datos)
         if ruta == "/api/anidar":
             return self._anidar(datos)
+        if ruta == "/api/cerebro":
+            return self._cerebro_elegir(datos)
         if ruta == "/api/charla":
             return self._turno(datos)
         if ruta == "/api/captura":
@@ -190,7 +295,26 @@ class PWA(BaseHTTPRequestHandler):
         con su causa -- `vram_mb` SIEMPRE, porque en esta maquina esa magnitud
         no existe.
         """
+        # El cerebro que de verdad contesta, no el que entro por la linea de
+        # ordenes. `self.server.modelo` es SIEMPRE el base; con un afinado
+        # verificado en uso, esta cabecera decia el nombre del base mientras el
+        # selector de justo debajo decia el del afinado. Dos verdades en la
+        # misma pantalla, vistas en el tablero el 2026-09-02.
+        #
+        # No es un detalle cosmetico: la promesa del Banco de Pruebas es «estos
+        # tokens por segundo son los de TU cerebro». Con el nombre equivocado,
+        # la medida queda atribuida a otro modelo y comparar dos medidas deja
+        # de significar nada.
+        #
+        # `elegir` decide aqui igual que en `_estado` y que en cada turno. Es
+        # la misma consulta, no una copia de su razonamiento.
         ruta = self.server.modelo
+        try:
+            eleccion = _afinado.elegir(_casa.raiz(), ruta or "")
+            if eleccion.ruta and os.path.isfile(eleccion.ruta):
+                ruta = eleccion.ruta
+        except Exception:
+            pass                     # con el registro roto manda el base
         cerebro = None
         if ruta and os.path.isfile(ruta):
             cerebro = {"nombre": os.path.basename(ruta),
@@ -199,6 +323,62 @@ class PWA(BaseHTTPRequestHandler):
             cerebro=cerebro,
             turno=getattr(self.server, "ultimo_turno", None),
             tokens_sesion=getattr(self.server, "tokens_sesion", 0)))
+
+    # --- el cerebro · la unica eleccion de modelo que hace la persona -------
+    #
+    # `afinado.py` sabia elegir desde hacia tiempo y ninguna ruta lo exponia:
+    # la logica estaba escrita y desconectada. Esto la conecta.
+    #
+    # EL LIMITE, escrito antes que el codigo porque es lo que importa: por esta
+    # puerta NO viaja NUNCA una ruta de fichero. La interfaz manda una de dos
+    # palabras -- `base` o `afinado` -- y el servidor resuelve las rutas con
+    # `casa.raiz()`. `promover()`, que si acepta una ruta y le mide la huella,
+    # se queda en la forja y no se expone: el dia que una interfaz pueda mandar
+    # rutas, puede mandar cualquier ruta.
+
+    def _cerebro_leer(self):
+        try:
+            return self._json(200, _cerebro_paquete(self.server.modelo))
+        except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado",
+                                    "motivo": type(e).__name__})
+
+    def _cerebro_elegir(self, datos):
+        """Cambiar de cerebro es escribir una preferencia. No mueve un byte.
+
+        El hot-swap es trivial, y no por suerte: `motor_llama` lanza el proceso
+        hijo en CADA turno, asi que no hay demonio que reiniciar. A que fichero
+        apunta el turno siguiente ES el cambio.
+        """
+        cual = datos.get("cual")
+        if cual not in CEREBROS:
+            # Vocabulario cerrado. Cualquier otra cosa -- una ruta, un numero,
+            # un diccionario -- se rechaza sin mirarla siquiera.
+            return self._json(400, {"estado": "bloqueado",
+                                    "motivo": "solo 'base' o 'afinado'"})
+        motivo = datos.get("motivo")
+        if not isinstance(motivo, (str, type(None))):
+            return self._json(400, {"estado": "bloqueado", "motivo": "TypeError"})
+        motivo = (motivo or "").strip() or "sin motivo declarado"
+
+        try:
+            raiz = _casa.raiz()
+            if cual == "base":
+                _afinado.rollback(raiz, motivo)
+            elif not _afinado.restaurar(raiz, motivo):
+                # `restaurar` devuelve False cuando no hay nada que restaurar.
+                # Se dice, en vez de responder 200 sobre un cambio que no paso.
+                return self._json(409, {"estado": "bloqueado",
+                                        "motivo": "no hay cerebro afinado declarado"})
+            paquete = _cerebro_paquete(self.server.modelo)
+        except OSError as e:
+            return self._json(500, {"estado": "bloqueado",
+                                    "motivo": type(e).__name__})
+
+        # Se responde con lo que `elegir` dice AHORA, no con lo que se pidio.
+        # Pedir el afinado y que su huella no cuadre termina en el base, y la
+        # persona tiene que verlo -- no un «hecho» que no describe la realidad.
+        return self._json(200, paquete)
 
     def _estado(self):
         with M.abrir(self.server.ruta_db) as c:
@@ -222,23 +402,6 @@ class PWA(BaseHTTPRequestHandler):
         #   fuera de casa   -> `…/carpeta/modelo.gguf`   (dice donde, sin prefijo)
         # Ninguna de las dos formas casa con el patron de la politica, y eso se
         # COMPRUEBA aqui abajo en vez de suponerse.
-        def _visible(ruta):
-            if not ruta:
-                return None
-            casa = os.path.expanduser("~")
-            if ruta.startswith(casa):
-                visible = "~" + ruta[len(casa):]
-            else:
-                trozos = ruta.strip("/").split("/")
-                visible = "…/" + "/".join(trozos[-2:])
-            # Si algun dia un caso raro colase un prefijo vigilado, manda la
-            # politica y se tacha. Fallar cerrado, no confiar en el razonamiento
-            # de arriba.
-            tachado, hallazgos = G.redactar_salida(visible)
-            if hallazgos:
-                visible = tachado
-            return visible
-
         # Que cerebro manda HOY: el base o el afinado. `elegir` verifica la
         # huella del afinado contra el disco, asi que un LoRA declarado y
         # ausente —o cambiado— cae al base y lo dice. La marca del producto es
@@ -256,7 +419,7 @@ class PWA(BaseHTTPRequestHandler):
             "nombre": os.path.basename(ruta) if hay else None,
             "afinado": afinado_vivo,
             "motivo": afinado_motivo,
-            "ruta": _visible(ruta),
+            "ruta": _ruta_visible(ruta),
             "bytes": os.path.getsize(ruta) if hay else None,
             "causa": None if hay else (
                 "no hay ruta de modelo declarada en esta copia" if not ruta

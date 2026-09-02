@@ -595,3 +595,42 @@ body {
   .hablar, .enlace, button { transition: none; }
   .hablar:hover, button:hover { transform: none; }
 }
+
+/* --- el selector de cerebro (dentro de Medición) -------------------------
+   Dos tarjetas, no un desplegable. Un `select` esconde la opción que no está
+   elegida, y aquí lo que hay que ver de un vistazo es justo lo otro: qué otro
+   cerebro hay y por qué se puede o no usar. Una opción que no se puede elegir
+   se queda a la vista, apagada y con su causa escrita -- omitirla haría creer
+   que no existe. */
+.sub-h {
+  margin: 1.1rem 0 .3rem; font-size: .82rem; font-weight: 800;
+  letter-spacing: .04em; text-transform: uppercase; opacity: .72;
+}
+.cer-op {
+  display: flex; align-items: flex-start; gap: .6rem; width: 100%;
+  margin-bottom: .5rem; padding: .6rem .7rem; text-align: left;
+  border-radius: var(--radio); cursor: pointer;
+  background: var(--violeta-tenue); border: 1px solid var(--line);
+  color: inherit; font: inherit;
+}
+.cer-op:disabled { cursor: default; opacity: .5; }
+.cer-op[aria-pressed="true"] {
+  border-color: var(--violeta);
+  box-shadow: 0 0 0 1px var(--violeta) inset;
+}
+/* El punto de "en uso". No es solo color: lleva marca dentro, porque un estado
+   que solo se distingue por el color no existe para quien no lo distingue. */
+.cer-punto {
+  flex: none; width: 1.1rem; height: 1.1rem; margin-top: .1rem;
+  border-radius: 50%; border: 2px solid var(--line);
+  font-size: .7rem; line-height: .9rem; text-align: center; font-weight: 900;
+}
+.cer-op[aria-pressed="true"] .cer-punto {
+  border-color: var(--violeta); color: var(--violeta);
+}
+.cer-cuerpo { min-width: 0; }
+.cer-nombre { font-weight: 800; font-size: .88rem; word-break: break-word; }
+.cer-detalle {
+  margin: .15rem 0 0; font-size: .72rem; line-height: 1.35;
+  color: var(--violeta-fuerte); word-break: break-word;
+}

@@ -33,6 +33,13 @@ const T = {
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
     medicion: "Medición",
     med_intro: "Once campos. Lo que no se puede medir sale declarado, nunca en cero.",
+    cer_titulo: "Qué cerebro te contesta",
+    cer_base: "Cerebro base", cer_afinado: "Cerebro afinado",
+    cer_en_uso: (n) => `En uso: ${n}`,
+    cer_cambiando: "cambiando…",
+    cer_hecho: (n) => `Hecho. El próximo turno usa: ${n}`,
+    cer_no: "no se pudo cambiar",
+    cer_sin_servidor: "no alcanzo al servidor",
     med_medido: "medido", med_norma: "norma", med_nodata: "sin dato",
     med_fallo: "No se pudo leer la medición",
     med_pie: "Solo son comparables los paquetes que declaran la misma ventana y los mismos tokens de sesión.",
@@ -84,6 +91,13 @@ const T = {
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
     medicion: "Measurement",
     med_intro: "Eleven fields. What cannot be measured is declared, never zeroed.",
+    cer_titulo: "Which brain answers you",
+    cer_base: "Base brain", cer_afinado: "Fine-tuned brain",
+    cer_en_uso: (n) => `In use: ${n}`,
+    cer_cambiando: "switching…",
+    cer_hecho: (n) => `Done. The next turn uses: ${n}`,
+    cer_no: "could not switch",
+    cer_sin_servidor: "cannot reach the server",
     med_medido: "measured", med_norma: "norm", med_nodata: "no data",
     med_fallo: "The measurement could not be read",
     med_pie: "Only packages declaring the same window and the same session tokens are comparable.",
@@ -137,7 +151,7 @@ function abrir(cual) {
   // Se mide al abrir el cajon, no al cargar la pagina: una temperatura leida
   // hace diez minutos y pintada como actual es un sensor deshonesto con
   // buena cara.
-  if (cual === "medicion") pintaMedicion();
+  if (cual === "medicion") { pintaMedicion(); pintaCerebro(); }
 }
 function cerrar() {
   document.querySelectorAll(".cajon").forEach((c) => {
@@ -631,5 +645,103 @@ async function pintaMedicion() {
     $("med-norma").textContent = t("med_pie");
   } catch (e) {
     tabla.textContent = t("med_fallo") + " — " + e.message;
+  }
+}
+
+
+/* --- el selector de cerebro ----------------------------------------------
+   Nada de lo que se pinta aqui se decide aqui. `disponible` y `causa` los
+   calcula el servidor con `afinado.elegir`, que es quien mide la huella del
+   fichero contra el registro. Si esta pantalla decidiera por su cuenta cual se
+   puede usar, podria ofrecer un cerebro que el turno siguiente va a rechazar.
+
+   Y por la puerta no viaja una ruta: se manda `base` o `afinado`, dos
+   palabras. El servidor resuelve los ficheros. */
+function _tarjetaCerebro(op, enUso) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "cer-op";
+  b.disabled = !op.disponible;
+  const suyo = op.cual === enUso;
+  b.setAttribute("aria-pressed", String(suyo));
+
+  const punto = document.createElement("span");
+  punto.className = "cer-punto";
+  punto.textContent = suyo ? "✓" : "";
+  punto.setAttribute("aria-hidden", "true");
+
+  const cuerpo = document.createElement("span");
+  cuerpo.className = "cer-cuerpo";
+  const nombre = document.createElement("span");
+  nombre.className = "cer-nombre";
+  nombre.textContent = t(op.cual === "base" ? "cer_base" : "cer_afinado");
+  cuerpo.appendChild(nombre);
+
+  /* Lo que se sabe de este cerebro, en una linea. Si no se puede usar, la
+     causa la manda el servidor palabra por palabra: aqui no se traduce ni se
+     resume un motivo tecnico -- resumirlo es donde se pierde el porque. */
+  const detalle = document.createElement("p");
+  detalle.className = "cer-detalle";
+  const trozos = [];
+  if (op.nombre) trozos.push(op.nombre);
+  if (op.version) trozos.push(op.version);
+  if (op.bytes !== null && op.bytes !== undefined) {
+    trozos.push((op.bytes / 1073741824).toFixed(2) + " GB");
+  }
+  if (op.notas) trozos.push(op.notas);
+  if (op.causa) trozos.push(op.causa);
+  detalle.textContent = trozos.join(" · ");
+  cuerpo.appendChild(detalle);
+
+  b.append(punto, cuerpo);
+  if (!b.disabled && !suyo) {
+    b.addEventListener("click", () => elegirCerebro(op.cual));
+  }
+  return b;
+}
+
+function _pintaPaqueteCerebro(d) {
+  $("cer-titulo").textContent = t("cer_titulo");
+  $("cer-uso").textContent =
+    t("cer_en_uso")(d.en_uso.nombre || d.en_uso.cual) + " — " + d.en_uso.motivo;
+  const caja = $("cer-opciones");
+  caja.replaceChildren();
+  for (const op of d.opciones) caja.appendChild(_tarjetaCerebro(op, d.en_uso.cual));
+}
+
+async function pintaCerebro() {
+  try {
+    const r = await fetch("/api/cerebro", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    _pintaPaqueteCerebro(await r.json());
+    $("cer-dicho").hidden = true;
+  } catch {
+    $("cer-titulo").textContent = t("cer_titulo");
+    $("cer-uso").textContent = t("cer_sin_servidor");
+    $("cer-opciones").replaceChildren();
+  }
+}
+
+async function elegirCerebro(cual) {
+  $("cer-dicho").hidden = false;
+  $("cer-dicho").textContent = t("cer_cambiando");
+  try {
+    const r = await fetch("/api/cerebro", {
+      method: "Post", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cual, motivo: "elegido desde el tablero" }),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      $("cer-dicho").textContent = `${t("cer_no")}: ${d.motivo || r.status}`;
+      return;
+    }
+    // Se repinta con lo que el servidor dice que hay en este momento. Pedir el afinado y
+    // que su huella no cuadre termina en el base, y eso tiene que verse.
+    _pintaPaqueteCerebro(d);
+    $("cer-dicho").hidden = false;
+    $("cer-dicho").textContent =
+      t("cer_hecho")(d.en_uso.nombre || d.en_uso.cual);
+  } catch {
+    $("cer-dicho").textContent = t("cer_sin_servidor");
   }
 }
