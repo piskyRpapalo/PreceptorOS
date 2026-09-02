@@ -169,6 +169,8 @@ class PWA(BaseHTTPRequestHandler):
                                     "motivo": "cuerpo ilegible o fuera de rango"})
         if ruta == "/api/frontera":
             return self._frontera(datos)
+        if ruta == "/api/anidar":
+            return self._anidar(datos)
         if ruta == "/api/charla":
             return self._turno(datos)
         if ruta == "/api/captura":
@@ -444,6 +446,72 @@ class PWA(BaseHTTPRequestHandler):
             # filtro caido no es lo mismo que un texto limpio.
             return self._json(409, {"estado": "bloqueado", "motivo": str(e)})
         return self._json(200, payload)
+
+    def _anidar(self, datos):
+        """La Aduana con salida: el texto de fuera entra en la memoria.
+
+        Este es el paso que le faltaba a la doctrina Caza-Nido. `/api/frontera`
+        comprueba y ensena; no guardaba nada, asi que el usuario veia lo que se
+        iba a tachar y luego no tenia por donde meterlo. El circulo se cierra
+        aqui.
+
+        LA REGLA QUE SOSTIENE TODO ESTO
+        -------------------------------
+        El servidor NO SE FIA de lo que le mande la interfaz. Vuelve a filtrar
+        el, siempre, y escribe en disco el resultado de SU filtro -- nunca un
+        campo del cuerpo que diga venir ya limpio. Una aduana que acepta el
+        sello que trae el paquete no es una aduana; es un buzon.
+
+        Por eso el cuerpo solo se mira por `texto` y `porque`. Si manana la
+        interfaz mandara un `texto_limpio`, este metodo lo ignora sin decir
+        nada: no hay rama por la que un texto sin filtrar llegue al `insert`.
+
+        FAIL-CLOSED, igual que `/api/frontera`. Si el filtro no termina no se
+        escribe una fila a medias: no hay recuerdo, se devuelve 409, y NO viaja
+        el texto de vuelta -- si viajara, la interfaz tendria la tentacion de
+        guardarlo por su cuenta.
+
+        Y `origin='importado'`, que es uno de los tres que admite el CHECK del
+        esquema y justo el que significa esto. Sin esa marca, un parrafo cazado
+        en una IA ajena se leeria dentro de seis meses como algo que dijo la
+        persona.
+        """
+        texto = datos.get("texto")
+        porque = datos.get("porque")
+        if not isinstance(texto, str) or not isinstance(porque, (str, type(None))):
+            return self._json(400, {"estado": "bloqueado", "motivo": "TypeError"})
+        if not texto.strip():
+            # Un recuerdo vacio no es un recuerdo. Se para aqui y no en el
+            # ValueError de `memory`, para que la interfaz reciba un motivo
+            # y no una traza.
+            return self._json(400, {"estado": "bloqueado",
+                                    "motivo": "no hay nada que anidar"})
+
+        # Los DOS campos por el filtro. El segundo es el que se olvida: un
+        # «por que» lleva tanto contexto como el «que», y a veces mas.
+        try:
+            limpio = G.preparar_envio(texto)
+            limpio_porque = G.preparar_envio(porque) if porque and porque.strip() else None
+        except G.EnvioBloqueado as e:
+            return self._json(409, {"estado": "bloqueado", "motivo": str(e)})
+
+        hallazgos = list(limpio["hallazgos"])
+        if limpio_porque:
+            hallazgos += list(limpio_porque["hallazgos"])
+
+        with M.abrir(self.server.ruta_db) as c:
+            fila = M.escribir_engrama(
+                c, what=limpio["texto"],
+                why=limpio_porque["texto"] if limpio_porque else None,
+                origin="importado")
+
+        # Se devuelve lo GUARDADO, no lo recibido. Si la persona no puede ver
+        # que se tacho de su texto, esta firmando a ciegas lo que entra en su
+        # propia memoria.
+        return self._json(200, {"estado": "ok", "id": fila["id"],
+                                "texto": fila["what"], "porque": fila["why"],
+                                "hallazgos": hallazgos,
+                                "policy_hash": limpio["policy_hash"]})
 
     def _turno(self, datos):
         dicho = (datos.get("texto") or "").strip()

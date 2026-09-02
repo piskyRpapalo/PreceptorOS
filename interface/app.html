@@ -75,6 +75,22 @@
       <p class="bloqueado" id="bloqueado" hidden></p>
 
       <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
+
+      <!-- La aduana con salida. Aparece solo cuando el filtro ya corrió: no se
+           puede anidar lo que nadie ha mirado todavía. Lo que se enseña aquí es
+           el texto ya tachado que devolvió el servidor, nunca lo que se pegó
+           arriba — la persona firma lo que entra en su memoria, así que tiene
+           que estar viéndolo. -->
+      <div class="anidar-caja" id="anidar-caja" hidden>
+        <p class="anidar-titulo" data-i18n="anidar_titulo">Esto es lo que entraría en tu memoria</p>
+        <pre class="anidar-vista" id="anidar-vista"></pre>
+        <label class="sr" for="anidar-porque" data-i18n="anidar_porque">Por qué te importa</label>
+        <input id="anidar-porque" type="text" autocomplete="off"
+               data-i18n-ph="ph_porque" placeholder="¿Por qué te importa? (opcional)">
+        <button class="anidar" id="anidar" type="button" data-i18n="anidar_boton">Anidar esto en tu memoria</button>
+        <p class="anidar-dicho" id="anidar-dicho" hidden aria-live="polite"></p>
+        <p class="pie" data-i18n="pie_anidar">Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.</p>
+      </div>
       <details class="payload-caja">
         <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
         <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>

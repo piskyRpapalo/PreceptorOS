@@ -194,3 +194,50 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .barra .inicio:hover, .barra .inicio:focus-visible {
   background: var(--acento-tenue); border-color: var(--acento);
 }
+
+/* --- la aduana con salida ------------------------------------------------
+   El bloque que convierte la frontera en un paso y no en un espejo. Estaba
+   todo hecho menos esto: se comprobaba el texto, se enseñaba lo que se iba a
+   tachar, y ahí se acababa el camino.
+
+   Nace oculto (`hidden` en el marcado) y solo lo destapa una llamada al filtro
+   que haya vuelto bien. Un botón de guardar visible antes de haber mirado el
+   texto invita a guardar sin mirar, que es justo lo que este panel existe para
+   impedir. */
+.anidar-caja {
+  margin-top: .9rem; padding-top: .9rem;
+  border-top: 1px dashed var(--linea, rgba(255,255,255,.18));
+}
+.anidar-caja[hidden] { display: none; }
+.anidar-titulo {
+  margin: 0 0 .4rem; font-size: .8rem; font-weight: 700;
+  letter-spacing: .01em; opacity: .85;
+}
+/* El texto tachado, en monoespaciada y con los saltos de línea que traiga.
+   Se lee como una cita del servidor, no como algo editable: si se pudiera
+   escribir encima, la persona estaría anidando algo que el filtro no vio. */
+.anidar-vista {
+  margin: 0 0 .6rem; padding: .55rem .7rem; max-height: 8.5rem;
+  overflow: auto; white-space: pre-wrap; word-break: break-word;
+  font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+  border-radius: 8px; background: rgba(0,0,0,.28);
+  border: 1px solid var(--linea, rgba(255,255,255,.14));
+}
+.anidar-caja input {
+  width: 100%; margin-bottom: .55rem; padding: .5rem .6rem;
+  border-radius: 8px; font: inherit; font-size: .85rem;
+  color: inherit; background: rgba(0,0,0,.22);
+  border: 1px solid var(--linea, rgba(255,255,255,.14));
+}
+button.anidar {
+  width: 100%; min-height: 44px; border-radius: 9px; cursor: pointer;
+  font: 700 .88rem/1 inherit; color: #0f1117;
+  background: var(--vena, #a78bfa); border: none;
+}
+button.anidar:disabled { opacity: .45; cursor: default; }
+button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-offset: 2px; }
+.anidar-dicho {
+  margin: .55rem 0 0; font-size: .8rem; font-weight: 600;
+  color: var(--vena, #a78bfa);
+}
+.anidar-dicho[hidden] { display: none; }

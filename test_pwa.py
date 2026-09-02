@@ -105,6 +105,150 @@ class TestFrontera(unittest.TestCase):
         self.assertEqual(self.h.codigo, 400)
 
 
+class TestAnidar(unittest.TestCase):
+    """La Aduana con salida: el texto cazado fuera entra en la memoria, pero
+    solo el saneado, y solo despues de que lo sanee ESTE lado.
+
+    La doctrina Caza-Nido dice que el usuario va a una IA de fuera, trae el
+    texto crudo y el agente local lo tacha antes de anidarlo. Hasta hoy la
+    frontera comprobaba y ensenaba -- pero no guardaba nada, asi que el paso
+    de "anidar" no existia y el circulo no se cerraba.
+
+    La propiedad que sostiene todo esto no es "la interfaz manda texto limpio":
+    es que el servidor NO SE FIA de la interfaz. Vuelve a filtrar el, siempre,
+    y lo que escribe en disco es el resultado de su propio filtro. Una aduana
+    que acepta el sello que trae el paquete no es una aduana.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.db = os.path.join(self.tmp.name, "memory.db")
+        memory.crear(self.db)
+        self.h = Fingida(self.db)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _anidar(self, datos):
+        PWA.PWA._anidar(self.h, datos)
+        return self.h.codigo, self.h.cuerpo
+
+    def _crudo(self):
+        """Los bytes del fichero, no lo que diga una consulta.
+
+        Un `select` puede no ver una fila que sigue en una pagina libre o en el
+        WAL. Lo que promete este producto es que el secreto NO TOCA EL DISCO,
+        y eso solo se comprueba mirando el disco.
+        """
+        datos = b""
+        for sufijo in ("", "-wal", "-shm"):
+            try:
+                with open(self.db + sufijo, "rb") as fh:
+                    datos += fh.read()
+            except OSError:
+                pass
+        return datos
+
+    def test_8_anida_el_texto_saneado_y_el_sucio_no_toca_el_disco(self):
+        cod, cuerpo = self._anidar(
+            {"texto": f"la clave del router es {SECRETO_FALSO} y la uso a diario"})
+        self.assertEqual(cod, 200)
+        self.assertIsInstance(cuerpo.get("id"), int)
+
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertIsNotNone(fila, "se dijo que se anido y no hay fila")
+        self.assertNotIn(SECRETO_FALSO, fila["what"])
+        self.assertIn("REDACTED", fila["what"])
+        # Lo que sobrevive es el contexto: anidar no puede quedarse solo con
+        # la marca de redaccion o el recuerdo no diria nada.
+        self.assertIn("router", fila["what"])
+
+        self.assertNotIn(SECRETO_FALSO.encode(), self._crudo(),
+                         "el secreto llego al disco: la aduana no sirve de nada")
+
+    def test_9_el_servidor_no_se_fia_del_texto_ya_limpio_de_la_interfaz(self):
+        """Si la interfaz manda un campo "ya lo limpie yo", se ignora.
+
+        Es el agujero obvio de este endpoint: aceptar `texto_limpio` haria que
+        cualquier cliente -- o cualquier bug de la interfaz -- pudiera escribir
+        en la memoria sin pasar por el filtro.
+        """
+        cod, cuerpo = self._anidar({
+            "texto": f"secreto {SECRETO_FALSO}",
+            "texto_limpio": f"secreto {SECRETO_FALSO}",
+            "hallazgos": [],
+        })
+        self.assertEqual(cod, 200)
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertNotIn(SECRETO_FALSO, fila["what"])
+
+    def test_10_si_el_filtro_cae_no_se_escribe_nada(self):
+        """Fail-closed, igual que `/api/frontera`: 409 y la memoria intacta."""
+        with mock.patch.object(
+                PWA.G, "preparar_envio",
+                side_effect=G.EnvioBloqueado("el filtro no pudo completarse")):
+            cod, cuerpo = self._anidar({"texto": "lo que sea"})
+        self.assertEqual(cod, 409)
+        self.assertEqual(cuerpo["estado"], "bloqueado")
+        self.assertNotIn("texto", cuerpo)
+        with memory.abrir(self.db) as c:
+            n = c.execute("select count(*) from engrams").fetchone()[0]
+        self.assertEqual(n, 0, "se escribio con el filtro caido")
+
+    def test_11_lo_anidado_se_marca_como_importado(self):
+        """`origin` distingue lo que dijo la persona de lo que trajo de fuera.
+
+        Sin esa marca, un texto cazado en una IA ajena se leeria manana como
+        algo que dijo el usuario. El CHECK del esquema solo admite tres
+        valores y `importado` es exactamente este caso.
+        """
+        _, cuerpo = self._anidar({"texto": "el puerto por defecto es el 8080"})
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertEqual(fila["origin"], "importado")
+
+    def test_12_texto_vacio_no_es_un_recuerdo(self):
+        for vacio in ("", "   ", "\n\t "):
+            cod, _ = self._anidar({"texto": vacio})
+            self.assertEqual(cod, 400, f"acepto {vacio!r} como recuerdo")
+        with memory.abrir(self.db) as c:
+            self.assertEqual(
+                c.execute("select count(*) from engrams").fetchone()[0], 0)
+
+    def test_13_texto_que_no_es_texto(self):
+        cod, _ = self._anidar({"texto": {"no": "soy texto"}})
+        self.assertEqual(cod, 400)
+
+    def test_14_el_porque_tambien_pasa_por_la_aduana(self):
+        """El segundo campo es el que se olvida, y filtra igual que el primero."""
+        cod, cuerpo = self._anidar({
+            "texto": "algo inocente",
+            "porque": f"me lo dio el router con la clave {SECRETO_FALSO}"})
+        self.assertEqual(cod, 200)
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertNotIn(SECRETO_FALSO, fila["why"])
+        self.assertNotIn(SECRETO_FALSO.encode(), self._crudo())
+
+    def test_15_devuelve_lo_que_de_verdad_se_guardo(self):
+        """La interfaz tiene que poder ensenar lo anidado, no lo que mando.
+
+        Si el endpoint devolviera solo un `ok`, la persona nunca veria que se
+        tacho de su texto: firmaria a ciegas lo que entra en su memoria.
+        """
+        _, cuerpo = self._anidar({"texto": f"clave {SECRETO_FALSO} final"})
+        self.assertIn("texto", cuerpo)
+        self.assertNotIn(SECRETO_FALSO, cuerpo["texto"])
+        self.assertTrue(cuerpo["hallazgos"])
+        self.assertIn("policy_hash", cuerpo)
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertEqual(cuerpo["texto"], fila["what"],
+                         "lo devuelto no es lo guardado: dos verdades")
+
+
 class TestCaptura(unittest.TestCase):
 
     def setUp(self):

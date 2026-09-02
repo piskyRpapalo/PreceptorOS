@@ -42,6 +42,14 @@ const textos = {
     sin_llamada2: "(no se hace ninguna llamada)", bloqueado: "envío bloqueado",
     con_hallazgos: "con hallazgos", nada_redactado: "nada redactado",
     no_llego: "(la llamada no llegó)",
+    anidar_titulo: "Esto es lo que entraría en tu memoria",
+    anidar_boton: "Anidar esto en tu memoria",
+    anidar_porque: "Por qué te importa",
+    ph_porque: "¿Por qué te importa? (opcional)",
+    anidando: "anidando…",
+    anidado: "Anidado. Vive en tu memoria, en esta máquina.",
+    anidar_no: "no se pudo anidar",
+    pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
   },
   en: {
     comprobando: "checking…", tab_chat: "Talk", tab_frontera: "Border",
@@ -65,6 +73,14 @@ const textos = {
     sin_llamada2: "(no call is made)", bloqueado: "sending blocked",
     con_hallazgos: "with findings", nada_redactado: "nothing redacted",
     no_llego: "(the call never arrived)",
+    anidar_titulo: "This is what would enter your memory",
+    anidar_boton: "Nest this in your memory",
+    anidar_porque: "Why it matters to you",
+    ph_porque: "Why does it matter to you? (optional)",
+    anidando: "nesting…",
+    anidado: "Nested. It lives in your memory, on this machine.",
+    anidar_no: "could not nest",
+    pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
   },
 };
 let t = textos.es;
@@ -279,9 +295,65 @@ $("probar").addEventListener("click", async () => {
     }
     $("bloqueado").hidden = true;
     $("probar").disabled = false;
+
+    /* La aduana se abre. Se guarda el texto que devolvio el servidor -- no el
+       que hay en el area de arriba -- porque es el unico que ha pasado por el
+       filtro. Si esta linea leyera `$("prueba").value`, el boton de anidar
+       estaria ofreciendo guardar el original sucio con cara de limpio. */
+    ultimoLimpio = typeof d.texto === "string" ? d.texto : null;
+    if (ultimoLimpio === null) {
+      $("anidar-caja").hidden = true;
+    } else {
+      $("anidar-vista").textContent = ultimoLimpio;
+      $("anidar-caja").hidden = false;
+      $("anidar").disabled = false;
+      $("anidar-dicho").hidden = true;
+    }
   } catch {
     $("payload").textContent = t.no_llego;
     $("probar").disabled = false;
+    $("anidar-caja").hidden = true;
+  }
+});
+
+/* --- anidar · el paso que le faltaba a la frontera -----------------------
+   Lo que se manda es el texto crudo otra vez, no el limpio que ya tenemos a
+   mano. Parece un viaje de mas y es justo lo contrario: el servidor vuelve a
+   filtrar por su cuenta y escribe el resultado de SU filtro. Si esta pantalla
+   mandara el texto ya limpio, la memoria dependeria de que el navegador no
+   tuviera un fallo -- y la promesa del producto no puede descansar sobre eso.
+
+   Por eso `ultimoLimpio` sirve solo para ensenar (y nada mas). No viaja de vuelta. */
+let ultimoLimpio = null;
+
+$("anidar").addEventListener("click", async () => {
+  const texto = $("prueba").value;
+  if (!texto.trim() || ultimoLimpio === null) return;
+  $("anidar").disabled = true;
+  $("anidar-dicho").hidden = false;
+  $("anidar-dicho").textContent = t.anidando;
+  try {
+    const r = await fetch("/api/anidar", {
+      method: "Post", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texto, porque: $("anidar-porque").value }),
+    });
+    const d = await r.json();
+    $("payload").textContent = JSON.stringify(d, null, 2);
+    if (!r.ok) {
+      $("anidar-dicho").textContent = `${t.anidar_no}: ${d.motivo || r.status}`;
+      $("anidar").disabled = false;
+      return;
+    }
+    // Se repinta con lo que el servidor dice haber guardado, que puede no ser
+    // identico a lo que se enseno antes. Ensenar lo mandado en vez de lo
+    // guardado seria inventarse una confirmacion.
+    $("anidar-vista").textContent = d.texto;
+    $("anidar-dicho").textContent = t.anidado;
+    $("anidar-porque").value = "";
+    ultimoLimpio = null;          // un texto se anida una vez, no en bucle
+  } catch {
+    $("anidar-dicho").textContent = t.no_llego;
+    $("anidar").disabled = false;
   }
 });
 
