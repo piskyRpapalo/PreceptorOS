@@ -75,27 +75,47 @@ body {
    dedo. De paso el nombre se queda con el ancho que suelta. */
 .mando { flex: none; display: flex; flex-direction: column; align-items: center;
          gap: .1rem; }
-/* Dos tiras de cuatro fotogramas, medidas antes de usarlas.
-   `aurelius-up`    · marmol, grietas, cyborg, fragmentos. Solo el tercero
-                      tiene el ojo encendido: 115 pixeles ambar contra 0 y 0.
-   `aurelius-talks` · cuatro cyborgs con la boca en posiciones distintas. Los
-                      cuatro llevan ambar; lo que cambia es la boca (578 a
-                      1077 pixeles oscuros). Ese es el bucle de hablar.
+/* Dos tiras con distinto numero de fotogramas. Esa es toda la trampa de
+   este bloque, y por eso se escribe antes que el codigo.
 
-   Con cuatro fotogramas y el fondo al 400%, cada uno cae en un tercio:
-   0%, 33.333%, 66.667%, 100%. El reposo es el tercero de `up`. */
+   `preceptor-up-v2.webp` · ocho fotogramas, 2048x256, cuadrados. El despertar.
+   `aurelius-talks.png`   · cuatro fotogramas, 1024x341. El bucle de la boca.
+
+   Los ocho de `up` no son una secuencia dibujada: son ocho estados con nombre
+   que se ordenaron por su ambar medido, de apagado a encendido (el orden vive
+   en `herramientas/unir_bustos.py`, que es quien genera la tira):
+
+     [0] dormido   [1] grieta  [2] rompe    [3] ojo
+     [4] halo      [5] despierto <-- reposo [6] corazon  [7] oscuro
+
+   Con ocho fotogramas el fondo va al 800% y cada uno cae en un septimo:
+   0, 14.2857, 28.5714, 42.8571, 57.1429, 71.4286, 85.7143 y 100 por ciento.
+
+   El busto del tablero se para en el [5] -- 71.4286% -- y NO llega al final:
+   los dos ultimos existen para el telon. Recorrer 0..5 son seis valores, y
+   seis valores son `steps(6, jump-none)`, no siete. Con `steps(7)` la cara se
+   quedaria parada en `corazon`, que es otro dibujo.
+
+   Toda regla de aqui abajo que use la tira de `talks` tiene que declarar
+   su propio `background-size: 400% auto`. Ver la cicatriz en `.piensa`.
+
+   (Y un aviso de casa: en los ficheros de `interface/` no se escriben palabras
+   enteras en mayusculas. `test_guardrails` exige que toda palabra de cinco o
+   mas mayusculas seguidas sea una politica declarada, porque una interfaz que
+   nombra una politica inexistente promete un filtro que no existe. El enfasis
+   aqui se pone con la frase, no con la tecla de bloqueo.) */
 .busto {
   width: 68px; height: 68px; margin: 0; flex: none;
   border-radius: 50%; position: relative;
-  background: var(--paper) url("/assets/aurelius-up.png") 66.667% 50% / 400% auto no-repeat;
+  background: var(--paper) url("/assets/preceptor-up-v2.webp") 71.4286% 50% / 800% auto no-repeat;
   border: 2px solid var(--violeta); box-shadow: 0 6px 22px rgba(109,90,224,.35);
   image-rendering: pixelated;
-  animation: despertar 1.5s steps(3, jump-none) 1 both,
+  animation: despertar 1.5s steps(6, jump-none) 1 both,
              respirar 3s ease-in-out 1.5s infinite;
 }
 @keyframes despertar {
-  from { background-position:      0% 50%; }
-  to   { background-position: 66.667% 50%; }
+  from { background-position:       0% 50%; }
+  to   { background-position: 71.4286% 50%; }
 }
 /* Reposo con vida: el ambar respira muy despacio. Tres segundos y sin cambiar
    de fotograma -- lo unico que se mueve es la luz, que es lo que hace que una
@@ -112,6 +132,16 @@ body {
    ahi, que es lo unico honesto que se puede decir mientras tanto. */
 .busto.piensa {
   background-image: url("/assets/aurelius-talks.png");
+  /* Cicatriz, 2026-09-02. Esta linea no es redundante: es lo unico que impide
+     un segundo caso del fallo que documenta el parrafo de abajo.
+
+     `.busto` paso de cuatro fotogramas al 400% a ocho al 800%. Esta regla solo
+     cambiaba `background-image`, asi que heredaba el 800% -- y lo aplicaba a
+     una tira que sigue teniendo cuatro. La boca se habria recorrido en ocho
+     huecos de una imagen de cuatro: mitad del ciclo fuera del marco, con el
+     mismo parpadeo de alto contraste que ya se corrigio en agosto. El tamano
+     se declara aqui, y quien cambie `.busto` no puede romper esta. */
+  background-size: 400% auto;
   /* `jump-none` de 0% a 100%: con cuatro pasos da exactamente 0, 33.33, 66.67
      y 100 -- los cuatro fotogramas, y ninguno fuera del marco.
 
@@ -139,6 +169,8 @@ body {
    nuevo. Dura 420 ms: lo justo para verlo de reojo y no para mirarlo. */
 .busto.gesto {
   background-image: url("/assets/aurelius-talks.png");
+  background-size: 400% auto;   /* misma cicatriz que `.piensa`: la tira de
+                                   `talks` tiene cuatro, no ocho. */
   background-position: 66.667% 50%;
 }
 
@@ -147,10 +179,16 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .busto, .busto.piensa {
     animation: none;
-    background-image: url("/assets/aurelius-up.png");
-    background-position: 66.667% 50%;
+    background-image: url("/assets/preceptor-up-v2.webp");
+    background-size: 800% auto;      /* `.piensa` traia el 400% de `talks`;
+                                        aqui vuelve a la tira de ocho. */
+    background-position: 71.4286% 50%;
   }
-  .busto.gesto { background-image: url("/assets/aurelius-up.png"); }
+  .busto.gesto {
+    background-image: url("/assets/preceptor-up-v2.webp");
+    background-size: 800% auto;
+    background-position: 71.4286% 50%;
+  }
 }
 
 .nombre { margin: .6rem 0 .1rem; font-size: 1.35rem; letter-spacing: -.02em;
@@ -366,18 +404,33 @@ body {
   background: var(--fondo) url("/assets/marble-violet.webp") 0 0 / 340px auto repeat;
   animation: caer .45s ease-out 1.8s both;
 }
-/* El telon no es un cartel: es el despertar. Los mismos cuatro fotogramas de
-   `aurelius-up` que usa el busto del tablero -- marmol entero, grietas, la
-   maquina asomando con el ojo encendido, los fragmentos sueltos -- una sola
-   vez y en orden. No es un dibujo aparte, es la misma tira, asi que no hay
-   dos verdades sobre que cara tiene esto al arrancar.
+/* El telon no es un cartel: es el despertar. Los mismos ocho fotogramas de
+   `preceptor-up-v2` que usa el busto del tablero, una sola vez y en orden. No
+   es un dibujo aparte, es la misma tira, asi que no hay dos verdades sobre que
+   cara tiene esto al arrancar.
 
-   El busto del tablero se para en el tercero -- la maquina con el ojo
-   encendido -- porque ese es su reposo. El telon no: llega hasta el cuarto,
-   el de los fragmentos de marmol sueltos, que es el unico sitio donde ese
-   fotograma se ve. Cuatro fotogramas piden `steps(4, jump-none)` sobre el
-   recorrido entero: reparte en 0, 33.333, 66.667 y 100 por ciento, que son
-   justo los bordes de la tira al 400 por ciento de ancho.
+   El busto del tablero se para en el [5], `despierto`, porque ese es su
+   reposo. El telon no: llega hasta el [7], `oscuro`, que es el unico sitio
+   donde los dos ultimos fotogramas se ven. Ocho fotogramas sobre el recorrido
+   entero piden `steps(8, jump-none)`: reparte en 0, 14.2857, 28.5714, 42.8571,
+   57.1429, 71.4286, 85.7143 y 100 por ciento, que son justo los bordes de la
+   tira al 800 por ciento de ancho.
+
+   La cadencia, medida y no elegida a ojo: con cuatro fotogramas en 1,2 s tocaban
+   a 300 ms cada uno. Con ocho en el mismo 1,2 s tocan a 150. Se deja en 1,2 s
+   y NO se alarga, porque la cortina cae a 1,8 s y ese respiro de seis decimas
+   esta firmado; alargar la tira obligaria a mover el arranque entero, que es
+   otra decision y no esta firmada. Si el despertar se lee acelerado, la
+   pareja a tocar es 1,6 s aqui y 2,2 s en `caer` -- las dos, o ninguna.
+
+   Los ocho fotogramas son cuadrados (256x256); los cuatro viejos eran 256x341.
+   Con `aspect-ratio: 1` en la caja, la tira nueva encaja exacta y ya no se
+   recorta por arriba y por abajo como la vieja. Se ve mas dibujo, no menos.
+
+   NO se apaga bajo `prefers-reduced-motion`, y es deliberado: el telon entero
+   depende de `caer` para irse de la pantalla. Apagar animaciones aqui dejaria
+   la cortina puesta para siempre y la app inservible. Queda anotado como
+   deuda: lo correcto seria fotograma final fijo + `caer` intacto.
 
    La cortina espera a 1.8s con la animacion en 1.2s: sin ese respiro de seis
    decimas el ultimo fotograma aparece y se va en el mismo suspiro. */
@@ -387,11 +440,11 @@ body {
      cuanto mas pequeno el circulo, mas dibujo se pierde. `min` lo ata al ancho
      del telefono para que no se salga en pantallas estrechas. */
   width: min(68vw, 320px); aspect-ratio: 1; border-radius: 50%; flex: none;
-  background: url("/assets/aurelius-up.png") 0% 50% / 400% auto no-repeat;
+  background: url("/assets/preceptor-up-v2.webp") 0% 50% / 800% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   image-rendering: pixelated;
-  animation: despertar-entero 1.2s steps(4, jump-none) 1 both;
+  animation: despertar-entero 1.2s steps(8, jump-none) 1 both;
 }
 @keyframes despertar-entero {
   from { background-position:   0% 50%; }

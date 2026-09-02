@@ -327,12 +327,31 @@ CLAVES_HABLADAS = ("saludo", "saludo_vuelta", "perfil_device", "perfil_name",
                    "recuerdo_aprendido", "otro_pregunta", "fin")
 
 
+# El tipo se saca de la extension, no se supone. Antes esta funcion escribia
+# `image/png` a pelo para cualquier fichero: el dia que entrara un `.webp` la
+# cara habria servido un WebP diciendo que era un PNG. Los navegadores suelen
+# perdonarlo por deteccion de contenido; los lectores estrictos y los guardados
+# a disco, no. Un tipo declarado que miente es peor que ninguno.
+TIPOS_ASSET = {".png": "image/png", ".webp": "image/webp",
+               ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+               ".gif": "image/gif", ".svg": "image/svg+xml"}
+
+
 def dato_uri(nombre):
-    """El PNG entero, dentro del HTML. Un asset enlazado se pierde al mover
-    el fichero de sitio; uno incrustado viaja con el."""
+    """El asset entero, dentro del HTML. Un asset enlazado se pierde al mover
+    el fichero de sitio; uno incrustado viaja con el.
+
+    Para ante una extension que no conoce en vez de inventarse un tipo: esta
+    cara se envia por correo y se abre desde el disco, y ahi no hay servidor
+    que corrija la cabecera despues.
+    """
+    tipo = TIPOS_ASSET.get(os.path.splitext(nombre)[1].lower())
+    if tipo is None:
+        raise SystemExit(f"PARADA · no se sabe que tipo declarar para "
+                         f"{nombre!r}. Anadelo a TIPOS_ASSET o cambia el asset.")
     ruta = os.path.join(ASSETS, nombre)
     with open(ruta, "rb") as fh:
-        return "data:image/png;base64," + base64.b64encode(fh.read()).decode()
+        return f"data:{tipo};base64," + base64.b64encode(fh.read()).decode()
 
 
 def _json(valor):

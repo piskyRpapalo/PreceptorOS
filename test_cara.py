@@ -736,6 +736,54 @@ def t34():
         "el texto no sobrevivio entero al viaje por JSON"
 
 
+@caso("35 · el data: URI declara el tipo del fichero, no uno fijo")
+def t35():
+    """La cara viaja por correo y se abre desde el disco: ahi no hay servidor
+    que corrija una cabecera mal puesta.
+
+    `dato_uri` escribia `image/png` para cualquier extension. Mientras los dos
+    sprites fueron PNG nadie lo noto; el dia que entro un `.webp` en `assets/`
+    la funcion habria jurado que era PNG. Se comprueba el acierto en los dos
+    formatos que hay en el arbol y la PARADA en el que no se conoce.
+    """
+    import cara
+
+    assert cara.dato_uri("aurelius-up.png").startswith("data:image/png;base64,")
+    assert cara.dato_uri("preceptor-up-v2.webp").startswith(
+        "data:image/webp;base64,"), \
+        "un WebP servido como PNG es un tipo declarado que miente"
+
+    try:
+        cara.dato_uri("nada.desconocido")
+    except SystemExit:
+        pass
+    else:
+        assert False, "una extension desconocida tiene que PARAR, no inventarse un tipo"
+
+
+@caso("36 · la tira de ocho bustos existe y mide lo que el CSS da por sabido")
+def t36():
+    """El CSS reparte el fondo en octavos. Si la tira no fuera 8:1, la cara se
+    partiria entre dos fotogramas y nadie lo veria hasta tenerlo en un telefono.
+
+    Se mide la CABECERA del fichero, sin descodificar la imagen: el producto es
+    stdlib pura y esta prueba tambien. Un WebP VP8L lleva ancho y alto en 14
+    bits cada uno a partir del byte 21, menos uno.
+    """
+    ruta = os.path.join(AQUI, "assets", "preceptor-up-v2.webp")
+    assert os.path.isfile(ruta), "falta la tira que los tres sitios del CSS usan"
+    with open(ruta, "rb") as fh:
+        cab = fh.read(25)
+    assert cab[:4] == b"RIFF" and cab[8:12] == b"WEBP", "no es un WebP"
+    assert cab[12:16] == b"VP8L", \
+        "se esperaba VP8L (sin perdida); un VP8 con perdida seria otro acuerdo"
+    bits = int.from_bytes(cab[21:25], "little")
+    ancho = (bits & 0x3FFF) + 1
+    alto = ((bits >> 14) & 0x3FFF) + 1
+    assert (ancho, alto) == (2048, 256), \
+        f"la tira mide {ancho}x{alto}; el CSS reparte 8 fotogramas de 256"
+
+
 def main():
     fallos = 0
     print("── M2 · LA CARA " + "─" * 50)
