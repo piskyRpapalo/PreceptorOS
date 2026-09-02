@@ -466,6 +466,20 @@ function marcarFusionVista() {
  * Por que existe: el modelo tarda minutos en un telefono. Entre turno y turno
  * la pantalla se queda quieta, y quieta se lee como rota. Esto no acelera
  * nada; solo dice que sigue ahi. */
+/* Cuando el despertar termina, se marca. A partir de ahi la cara respira y no
+   se vuelve a despertar: quitar la clase `piensa` al terminar una respuesta
+   reiniciaba la lista de animaciones y con ella el despertar entero.
+   `animationend` y no un temporizador de 1,5 s copiado a mano: el dia que la
+   duracion cambie en el css, un numero repetido aqui se queda viejo y nadie
+   se entera. Se filtra por nombre porque `respirar` tambien termina... nunca,
+   pero `hablar` y `latir` si podrian llegar aqui. */
+const bustoEl = $("busto");
+if (bustoEl) {
+  bustoEl.addEventListener("animationend", (e) => {
+    if (e.animationName === "despertar") bustoEl.classList.add("despierto");
+  });
+}
+
 function gesto() {
   const b = $("busto");
   const proxima = 25000 + Math.floor(Math.random() * 15000);

@@ -574,6 +574,66 @@ class TestNingunRelojSeQuedaSuelto(unittest.TestCase):
                     f"{nombre} arranca {arranques} reloj(es) y no para ninguno")
 
 
+class TestElDespertarOcurreUnaVez(unittest.TestCase):
+    """El contrato de ASSETS.md: «El despertar ocurre una vez. Un despertar que
+    se repite en cada frase deja de ser un despertar y se convierte en un tic».
+
+    `cara.py` lo cumple con una bandera (`despertado`). El tablero no lo
+    cumplia, y se midio en el navegador el 2026-09-02: al quitar la clase
+    `piensa` -- o sea cada vez que el modelo termina de generar -- la lista de
+    animaciones de `.busto` vuelve a ser la de reposo, y el navegador trata eso
+    como una animacion NUEVA. `despertar` se reproducia entero otra vez, del
+    fotograma 0 al de reposo, despues de cada respuesta.
+
+    Venia de antes de la tira de ocho, pero la tira lo empeoro: con cuatro
+    fotogramas el tic duraba tres pasos, con ocho dura seis.
+
+    La cura es una clase que la interfaz pone cuando el despertar termina y que
+    deja SOLO la respiracion. Aqui se comprueba su estructura; el
+    comportamiento se midio en el navegador y esta en el mensaje del commit.
+    """
+
+    def _css(self):
+        return open(os.path.join(AQUI, "interface", "dashboard.css"),
+                    encoding="utf-8").read()
+
+    def test_30_hay_un_estado_de_reposo_sin_despertar(self):
+        css = self._css()
+        self.assertIn(".busto.despierto", css,
+                      "no hay clase de reposo: el despertar se repetira")
+        # Y la interfaz tiene que ponersela, o la clase es decoracion.
+        js = open(os.path.join(AQUI, "interface", "dashboard.js"),
+                  encoding="utf-8").read()
+        self.assertIn("despierto", js,
+                      "la clase existe en el css y nadie la pone")
+
+    def test_31_reduced_motion_cubre_toda_variante_que_anime(self):
+        """Quien pidio menos movimiento no puede recibirlo por una variante
+        que nadie acordo de anadir al bloque.
+
+        Es la forma de fallar de este fichero: se anade una clase con
+        animacion propia y se olvida el bloque de accesibilidad. Se comprueba
+        por estructura, para que la proxima variante no dependa de que alguien
+        se acuerde.
+        """
+        import re
+        css = self._css()
+        i = css.index("prefers-reduced-motion")
+        antes, bloque = css[:i], css[i:]
+
+        # Variantes de `.busto` que declaran animacion fuera del bloque.
+        animadas = set()
+        for sel, cuerpo in re.findall(r"(\.busto[\w.]*)\s*\{([^}]*)\}", antes):
+            if re.search(r"\banimation\s*:", cuerpo):
+                animadas.add(sel)
+        self.assertTrue(animadas, "no se encontro ninguna variante animada")
+
+        for sel in sorted(animadas):
+            self.assertIn(sel, bloque,
+                          f"{sel} anima y el bloque de movimiento reducido no "
+                          f"la nombra: se movera igual para quien pidio que no")
+
+
 class TestLaCaraNoSeApaga(unittest.TestCase):
     """Ninguna animacion de la cara puede hacerla desaparecer.
 

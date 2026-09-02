@@ -117,6 +117,32 @@ body {
   from { background-position:       0% 50%; }
   to   { background-position: 71.4286% 50%; }
 }
+/* El despertar ocurre una vez, y esta regla es lo unico que lo garantiza.
+   Cicatriz medida en el navegador el 2026-09-02.
+
+   `.busto.piensa` sustituye la lista entera de animaciones mientras el modelo
+   genera. Al quitar la clase, la lista vuelve a ser la de `.busto` -- y el
+   navegador trata eso como una animacion nueva, asi que `despertar` se
+   reproducia otra vez desde el fotograma 0. Cada vez que el modelo terminaba
+   de responder, la cara se volvia a despertar entera. Medido: 0%, 14.2857,
+   28.5714, 42.8572, 57.1429, 71.4286, despues de cada respuesta.
+
+   `Assets.md` ya lo prohibia con todas las letras: «El despertar ocurre una
+   vez. Un despertar que se repite en cada frase deja de ser un despertar y se
+   convierte en un tic». `cara.py` lo cumplia con una bandera; el tablero no
+   tenia nada equivalente. Venia de antes de la tira de ocho, pero la tira lo
+   empeoro -- el tic pasaba de tres pasos a seis.
+
+   La interfaz pone esta clase cuando `despertar` termina, y a partir de ahi la
+   lista de reposo NO contiene el despertar. Va aqui arriba y no mas abajo a
+   proposito: tiene la misma especificidad que `.busto.piensa`, asi que la que
+   gane depende del orden, y la que tiene que ganar mientras se genera es
+   `.piensa`. */
+.busto.despierto {
+  background-position: 71.4286% 50%;
+  animation: respirar 3s ease-in-out infinite;
+}
+
 /* Reposo con vida: el ambar respira muy despacio. Tres segundos y sin cambiar
    de fotograma -- lo unico que se mueve es la luz, que es lo que hace que una
    pantalla no parezca congelada sin pedirle nada a la CPU. */
@@ -177,7 +203,7 @@ body {
 /* Quien pidio menos movimiento se queda con la cara quieta y encendida. Ni
    entrada, ni boca, ni respiracion: solo el borde, que informa sin moverse. */
 @media (prefers-reduced-motion: reduce) {
-  .busto, .busto.piensa {
+  .busto, .busto.piensa, .busto.despierto {
     animation: none;
     background-image: url("/assets/preceptor-up-v2.webp");
     background-size: 800% auto;      /* `.piensa` traia el 400% de `talks`;
