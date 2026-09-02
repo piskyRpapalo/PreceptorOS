@@ -39,6 +39,8 @@ const T = {
     id_nota: "Sale de azar de esta máquina, no de tu nombre ni de tu equipo. No es una clave: no firma nada y no da acceso a nada. Nunca sale de aquí.",
     id_rota: "identidad no disponible",
     av_titulo: "Tu cara",
+    av_bustos: "Quién eres",
+    av_ojos: "La mirada que pone al hablar",
     av_aria: (n) => `Elegir la cara ${n}`,
     cer_titulo: "Qué cerebro te contesta",
     cer_base: "Cerebro base", cer_afinado: "Cerebro afinado",
@@ -104,6 +106,8 @@ const T = {
     id_nota: "It comes from randomness on this machine, not from your name or your device. It is not a key: it signs nothing and grants access to nothing. It never leaves here.",
     id_rota: "identity unavailable",
     av_titulo: "Your face",
+    av_bustos: "Who you are",
+    av_ojos: "The look it wears when speaking",
     av_aria: (n) => `Choose the face ${n}`,
     cer_titulo: "Which brain answers you",
     cer_base: "Base brain", cer_afinado: "Fine-tuned brain",
@@ -543,19 +547,35 @@ function pintaIdentidad(d) {
   const caja = $("av-lista");
   caja.replaceChildren();
   const elegida = sinNoData(d.campos.avatar);
-  for (const nombre of (d.avatares || [])) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "avatar";
-    b.setAttribute("role", "radio");
-    b.setAttribute("aria-checked", String(nombre === elegida));
-    // El nombre del fichero no es un rotulo para nadie: se le da uno legible
-    // a partir del trozo que describe la cara.
-    const legible = nombre.replace("busto-", "").replace(".webp", "");
-    b.setAttribute("aria-label", t("av_aria")(legible));
-    b.style.backgroundImage = `url("/assets/${nombre}")`;
-    b.addEventListener("click", () => guardarAvatar(nombre));
-    caja.appendChild(b);
+
+  /* Dos familias, separadas y rotuladas. Puestas en fila serian dieciseis
+     dibujos intercambiables; el busto es quien eres y el ojo es la mirada que
+     el cabezal se pone al hablar, y eso solo se lee si estan aparte. */
+  for (const [familia, nombres] of Object.entries(d.avatares || {})) {
+    const rotulo = document.createElement("p");
+    rotulo.className = "av-familia";
+    rotulo.textContent = t("av_" + familia) || familia;
+    caja.appendChild(rotulo);
+
+    const fila = document.createElement("div");
+    fila.className = "av-fila";
+    fila.setAttribute("role", "radiogroup");
+    fila.setAttribute("aria-label", rotulo.textContent);
+    for (const nombre of nombres) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "avatar";
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", String(nombre === elegida));
+      // El nombre del fichero no es un rotulo para nadie: se le da uno legible
+      // a partir del trozo que describe la cara.
+      const legible = nombre.replace(/^(busto|ojo)-/, "").replace(".webp", "");
+      b.setAttribute("aria-label", t("av_aria")(legible));
+      b.style.backgroundImage = `url("/assets/${nombre}")`;
+      b.addEventListener("click", () => guardarAvatar(nombre));
+      fila.appendChild(b);
+    }
+    caja.appendChild(fila);
   }
 }
 

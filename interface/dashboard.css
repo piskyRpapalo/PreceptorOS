@@ -703,3 +703,15 @@ body {
   content: ""; width: .45rem; height: .45rem; flex: none;
   border-radius: 50%; background: var(--violeta);
 }
+
+/* Las dos familias de cara, separadas. El rotulo no es decoracion: puestas en
+   una sola fila, dieciseis dibujos se leen como dieciseis opciones iguales, y
+   no lo son -- el busto es quien eres y el ojo es la mirada que el cabezal se
+   pone al hablar. */
+.avatares { display: block; }
+.av-familia {
+  margin: .5rem 0 .3rem; font-size: .7rem; font-weight: 800;
+  letter-spacing: .03em; color: var(--violeta-fuerte); opacity: .85;
+}
+.av-familia:first-child { margin-top: 0; }
+.av-fila { display: flex; flex-wrap: wrap; gap: .5rem; }

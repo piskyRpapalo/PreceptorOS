@@ -486,11 +486,53 @@ class TestPerfilIdentidad(unittest.TestCase):
         _, leido = self._leer()
         self.assertEqual(leido["campos"]["avatar"], "busto-despierto.webp")
 
+    def test_26b_se_ofrecen_las_dos_familias_de_cara(self):
+        """Bustos Y ojos. Las dos, y ninguna a medias.
+
+        La mision pedia elegir avatar «entre los sprites de ojos/bustos». Se
+        entregaron solo los ocho bustos, y los ocho `ojo-*.webp` se quedaron en
+        `assets/` sin que los referenciara NADIE en todo el arbol: 51 790 B de
+        arte pagado y nunca ensenado. Se midio el 2026-09-02 con un grep sobre
+        el arbol entero.
+
+        Son dos familias y no una lista larga a proposito: el busto es quien
+        eres, el ojo es la cara que el cabezal pone segun con quien hablas. Que
+        la interfaz las separe es lo que impide que se lean como dieciseis
+        dibujos intercambiables.
+        """
+        _, cuerpo = self._leer()
+        familias = cuerpo["avatares"]
+        self.assertIsInstance(familias, dict,
+                              "las caras llegan sueltas: no se puede saber "
+                              "cual es un busto y cual un ojo")
+        self.assertEqual(set(familias), {"bustos", "ojos"})
+        for cual, nombres in familias.items():
+            with self.subTest(familia=cual):
+                self.assertEqual(len(nombres), 8, f"{cual}: no son ocho")
+
+    def test_26c_ninguna_cara_del_disco_se_queda_fuera(self):
+        """Toda `busto-*.webp` y `ojo-*.webp` de `assets/` se puede elegir.
+
+        La forma de fallar es anadir arte y olvidar la lista: el fichero entra
+        en el repo, pesa, y no lo ve nadie. Es lo que acababa de pasar con los
+        ojos, asi que la comprobacion mira el disco y no la lista.
+        """
+        import glob
+        en_disco = {os.path.basename(f) for f in
+                    glob.glob(os.path.join(AQUI, "assets", "busto-*.webp"))
+                    + glob.glob(os.path.join(AQUI, "assets", "ojo-*.webp"))}
+        _, cuerpo = self._leer()
+        ofrecidas = {n for lista in cuerpo["avatares"].values() for n in lista}
+        self.assertFalse(
+            en_disco - ofrecidas,
+            "hay caras en assets/ que nadie puede elegir -- peso que viaja y "
+            "no se ve: " + ", ".join(sorted(en_disco - ofrecidas)))
+
     def test_26_los_avatares_ofrecidos_existen_en_el_disco(self):
         """Una lista que ofrece una cara que no esta deja un hueco roto."""
         _, cuerpo = self._leer()
         self.assertTrue(cuerpo["avatares"])
-        for nombre in cuerpo["avatares"]:
+        for nombre in [n for l in cuerpo["avatares"].values() for n in l]:
             self.assertTrue(
                 os.path.isfile(os.path.join(AQUI, "assets", nombre)),
                 f"se ofrece {nombre} y no esta en assets/")

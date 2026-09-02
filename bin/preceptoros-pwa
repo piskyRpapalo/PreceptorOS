@@ -64,14 +64,31 @@ INTERFAZ = os.path.join(AQUI, "interface")
 # una lista blanca y no una exclusion.
 CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones", "avatar")
 
-# Vocabulario cerrado de caras. Lo que se guarde ahi acaba en el `src` de una
-# imagen, asi que NO puede ser texto libre: con texto libre, la interfaz le
-# pediria al servidor la ruta que le hubieran mandado. El orden es el de la
-# tira del busto, para que la cara elegida y la que anima el tablero se lean
-# como el mismo personaje.
-AVATARES = ("busto-dormido.webp", "busto-grieta.webp", "busto-rompe.webp",
-            "busto-ojo.webp", "busto-halo.webp", "busto-despierto.webp",
-            "busto-corazon.webp", "busto-oscuro.webp")
+# Vocabulario cerrado de caras, en DOS familias. Lo que se guarde acaba en el
+# `src` de una imagen, asi que no puede ser texto libre: con texto libre, la
+# interfaz le pediria al servidor la ruta que le hubieran mandado.
+#
+# Dos familias y no una lista de dieciseis, porque no son lo mismo:
+#   bustos · quien eres. El orden es el de la tira que anima el tablero, para
+#            que la cara elegida y la que despierta se lean como el mismo
+#            personaje.
+#   ojos   · la cara que el cabezal se pone segun con quien hablas. Cuatro
+#            colores y cuatro con simbolo.
+#
+# Los ojos entran el 2026-09-02, y no por ampliar: llevaban en `assets/` desde
+# que se sincronizo la marca, 51 790 B, y NADIE los referenciaba en todo el
+# arbol. Arte pagado y nunca ensenado. La mision pedia elegir «entre los
+# sprites de ojos/bustos» y solo se habian entregado los bustos.
+FAMILIAS_AVATAR = {
+    "bustos": ("busto-dormido.webp", "busto-grieta.webp", "busto-rompe.webp",
+               "busto-ojo.webp", "busto-halo.webp", "busto-despierto.webp",
+               "busto-corazon.webp", "busto-oscuro.webp"),
+    "ojos": ("ojo-ambar.webp", "ojo-azul.webp", "ojo-rojo.webp",
+             "ojo-verde.webp", "ojo-birrete.webp", "ojo-bombilla.webp",
+             "ojo-cerebro.webp", "ojo-libro.webp"),
+}
+# La lista plana existe solo para VALIDAR. La interfaz recibe las familias.
+AVATARES = tuple(n for f in FAMILIAS_AVATAR.values() for n in f)
 
 
 # El vocabulario cerrado del selector de cerebro. Constante del producto, no
@@ -547,7 +564,7 @@ class PWA(BaseHTTPRequestHandler):
             # Si falta o esta rota, sale NO_DATA con causa: jamas un valor
             # inventado en su hueco.
             "identidad": _huella.leer(_casa.raiz()),
-            "avatares": list(AVATARES),
+            "avatares": {k: list(v) for k, v in FAMILIAS_AVATAR.items()},
             "campos": {k: perfil.get(k, "NO_DATA") for k in CAMPOS_PERFIL},
         })
 
