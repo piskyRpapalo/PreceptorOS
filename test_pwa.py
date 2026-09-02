@@ -423,6 +423,127 @@ class TestCerebro(unittest.TestCase):
         self.assertEqual(leido["en_uso"]["cual"], "base")
 
 
+class TestPerfilIdentidad(unittest.TestCase):
+    """La huella y el avatar: quien eres para esta maquina y con que cara.
+
+    La huella se llama Soberana (SHA256) y no Ed25519. El plan pedia Ed25519;
+    la stdlib no lo trae y meter `cryptography` rompe «solo stdlib» y «funciona
+    en Termux». Llamar Ed25519 a un sha256 seria mentir sobre la primitiva en
+    la pantalla que promete transparencia. Correccion firmada el 2026-09-02.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.raiz = self.tmp.name
+        self.db = os.path.join(self.raiz, "memory.db")
+        memory.crear(self.db)
+        self.h = Fingida(self.db)
+        self.parche = mock.patch.object(PWA._casa, "raiz",
+                                        return_value=pathlib.Path(self.raiz))
+        self.parche.start()
+
+    def tearDown(self):
+        self.parche.stop()
+        self.tmp.cleanup()
+
+    def _leer(self):
+        PWA.PWA._perfil_leer(self.h)
+        return self.h.codigo, self.h.cuerpo
+
+    def _guardar(self, datos):
+        PWA.PWA._perfil_guardar(self.h, datos)
+        return self.h.codigo, self.h.cuerpo
+
+    def test_23_el_perfil_trae_la_huella_y_no_la_semilla(self):
+        cod, cuerpo = self._leer()
+        self.assertEqual(cod, 200)
+        self.assertEqual(cuerpo["identidad"]["estado"], "ok")
+        self.assertEqual(len(cuerpo["identidad"]["huella"]), 64)
+        # El material del que sale la huella no viaja jamas.
+        import huella as _hu
+        with open(os.path.join(self.raiz, _hu.NOMBRE), "rb") as fh:
+            semilla = fh.read()
+        self.assertNotIn(semilla.hex(), json.dumps(cuerpo))
+
+    def test_24_la_huella_no_cambia_entre_dos_lecturas(self):
+        _, uno = self._leer()
+        _, dos = self._leer()
+        self.assertEqual(uno["identidad"]["huella"], dos["identidad"]["huella"])
+
+    def test_25_el_avatar_es_un_vocabulario_cerrado(self):
+        """Lo que se guarda acaba en un `src` de imagen. Si se aceptara texto
+        libre, la interfaz pediria al servidor la ruta que le mandaran."""
+        cod, _ = self._guardar({"avatar": "busto-despierto.webp"})
+        self.assertEqual(cod, 200)
+        _, leido = self._leer()
+        self.assertEqual(leido["campos"]["avatar"], "busto-despierto.webp")
+
+        for veneno in ("../../etc/passwd", "http://fuera/x.png",
+                       "busto-noexiste.webp", "aurelius-up.png", ""):
+            cod, _ = self._guardar({"avatar": veneno})
+            self.assertEqual(cod, 400, f"acepto {veneno!r} como avatar")
+        # Y el que ya estaba guardado no se toca por un intento fallido.
+        _, leido = self._leer()
+        self.assertEqual(leido["campos"]["avatar"], "busto-despierto.webp")
+
+    def test_26_los_avatares_ofrecidos_existen_en_el_disco(self):
+        """Una lista que ofrece una cara que no esta deja un hueco roto."""
+        _, cuerpo = self._leer()
+        self.assertTrue(cuerpo["avatares"])
+        for nombre in cuerpo["avatares"]:
+            self.assertTrue(
+                os.path.isfile(os.path.join(AQUI, "assets", nombre)),
+                f"se ofrece {nombre} y no esta en assets/")
+
+    def test_27_sin_avatar_elegido_se_declara_el_hueco(self):
+        _, cuerpo = self._leer()
+        self.assertEqual(cuerpo["campos"]["avatar"], "NO_DATA")
+
+
+class TestMarcaDeAusencia(unittest.TestCase):
+    """La interfaz tiene que reconocer la marca de ausencia que manda el
+    servidor. Exactamente esa, no uno parecida.
+
+    EL FALLO, visto en el tablero el 2026-09-02: al abrir Perfil en una
+    instalacion nueva, las cajas de texto salian con la marca de ausencia
+    escrita dentro, como si la persona se llamara asi. `sinNoData()` comparaba
+    contra una version con otras mayusculas, la comparacion no acertaba nunca,
+    y el valor pasaba tal cual al `value` del campo.
+
+    Y la causa de la causa es lo que hace que esto merezca una prueba: la marca
+    va en mayusculas, y `test_guardrails` prohibe palabras en mayusculas en los
+    ficheros de `interface/`. Alguien la escribio con otras mayusculas para que
+    el gate pasara -- y el gate paso, y la comparacion se rompio en silencio.
+    Esquivar una regla cambiando un dato es como se fabrican los fallos que
+    ninguna prueba ve.
+
+    Se comprueba por el COMPORTAMIENTO y no por el texto del fichero: lo que
+    importa no es como se escriba la constante, sino que el valor que produce
+    sea el que manda el servidor.
+    """
+
+    def test_28_la_interfaz_reconoce_la_marca_que_manda_el_servidor(self):
+        import re
+        ruta = os.path.join(AQUI, "interface", "dashboard.js")
+        fuente = open(ruta, encoding="utf-8").read()
+
+        # Las cadenas con las que la interfaz compara para detectar el hueco.
+        # Se sacan del propio fichero: una lista escrita aqui a mano volveria a
+        # separarse del codigo en cuanto alguien tocara uno de los dos.
+        candidatas = set(re.findall(r'!==\s*([A-Za-z_]+)\b', fuente))
+        candidatas |= set(re.findall(r'===\s*([A-Za-z_]+)\b', fuente))
+        literales = set(re.findall(r'[!=]==\s*"([^"]*)"', fuente))
+
+        marca = memory.AUSENTE
+        parecidas = {v for v in literales
+                     if v.lower() == marca.lower() and v != marca}
+        self.assertFalse(
+            parecidas,
+            f"la interfaz compara contra {parecidas} y el servidor manda "
+            f"{marca!r}: la comparacion no acierta nunca")
+        del candidatas
+
+
 class TestLaCaraNoSeApaga(unittest.TestCase):
     """Ninguna animacion de la cara puede hacerla desaparecer.
 

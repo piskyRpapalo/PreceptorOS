@@ -156,6 +156,18 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # exige que el camino por defecto sea stdlib puro. Entra aqui en su
           # mismo commit por la misma razon: un candado que no corre no cierra.
           test_superficie
+          # test_huella: la Huella Soberana (SHA256). Entra en su mismo commit,
+          # y no por disciplina abstracta -- se comprobo que sin esta linea la
+          # suite existia, pytest la corria y ESTE corredor no, asi que el
+          # numero de arriba habria subido sin cubrirla. Desde el mismo commit
+          # hay un guardian en test_superficie que impide que vuelva a pasar.
+          test_huella
+          # test_metricas: la encontro el guardian el mismo dia que nacio, y
+          # llevaba fuera desde antes. Es la suite del Banco de Pruebas -- las
+          # once cifras que el producto ensena como argumento de confianza --,
+          # o sea que el corredor publicaba un numero que no cubria justo lo
+          # que el producto usa para demostrar que no miente.
+          test_metricas
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

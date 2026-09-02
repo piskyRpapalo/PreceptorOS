@@ -43,6 +43,7 @@ import metricas as MET
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
+import huella as _huella                                    # noqa: E402
 import afinado as _afinado                                  # noqa: E402
 import casa as _casa                                        # noqa: E402
 import captura as C
@@ -57,6 +58,21 @@ BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BI
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
 LIMITE = 512 * 1024
 INTERFAZ = os.path.join(AQUI, "interface")
+
+# Los campos del perfil que la interfaz puede tocar. El perfil tiene claves que
+# pone el producto y que una peticion no debe poder escribir, asi que esto es
+# una lista blanca y no una exclusion.
+CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones", "avatar")
+
+# Vocabulario cerrado de caras. Lo que se guarde ahi acaba en el `src` de una
+# imagen, asi que NO puede ser texto libre: con texto libre, la interfaz le
+# pediria al servidor la ruta que le hubieran mandado. El orden es el de la
+# tira del busto, para que la cara elegida y la que anima el tablero se lean
+# como el mismo personaje.
+AVATARES = ("busto-dormido.webp", "busto-grieta.webp", "busto-rompe.webp",
+            "busto-ojo.webp", "busto-halo.webp", "busto-despierto.webp",
+            "busto-corazon.webp", "busto-oscuro.webp")
+
 
 # El vocabulario cerrado del selector de cerebro. Constante del producto, no
 # estado de una peticion: por eso vive aqui y no como atributo de la clase.
@@ -519,14 +535,20 @@ class PWA(BaseHTTPRequestHandler):
                                 "peldanos": peldanos,
                                 "cifras": camino.get("cifras", {})})
 
-    CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones")
-
     def _perfil_leer(self):
         with M.abrir(self.server.ruta_db) as c:
             perfil = M.leer_perfil(c)
         return self._json(200, {
             "estado": "ok",
-            "campos": {k: perfil.get(k, "NO_DATA") for k in self.CAMPOS_PERFIL},
+            # La Huella Soberana (SHA256). NO es Ed25519, y se nombra por lo
+            # que es: la stdlib no trae Ed25519, y este producto no admite otra
+            # dependencia. Tampoco es una clave -- no firma nada y no da acceso
+            # a nada; es un nombre pseudonimo y estable para esta instalacion.
+            # Si falta o esta rota, sale NO_DATA con causa: jamas un valor
+            # inventado en su hueco.
+            "identidad": _huella.leer(_casa.raiz()),
+            "avatares": list(AVATARES),
+            "campos": {k: perfil.get(k, "NO_DATA") for k in CAMPOS_PERFIL},
         })
 
     def _perfil_guardar(self, datos):
@@ -535,19 +557,26 @@ class PWA(BaseHTTPRequestHandler):
         la interfaz no debe poder tocar."""
         escritos = []
         with M.abrir(self.server.ruta_db) as c:
-            for clave in self.CAMPOS_PERFIL:
+            for clave in CAMPOS_PERFIL:
                 if clave not in datos:
                     continue
                 valor = datos[clave]
                 if not isinstance(valor, str) or len(valor) > 4000:
                     return self._json(400, {"estado": "bloqueado",
                                             "motivo": f"{clave} fuera de rango"})
+                # El avatar no es texto: es una de ocho. Se comprueba contra la
+                # lista, no contra una forma -- una comprobacion por forma
+                # («que acabe en .webp», «que no lleve barras») se salta antes
+                # o despues, y una lista de ocho no se salta.
+                if clave == "avatar" and valor not in AVATARES:
+                    return self._json(400, {"estado": "bloqueado",
+                                            "motivo": "esa cara no existe"})
                 M.escribir_perfil(c, clave, valor.strip() or "NO_DATA")
                 escritos.append(clave)
             perfil = M.leer_perfil(c)
         return self._json(200, {"estado": "ok", "escritos": escritos,
                                 "campos": {k: perfil.get(k, "NO_DATA")
-                                           for k in self.CAMPOS_PERFIL}})
+                                           for k in CAMPOS_PERFIL}})
 
     def _proyectos_leer(self):
         with M.abrir(self.server.ruta_db) as c:

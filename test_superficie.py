@@ -158,5 +158,53 @@ class SuperficieEnviada(unittest.TestCase):
                           "frontera.py ya no usa wasmtime: revisar la firma")
 
 
+
+class TestElCorredorNoDejaSuitesFuera(unittest.TestCase):
+    """Toda suite del arbol corre en `bin/pruebas`. Sin excepciones tacitas.
+
+    Mismo tipo de fallo que protege el resto de este fichero: no se rompe por
+    decision, se rompe por descuido. La lista de suites de `bin/pruebas` se
+    escribe a mano, y ese fichero lo dice -- «si anades una suite, va aqui: es
+    la unica lista». Una lista a mano se olvida.
+
+    Ya paso, y en grande: la deuda S4 dejo TRECE suites fuera del corredor, y
+    escondieron dos roturas reales. Se cerro anadiendolas... y nada impidio que
+    volviera a pasar. Volvio a pasar el 2026-09-02 con `test_huella`: existia,
+    pytest la corria, el corredor no. El numero que el repo publica como suyo
+    habria subido sin cubrirla.
+
+    Anadir las suites que faltan arregla el sintoma una vez. Esto arregla la
+    forma de fallar: a partir de aqui, una suite nueva no puede quedarse fuera
+    en silencio -- se entera en el mismo commit en que nace.
+    """
+
+    def test_toda_suite_del_arbol_esta_en_el_corredor(self):
+        raiz = os.path.dirname(os.path.abspath(__file__))
+        corredor = open(os.path.join(raiz, "bin", "pruebas"),
+                        encoding="utf-8").read()
+
+        # El fichero declara las suites en dos formas: `test_x` en UNITTEST y
+        # `x` (sin prefijo) en PROPIAS. Se busca cualquiera de las dos, porque
+        # lo que importa es que el corredor la nombre, no como la nombre.
+        sueltas = []
+        for fichero in sorted(os.listdir(raiz)):
+            if not (fichero.startswith("test_") and fichero.endswith(".py")):
+                continue
+            nombre = fichero[:-3]                       # test_huella
+            corto = nombre[len("test_"):]               # huella
+            import re
+            visto = (re.search(r"\b%s\b" % re.escape(nombre), corredor)
+                     or re.search(r"PROPIAS=\([^)]*\b%s\b" % re.escape(corto),
+                                  corredor, re.S))
+            if not visto:
+                sueltas.append(fichero)
+
+        self.assertFalse(
+            sueltas,
+            "estas suites existen y el corredor no las corre, asi que el "
+            "numero que publica el repo no las cubre: " + ", ".join(sueltas)
+            + ". Se anaden a la lista de `bin/pruebas`, en su mismo commit.")
+
+
 if __name__ == "__main__":
     unittest.main()

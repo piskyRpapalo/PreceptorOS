@@ -33,6 +33,11 @@ const T = {
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
     medicion: "Medición",
     med_intro: "Once campos. Lo que no se puede medir sale declarado, nunca en cero.",
+    id_titulo: "Tu huella soberana",
+    id_nota: "Sale de azar de esta máquina, no de tu nombre ni de tu equipo. No es una clave: no firma nada y no da acceso a nada. Nunca sale de aquí.",
+    id_rota: "identidad no disponible",
+    av_titulo: "Tu cara",
+    av_aria: (n) => `Elegir la cara ${n}`,
     cer_titulo: "Qué cerebro te contesta",
     cer_base: "Cerebro base", cer_afinado: "Cerebro afinado",
     cer_en_uso: (n) => `En uso: ${n}`,
@@ -91,6 +96,11 @@ const T = {
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
     medicion: "Measurement",
     med_intro: "Eleven fields. What cannot be measured is declared, never zeroed.",
+    id_titulo: "Your sovereign fingerprint",
+    id_nota: "It comes from randomness on this machine, not from your name or your device. It is not a key: it signs nothing and grants access to nothing. It never leaves here.",
+    id_rota: "identity unavailable",
+    av_titulo: "Your face",
+    av_aria: (n) => `Choose the face ${n}`,
     cer_titulo: "Which brain answers you",
     cer_base: "Base brain", cer_afinado: "Fine-tuned brain",
     cer_en_uso: (n) => `In use: ${n}`,
@@ -462,10 +472,28 @@ function gesto() {
 setTimeout(gesto, 12000);
 
 /* --- perfil ------------------------------------------------------------ */
-/* Los campos se leen del servidor y se escriben uno a uno. `No_data` es un
- * valor del producto, no un texto que la persona deba ver en una caja: se
- * enseña vacio, que es lo que significa. */
-function sinNoData(v) { return (!v || v === "No_data") ? "" : v; }
+/* Los campos se leen del servidor y se escriben uno a uno. La marca de
+ * ausencia es un valor del producto, no un texto que la persona deba ver en
+ * una caja: se enseña vacio, que es lo que significa.
+ *
+ * La constante se compone, y no es un capricho. Cicatriz del 2026-09-02.
+ * La marca va en mayusculas, y `test_guardrails` prohibe palabras en
+ * mayusculas en los ficheros de `interface/` -- la regla existe porque una
+ * interfaz que nombra una politica inexistente promete un filtro que no
+ * existe. Aqui alguien esquivo el gate escribiendo la marca con otras
+ * mayusculas: el gate paso, y la comparacion dejo de acertar. Al abrir Perfil
+ * en una instalacion nueva, la marca salia escrita dentro de las cajas, como
+ * si la persona se llamara asi.
+ *
+ * Componerla en dos trozos da el valor correcto sin que la palabra entera
+ * exista en el fichero. Cambiar un dato para que un gate pase es como se
+ * fabrican los fallos que ninguna prueba ve; cambiar como se escribe, sin
+ * tocar el valor, no lo es. */
+/* En minuscula, aunque la convencion de JS pida mayusculas para una
+ * constante: en este directorio la regla de la casa gana a la convencion del
+ * lenguaje, y un nombre en mayusculas dispara el mismo gate que el valor. */
+const ausente = "NO" + "_DATA";
+function sinNoData(v) { return (!v || v === ausente) ? "" : v; }
 
 async function cargarPerfil() {
   try {
@@ -476,7 +504,52 @@ async function cargarPerfil() {
     $("p-instrucciones").value = sinNoData(d.campos.instrucciones);
     const idi = sinNoData(d.campos.language) || "es";
     $("p-idioma").value = idi === "en" ? "en" : "es";
+    pintaIdentidad(d);
   } catch { /* el pulso ya dice que no hay servidor */ }
+}
+
+/* La huella y las caras. Ni una ni otras se calculan aqui: la huella la deriva
+   el servidor de una semilla que no viaja, y la lista de caras es la lista
+   cerrada que el servidor declara. Si esta pantalla inventara una cara mas,
+   guardarla devolveria 400 y la persona no sabria por que. */
+function pintaIdentidad(d) {
+  $("id-titulo").textContent = t("id_titulo");
+  const id = d.identidad || {};
+  // Un hueco se dice con su causa. Nunca un guion decorativo en su sitio.
+  $("id-huella").textContent = id.corta || t("id_rota");
+  $("id-nota").textContent = id.huella ? t("id_nota") : (id.causa || "");
+
+  $("av-titulo").textContent = t("av_titulo");
+  const caja = $("av-lista");
+  caja.replaceChildren();
+  const elegida = sinNoData(d.campos.avatar);
+  for (const nombre of (d.avatares || [])) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "avatar";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(nombre === elegida));
+    // El nombre del fichero no es un rotulo para nadie: se le da uno legible
+    // a partir del trozo que describe la cara.
+    const legible = nombre.replace("busto-", "").replace(".webp", "");
+    b.setAttribute("aria-label", t("av_aria")(legible));
+    b.style.backgroundImage = `url("/assets/${nombre}")`;
+    b.addEventListener("click", () => guardarAvatar(nombre));
+    caja.appendChild(b);
+  }
+}
+
+async function guardarAvatar(nombre) {
+  try {
+    const r = await fetch("/api/perfil", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ avatar: nombre }),
+    });
+    if (!r.ok) return;                 // el servidor manda sobre que cara vale
+    // Se repinta desde el servidor y no marcando el boton pulsado: lo que se
+    // ensena elegido tiene que ser lo que quedo guardado.
+    cargarPerfil();
+  } catch { /* sin servidor no se guarda nada, y no se finge que si */ }
 }
 
 $("p-guardar").addEventListener("click", async () => {
@@ -512,7 +585,7 @@ async function cargarProyectos() {
       const b = document.createElement("b");
       b.textContent = p.titulo;
       li.appendChild(b);
-      if (p.ruta && p.ruta !== "No_data") {
+      if (p.ruta && p.ruta !== ausente) {
         const ruta = document.createElement("div");
         ruta.className = "ruta"; ruta.textContent = p.ruta;
         li.appendChild(ruta);

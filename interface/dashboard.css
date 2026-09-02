@@ -634,3 +634,30 @@ body {
   margin: .15rem 0 0; font-size: .72rem; line-height: 1.35;
   color: var(--violeta-fuerte); word-break: break-word;
 }
+
+/* --- la identidad y las caras -------------------------------------------
+   La huella en monoespaciada y por grupos. Un hexadecimal de 64 caracteres
+   seguidos no lo compara nadie a ojo: se mira el principio, se mira el final
+   y se da por bueno el medio. Los grupos existen para que compararla sea un
+   gesto posible, que es justo para lo que sirve. */
+.huella {
+  margin: .1rem 0 .3rem; padding: .45rem .6rem;
+  font: 700 .82rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .06em; word-break: break-all;
+  border-radius: 8px; background: var(--violeta-tenue);
+  border: 1px solid var(--line); color: var(--ink);
+}
+.avatares { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .3rem; }
+/* Botones de verdad, no `div` con `onclick`: se llega con el tabulador y se
+   pulsan con la barra. Un selector de cara al que no se llega con el teclado
+   deja fuera a quien no usa el dedo. */
+.avatar {
+  width: 54px; height: 54px; flex: none; padding: 0; cursor: pointer;
+  border-radius: 50%; background: var(--paper) center / cover no-repeat;
+  border: 2px solid var(--line); image-rendering: pixelated;
+}
+.avatar[aria-checked="true"] {
+  border-color: var(--violeta);
+  box-shadow: 0 0 0 3px var(--violeta-tenue), 0 4px 14px rgba(109,90,224,.4);
+}
+.avatar:focus-visible { outline: 2px solid var(--violeta); outline-offset: 3px; }
