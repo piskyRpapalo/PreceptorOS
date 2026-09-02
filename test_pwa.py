@@ -544,6 +544,36 @@ class TestMarcaDeAusencia(unittest.TestCase):
         del candidatas
 
 
+class TestNingunRelojSeQuedaSuelto(unittest.TestCase):
+    """Todo `setInterval` del tablero tiene su `clearInterval`.
+
+    El cajon de Medicion se refresca solo mientras esta abierto. Un latido que
+    se arranca al abrir y no se para al cerrar sigue pidiendo `/api/metricas`
+    para siempre -- en un telefono eso es bateria que se va sin que nada en la
+    pantalla lo justifique, y encima se apilan: abrir y cerrar el cajon cinco
+    veces deja cinco relojes corriendo a la vez.
+
+    Es una clase de fallo que no se ve nunca en una sesion corta y que se nota
+    en el aparato de alguien horas despues, sin sintoma que la senale.
+
+    Se comprueba por conteo y no por lectura: no hace falta entender el flujo
+    para saber que un `setInterval` sin `clearInterval` en el mismo fichero es
+    un reloj que nadie para.
+    """
+
+    def test_29_cada_setinterval_tiene_su_clearinterval(self):
+        import re
+        for nombre in ("dashboard.js", "app.js"):
+            fuente = open(os.path.join(AQUI, "interface", nombre),
+                          encoding="utf-8").read()
+            arranques = len(re.findall(r"\bsetInterval\s*\(", fuente))
+            paradas = len(re.findall(r"\bclearInterval\s*\(", fuente))
+            if arranques:
+                self.assertGreaterEqual(
+                    paradas, 1,
+                    f"{nombre} arranca {arranques} reloj(es) y no para ninguno")
+
+
 class TestLaCaraNoSeApaga(unittest.TestCase):
     """Ninguna animacion de la cara puede hacerla desaparecer.
 

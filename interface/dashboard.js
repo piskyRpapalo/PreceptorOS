@@ -33,6 +33,8 @@ const T = {
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
     medicion: "Medición",
     med_intro: "Once campos. Lo que no se puede medir sale declarado, nunca en cero.",
+    med_vivo: "en vivo · se vuelve a medir cada 3 s",
+    med_pausa: "en pausa — la pantalla no está delante",
     id_titulo: "Tu huella soberana",
     id_nota: "Sale de azar de esta máquina, no de tu nombre ni de tu equipo. No es una clave: no firma nada y no da acceso a nada. Nunca sale de aquí.",
     id_rota: "identidad no disponible",
@@ -96,6 +98,8 @@ const T = {
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
     medicion: "Measurement",
     med_intro: "Eleven fields. What cannot be measured is declared, never zeroed.",
+    med_vivo: "live · measured again every 3 s",
+    med_pausa: "paused — the screen is not in front",
     id_titulo: "Your sovereign fingerprint",
     id_nota: "It comes from randomness on this machine, not from your name or your device. It is not a key: it signs nothing and grants access to nothing. It never leaves here.",
     id_rota: "identity unavailable",
@@ -161,9 +165,11 @@ function abrir(cual) {
   // Se mide al abrir el cajon, no al cargar la pagina: una temperatura leida
   // hace diez minutos y pintada como actual es un sensor deshonesto con
   // buena cara.
-  if (cual === "medicion") { pintaMedicion(); pintaCerebro(); }
+  if (cual === "medicion") { pintaMedicion(); pintaCerebro(); latidoArranca(); }
+  else latidoPara();
 }
 function cerrar() {
+  latidoPara();
   document.querySelectorAll(".cajon").forEach((c) => {
     c.classList.remove("abierto");
     setTimeout(() => { c.hidden = true; }, 220);
@@ -818,3 +824,60 @@ async function elegirCerebro(cual) {
     $("cer-dicho").textContent = t("cer_sin_servidor");
   }
 }
+
+
+/* --- el latido de Medicion ------------------------------------------------
+   Las cifras se vuelven a medir mientras el cajon esta abierto, y solo
+   mientras lo esta.
+
+   Por que no al cargar la pagina: una temperatura leida hace diez minutos y
+   pintada como actual es un sensor deshonesto con buena cara -- eso ya lo
+   decia el comentario de `abrir`, y esto es su continuacion. Un panel que se
+   llama Banco de Pruebas y ensena un numero congelado no vale para lo que
+   existe: comparar dos cerebros midiendo.
+
+   Y por que se para: un reloj que se arranca al abrir y no se para al cerrar
+   sigue pidiendo al servidor para siempre. En un telefono eso es bateria que
+   se va sin que nada en la pantalla lo justifique. Peor: abrir y cerrar cinco
+   veces dejaria cinco relojes a la vez. `latidoPara` se llama siempre antes de
+   arrancar otro, asi que no se pueden apilar aunque alguien llame dos veces.
+
+   Tambien se para con la pantalla detras. `visibilitychange` cubre lo que un
+   telefono hace de verdad: bloquear y cambiar de aplicacion no cierran el
+   cajon, y sin esto se seguiria midiendo con el aparato en el bolsillo. */
+/* En minuscula por la regla de la casa para `interface/`, no por descuido. */
+const latidoMs = 3000;
+let latido = null;
+
+function latidoPara() {
+  if (latido) { clearInterval(latido); latido = null; }
+  const aviso = $("med-vivo");
+  if (aviso) aviso.hidden = true;
+}
+
+function latidoArranca() {
+  latidoPara();                       // nunca dos a la vez
+  const aviso = $("med-vivo");
+  if (document.hidden) {
+    if (aviso) { aviso.hidden = false; aviso.textContent = t("med_pausa"); }
+    return;
+  }
+  latido = setInterval(() => {
+    if (document.hidden) return;      // no se mide lo que nadie mira
+    pintaMedicion();
+  }, latidoMs);
+  if (aviso) { aviso.hidden = false; aviso.textContent = t("med_vivo"); }
+}
+
+/* El cajon abierto se reconoce por el propio cajon, no por una variable que
+   haya que mantener en paralelo: dos verdades sobre si algo esta abierto
+   terminan discrepando. */
+function medicionAbierta() {
+  const c = $("cajon-medicion");
+  return c && !c.hidden;
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) latidoPara();
+  else if (medicionAbierta()) { pintaMedicion(); latidoArranca(); }
+});

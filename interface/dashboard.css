@@ -661,3 +661,19 @@ body {
   box-shadow: 0 0 0 3px var(--violeta-tenue), 0 4px 14px rgba(109,90,224,.4);
 }
 .avatar:focus-visible { outline: 2px solid var(--violeta); outline-offset: 3px; }
+
+/* El aviso de que las cifras se estan midiendo ahora mismo. Un numero que
+   cambia solo, sin nada que lo explique, se lee como una pantalla nerviosa en
+   vez de como un instrumento. El punto no parpadea: en reposo la app tiene que
+   parecer quieta, y un punto que late a ritmo constante es exactamente el tipo
+   de movimiento que este producto no se permite. */
+.vivo {
+  margin: .1rem 0 .5rem; font-size: .7rem; font-weight: 700;
+  letter-spacing: .01em; color: var(--violeta-fuerte);
+  display: flex; align-items: center; gap: .4rem;
+}
+.vivo[hidden] { display: none; }
+.vivo::before {
+  content: ""; width: .45rem; height: .45rem; flex: none;
+  border-radius: 50%; background: var(--violeta);
+}
