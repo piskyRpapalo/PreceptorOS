@@ -107,7 +107,7 @@ body {
 .busto {
   width: 68px; height: 68px; margin: 0; flex: none;
   border-radius: 50%; position: relative;
-  background: var(--paper) url("/assets/preceptor-up-v2.webp") 71.4286% 50% / 800% auto no-repeat;
+  background: var(--paper) url("/assets/caras/avatar-fijo.webp") center / cover no-repeat;
   border: 2px solid var(--violeta); box-shadow: 0 6px 22px rgba(109,90,224,.35);
   image-rendering: pixelated;
   animation: despertar 1.5s steps(6, jump-none) 1 both,

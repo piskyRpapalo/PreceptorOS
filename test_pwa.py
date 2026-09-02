@@ -741,7 +741,14 @@ class TestLasImagenesQuePideLaCaraSeSirven(unittest.TestCase):
 
     def _pedidas(self):
         import re
-        pide = re.compile(r"/assets/([A-Za-z0-9._-]+)")
+        # La barra entra en la clase a proposito. Sin ella, de
+        # `/assets/caras/avatar-fijo.webp` esta prueba capturaba solo `caras` y
+        # despues preguntaba si `assets/caras` es un FICHERO -- es una carpeta,
+        # asi que fallaba sin poder nombrar lo que faltaba. Con la barra se
+        # comprueba la ruta entera, que es lo que el navegador va a pedir.
+        # Es mas estricto que antes, no menos: ahora tambien valida el tramo
+        # de carpeta que hasta hoy se perdia por el camino.
+        pide = re.compile(r"/assets/([A-Za-z0-9._/-]+)")
         vistas = set()
         for nombre in sorted(os.listdir(self.RUTA)):
             if not nombre.endswith((".css", ".html", ".js")):

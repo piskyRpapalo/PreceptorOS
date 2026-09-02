@@ -71,12 +71,26 @@ el ancho entero (medido: bbox_diff = (0, 5, 256, 251) en todos los pares), asi
 que de las tiras viejas no se puede extraer una capa de solo-boca ni una de
 solo-ojo. Eso necesita dibujos nuevos por capa, no un script.
 
-POR QUE WEBP Y NO PNG
----------------------
-Firmado por el Soberano el 2026-09-02, con el precedente ya medido en
-`unir_bustos.py`: misma imagen sin perdida, -44 %. Son 23 caras por dos
-tamanos; en png serian ~1,4 MB que un navegador tiene que precachear.
-`lossless=True`: los pixeles son identicos tras decodificar.
+POR QUE WEBP, Y POR QUE CON PERDIDA
+-----------------------------------
+Firmado por el Soberano el 2026-09-02, en dos pasos y con una correccion por
+el medio.
+
+Primero se firmo webp SIN perdida, apoyandose en el -44 % que `unir_bustos.py`
+tenia medido. Ese -44 % es de graficos planos. Estas caras son fotografia de
+marmol y ahi lo sin-perdida no comprime: la tanda entera salio a 1.709 KB, casi
+el doble de lo que se buscaba. Medido sobre `cara-completa-256`:
+
+    modo       fichero    x38      dif max   dif media   canal alfa
+    lossless    43,3 KB   1,61 MB        0        0,00   identico
+    q95         22,8 KB   0,85 MB    12/255       0,45   identico
+    q90         19,1 KB   0,71 MB    12/255       0,67   identico
+
+La cifra que decide es la ultima columna: a q95 el canal alfa sale bit a bit
+igual, asi que el borde del recorte --lo unico que un ojo pilla al vuelo-- no
+se toca. Lo que pierde es 0,45 de 255 de media en el color del marmol.
+
+Firmado q95 el 2026-09-02. `CALIDAD = 0` vuelve a sin perdida.
 """
 from __future__ import annotations
 
@@ -89,6 +103,7 @@ from PIL import Image, ImageDraw
 TOLERANCIA = 120        # medida, no elegida: ver el bloque del damero
 PASO_SEMILLA = 8        # cada cuantos pixeles se siembra el perimetro
 UMBRAL_FILA = 0.005     # que fraccion de una fila tiene que ser opaca
+CALIDAD = 95           # 0 = sin perdida. Firmado 95: ver la cabecera
 RANGO_PLANO = 90        # recorrido de color por debajo del cual una isla se
                         # considera damero y no esquirla. Sale de la medida:
                         # el fondo da 60-63 y el marmol 155-251, asi que 90 cae
@@ -467,6 +482,9 @@ def main(argv=None):
                     help="resplandor del color del ojo pegado a la silueta. "
                          "Idea del Soberano: la cara es marmol blanco y sin el "
                          "borde no se lee sobre un fondo claro. 0 = sin halo")
+    ap.add_argument("--calidad", type=int, default=CALIDAD,
+                    help="calidad webp. 0 = sin perdida (pesa el doble y el "
+                         "alfa sale igual: ver la cabecera)")
     ap.add_argument("--limpiar-islas", action="store_true",
                     help="quitar las islas planas de damero. APAGADO por "
                          "defecto: se probo el 2026-09-02 y abre agujeros en "
@@ -479,6 +497,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
 
     lados = a.lado or [256, 180]
+    calidad = a.calidad
     grupos = a.grupo or sorted(GRUPOS)
 
     if a.barrido:
@@ -544,7 +563,11 @@ def main(argv=None):
                 if a.ejecutar:
                     for d in a.destino:
                         d.mkdir(parents=True, exist_ok=True)
-                        lona.save(d / f"{n}-{lado}.webp", lossless=True)
+                        if calidad:
+                            lona.save(d / f"{n}-{lado}.webp",
+                                      quality=calidad, method=6)
+                        else:
+                            lona.save(d / f"{n}-{lado}.webp", lossless=True)
                     escritos += 1
 
     print(f"\n[calibrar] {escritos} ficheros escritos · {saltados} grupos en NO_DATA")
