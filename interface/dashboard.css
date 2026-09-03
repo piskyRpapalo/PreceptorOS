@@ -43,11 +43,25 @@
 }
 
 * { box-sizing: border-box; }
-html, body { height: 100%; }
+html { height: 100%; }
+/* `100dvh` y no `100vh`: en un movil `vh` se congela al alto CON la barra de
+   direcciones desplegada, asi que la app siempre medía de mas y la barra de
+   iconos se iba unos pixeles por debajo del borde. `dvh` sigue al viewport de
+   verdad. El `100%` va detras como respaldo para navegadores sin `dvh`: el
+   ultimo que el navegador entiende es el que manda.
+
+   La barra de iconos NO la corta nadie: es el ultimo hijo de un `body` en
+   columna y el chat es el unico que crece. Que el pie quede siempre dentro y
+   entero es consecuencia de eso, no de un margen calculado a mano. */
+body { height: 100%; height: 100dvh; display: flex; flex-direction: column; }
 /* Con el teclado abierto la app mide lo que se ve, no lo que dice la ventana.
    `--teclado` lo pone `dashboard.js` desde `visualViewport`; sin javascript
    vale cero y esto no hace nada, que es el comportamiento de siempre. */
-body.con-teclado { height: calc(100% - var(--teclado, 0px)); }
+body.con-teclado { height: calc(100dvh - var(--teclado, 0px)); }
+/* El chat es el unico que se estira, y el unico que hace scroll. Sin esto, un
+   historial largo empuja la barra de iconos fuera de la pantalla. */
+.dice { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.barra-iconos { flex: none; }
 body {
   margin: 0; color: var(--ink);
   /* El violeta deja de ser solo el boton. Tres capas: un halo arriba donde
