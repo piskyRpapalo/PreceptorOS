@@ -7,6 +7,15 @@
    que hacia que las laminas recortadas ensenaran su borde blanco. El panel de la frontera sigue su propio
    camino porque ahi manda la legibilidad del dato, no la identidad. */
 :root {
+  /* La cara y sus tiempos. Mismos nombres y mismos valores que en la web
+     (`widget.css`), para que una sola cifra no viva en dos sitios diciendo
+     cosas distintas. */
+  --cara-chica: 102px;      /* era 68. Un 50 % mas, firmado 2026-09-02 */
+  --cara-grande: 138px;     /* era 92, la misma proporcion */
+  --anim-apertura: 3.75s;
+  --anim-reposo: 32s;       /* ocho segundos por color */
+  --anim-habla: .72s;
+
   --violeta:      #6d5ae0;
   --violeta-hondo:#4c3fb5;
   /* El violeta de las letras sueltas sobre marmol. Mas hondo que el de los
@@ -35,6 +44,10 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+/* Con el teclado abierto la app mide lo que se ve, no lo que dice la ventana.
+   `--teclado` lo pone `dashboard.js` desde `visualViewport`; sin javascript
+   vale cero y esto no hace nada, que es el comportamiento de siempre. */
+body.con-teclado { height: calc(100% - var(--teclado, 0px)); }
 body {
   margin: 0; color: var(--ink);
   /* El violeta deja de ser solo el boton. Tres capas: un halo arriba donde
@@ -78,8 +91,22 @@ body {
 /* Dos tiras con distinto numero de fotogramas. Esa es toda la trampa de
    este bloque, y por eso se escribe antes que el codigo.
 
-   `preceptor-up-v2.webp` · ocho fotogramas, 2048x256, cuadrados. El despertar.
-   `aurelius-talks.png`   · cuatro fotogramas, 1024x341. El bucle de la boca.
+   `cara-secuencia-apertura-256.webp` · siete fotogramas, 1792x256. Al 700 %.
+   `cara-secuencia-reposo-256.webp`   · cuatro colores, 1024x256. Al 400 %.
+   `cara-secuencia-habla-256.webp`    · cuatro bocas,  1024x256. Al 400 %.
+
+   Van PLANOS en `assets/` y no en `assets/caras/` por una razon del servidor,
+   no de gusto: `bin/preceptoros-pwa` rechaza con 404 cualquier nombre de
+   asset que lleve una barra, y es una guardia de travesia deliberada --«si no
+   es un nombre, no se abre»--. La web si sirve carpetas y alli viven en
+   `caras/`. Cambiar el servidor para admitir subcarpetas seria aflojar una
+   comprobacion de seguridad para ahorrarse un prefijo.
+
+   Las tres salen de `herramientas/calibrar_caras.py` sobre las laminas de
+   croma verde de `Alejandria/marca/`, y las tres comparten caja: cualquier
+   punto de la cara cae en el mismo pixel en las tres, asi que cambiar de
+   estado no mueve nada. Eso no se comprueba a ojo -- se cumple porque a todos
+   los fotogramas se les aplico la misma transformacion.
 
    Los ocho de `up` no son una secuencia dibujada: son ocho estados con nombre
    que se ordenaron por su ambar medido, de apagado a encendido (el orden vive
@@ -105,81 +132,95 @@ body {
    nombra una politica inexistente promete un filtro que no existe. El enfasis
    aqui se pone con la frase, no con la tecla de bloqueo.) */
 .busto {
-  width: 68px; height: 68px; margin: 0; flex: none;
+  /* 102 px y no 68: la cara es la protagonista, y a 68 px el ojo medía seis
+     pixeles. Firmado por el Soberano el 2026-09-02 -- un 50 % mas grande. */
+  width: var(--cara-chica); height: var(--cara-chica); margin: 0; flex: none;
   border-radius: 50%; position: relative;
-  background: var(--paper) url("/assets/caras/avatar-fijo.webp") center / cover no-repeat;
   border: 2px solid var(--violeta); box-shadow: 0 6px 22px rgba(109,90,224,.35);
-  image-rendering: pixelated;
-  animation: despertar 1.5s steps(6, jump-none) 1 both,
-             respirar 3s ease-in-out 1.5s infinite;
+  /* `pixelated` Fuera. Estaba puesto para una tira de 256 px que se pintaba a
+     68: al ampliar a 102 el vecino mas cercano deja escalones en la barba.
+     Estas laminas son fotografia de marmol, no pixel art. */
+  background: var(--paper) url("/assets/cara-secuencia-apertura-256.webp")
+              0% 50% / 700% auto no-repeat;
+  animation: despertar var(--anim-apertura) linear 1 both;
 }
+
+/* LA Apertura, Y POR QUE NO ES `steps()`.
+   Siete fotogramas, y el tercero (`wake1,5`) dura la Mitad que los demas --
+   firmado. `steps()` reparte el tiempo a partes iguales por definicion: no
+   hay forma de darle medio compas a uno solo. Con paradas en porcentaje cada
+   fotograma dura lo que se le diga, y sigue siendo una sola animacion css sin
+   una linea de javascript.
+
+   Sobre 3,75 s: 0,5 / 0,5 / 0,25 / 0,5 / 0,5 / 0,5 / 1,0.
+   La tira mide 1792x256 = siete cuadrados, asi que el fondo va al 700 % y cada
+   fotograma cae en un sexto: 0, 16.667, 33.333, 50, 66.667, 83.333 y 100.
+
+   Cada fotograma se declara DOS veces --su entrada y el instante antes del
+   siguiente-- porque sin el segundo punto el navegador interpola la posicion y
+   la cara se desliza de un dibujo al otro en vez de cambiar. Ese deslizamiento
+   es exactamente el defecto que esta cara viene a matar. */
 @keyframes despertar {
-  from { background-position:       0% 50%; }
-  to   { background-position: 71.4286% 50%; }
+  0%,     13.32% { background-position:      0% 50%; }
+  13.33%, 26.66% { background-position: 16.667% 50%; }
+  26.67%, 33.32% { background-position: 33.333% 50%; }   /* medio compas */
+  33.33%, 46.66% { background-position:     50% 50%; }
+  46.67%, 59.99% { background-position: 66.667% 50%; }
+  60%,    73.32% { background-position: 83.333% 50%; }
+  73.33%, 100%   { background-position:    100% 50%; }
 }
-/* El despertar ocurre una vez, y esta regla es lo unico que lo garantiza.
-   Cicatriz medida en el navegador el 2026-09-02.
 
-   `.busto.piensa` sustituye la lista entera de animaciones mientras el modelo
-   genera. Al quitar la clase, la lista vuelve a ser la de `.busto` -- y el
-   navegador trata eso como una animacion nueva, asi que `despertar` se
-   reproducia otra vez desde el fotograma 0. Cada vez que el modelo terminaba
-   de responder, la cara se volvia a despertar entera. Medido: 0%, 14.2857,
-   28.5714, 42.8572, 57.1429, 71.4286, despues de cada respuesta.
+/* Reposo. Al terminar la apertura, `dashboard.js` pone `.despierto` --ya lo
+   hacia-- y la cara pasa a su ciclo de color: violeta, azul, verde, ambar.
+   Ocho segundos cada uno, treinta y dos la vuelta entera.
 
-   `Assets.md` ya lo prohibia con todas las letras: «El despertar ocurre una
-   vez. Un despertar que se repite en cada frase deja de ser un despertar y se
-   convierte en un tic». `cara.py` lo cumplia con una bandera; el tablero no
-   tenia nada equivalente. Venia de antes de la tira de ocho, pero la tira lo
-   empeoro -- el tic pasaba de tres pasos a seis.
+   Dos animaciones sobre el mismo elemento y cada una hace lo suyo: `reposo`
+   cambia de fotograma a saltos, y `fundido` baja la opacidad justo en el
+   instante del salto. Asi el cambio se ve como un fundido y no como un corte,
+   sin necesidad de dos capas apiladas ni de javascript.
 
-   La interfaz pone esta clase cuando `despertar` termina, y a partir de ahi la
-   lista de reposo NO contiene el despertar. Va aqui arriba y no mas abajo a
-   proposito: tiene la misma especificidad que `.busto.piensa`, asi que la que
-   gane depende del orden, y la que tiene que ganar mientras se genera es
-   `.piensa`. */
+   `respirar` se queda: mueve la Sombra, no la imagen, y es lo que impide que
+   una cara quieta se lea como una aplicacion colgada. */
 .busto.despierto {
-  background-position: 71.4286% 50%;
-  animation: respirar 3s ease-in-out infinite;
+  background-image: url("/assets/cara-secuencia-reposo-256.webp");
+  background-size: 400% auto;
+  animation: reposo var(--anim-reposo) steps(3, jump-none) infinite,
+             fundido 8s ease-in-out infinite,
+             respirar 3s ease-in-out infinite;
 }
-
-/* Reposo con vida: el ambar respira muy despacio. Tres segundos y sin cambiar
-   de fotograma -- lo unico que se mueve es la luz, que es lo que hace que una
-   pantalla no parezca congelada sin pedirle nada a la CPU. */
+@keyframes reposo {
+  from { background-position:   0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+@keyframes fundido {
+  0%, 6%, 94%, 100% { opacity: .55; }
+  20%, 80%          { opacity: 1; }
+}
 @keyframes respirar {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
   50%     { box-shadow: 0 8px 30px rgba(224,184,114,.30); }
 }
 
-/* Hablando. Mientras genera, la cara usa la otra tira y recorre sus cuatro
-   bocas. Esta es la respuesta al problema de verdad: el modelo tarda minutos
-   en este telefono, y una cara quieta durante minutos se lee como una
-   aplicacion colgada. Que la boca se mueva no acelera nada -- dice que sigue
-   ahi, que es lo unico honesto que se puede decir mientras tanto. */
+/* Hablando. La clase la pone `dashboard.js` mientras el modelo genera, y se
+   llama `piensa` desde agosto: se respeta el nombre en vez de renombrarla y
+   tocar el javascript por gusto.
+
+   Cuatro bocas en una tira de 1024x256, asi que el fondo va al 400 % y
+   `steps(4, jump-none)` de 0 a 100 cae en 0, 33.33, 66.67 y 100 -- los cuatro
+   fotogramas, ninguno fuera del marco.
+
+   La cicatriz de agosto sigue vigente y por eso se declara el tamano aqui:
+   heredar el 700 % de la apertura recorreria cuatro bocas en siete huecos y
+   media vuelta quedaria fuera del marco, con un parpadeo de alto contraste a
+   ritmo constante. Eso no es un defecto estetico: es un riesgo para personas
+   con epilepsia fotosensible. Ninguna animacion de esta cara puede apagarla;
+   solo puede cambiarla. */
 .busto.piensa {
-  background-image: url("/assets/aurelius-talks.png");
-  /* Cicatriz, 2026-09-02. Esta linea no es redundante: es lo unico que impide
-     un segundo caso del fallo que documenta el parrafo de abajo.
-
-     `.busto` paso de cuatro fotogramas al 400% a ocho al 800%. Esta regla solo
-     cambiaba `background-image`, asi que heredaba el 800% -- y lo aplicaba a
-     una tira que sigue teniendo cuatro. La boca se habria recorrido en ocho
-     huecos de una imagen de cuatro: mitad del ciclo fuera del marco, con el
-     mismo parpadeo de alto contraste que ya se corrigio en agosto. El tamano
-     se declara aqui, y quien cambie `.busto` no puede romper esta. */
+  background-image: url("/assets/cara-secuencia-habla-256.webp");
   background-size: 400% auto;
-  /* `jump-none` de 0% a 100%: con cuatro pasos da exactamente 0, 33.33, 66.67
-     y 100 -- los cuatro fotogramas, y ninguno fuera del marco.
-
-     Cicatriz, 2026-08-23. Esto iba de 0% a -400%, copiado de la forma en
-     pixeles. Con posicionamiento en Porcentaje, cualquier valor fuera de
-     0-100% saca la imagen del marco: la cara desaparecia la mitad del ciclo
-     y quedaba un parpadeo de alto contraste a ritmo constante. Eso no es un
-     fallo estetico -- es un riesgo para personas con epilepsia fotosensible,
-     y lo vio el Soberano en el telefono antes que ninguna prueba. Ninguna
-     animacion de esta cara puede apagarla: solo puede cambiarla. */
-  animation: hablar 0.72s steps(4, jump-none) infinite,
-             latir  2.4s ease-in-out infinite;
+  opacity: 1;
+  animation: hablar var(--anim-habla) steps(4, jump-none) infinite,
+             latir 2.4s ease-in-out infinite;
 }
 @keyframes hablar {
   from { background-position:   0% 50%; }
@@ -190,30 +231,23 @@ body {
   50%     { box-shadow: 0 8px 34px rgba(224,184,114,.45); }
 }
 
-/* Un gesto suelto cada tanto: se asoma un fotograma de la otra tira y vuelve.
-   Es el "sonrie de vez en cuando" con el material que hay, sin dibujar nada
-   nuevo. Dura 420 ms: lo justo para verlo de reojo y no para mirarlo. */
+/* Un gesto suelto cada tanto: se asoma una boca y vuelve. Sale de la tira de
+   habla, que es la unica que tiene bocas distintas. */
 .busto.gesto {
-  background-image: url("/assets/aurelius-talks.png");
-  background-size: 400% auto;   /* misma cicatriz que `.piensa`: la tira de
-                                   `talks` tiene cuatro, no ocho. */
+  background-image: url("/assets/cara-secuencia-habla-256.webp");
+  background-size: 400% auto;
   background-position: 66.667% 50%;
 }
 
-/* Quien pidio menos movimiento se queda con la cara quieta y encendida. Ni
-   entrada, ni boca, ni respiracion: solo el borde, que informa sin moverse. */
+/* Quien pidio menos movimiento se queda con la cara quieta y encendida: el
+   ultimo fotograma de la apertura, que es la cara de casa. Ni entrada, ni
+   ciclo, ni boca, ni fundido. Solo el borde, que informa sin moverse. */
 @media (prefers-reduced-motion: reduce) {
-  .busto, .busto.piensa, .busto.despierto {
-    animation: none;
-    background-image: url("/assets/preceptor-up-v2.webp");
-    background-size: 800% auto;      /* `.piensa` traia el 400% de `talks`;
-                                        aqui vuelve a la tira de ocho. */
-    background-position: 71.4286% 50%;
-  }
-  .busto.gesto {
-    background-image: url("/assets/preceptor-up-v2.webp");
-    background-size: 800% auto;
-    background-position: 71.4286% 50%;
+  .busto, .busto.despierto, .busto.piensa, .busto.gesto {
+    animation: none; opacity: 1;
+    background-image: url("/assets/cara-secuencia-apertura-256.webp");
+    background-size: 700% auto;
+    background-position: 100% 50%;
   }
 }
 
@@ -401,7 +435,7 @@ body {
           font-weight: 600; text-decoration: none; }
 
 @media (min-width: 720px) {
-  .busto  { width: 92px; height: 92px; }
+  .busto  { width: var(--cara-grande); height: var(--cara-grande); }
   .hablar { width: 132px; height: 104px; }
   .retrato, .dice, .hablar-zona, .tiradores { max-width: 34rem;
     margin-inline: auto; width: 100%; }
@@ -431,16 +465,17 @@ body {
   animation: caer .45s ease-out 1.8s both;
 }
 /* El telon no es un cartel: es el despertar. Los mismos ocho fotogramas de
-   `preceptor-up-v2` que usa el busto del tablero, una sola vez y en orden. No
+   `secuencia-apertura` que usa el busto del tablero, una sola vez y en orden. No
    es un dibujo aparte, es la misma tira, asi que no hay dos verdades sobre que
    cara tiene esto al arrancar.
 
-   El busto del tablero se para en el [5], `despierto`, porque ese es su
-   reposo. El telon no: llega hasta el [7], `oscuro`, que es el unico sitio
-   donde los dos ultimos fotogramas se ven. Ocho fotogramas sobre el recorrido
-   entero piden `steps(8, jump-none)`: reparte en 0, 14.2857, 28.5714, 42.8571,
-   57.1429, 71.4286, 85.7143 y 100 por ciento, que son justo los bordes de la
-   tira al 800 por ciento de ancho.
+   La tira nueva son siete fotogramas, no ocho, asi que aqui manda
+   `steps(7, jump-none)`: reparte en 0, 16.667, 33.333, 50, 66.667, 83.333 y
+   100 por ciento, que son justo los bordes de la tira al 700 por ciento de
+   ancho. El telon la recorre entera y a paso igual; el busto del tablero usa
+   la misma tira con paradas en porcentaje, porque alli el tercer fotograma
+   dura la mitad. Misma tira, dos cadencias, una sola verdad sobre que cara
+   tiene esto al arrancar.
 
    La cadencia, medida y no elegida a ojo: con cuatro fotogramas en 1,2 s tocaban
    a 300 ms cada uno. Con ocho en el mismo 1,2 s tocan a 150. Se deja en 1,2 s
@@ -466,11 +501,10 @@ body {
      cuanto mas pequeno el circulo, mas dibujo se pierde. `min` lo ata al ancho
      del telefono para que no se salga en pantallas estrechas. */
   width: min(68vw, 320px); aspect-ratio: 1; border-radius: 50%; flex: none;
-  background: url("/assets/preceptor-up-v2.webp") 0% 50% / 800% auto no-repeat;
+  background: url("/assets/cara-secuencia-apertura-256.webp") 0% 50% / 700% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
-  image-rendering: pixelated;
-  animation: despertar-entero 1.2s steps(8, jump-none) 1 both;
+  animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
 }
 @keyframes despertar-entero {
   from { background-position:   0% 50%; }
