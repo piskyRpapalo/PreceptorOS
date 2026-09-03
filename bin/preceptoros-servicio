@@ -32,7 +32,7 @@ CASA="$(cd "$AQUI" && python3 -c 'import casa; print(casa.raiz())' 2>/dev/null |
 BITACORA="${PRECEPTOROS_PWA_LOG:-${AURELIUS_PWA_LOG:-$CASA/pwa.log}}"
 ORDEN="${1:-arranca}"
 
-vivo() { pgrep -f "(preceptoros|preceptoros)-pwa" >/dev/null 2>&1; }
+vivo() { pgrep -f "(aurelius|preceptoros)-pwa" >/dev/null 2>&1; }
 
 # ¿El proceso vivo es MÁS VIEJO que el código en disco? Encontrado usando la
 # app en el Doogee: tras `git pull` el servicio sigue sirviendo lo de antes y
@@ -42,7 +42,7 @@ vivo() { pgrep -f "(preceptoros|preceptoros)-pwa" >/dev/null 2>&1; }
 # declarada: el disco manda sobre lo que diga un fichero.
 codigo_mas_nuevo() {
   local pid inicio codigo
-  pid="$(pgrep -f "(preceptoros|preceptoros)-pwa" | head -1)" || return 1
+  pid="$(pgrep -f "(aurelius|preceptoros)-pwa" | head -1)" || return 1
   [ -n "$pid" ] || return 1
   # `etimes` da SEGUNDOS TRANSCURRIDOS, no una fecha. Es a proposito: la
   # primera version leia `ps -o lstart=` y se la pasaba a `date -d`, que
@@ -58,11 +58,11 @@ codigo_mas_nuevo() {
 
 case "$ORDEN" in
   para)
-    pkill -f "(preceptoros|preceptoros)-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
+    pkill -f "(aurelius|preceptoros)-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
     ;;
   estado)
     if vivo; then
-      echo "vivo · pid $(pgrep -f "(preceptoros|preceptoros)-pwa" | tr '\n' ' ')"
+      echo "vivo · pid $(pgrep -f "(aurelius|preceptoros)-pwa" | tr '\n' ' ')"
       curl -s -o /dev/null -w "responde: HTTP %{http_code}\n" \
            "http://127.0.0.1:$PUERTO/api/estado" 2>/dev/null || echo "no responde"
     else
@@ -70,6 +70,38 @@ case "$ORDEN" in
     fi
     ;;
   arranca)
+    # RELEVO BAJO systemd. Ceder el paso porque «ya hay uno vivo» es correcto
+    # cuando llama un carbono, y es un bucle infinito cuando llama systemd: con
+    # `Type=simple` + `Restart=always`, salir 0 sin dejar proceso en primer
+    # plano hace que systemd crea que el servicio terminó y lo relance cada
+    # `RestartSec`. Es la MISMA cicatriz que documenta el bloque de abajo,
+    # entrando por la otra puerta -- aquella se arregló para el caso de
+    # bifurcar y esta rama se quedó fuera.
+    #
+    # Medido en este Beelink el 2026-09-04: un `preceptoros-pwa` arrancado a
+    # mano por una sesión anterior (cgroup de la aplicación, no de la unidad)
+    # tenía el puerto ocupado desde hacía 22,7 h. `aurelius.service` llevaba
+    # **7970 reinicios** contra él, uno cada diez segundos -- 7970 x 10 s son
+    # exactamente esas 22 h. Y el proceso secuestrador servía código viejo: el
+    # aviso de `codigo_mas_nuevo` se imprimía 8.640 veces al día sin que nadie
+    # lo leyera, porque un servicio que reinicia en verde no alerta a nadie.
+    #
+    # Cuando llama systemd, systemd es el dueño del servicio: un proceso que él
+    # no arrancó es un okupa del puerto, no un compañero al que respetar. Se le
+    # releva y se sigue. Si no se deja parar, se sale en ROJO: un bucle verde
+    # no alerta a nadie, y un fallo visible sí.
+    if vivo && [ -n "${INVOCATION_ID:-}" ]; then
+      echo "[servicio] había uno vivo fuera de la unidad; lo relevo."
+      pkill -f "(aurelius|preceptoros)-pwa" 2>/dev/null
+      for _ in 1 2 3 4 5 6 7 8 9 10; do
+        vivo || break
+        sleep 1
+      done
+      if vivo; then
+        echo "[servicio] el que estaba no se dejó parar; no arranco un segundo." >&2
+        exit 1
+      fi
+    fi
     if vivo; then
       echo "ya había uno vivo; no arranco un segundo."
       if codigo_mas_nuevo; then
