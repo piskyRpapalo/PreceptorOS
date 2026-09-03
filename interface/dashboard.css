@@ -530,7 +530,7 @@ body {
 @media (prefers-reduced-motion: reduce) { .telon { display: none; } }
 @media (prefers-reduced-motion: reduce) { .telon-busto { animation: none; } }
 
-/* --- la barra de cinco --------------------------------------------------- */
+/* --- la barra de seis --------------------------------------------------- */
 .barra-iconos {
   display: flex; gap: .25rem; padding: .5rem .5rem calc(.5rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line); background: var(--paper);
@@ -568,6 +568,16 @@ body {
 .barra-iconos button[data-cajon="camino"]     i { background-image: url("/assets/icono-camino.png"), var(--vidrio); }
 .barra-iconos button[data-cajon="perfil"]     i { background-image: url("/assets/icono-perfil.png"), var(--vidrio); }
 .barra-iconos button[data-cajon="proyectos"]  i { background-image: url("/assets/icono-proyectos.png"), var(--vidrio); }
+/* `Medicion` era la sexta y no tenia icono: el comentario de este bloque decia
+   «la barra de cinco» y el html llevaba seis desde hace tiempo, asi que el
+   boton pintaba el cristal vacio y nada dentro. No es un hueco estetico -- un
+   boton sin dibujo entre otros cinco que si lo tienen se lee como roto.
+
+   Le toca el OJO, y no por descarte: los otros cinco son objetos --un libro,
+   un escudo, un sendero, una persona, una caja-- y medir no es un objeto, es
+   mirar. `ojo-ambar.webp` estaba en `assets/` desde agosto sin que nadie lo
+   pintara. El ambar es ademas el color con el que esta casa marca lo medido. */
+.barra-iconos button[data-cajon="medicion"]   i { background-image: url("/assets/ojo-ambar.webp"), var(--vidrio); }
 .barra-iconos { background: rgba(255,255,255,.9); }
 .barra-iconos button[aria-expanded="true"] { color: var(--violeta-hondo); background: transparent; }
 .barra-iconos button[aria-expanded="true"] i {
