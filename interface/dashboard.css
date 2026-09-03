@@ -95,7 +95,7 @@ body {
    `cara-secuencia-reposo-256.webp`   · cuatro colores, 1024x256. Al 400 %.
    `cara-secuencia-habla-256.webp`    · cuatro bocas,  1024x256. Al 400 %.
 
-   Van PLANOS en `assets/` y no en `assets/caras/` por una razon del servidor,
+   Van Planos en `assets/` y no en `assets/caras/` por una razon del servidor,
    no de gusto: `bin/preceptoros-pwa` rechaza con 404 cualquier nombre de
    asset que lleve una barra, y es una guardia de travesia deliberada --«si no
    es un nombre, no se abre»--. La web si sirve carpetas y alli viven en

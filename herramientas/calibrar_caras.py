@@ -104,12 +104,23 @@ TOLERANCIA = 120        # medida, no elegida: ver el bloque del damero
 PASO_SEMILLA = 8        # cada cuantos pixeles se siembra el perimetro
 UMBRAL_FILA = 0.005     # que fraccion de una fila tiene que ser opaca
 CALIDAD = 95           # 0 = sin perdida. Firmado 95: ver la cabecera
+CROMA_UMBRAL = 40       # cuanto tiene que dominar el verde para ser fondo
+CROMA_SUAVE = 25        # ancho de la rampa del borde, en la misma escala.
+                        # Sin rampa el contorno sale en sierra y la barba se
+                        # come sus propios pelos; con rampa hay medio pixel de
+                        # transicion donde el navegador puede mezclar.
 RANGO_PLANO = 90        # recorrido de color por debajo del cual una isla se
                         # considera damero y no esquirla. Sale de la medida:
                         # el fondo da 60-63 y el marmol 155-251, asi que 90 cae
                         # en el hueco y no en el borde de ninguno de los dos.
 
 ORIGEN = Path.home() / "p0x" / "Alejandria" / "Images-preceptorOS-head"
+NUEVAS = Path.home() / "p0x" / "Alejandria" / "ssssss"
+MARCA = Path.home() / "p0x" / "Alejandria" / "marca"
+
+# Los dos encuadres de la tanda nueva, medidos, no estimados.
+CARA_CLARA = (320, 40, 715, 600)    # busto sobre damero claro, con orbe al lado
+CARA_BREAK = (238, 148, 629, 616)   # familia break, sobre damero oscuro
 
 # El reparto de grupos. Vive aqui y no en un json porque es CONOCIMIENTO sobre
 # unos ficheros concretos --que son rejilla, en que orden se leen, cual manda
@@ -121,6 +132,18 @@ ORIGEN = Path.home() / "p0x" / "Alejandria" / "Images-preceptorOS-head"
 #   referencia· indice del fotograma que fija la escala del grupo
 #   clave     · si se le fabrica alfa. `Cara-logo` va en falso a proposito:
 #               su fondo oscuro es el estilo pedido, no algo que sobre.
+#   recorte   · rectangulo del ORIGEN elegido a mano, antes de nada mas.
+#
+# EL RECORTE A MANO NO ES PEREZA. La tanda de `ssssss` trae tres cosas dentro
+# del mismo lienzo que ninguna medida automatica sabe separar: el busto, un
+# ORBE suelto flotando a la derecha (36.000 px medidos en `Base.png`, isla
+# propia) y, en la familia `break`, una banda de marca de agua arriba (15.464
+# px en `break0.png`). Encuadrar por el contenido mete las tres, y la cabeza
+# --que es lo unico que se mira en un icono de 102 px-- se queda en nada.
+# Ademas son BUSTOS con hombros, no cabezas: el Soberano pidio que se vean la
+# boca y el ojo, y para eso hay que recortar la cabeza, no encajar el busto.
+# El rectangulo se eligio mirando cuatro candidatos sobre `Base.png` el
+# 2026-09-02 y trasladando por proporcion a la familia oscura.
 GRUPOS = {
     "apertura": {
         "fuentes": ["cara completa.jpeg", "cara rotura 1.jpeg", "cara rotura 2.jpeg",
@@ -164,6 +187,109 @@ GRUPOS = {
         "nombres": ["cara-logo"],
         "referencia": 0,
         "clave": False,
+    },
+
+    # --- tanda de `ssssss` · 2026-09-02 ------------------------------------
+    "nueva-apertura": {
+        "origen": NUEVAS,
+        "fuentes": ["break0.png", "Break1.png", "break2.png", "break3.png",
+                    "break4.png", "smile.base.png"],
+        "rejilla": None,
+        "nombres": ["cara-break0", "cara-break1", "cara-break2", "cara-break3",
+                    "cara-break4", "cara-smile"],
+        "referencia": 0,
+        "clave": True,
+        # `marmol.png` NO entra en la secuencia y no es un olvido: el encargo
+        # pedia seis fotogramas y nombraba siete. `break0` ES el busto de
+        # marmol puro, asi que arrancar por el deja la cuenta en seis sin
+        # inventarse nada. `marmol.png` se calibra aparte, como pieza suelta.
+        "recortes": {"break0.png": CARA_BREAK, "Break1.png": CARA_BREAK,
+                     "break2.png": CARA_BREAK, "break3.png": CARA_BREAK,
+                     "break4.png": CARA_BREAK, "smile.base.png": CARA_CLARA},
+    },
+    "nueva-habla": {
+        "origen": NUEVAS,
+        "fuentes": ["hablar1.png", "hablar3.png", "hablar4.png",
+                    "hablar beso.png"],
+        "rejilla": None,
+        "nombres": ["cara-hablar1", "cara-hablar2", "cara-hablar3",
+                    "cara-hablar4"],
+        "referencia": 0,
+        "clave": True,
+        "recortes": dict.fromkeys(
+            ["hablar1.png", "hablar3.png", "hablar4.png", "hablar beso.png"],
+            CARA_CLARA),
+    },
+    "nueva-colores": {
+        "origen": NUEVAS,
+        "fuentes": ["Base.png", "blue.png", "green.png", "orange.png"],
+        "rejilla": None,
+        "nombres": ["cara-violeta", "cara-azul", "cara-verde", "cara-ambar"],
+        "referencia": 0,
+        "clave": True,
+        "recortes": dict.fromkeys(
+            ["Base.png", "blue.png", "green.png", "orange.png"], CARA_CLARA),
+    },
+    "nueva-marmol": {
+        "origen": NUEVAS,
+        "fuentes": ["marmol.png"],
+        "rejilla": None,
+        "nombres": ["cara-marmol"],
+        "referencia": 0,
+        "clave": True,
+        "recortes": {"marmol.png": (352, 63, 763, 560)},
+    },
+
+    # --- tanda de croma verde · `Alejandria/marca/` · 2026-09-03 -----------
+    #
+    # EL ORDEN ES EL DE LOS NOMBRES, Y ESTA MEDIDO, NO OJEADO.
+    #
+    # Primero se reordeno por lo que parecia en una miniatura, poniendo
+    # `wake1,5` delante como «el marmol limpio». Estaba mal. Se midio despues
+    # que fraccion de cada busto esta ENCENDIDA --violeta o cian sobre el
+    # marmol-- que es lo que crece a lo largo del despertar:
+    #
+    #     wake0  13,8 %   wake1,5  21,0 %   wake3  27,6 %   smile  36,5 %
+    #     wake1  23,3 %   wake2    32,3 %   wake4  26,8 %
+    #
+    # `wake0` es el mas apagado de los siete: es el fotograma cero, como decia
+    # su nombre. La leccion no es sobre estas imagenes -- es que una miniatura
+    # de 220 px no es una medida, y aqui habia una medida disponible.
+    "marca-apertura": {
+        "origen": MARCA,
+        "fuentes": ["wake0.png", "wake1.png", "wake1,5.png", "wake2.png",
+                    "wake3.png", "wake4.png", "smile.png"],
+        "rejilla": None,
+        "nombres": ["cara-wake0", "cara-wake1", "cara-wake2", "cara-wake3",
+                    "cara-wake4", "cara-wake5", "cara-wake6"],
+        "referencia": 0, "clave": True, "croma": True,
+    },
+    "marca-habla": {
+        "origen": MARCA,
+        "fuentes": ["speak0.png", "speak1.png", "speak2.png", "speak3.png"],
+        "rejilla": None,
+        "nombres": ["cara-habla0", "cara-habla1", "cara-habla2", "cara-habla3"],
+        "referencia": 0, "clave": True, "croma": True,
+    },
+    # El ciclo de reposo. `smile` va primero porque el violeta es la cara
+    # oficial: si la animacion se para donde sea, la que se ve es la de casa.
+    # `marble` NO entra: es el busto dormido, y meterlo en el ciclo haria que
+    # la cara se apagase sola cada 32 segundos sin que nada hubiera pasado.
+    "marca-reposo": {
+        "origen": MARCA,
+        "fuentes": ["smile.png", "blue.png", "green.png", "Orange.png"],
+        "rejilla": None,
+        "nombres": ["reposo0", "reposo1", "reposo2", "reposo3"],
+        "referencia": 0, "clave": True, "croma": True,
+    },
+    "marca-colores": {
+        "origen": MARCA,
+        "fuentes": ["marble.png", "blue.png", "green.png", "Orange.png",
+                    "smile.png"],
+        "rejilla": None,
+        "nombres": ["cara-marmol", "cara-azul", "cara-verde", "cara-ambar",
+                    "cara-violeta"],
+        "referencia": 0, "clave": True, "croma": True,
     },
 }
 
@@ -238,6 +364,73 @@ def alfa_por_perimetro(im, tolerancia=TOLERANCIA, paso=PASO_SEMILLA):
     salida = rgb.convert("RGBA")
     salida.putalpha(marca)
     return salida, fuera / (w * h)
+
+
+def alfa_por_croma(im, umbral=CROMA_UMBRAL, suave=CROMA_SUAVE, despill=True):
+    """Recorta un fondo de croma verde. Es lo que el damero no permitia.
+
+    POR QUE ESTO SI Y EL RELLENO NO
+    -------------------------------
+    El relleno buscaba fondo por PARECIDO DE COLOR partiendo del borde, y
+    fallaba porque el mármol blanco y el damero blanco son el mismo color: no
+    habia tolerancia que separase una cosa de la otra. Medido en las dos
+    tandas anteriores, a cualquier umbral.
+
+    El croma no compara con un color: compara CANALES DENTRO DEL MISMO PIXEL.
+    Un pixel es fondo si su verde domina a los otros dos. El mármol blanco
+    tiene los tres canales altos y parejos, asi que su verde NO domina --da
+    igual lo brillante que sea. Por eso funciona con un sujeto blanco, que es
+    justo donde el otro metodo se rompia.
+
+    Medido el 2026-09-03 sobre las quince de `marca/`: entre el 62 % y el 69 %
+    de cada lienzo es verde dominante. No hace falta sembrar, ni recorrer el
+    perimetro, ni adivinar islas: una celda de fondo encerrada por la figura se
+    va igual que las de fuera, porque no se llega a ella andando.
+
+    EL BORDE SE HACE A MANO, Y ES LA MITAD DEL TRABAJO
+    --------------------------------------------------
+    Un croma sin mas deja dos defectos que se ven a 102 px:
+
+    1. Borde de sierra. Por eso el alfa no es binario: entre `umbral - suave` y
+       `umbral` baja en rampa, y ahi es donde vive el pelo de la barba.
+    2. DERRAME VERDE. El fondo rebota en el sujeto y le tine el contorno; sobre
+       mármol blanco un fleco verde canta muchisimo. El despill baja el verde
+       de cada pixel que se queda hasta el mayor de sus otros dos canales, que
+       es lo que tendria si no hubiera habido un fondo verde detras.
+
+    Todo con aritmetica de bandas de Pillow, no pixel a pixel: son quince
+    imagenes de un millon de pixeles y en Python puro seria un minuto por cara.
+    """
+    from PIL import ImageChops
+
+    rgb = im.convert("RGB")
+    r, g, b = rgb.split()
+    otros = ImageChops.lighter(r, b)
+    # Cuanto domina el verde. 0 = no domina; 255 = verde puro sobre negro.
+    dominio = ImageChops.subtract(g, otros)
+
+    def rampa(v):
+        if v >= umbral:
+            return 0
+        if v <= umbral - suave:
+            return 255
+        return round(255 * (umbral - v) / suave)
+
+    alfa = dominio.point(rampa)
+
+    if despill:
+        # El verde no puede quedar por encima del mayor de los otros dos. Se
+        # deja un margen de 4 para no aplanar el verde LEGITIMO --el ojo verde
+        # de `green.png` es cian y sobrevive porque ahi el azul acompana.
+        techo = otros.point(lambda v: min(255, v + 4))
+        g = ImageChops.darker(g, techo)
+        rgb = Image.merge("RGB", (r, g, b))
+
+    salida = rgb.convert("RGBA")
+    salida.putalpha(alfa)
+    fuera = sum(i * v for i, v in enumerate(alfa.histogram()))
+    fuera = 1 - fuera / (255 * alfa.size[0] * alfa.size[1])
+    return salida, fuera
 
 
 def limpiar_islas(rgba, rango_plano=RANGO_PLANO):
@@ -398,7 +591,7 @@ def calibrar(im, lado, ocupacion):
 
 def calibrar_grupo(marcos, referencia, lado, ocupacion,
                    tolerancia=TOLERANCIA, encuadre="union", clave=True,
-                   limpiar=False, halo=0, por_marco=False):
+                   limpiar=False, halo=0, por_marco=False, croma=False):
     """Una escala y un centro para TODO el grupo. Devuelve las lonas.
 
     `encuadre`:
@@ -414,7 +607,9 @@ def calibrar_grupo(marcos, referencia, lado, ocupacion,
     """
     con_alfa, cajas = [], []
     for m in marcos:
-        if clave:
+        if croma:
+            a, _ = alfa_por_croma(m)
+        elif clave:
             a, _ = alfa_por_perimetro(m, tolerancia)
             if limpiar:
                 # Se limpia ANTES de medir la caja: una celda de damero suelta
@@ -485,6 +680,10 @@ def main(argv=None):
     ap.add_argument("--calidad", type=int, default=CALIDAD,
                     help="calidad webp. 0 = sin perdida (pesa el doble y el "
                          "alfa sale igual: ver la cabecera)")
+    ap.add_argument("--sprite", metavar="NOMBRE",
+                    help="ademas de los sueltos, una tira horizontal con los "
+                         "fotogramas del grupo en orden. Es lo que anima el "
+                         "css sin pedir una peticion por fotograma.")
     ap.add_argument("--limpiar-islas", action="store_true",
                     help="quitar las islas planas de damero. APAGADO por "
                          "defecto: se probo el 2026-09-02 y abre agujeros en "
@@ -519,7 +718,8 @@ def main(argv=None):
     escritos, saltados = 0, 0
     for nombre in grupos:
         g = GRUPOS[nombre]
-        faltan = [f for f in g["fuentes"] if not (a.origen / f).is_file()]
+        raiz = g.get("origen", a.origen)
+        faltan = [f for f in g["fuentes"] if not (raiz / f).is_file()]
         if faltan:
             print(f"  NO_DATA grupo {nombre} · no estan: {faltan}")
             saltados += 1
@@ -527,7 +727,10 @@ def main(argv=None):
 
         marcos = []
         for f in g["fuentes"]:
-            im = Image.open(a.origen / f)
+            im = Image.open(raiz / f)
+            corte = g.get("recortes", {}).get(f)
+            if corte:
+                im = im.crop(corte)
             marcos += partir(im, *g["rejilla"]) if g["rejilla"] else [im]
         if len(marcos) != len(g["nombres"]):
             print(f"  NO_DATA grupo {nombre} · salen {len(marcos)} fotogramas "
@@ -556,7 +759,23 @@ def main(argv=None):
             lonas = calibrar_grupo(marcos, g["referencia"], lado, a.ocupacion,
                                    a.tolerancia, a.encuadre, g["clave"],
                                    limpiar=a.limpiar_islas, halo=a.halo,
+                                   croma=g.get("croma", False),
                                    por_marco=g.get("halo_por_marco", False))
+            if a.sprite:
+                tira = Image.new("RGBA", (lado * len(lonas), lado), (0, 0, 0, 0))
+                for k, l in enumerate(lonas):
+                    tira.paste(l, (k * lado, 0), l)
+                nombre_tira = f"{a.sprite}-{lado}.webp"
+                print(f"    {nombre_tira}  {tira.size[0]}x{tira.size[1]} "
+                      f"· {len(lonas)} fotogramas")
+                if a.ejecutar:
+                    for d in a.destino:
+                        d.mkdir(parents=True, exist_ok=True)
+                        if calidad:
+                            tira.save(d / nombre_tira, quality=calidad, method=6)
+                        else:
+                            tira.save(d / nombre_tira, lossless=True)
+                    escritos += 1
             for lona, n in zip(lonas, g["nombres"]):
                 caja = caja_robusta(lona)
                 print(f"    {n}-{lado}.webp  caja={caja}")

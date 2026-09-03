@@ -915,3 +915,38 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) latidoPara();
   else if (medicionAbierta()) { pintaMedicion(); latidoArranca(); }
 });
+
+/* --- El teclado de Android, y por que `resize` a secas no basta -----------
+ *
+ * En Chrome de Android el teclado NO encoge el layout: la ventana sigue
+ * midiendo lo mismo y el teclado se pinta Encima. `window.innerHeight` no se
+ * entera, `resize` casi nunca dispara, y el ultimo mensaje del chat se queda
+ * debajo del teclado sin que nada avise. Lo que si se entera es
+ * `visualViewport`, que es lo que de verdad se ve.
+ *
+ * Se mide cuanto tapa --lo que la ventana tiene de mas sobre la parte visible--
+ * y se le resta al alto de la app. Asi la zona de escribir sube sola y el
+ * chat conserva su scroll al fondo, que es lo unico que la persona quiere:
+ * ver lo ultimo que se dijo mientras escribe la respuesta.
+ *
+ * `scrollIntoView` no servia aqui: no hay scroll nuevo que hacer, el problema
+ * es que el sitio donde estaba el mensaje ya no se ve. */
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  const alFondo = () => {
+    const d = $("dice");
+    if (d) d.scrollTop = d.scrollHeight;
+  };
+  const ajusta = () => {
+    const tapado = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty("--teclado", tapado + "px");
+    // El umbral es de 120 px y no de cero: una barra de direcciones que se
+    // esconde al deslizar tambien cambia el viewport visual, y eso no es un
+    // teclado. Ningun teclado de movil mide menos de 120 px.
+    document.body.classList.toggle("con-teclado", tapado > 120);
+    alFondo();
+  };
+  vv.addEventListener("resize", ajusta);
+  vv.addEventListener("scroll", ajusta);
+  ajusta();
+}
