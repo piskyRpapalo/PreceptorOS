@@ -104,11 +104,28 @@ def t0():
         "correr() dejo de fijar la base: una prueba podria ir a la memoria real"
     real = os.path.expanduser("~/.aurelius")
 
+    # La foto mira LA MEMORIA, no la carpeta entera, y es la misma correccion
+    # que `test_cara.py` recibio para su caso 8 -- alli en dos pasos, aqui de
+    # una vez, porque el motivo ya estaba medido cuando se llego a este:
+    #
+    #   * el directorio entero incluye la bitacora del servicio, el diario de
+    #     `loops.db` y el cache de prompts, que son de OTROS subsistemas y se
+    #     mueven solos mientras la tanda corre;
+    #   * `memory.db-shm` es el indice en memoria compartida de SQLite y lo
+    #     tocan tambien los LECTORES: con el servicio vivo cambia cada pocos
+    #     segundos sin que nadie escriba nada. Medido el 2026-09-04: tres
+    #     cambios en veinte segundos, `memory.db` y `-wal` quietos.
+    #
+    # Se queda el `-wal` porque es donde una escritura de verdad aparece
+    # PRIMERO: en modo WAL `memory.db` no se entera hasta el checkpoint. Se
+    # quita el ruido, no la alarma.
     def foto():
         if not os.path.isdir(real):
             return None
+        suyos = [n for n in os.listdir(real)
+                 if n.startswith("memory.db") and not n.endswith("-shm")]
         return sorted((n, os.stat(os.path.join(real, n)).st_mtime_ns)
-                      for n in os.listdir(real))
+                      for n in suyos)
 
     antes = foto()
     correr(["1", "2"])                  # una sesion entera, ingles, sin crear

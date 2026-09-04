@@ -35,9 +35,13 @@
      subiendo el Diametro, jamas el `background-size`: las paradas de las tres
      tiras estan calculadas contra el 490 % y el 840 %, y mover el tamano sin
      recalcularlas ensena medio cuadro y medio del siguiente a la vez. Es el
-     error que parece inofensivo y esta contado dos veces mas abajo. */
-  --cara-centro: 168px;
-  --cara-centro-ancha: 208px;
+     error que parece inofensivo y esta contado dos veces mas abajo.
+
+     168 -> 155 y 208 -> 192 el 2026-09-04, un 8 %: a 168 la cabeza llenaba el
+     circulo y se comia la peana. Se pidio ver un poco mas de forma, no otra
+     cara -- por eso es un ocho por ciento y no un tercio. */
+  --cara-centro: 155px;
+  --cara-centro-ancha: 192px;
   /* El borde y la sombra de la esfera salen a variable por el modo oscuro. Son
      los dos sitios donde una paleta invertida deja la cara flotando en un halo
      que nadie penso: la lamina trae alfa de verdad y se apoya en cualquier
@@ -1215,7 +1219,9 @@ body.chat-activo .cabezal { opacity: .35; }
 .quien { color: var(--mando-tinta); font-weight: 800; }
 .cabezal .marca-nombre { color: var(--mando-tinta); }
 
-/* El canto dorado de la marca, y solo en el telon. Firmado el 2026-09-04.
+/* El canto dorado de la marca. Canon del 2026-09-04, firmado por el Soberano:
+   Todo nombre de producto escrito en versales lleva este canto, en la app y en
+   la web. No es un adorno de una pantalla -- es como se escribe el nombre.
    No es decoracion suelta: es el mismo ambar del aro de los mandos, asi que la
    pantalla de presentacion y el cabezal hablan el mismo idioma de material --
    marmol y bronce-- en vez de dos.
@@ -1228,7 +1234,25 @@ body.chat-activo .cabezal { opacity: .35; }
    Sirve para las dos pieles porque el ambar ya cambia con el tema --mas hondo
    sobre marmol claro, mas claro sobre el oscuro-- y en las dos separa la
    palabra del fondo, que es lo que el violeta sobre violeta no hacia. */
-.telon .marca-nombre, .telon .marca-os {
-  -webkit-text-stroke: 2px var(--mando-aro);
+.marca-nombre, .marca-os {
+  -webkit-text-stroke: 1px var(--mando-aro);
   paint-order: stroke fill;
 }
+/* El trazo se mide en pixeles, asi que no escala con la letra: el mismo 1 px
+   que perfila bien el nombre del cabezal es un hilo invisible a tres veces el
+   tamano. En el telon sube a 2. */
+.telon .marca-nombre, .telon .marca-os { -webkit-text-stroke-width: 2px; }
+
+/* Con el teclado abierto, la cara se encoge. Medido en el Doogee el
+   2026-09-04, y es consecuencia de dos cosas buenas que se juntaron mal: la
+   esfera crecio a 168 px y la barra de seis se fue. Con la barra puesta el
+   reparto cuadraba; sin ella y con la cara grande, al abrir el teclado el
+   campo de escribir quedaba cortado por el borde inferior -- se veia la curva
+   de arriba y nada mas.
+
+   No se esconde, se encoge. Mientras se escribe la cara no es lo que se mira,
+   pero quitarla del todo deja la pantalla sin el unico elemento que dice con
+   quien se esta hablando. Sesenta y cuatro pixeles siguen siendo una cara, y
+   devuelven mas de cien al chat y al campo. */
+body.con-teclado .presentacion { padding: .15rem 0 0; }
+body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
