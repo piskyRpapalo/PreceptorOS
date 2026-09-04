@@ -167,48 +167,91 @@ def _modelos_cargados():
     return [l.split()[0] for l in filas]
 
 
+# Nombres de los procesos que sirven un modelo en este arbol. `ps -eo comm`
+# corta a quince caracteres, asi que se comparan por PREFIJO y las entradas se
+# escriben ya cortadas cuando el nombre real es mas largo.
+SERVIDORES = ("llama-server", "llama-cli", "llama-completio",
+              "ollama_llama_s", "ollama")
+
+# Un servidor con el modelo dentro pesa gigas. El suelo existe por la cicatriz
+# de agosto: la primera version casaba «llama» por nombre y publicaba los 39 MB
+# del demonio `ollama` en reposo como si fueran los 2,5 GB del modelo.
+SUELO_RUNNER = 512 * 1024          # KiB, que es lo que da `ps -eo rss`
+
+
+def _procesos():
+    """(pid, rss_kib, comm) de todo lo que corre. Lista vacia si no se puede."""
+    try:
+        salida = subprocess.run(["ps", "-eo", "pid,rss,comm"],
+                                capture_output=True, text=True, timeout=10).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    fuera = []
+    for linea in salida.splitlines()[1:]:
+        partes = linea.split(None, 2)
+        if len(partes) < 3:
+            continue
+        try:
+            fuera.append((partes[0], int(partes[1]), partes[2].strip()))
+        except ValueError:
+            continue
+    return fuera
+
+
+def _servidor_vivo(procesos):
+    """El proceso servidor mas grande, elegido POR NOMBRE y con suelo."""
+    hallados = [p for p in procesos
+                if p[1] > SUELO_RUNNER and p[2].startswith(SERVIDORES)]
+    return max(hallados, key=lambda p: p[1]) if hallados else None
+
+
 def _rss_del_runner():
     """RSS del proceso que sirve el modelo, y solo si hay uno cargado.
 
     Un modelo en disco no consume nada: lo que se quiere saber es lo que
     ocupa cuando esta servido. Sin modelo cargado no hay cifra, y el tamano
     del fichero NO la sustituye.
+
+    DOS AUTORIDADES, Y HACEN FALTA LAS DOS. Medido el 2026-09-04 entrando en
+    el producto como usuario: este panel declaraba «no hay ningun modelo
+    cargado (ollama ps vacio)» mientras un `llama-server` con 7,6 GB
+    residentes llevaba casi ocho horas contestando. No era un hueco honesto:
+    era una ausencia inventada, que es peor que una cifra mal puesta porque
+    parece rigor. El MVP no sirve por Ollama -- sirve por `llama-server`
+    directo-- y a la unica autoridad que se preguntaba no le constaba.
+
+    Y AL ARREGLARLO SE VIO OTRO. Con Ollama cargado, la version anterior
+    elegia «el mayor proceso residente» de TODA la maquina. En un escritorio
+    eso es el navegador: aqui Chrome pesa 1,7 GB y la impresora 1,68. Bastaba
+    un runner mas pequeno que el navegador para publicar la memoria de Chrome
+    como si fuera la del modelo -- otra cifra plausible del orden de magnitud
+    equivocado, que es exactamente lo que la cicatriz de agosto vino a matar.
+    Ahora el servidor se elige POR NOMBRE, con el mismo suelo de 512 MiB que
+    protege del demonio en reposo. El tamano solo desempata entre servidores.
     """
+    procesos = _procesos()
+    if not procesos:
+        return sin_dato("consumo_ram_mb", "no se pudo listar los procesos", "MiB")
     cargados = _modelos_cargados()
-    if not cargados:
+    servidor = _servidor_vivo(procesos)
+
+    if servidor is None:
+        if cargados:
+            return sin_dato("consumo_ram_mb",
+                            f"ollama declara {len(cargados)} modelo(s) cargado(s) "
+                            "pero no hay ningun proceso servidor por encima de "
+                            "512 MiB que pueda estar sirviendolos", "MiB")
         return sin_dato("consumo_ram_mb",
-                        "no hay ningun modelo cargado ahora mismo (ollama ps "
-                        "vacio). El tamano del fichero en disco NO es esta "
+                        "no hay ningun modelo cargado ahora mismo: ni ollama "
+                        "declara ninguno ni corre un servidor con el modelo "
+                        "dentro. El tamano del fichero en disco NO es esta "
                         "cifra y no se sustituye por el", "MiB")
-    try:
-        salida = subprocess.run(["ps", "-eo", "pid,rss,comm"],
-                                capture_output=True, text=True, timeout=10).stdout
-    except (OSError, subprocess.SubprocessError) as e:
-        return sin_dato("consumo_ram_mb", f"no se pudo listar procesos: {e}", "MiB")
-    mejor = None
-    for linea in salida.splitlines()[1:]:
-        partes = linea.split(None, 2)
-        if len(partes) < 3:
-            continue
-        pid, rss, comm = partes
-        try:
-            rss = int(rss)
-        except ValueError:
-            continue
-        # El runner es el proceso GRANDE. Se elige por tamano y no por nombre:
-        # los nombres cambian entre versiones de ollama, el orden de magnitud
-        # no. Y se exige un minimo, para que el demonio en reposo nunca gane.
-        if rss > 512 * 1024 and (mejor is None or rss > mejor[1]):
-            mejor = (pid, rss, comm)
-    if not mejor:
-        return sin_dato("consumo_ram_mb",
-                        f"ollama declara {len(cargados)} modelo(s) cargado(s) "
-                        "pero no se encontro ningun proceso por encima de 512 "
-                        "MiB que pueda ser su runner", "MiB")
-    pid, rss, comm = mejor
+
+    pid, rss, comm = servidor
+    quien = cargados[0] if cargados else "un modelo que ollama no declara"
     return medido("consumo_ram_mb", round(rss / 1024), "MiB",
-                  f"RSS de {comm} (pid {pid}), el mayor proceso residente con "
-                  f"{cargados[0]} cargado")
+                  f"RSS de {comm} (pid {pid}), el mayor proceso servidor "
+                  f"residente · sirviendo {quien}")
 
 
 def _modelo(cerebro):

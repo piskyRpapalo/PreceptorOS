@@ -94,20 +94,69 @@ class TestConsumoRAM(unittest.TestCase):
     La cura no es una lista de nombres mejor: es preguntarle a quien sabe.
     `ollama ps` dice que modelos hay CARGADOS. Si no hay ninguno, no hay
     consumo que medir, por muchos procesos con nombre parecido que corran.
+
+    Y LA SEGUNDA CICATRIZ, del 2026-09-04, que es la inversa de la primera.
+    Preguntarle SOLO a Ollama dejaba ciego al panel cuando el modelo lo sirve
+    otro: se midio entrando en el producto y decia «no hay ningun modelo
+    cargado» mientras un `llama-server` con 7,6 GB llevaba ocho horas
+    contestando. Una ausencia inventada es peor que una cifra mal puesta,
+    porque parece rigor. Ahora son DOS autoridades, y estos casos tienen que
+    apagar las dos para probar el hueco -- si solo apagan una, no estan
+    probando lo que dicen.
     """
 
     def test_sin_modelo_cargado_no_hay_consumo_que_medir(self):
-        with mock.patch.object(MET, "_modelos_cargados", return_value=[]):
+        with mock.patch.object(MET, "_modelos_cargados", return_value=[]), \
+             mock.patch.object(MET, "_servidor_vivo", return_value=None):
             c = MET.campo(MET.paquete(), "consumo_ram_mb")
             self.assertEqual("NO_DATA", c["estado"])
             self.assertIsNone(c["valor"])
 
     def test_el_demonio_en_reposo_no_cuenta_como_modelo(self):
-        """39 MB no es un modelo de 2,5 GB, y el modulo tiene que saberlo."""
-        with mock.patch.object(MET, "_modelos_cargados", return_value=[]):
+        """39 MB no es un modelo de 2,5 GB, y el modulo tiene que saberlo.
+
+        Se comprueba contra el mecanismo de verdad --el suelo-- y no contra un
+        mundo sin procesos: se le da el demonio en reposo tal y como lo
+        devolveria `ps`, y tiene que descartarlo el solo.
+        """
+        demonio = [("101", 39 * 1024, "ollama")]
+        with mock.patch.object(MET, "_modelos_cargados", return_value=[]), \
+             mock.patch.object(MET, "_procesos", return_value=demonio):
             c = MET.campo(MET.paquete(), "consumo_ram_mb")
+            self.assertEqual("NO_DATA", c["estado"])
             self.assertNotEqual(39, c["valor"])
             self.assertIn("cargado", c["causa"])
+
+    def test_un_servidor_propio_cuenta_aunque_ollama_no_sepa_nada(self):
+        """El fallo del 2026-09-04, con su medida dentro.
+
+        El MVP sirve por `llama-server` directo. Que `ollama ps` salga vacio no
+        significa que no haya modelo: significa que no lo sirve Ollama.
+        """
+        vivos = [("865590", 7657824, "llama-server"), ("62257", 1718536, "chrome")]
+        with mock.patch.object(MET, "_modelos_cargados", return_value=[]), \
+             mock.patch.object(MET, "_procesos", return_value=vivos):
+            c = MET.campo(MET.paquete(), "consumo_ram_mb")
+            self.assertEqual("MEDIDO", c["estado"])
+            self.assertEqual(round(7657824 / 1024), c["valor"])
+
+    def test_el_navegador_no_puede_pasar_por_runner(self):
+        """La trampa que se destapo al arreglar lo anterior.
+
+        Se elegia «el mayor proceso residente» de toda la maquina. En un
+        escritorio eso es el navegador --aqui 1,7 GB-- y bastaba un runner mas
+        pequeno que Chrome para publicar la memoria del navegador como si
+        fuera la del modelo. El servidor se elige por NOMBRE; el tamano solo
+        desempata entre servidores.
+        """
+        vivos = [("62257", 1718536, "chrome"), ("14115", 1682936, "bambustu_main"),
+                 ("900", 900 * 1024, "llama-server")]
+        with mock.patch.object(MET, "_modelos_cargados", return_value=["algo:latest"]), \
+             mock.patch.object(MET, "_procesos", return_value=vivos):
+            c = MET.campo(MET.paquete(), "consumo_ram_mb")
+            self.assertEqual(900, c["valor"],
+                             "se publico la memoria de otro proceso como la del modelo")
+            self.assertIn("llama-server", c["como"])
 
 
 class TestNormasFijas(unittest.TestCase):
