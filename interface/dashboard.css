@@ -169,7 +169,20 @@ body {
    este bloque, y por eso se escribe antes que el codigo.
 
    `cara-secuencia-apertura-256.webp` · siete fotogramas, 1792x256. Al 700 %.
-   `cara-secuencia-reposo-256.webp`   · cuatro colores, 1024x256. Al 400 %.
+   `cara-secuencia-reposo-256-tres.webp` · tres colores, 768x256. Al 367,5 %.
+
+  Por que tres y no cuatro, que es la aritmetica que mas facil se rompe aqui.
+  La tira original traia cuatro, y el tercero salio vacio al recortarle el
+  croma verde: medido sobre el fichero, 91 pixeles con color frente a los
+  1.005-2.674 de los otros tres. No es un color mas apagado -- es una cara sin
+  brillo, y en la rotacion se leia como siniestra. El fichero original NO se
+  borra: el verde se usara con efectos en otra pantalla.
+
+  Y las paradas se recalcularon, no se estimaron. Con n cuadros y el mismo
+  acercamiento de 1,225 que ya tenian los cuatro: tamano = n x 1,225, y las
+  paradas van de (z/2 - 0,5)/(tamano - 1) a ((n-1)z + z/2 - 0,5)/(tamano - 1).
+  La formula devuelve 490 % y 2,885 -> 97,115 para los cuatro viejos, que es
+  como se comprobo que era la buena antes de aplicarla a los tres.
    `cara-secuencia-habla-256.webp`    · cuatro bocas,  1024x256. Al 400 %.
 
    Van Planos en `assets/` y no en `assets/caras/` por una razon del servidor,
@@ -230,8 +243,8 @@ body {
      apoyarse en marmol claro, y su alfa deja pasar lo que haya debajo.
      Poniendoles su propio disco, la cara se ve igual con las dos pieles y el
      tema sigue mandando en todo lo demas. */
-  background: var(--disco-cara) url("/assets/cara-secuencia-reposo-256.webp")
-              2.885% 50% / 490% auto no-repeat;
+  background: var(--disco-cara) url("/assets/cara-secuencia-reposo-256-tres.webp")
+              4.206% 50% / 367.5% auto no-repeat;
 }
 
 /* La apertura, y por que no es `steps()`.
@@ -291,8 +304,8 @@ body {
    `respirar` se queda: mueve la Sombra, no la imagen, y es lo que impide que
    una cara quieta se lea como una aplicacion colgada. */
 .busto.despierto {
-  background-image: url("/assets/cara-secuencia-reposo-256.webp");
-  background-size: 490% auto;
+  background-image: url("/assets/cara-secuencia-reposo-256-tres.webp");
+  background-size: 367.5% auto;
   /* `fundido` fuera. Bajaba la opacidad a .55 en cada salto de color para
      tapar el corte, y el precio era una cara que se desvanecia a medias varias
      veces por minuto -- «se vuelve invisible», dicho por el Soberano el
@@ -306,12 +319,12 @@ body {
      la juntura pasa de un hilo a un dedo. Cuatro colores son cuatro paradas.
      El fichero ya lo sabia en la apertura: «seis valores son steps(6), no
      siete». Aqui se conto mal el mismo dia. */
-  animation: reposo var(--anim-reposo) steps(4, jump-none) infinite,
+  animation: reposo var(--anim-reposo) steps(3, jump-none) infinite,
              respirar 3.6s ease-in-out infinite;
 }
 @keyframes reposo {
-  from { background-position:  2.885% 50%; }
-  to   { background-position: 97.115% 50%; }
+  from { background-position:  4.206% 50%; }
+  to   { background-position: 95.794% 50%; }
 }
 @keyframes respirar {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -362,9 +375,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .busto, .busto.despierto, .busto.piensa, .busto.gesto {
     animation: none; opacity: 1;
-    background-image: url("/assets/cara-secuencia-reposo-256.webp");
-    background-size: 490% auto;
-    background-position: 4.688% 50%;
+    background-image: url("/assets/cara-secuencia-reposo-256-tres.webp");
+    background-size: 367.5% auto;
+    background-position: 4.206% 50%;
   }
 }
 
