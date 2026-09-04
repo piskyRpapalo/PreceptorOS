@@ -168,6 +168,11 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # o sea que el corredor publicaba un numero que no cubria justo lo
           # que el producto usa para demostrar que no miente.
           test_metricas
+          # test_herramientas: la recuperacion que va delante del modelo. Entra
+          # en su mismo commit -- el guardian de test_superficie no admite otra
+          # cosa, y con razon: es la suite que cubre lo que el producto le
+          # cuenta al modelo de la persona.
+          test_herramientas
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

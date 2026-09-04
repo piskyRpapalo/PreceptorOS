@@ -41,6 +41,7 @@ import subprocess
 import time
 
 import casa as _casa
+import herramientas as H
 import memory as M
 import output_guard
 import narrador as N
@@ -522,8 +523,21 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
 
     # A.5 · el reloj del modelo. Se cronometra AQUI porque este es el unico
     # sitio que ve la llamada entera; la puerta se cronometra sola despues.
+    # Lo que la base ya sabe, buscado ANTES de preguntar. No es tool-calling y
+    # es a proposito: el motor es texto->texto, el modelo es pequeno y va a 5
+    # tok/s, y buscar en una tabla es determinista -- la Regla de oro dice que
+    # eso no se le pide a un LLM. Ver `herramientas.py`.
+    #
+    # Va DETRAS del sistema y DELANTE de lo que dijo la persona: el caracter
+    # manda sobre los datos, y los datos son el contexto inmediato de la
+    # pregunta. Y viaja con `personalizada`, no aparte: apagar el interruptor
+    # tiene que dejar la pregunta SOLA de verdad. Si la memoria siguiera
+    # viajando, los dos lados de la comparacion tendrian contexto y la
+    # diferencia que el producto quiere hacer notar se quedaria en el tono.
+    contexto = H.recuperar(c, texto_persona or "", idioma=idioma) if personalizada else ""
+
     _t0 = time.perf_counter()
-    cruda = motor((sistema + "\n\n" + (texto_persona or ""))
+    cruda = motor("\n\n".join(p for p in (sistema, contexto, texto_persona or "") if p)
                   if personalizada else (texto_persona or ""))
     ms_motor = (time.perf_counter() - _t0) * 1000
     if not cruda:
