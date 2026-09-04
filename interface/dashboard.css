@@ -600,23 +600,37 @@ body {
      figura el desvio parecia 8,7 % en vez de 13,6.
 
      El original NO se toca: sigue en `cara-secuencia-apertura-256.webp`. Con la
-     tira centrada, aqui la ventana va centrada tambien (c = 0,5) y las paradas
-     salen limpias.
+     tira centrada la ventana podia ir centrada tambien, y aun asi el Soberano
+     la pidio un pelo mas a la derecha: la ventana va en c = 0,48, que corre la
+     cabeza un 2,2 % hacia ese lado. No es una correccion de centrado --el eje
+     de la cara ya esta en el 50,1 %-- sino un encuadre: el busto mira a su
+     izquierda y el peso del hombro cae a ese lado, asi que centrado por eje se
+     lee un punto corrido. A 1,1x el margen llega hasta c = 0,4545; queda
+     holgura de sobra y ninguna ventana toca a su vecina.
 
      En Y: anclada arriba, para que se vea el pelo entero. La figura ocupa del
      4,7 % al 90,6 % del alto y la ventana a 1,1x ensena hasta el 90,9 %: entra
      completa, pelo incluido, y no se pierde ni la peana. */
-  background: url("/assets/cara-secuencia-apertura-256-centrada.webp") 0.746% 0% / 770% auto no-repeat;
+  background: url("/assets/cara-secuencia-apertura-256-centrada.webp") 0.418% 0% / 770% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
 }
 @keyframes despertar-entero {
-  from { background-position:  0.746% 0%; }
-  to   { background-position: 99.254% 0%; }
+  from { background-position:  0.418% 0%; }
+  to   { background-position: 98.925% 0%; }
 }
 @keyframes caer { to { opacity: 0; visibility: hidden; } }
 /* Quien pidio quietud no espera un segundo y medio a una cortina. */
+/* En el telon la marca es el cartel, no una etiqueta de cabecera: manda el
+   tamano, no el hueco. Se ata al ancho de pantalla para que no se salga. */
+.telon .marca { flex: none; justify-content: center; }
+/* `clamp` y no `min`: con `min(9vw, ...)` el titulo vale cero en un contexto
+   sin ancho --pasa al medirlo fuera de pantalla-- y un cartel que puede salir
+   de 0 px no es un cartel. El primer valor es el suelo. */
+.telon .marca-nombre { font-size: clamp(1.7rem, 9vw, 2.9rem); }
+.telon .marca-os     { font-size: clamp(2.2rem, 11.7vw, 3.8rem); }
+
 @media (prefers-reduced-motion: reduce) { .telon { display: none; } }
 @media (prefers-reduced-motion: reduce) { .telon-busto { animation: none; } }
 
