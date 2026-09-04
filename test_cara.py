@@ -200,10 +200,32 @@ def t8():
     # cuenta, y la prueba lo leia como «generar la cara toco la memoria». Cazado
     # el 2026-08-26 con el servicio vivo. Lo que el caso 8 promete proteger es
     # `memory.db`, y eso es lo que se fotografia.
+    #
+    # Y SE QUEDO A UN PASO. El acotado de agosto paso de «el directorio entero»
+    # a «lo que empieza por memory.db», y ahi dentro seguia colandose el mismo
+    # ruido: `memory.db-shm`. Medido el 2026-09-04 con el servicio vivo y sin
+    # generar ninguna cara -- veinte segundos de observacion, un fichero por
+    # linea:
+    #
+    #     memory.db        0 cambios
+    #     memory.db-shm    3 cambios     <- el ruido
+    #     memory.db-wal    0 cambios
+    #
+    # El `-shm` es el indice en memoria compartida de SQLite: lo tocan tambien
+    # los LECTORES, y el servicio lee constantemente. El `-wal` no: ese solo se
+    # mueve cuando alguien ESCRIBE.
+    #
+    # Por eso se excluye el `-shm` y NO el `-wal`, aunque los dos sean ficheros
+    # laterales del mismo diario. Excluir el `-wal` tambien seria mas comodo y
+    # dejaria esta prueba sin lo unico que de verdad protege: en modo WAL una
+    # escritura va primero al diario y `memory.db` no se entera hasta el
+    # checkpoint, asi que sin `-wal` la foto no veria justo el fallo que este
+    # caso existe para cazar. Se quita el ruido, no la alarma.
     def foto():
         if not os.path.isdir(real):
             return None
-        suyos = [n for n in os.listdir(real) if n.startswith("memory.db")]
+        suyos = [n for n in os.listdir(real)
+                 if n.startswith("memory.db") and not n.endswith("-shm")]
         return sorted((n, os.stat(os.path.join(real, n)).st_mtime_ns)
                       for n in suyos)
 
