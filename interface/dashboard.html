@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=23">
+<link rel="stylesheet" href="/dashboard.css?v=24">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -217,9 +217,13 @@
   <label class="campo"><span id="et-intereses"></span>
     <input id="p-intereses" type="text" autocomplete="off"></label>
   <label class="campo"><span id="et-idioma"></span>
+    <!-- Cada idioma se escribe en su idioma. Un selector que dice «Spanish»
+         en inglés obliga a saber inglés para elegir castellano, que es
+         exactamente la barrera que estos idiomas vienen a quitar. -->
     <select id="p-idioma">
       <option value="es">Español</option>
       <option value="en">English</option>
+      <option value="pt">Português</option>
     </select></label>
 
   <!-- El tema. «Como el sistema» es lo primero y es el valor de fábrica: la
@@ -280,7 +284,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=23"></script>
+<script src="/dashboard.js?v=24"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

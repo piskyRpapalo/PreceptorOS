@@ -427,7 +427,7 @@ BLANCA = {
     "M5", "M6", "M7", "The Path", "Detail", "—", "·", "…", "⌂",
     # Los nombres de idioma se escriben en SU idioma: un selector que dice
     # «Spanish» en ingles obliga a saber ingles para elegir castellano.
-    "Español", "English",
+    "Español", "English", "Português",
 }
 
 
@@ -459,14 +459,20 @@ def t_cara_sin_texto_suelto():
         "\n  ".join(f"{r}: {t!r}" for r, t in sueltos))
 
 
-@caso("los dos diccionarios de la cara tienen las MISMAS claves")
+@caso("todos los diccionarios de la cara tienen las MISMAS claves")
 def t_diccionarios_simetricos():
     """Una clave que existe en un idioma y no en el otro es una fuga con fecha."""
     import json as _json
     for fichero in ("interface/dashboard.js", "interface/app.js"):
         crudo = open(os.path.join(AQUI, fichero), encoding="utf-8").read()
         claves = {}
-        for idioma in ("es", "en"):
+        # Los idiomas se DESCUBREN del fichero, no se listan aqui. Con la
+        # lista escrita a mano, anadir un idioma y olvidarse de esta linea
+        # dejaba el nuevo sin comprobar -- y un idioma sin comprobar es
+        # exactamente donde vive una clave que falta. Firmado 2026-09-04, al
+        # entrar el portugues.
+        presentes = re.findall(r"\n\s{2,4}([a-z]{2}):\s*\{", crudo)
+        for idioma in presentes:
             m = re.search(rf"\n\s{{2,4}}{idioma}:\s*\{{", crudo)
             if not m:
                 continue
@@ -477,12 +483,18 @@ def t_diccionarios_simetricos():
                 if prof == 0:
                     break
             claves[idioma] = set(re.findall(r"[\n,{]\s*([a-z_0-9]+)\s*:", trozo))
-        if len(claves) == 2:
-            solo_es = claves["es"] - claves["en"]
-            solo_en = claves["en"] - claves["es"]
-            assert not solo_es and not solo_en, (
-                f"{fichero}: claves asimetricas · solo es={sorted(solo_es)} "
-                f"· solo en={sorted(solo_en)}")
+        # El castellano es la referencia: es donde se escribe primero. Cada
+        # idioma se compara contra el, en los dos sentidos -- una clave que
+        # sobra es texto muerto, y una que falta es un hueco en pantalla.
+        if len(claves) >= 2 and "es" in claves:
+            for idioma, suyas in sorted(claves.items()):
+                if idioma == "es":
+                    continue
+                faltan = claves["es"] - suyas
+                sobran = suyas - claves["es"]
+                assert not faltan and not sobran, (
+                    f"{fichero} · {idioma}: claves asimetricas contra es · "
+                    f"faltan={sorted(faltan)} · sobran={sorted(sobran)}")
 
 def main():
     fallos = 0
