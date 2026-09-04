@@ -587,27 +587,33 @@ body {
      y no 8,7. El haz sale disparado hacia la derecha y tiraba del promedio
      hacia el centro, escondiendo el problema que se venia a medir.
 
-     No se puede corregir entero, y el zoom es justo lo que compra el margen
-     para moverlo. La ventana de un cuadro no puede salirse de su cuadro o se
-     cuela un trozo del vecino -- que es el defecto de «la cara que se queda en
-     medio», visto en pantalla el 2026-09-04. El limite es c >= 0,5/zoom, y a
-     1,1x eso deja el centro de ventana en 0,4605: el desvio baja de 11,3 % a
-     8,1 % y no mas. Medido: a 1,15x quedaria en 6,2 %, a 1,2x en 4,3 %, y solo
-     a 1,3x se centraria del todo. Se eligio 1,1x -- el paso medio, firmado --
-     asi que el resto se arregla centrando el busto al generar la tira, en
-     `herramientas/unir_bustos.py`. Ahi no cuesta nada; aqui cuesta acercar.
+     Y ya no se corrige aqui, porque no se podia: el limite del css es
+     c >= 0,5/zoom --una ventana que se sale de su cuadro ensena al vecino, que
+     es el defecto de «la cara que se queda en medio»-- y a 1,1x eso dejaba el
+     desvio en 10,5 % por mucho que se empujara. Ni a 1,3x se centraba.
+
+     Asi que se arreglo donde estaba el problema: la tira. `-centrada` es la
+     misma secuencia con cada cuadro corrido 35 px a la derecha, que es el
+     13,6 % que le faltaba. Medido despues: eje de la cara en el 50,1 %. Se
+     pierden 3 px de la punta del laser en el cuadro [3] y nada mas -- y el
+     laser era justamente lo que tapaba el problema, porque al contarlo como
+     figura el desvio parecia 8,7 % en vez de 13,6.
+
+     El original NO se toca: sigue en `cara-secuencia-apertura-256.webp`. Con la
+     tira centrada, aqui la ventana va centrada tambien (c = 0,5) y las paradas
+     salen limpias.
 
      En Y: anclada arriba, para que se vea el pelo entero. La figura ocupa del
      4,7 % al 90,6 % del alto y la ventana a 1,1x ensena hasta el 90,9 %: entra
      completa, pelo incluido, y no se pierde ni la peana. */
-  background: url("/assets/cara-secuencia-apertura-256.webp") 0.098% 0% / 770% auto no-repeat;
+  background: url("/assets/cara-secuencia-apertura-256-centrada.webp") 0.746% 0% / 770% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
 }
 @keyframes despertar-entero {
-  from { background-position:  0.098% 0%; }
-  to   { background-position: 98.605% 0%; }
+  from { background-position:  0.746% 0%; }
+  to   { background-position: 99.254% 0%; }
 }
 @keyframes caer { to { opacity: 0; visibility: hidden; } }
 /* Quien pidio quietud no espera un segundo y medio a una cortina. */
