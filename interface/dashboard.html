@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=12">
+<link rel="stylesheet" href="/dashboard.css?v=13">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -108,52 +108,13 @@
      escritos aquí a mano prometerían acciones que otro modelo no tiene. -->
 <div class="atajos" id="atajos" hidden></div>
 
-<nav class="barra-iconos" aria-label="Paneles">
-  <button type="button" data-cajon="memoria" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M 4 5 a2 2 0 0 1 2 -2 h12 v18 H 6 a2 2 0 0 1 -2 -2 Z"></path>
-      <path d="M 8 3 v18"></path><path d="M 12 8 h4"></path><path d="M 12 12 h4"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="memoria">Memoria</span>
-  </button>
-  <button type="button" data-cajon="frontera" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M 12 3 l 8 3 v5 c 0 5 -3.4 8.2 -8 10 c -4.6 -1.8 -8 -5 -8 -10 V 6 Z"></path>
-      <path d="M 9 12 l 2 2 l 4 -4"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="frontera">Frontera</span>
-  </button>
-  <button type="button" data-cajon="camino" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M 4 21 h5 v-4 h5 v-4 h5 v-4 h1"></path>
-      <path d="M 4 21 v-3"></path><path d="M 20 4 v2"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="camino">Camino</span>
-  </button>
-  <button type="button" data-cajon="medicion" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M 3 20 h18"></path><path d="M 6 20 v-6"></path>
-      <path d="M 11 20 v-11"></path><path d="M 16 20 v-8"></path>
-      <path d="M 21 20 v-14"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="medicion">Medición</span>
-  </button>
-  <button type="button" data-cajon="perfil" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="8" r="4"></circle>
-      <path d="M 4 21 c 0 -4.4 3.6 -7 8 -7 s 8 2.6 8 7"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="perfil">Perfil</span>
-  </button>
-  <button type="button" data-cajon="proyectos" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-      <path d="M 9 7 V 5 a2 2 0 0 1 2 -2 h2 a2 2 0 0 1 2 2 v2"></path>
-      <path d="M 3 12 h18"></path>
-    </svg><i aria-hidden="true"></i><span data-rotulo="proyectos">Proyectos</span>
-  </button>
-</nav>
+<!-- La barra de seis iconos del pie se retiro el 2026-09-04, firmado por el
+     Soberano. Decia exactamente lo mismo que el desplegable del cabezal --
+     memoria, frontera, camino, medicion y proyectos-- y Perfil ya se abre con
+     la rueda. Dos caminos al mismo sitio, uno encima del otro, y el de abajo
+     costaba unos ciento veinte pixeles de alto permanentes: el alto que el
+     chat necesita cuando sale el teclado. Los seis cajones siguen todos
+     alcanzables; lo que se fue es la segunda puerta, no la habitacion. -->
 
 <div class="velo" id="velo"></div>
 
@@ -308,7 +269,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=12"></script>
+<script src="/dashboard.js?v=13"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>
