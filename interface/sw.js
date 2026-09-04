@@ -19,7 +19,7 @@
 // por quien lo acababa de leer. La marca `?v=` de las hojas no lo cubre: el
 // que se sirve de la cache es `/dashboard.html`, que no lleva marca, y es el
 // que arrastra a los demas.
-const Cache = "aurelius-armazon-v60";
+const Cache = "aurelius-armazon-v61";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin

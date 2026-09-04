@@ -94,6 +94,8 @@ const T = {
     at_resume: "Resume esto", at_pasos: "Dame los pasos",
     at_dudas: "Qué te falta saber",
     ph_dicho: "Escribe aquí",
+    manifiesto: "El Manifiesto del Builder",
+    manif_sin_red: "El manifiesto vive en la web: ábrelo cuando tengas conexión.",
     esp_titulo: "Límites de esta sesión",
     esp_quien: "Quién te contesta", esp_ritmo: "A qué ritmo",
     esp_memoria: "Memoria del modelo", esp_libre: "Libre en la máquina",
@@ -183,6 +185,8 @@ const T = {
     at_resume: "Sum this up", at_pasos: "Give me the steps",
     at_dudas: "What are you missing",
     ph_dicho: "Write here",
+    manifiesto: "The Builder's Manifesto",
+    manif_sin_red: "The manifesto lives on the web: open it when you have a connection.",
     esp_titulo: "This session's limits",
     esp_quien: "Who answers you", esp_ritmo: "At what pace",
     esp_memoria: "Model memory", esp_libre: "Free on the machine",
@@ -272,6 +276,8 @@ const T = {
     at_resume: "Resume isto", at_pasos: "Dá-me os passos",
     at_dudas: "O que te falta saber",
     ph_dicho: "Escreve aqui",
+    manifiesto: "O Manifesto do Builder",
+    manif_sin_red: "O manifesto vive na web: abre-o quando tiveres ligação.",
     esp_titulo: "Limites desta sessão",
     esp_quien: "Quem te responde", esp_ritmo: "A que ritmo",
     esp_memoria: "Memória do modelo", esp_libre: "Livre na máquina",
@@ -562,6 +568,7 @@ function pintarEstado(d) {
   pintaAtajos();
   if (!lateral.hidden) pintaLateral();
   $("p-tema").value = temaGuardado();
+  $("ir-manifiesto").textContent = t("manifiesto") + " →";
   $("p-guardar").textContent = t("guardar");
   $("pr-anadir").textContent = t("anadir");
   $("pr-volver-lista").textContent = t("volver_lista");
@@ -861,6 +868,22 @@ function pintaIdentidad(d) {
   $("id-huella").textContent = id.corta || t("id_rota");
   $("id-nota").textContent = id.huella ? t("id_nota") : (id.causa || "");
 }
+
+/* El Manifiesto vive en la web. Se comprueba `navigator.onLine` antes de
+ * abrir: esta app promete funcionar sin red, y un boton que abre una pestana
+ * en blanco cuando no hay conexion es peor que uno que lo dice. `onLine` no
+ * garantiza que se llegue --dice que hay interfaz, no que haya internet-- pero
+ * distingue el caso comun, que es el avion o el sotano. */
+$("ir-manifiesto").addEventListener("click", () => {
+  const av = $("manif-dicho");
+  if (navigator.onLine === false) {
+    av.textContent = t("manif_sin_red");
+    av.hidden = false;
+    setTimeout(() => { av.hidden = true; }, 4000);
+    return;
+  }
+  window.open("https://preceptoros.org/manifiesto.html", "_blank", "noopener");
+});
 
 $("p-guardar").addEventListener("click", async () => {
   const cuerpo = {

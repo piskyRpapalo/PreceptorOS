@@ -1278,3 +1278,12 @@ body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
 .espejo .dato { padding: .45rem 0; }
 .espejo .hueco { color: var(--ambar); font-weight: 800; }
 .espejo .causa { margin: .3rem 0 0; font-size: .74rem; font-style: italic; }
+
+/* El enlace al Manifiesto, dentro de Perfil. Se dibuja como enlace y no como
+   botón de acción: lleva a otro sitio, no cambia nada aquí. */
+.enlace-manifiesto {
+  display: block; width: 100%; margin-top: 1rem; padding: .6rem 0;
+  font: inherit; font-size: .86rem; font-weight: 700; text-align: left;
+  color: var(--violeta-fuerte); background: transparent; cursor: pointer;
+  border: 0; border-top: 1px solid var(--line);
+}

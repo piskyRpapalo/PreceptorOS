@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=25">
+<link rel="stylesheet" href="/dashboard.css?v=26">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -247,6 +247,12 @@
   <div class="dato"><span id="et-modelo"></span><b id="a-modelo">—</b></div>
   <p class="nota" id="a-ruta"></p>
   <div class="dato"><span id="et-cuaderno"></span><b id="a-captura">—</b></div>
+
+  <!-- El Manifiesto. Vive en la web y esta app promete funcionar sin red, así
+       que el botón no finge: si no hay conexión lo dice, en vez de abrir una
+       pestaña en blanco. -->
+  <button class="enlace-manifiesto" id="ir-manifiesto" type="button"></button>
+  <p class="nota" id="manif-dicho" hidden></p>
   <p class="nota" id="a-nota"></p>
 </section>
 
@@ -284,7 +290,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=24"></script>
+<script src="/dashboard.js?v=26"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>
