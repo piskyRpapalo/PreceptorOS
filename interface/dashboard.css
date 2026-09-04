@@ -1467,3 +1467,16 @@ body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
    acababa dibujando una banda oscura a media altura, justo por encima de
    «Guardar». Visto en el Doogee el 2026-09-04. */
 .cajon.pleno::before { display: none; }
+
+/* Con el teclado abierto, los atajos se retiran. Son botones para empezar un
+   mensaje --escriben en el campo y lo enfocan-- y quien tiene el teclado
+   abierto ya lo ha empezado. Cuarenta y seis pixeles que se le devuelven al
+   chat y al campo justo cuando el hueco es la mitad, que es donde se veian
+   cortados en el Doogee. Al cerrar el teclado vuelven. */
+body.con-teclado .atajos { display: none; }
+
+/* El pie respira sobre la barra de gestos. `viewport-fit=cover` mete la
+   interfaz debajo de ella, asi que el ultimo elemento necesita su hueco: sin
+   esto la fila de atajos queda medio tapada por la barra del sistema, no por
+   el navegador. */
+.atajos { padding-bottom: calc(.5rem + env(safe-area-inset-bottom)); }
