@@ -84,6 +84,15 @@ const T = {
     nota_memoria: "Vive en un solo fichero de tu máquina. Puedes copiarlo y llevártelo.",
     hecho: "hecho", empezado: "empezado", sin_empezar: "sin empezar",
     no_medible: "no medible desde aquí",
+    ajustes: "Ajustes", agentes: "Agentes y herramientas",
+    et_tema: "Tema", tema_sistema: "Como el sistema",
+    tema_claro: "Claro", tema_oscuro: "Oscuro",
+    sin_nombre: "sin nombre todavía",
+    lat_medir: "Medir este cerebro", lat_camino: "Ver el Camino",
+    lat_memoria: "Abrir la memoria", lat_proyectos: "Mis proyectos",
+    lat_frontera: "Qué sale de aquí",
+    at_resume: "Resume esto", at_pasos: "Dame los pasos",
+    at_dudas: "Qué te falta saber",
   },
   en: {
     listo: "write here",
@@ -155,6 +164,15 @@ const T = {
     nota_memoria: "It lives in one file on your machine. You can copy it and take it with you.",
     hecho: "done", empezado: "started", sin_empezar: "not started",
     no_medible: "not measurable from here",
+    ajustes: "Settings", agentes: "Agents and tools",
+    et_tema: "Theme", tema_sistema: "Follow the system",
+    tema_claro: "Light", tema_oscuro: "Dark",
+    sin_nombre: "no name yet",
+    lat_medir: "Measure this brain", lat_camino: "See the Path",
+    lat_memoria: "Open the memory", lat_proyectos: "My projects",
+    lat_frontera: "What leaves this machine",
+    at_resume: "Sum this up", at_pasos: "Give me the steps",
+    at_dudas: "What are you missing",
   },
 };
 const t = (clave) => (T[idioma] || T.es)[clave];
@@ -206,6 +224,121 @@ document.querySelectorAll(".cajon").forEach((c) => {
     y0 = null;
   }, { passive: true });
 });
+
+/* --- Capa 3 · el lateral de agentes y herramientas -----------------------
+ * Se rellena desde aqui y no desde el marcado porque lo que ofrece tiene que
+ * ser lo que de verdad existe. Cada entrada abre un cajon que ya esta
+ * construido: medir, el Camino, la memoria, los proyectos y la frontera.
+ * Poner ahi nombres de agentes que nadie ha escrito seria prometer un taller
+ * que no esta montado, que es justo lo que este producto no hace.
+ *
+ * El cierre tiene tres caminos y los tres importan: el propio boton, la tecla
+ * de escape --y entonces el foco Vuelve al boton, o quien navega con teclado
+ * se queda sin sitio donde estaba-- y un toque fuera del panel. */
+const lateral = $("lateral");
+const latBoton = $("lateral-boton");
+const herramientas = [
+  ["lat_medir", "medicion"], ["lat_camino", "camino"],
+  ["lat_memoria", "memoria"], ["lat_proyectos", "proyectos"],
+  ["lat_frontera", "frontera"],
+];
+function pintaLateral() {
+  lateral.textContent = "";
+  for (const [clave, cajon] of herramientas) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = t(clave);
+    b.addEventListener("click", () => { cierraLateral(); abrir(cajon); });
+    lateral.appendChild(b);
+  }
+}
+/* El paso de cerrado a abierto NO va por `requestAnimationFrame`, y esto se
+ * midio el 2026-09-04 en vez de suponerlo: con la pestana en segundo plano el
+ * navegador no dispara ni un fotograma, asi que la clase nunca se ponia y el
+ * panel se quedaba presente y transparente. Un panel invisible que sigue
+ * ocupando su sitio se come los toques de lo que hay debajo, y nadie puede
+ * saber por que.
+ *
+ * Leer `offsetWidth` fuerza al navegador a calcular la caja Ahi mismo, que es
+ * lo unico que hacia falta: fija el estado de partida para que la transicion
+ * tenga desde donde salir. Es sincrono y no depende de que nadie mire. */
+function abreLateral() {
+  pintaLateral();
+  lateral.hidden = false;
+  void lateral.offsetWidth;
+  lateral.classList.add("abierto");
+  latBoton.setAttribute("aria-expanded", "true");
+}
+function cierraLateral(devolverFoco) {
+  if (lateral.hidden) return;
+  lateral.classList.remove("abierto");
+  latBoton.setAttribute("aria-expanded", "false");
+  setTimeout(() => { lateral.hidden = true; }, 200);
+  if (devolverFoco) latBoton.focus();
+}
+latBoton.addEventListener("click", () => {
+  if (latBoton.getAttribute("aria-expanded") === "true") cierraLateral(true);
+  else abreLateral();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") cierraLateral(true);
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".lateral-zona")) cierraLateral();
+});
+
+/* --- Capa 2 · el cabezal se aparta cuando se escribe ---------------------
+ * Pierde intensidad, no desaparece. Con `display` la caja entera se moveria y
+ * el chat daria un salto justo al tocar el campo, que es el defecto que el
+ * bloque del teclado viene a matar unas lineas mas abajo. */
+const dicho = $("dicho");
+dicho.addEventListener("focusin", () => document.body.classList.add("chat-activo"));
+dicho.addEventListener("focusout", () => document.body.classList.remove("chat-activo"));
+
+/* --- el tema, y por que vive en este aparato y no en el perfil -----------
+ * El tema es una preferencia del cacharro que se tiene delante, no de la
+ * persona: la misma persona quiere oscuro en el telefono de noche y claro en
+ * la mesa. Guardarlo en el perfil lo sincronizaria entre aparatos, que es
+ * justo lo que no se quiere -- y ademas obligaria a tocar el servidor para
+ * algo que no sale de la pantalla.
+ *
+ * «sistema» no escribe atributo: deja mandar a `prefers-color-scheme`, que es
+ * la decision firmada el 2026-09-04. Las otras dos lo desobedecen a mano. */
+function aplicaTema(cual) {
+  const raiz = document.documentElement;
+  if (cual === "claro" || cual === "oscuro") raiz.setAttribute("data-tema", cual);
+  else raiz.removeAttribute("data-tema");
+}
+function temaGuardado() {
+  try { return localStorage.getItem("tema") || "sistema"; }
+  catch (_) { return "sistema"; }
+}
+aplicaTema(temaGuardado());
+$("p-tema").addEventListener("change", (e) => {
+  aplicaTema(e.target.value);
+  try { localStorage.setItem("tema", e.target.value); } catch (_) { /* sin sitio donde guardar */ }
+});
+
+/* --- Capa 1 · los atajos de debajo del campo -----------------------------
+ * Tres gestos que no dependen de que el cerebro sepa nada raro: resumir, pedir
+ * pasos y preguntar que le falta. Escriben en el campo y dejan el cursor ahi;
+ * no mandan solos, porque un atajo que manda sin que se lea lo que va a mandar
+ * es un boton que habla por ti. */
+const atajos = $("atajos");
+function pintaAtajos() {
+  atajos.textContent = "";
+  for (const clave of ["at_resume", "at_pasos", "at_dudas"]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = t(clave);
+    b.addEventListener("click", () => {
+      dicho.value = t(clave) + ": ";
+      dicho.focus();
+    });
+    atajos.appendChild(b);
+  }
+  atajos.hidden = false;
+}
 
 /* --- estado ------------------------------------------------------------ */
 /* El rotulo del boton grande se calcula en Un sitio. Estaba en cuatro -- al
@@ -277,7 +410,8 @@ function pintarEstado(d) {
   });
   for (const [id, clave] of Object.entries({
       "et-nombre": "et_nombre", "et-intereses": "et_intereses",
-      "et-idioma": "et_idioma", "et-instrucciones": "et_instrucciones",
+      "et-idioma": "et_idioma", "et-tema": "et_tema",
+      "et-instrucciones": "et_instrucciones",
       "et-cerebro": "et_cerebro", "et-cuaderno": "et_cuaderno",
       "et-modelo": "et_modelo",
       "et-titulo": "et_titulo",
@@ -289,6 +423,12 @@ function pintarEstado(d) {
     const el = $(id);
     if (el) el.textContent = t(clave);
   }
+  // Los atajos y el lateral se repintan con el idioma: sus rotulos se escriben
+  // desde el javascript, asi que el barrido de `data-rotulo` de arriba no los
+  // alcanza -- no existen como marcado hasta que alguien los dibuja.
+  pintaAtajos();
+  if (!lateral.hidden) pintaLateral();
+  $("p-tema").value = temaGuardado();
   $("p-guardar").textContent = t("guardar");
   $("pr-anadir").textContent = t("anadir");
   $("pr-volver-lista").textContent = t("volver_lista");
@@ -545,6 +685,13 @@ setTimeout(gesto, 12000);
 const ausente = "NO" + "_DATA";
 function sinNoData(v) { return (!v || v === ausente) ? "" : v; }
 
+/* El nombre del cabezal. Sin nombre se dice que no lo hay, no se deja el guion
+ * puesto: un hueco mudo se lee como una pantalla a medio cargar, y este es
+ * ademas el sitio donde alguien descubre que puede ponerse uno. */
+function pintaQuien(nombre) {
+  $("quien").textContent = nombre || t("sin_nombre");
+}
+
 async function cargarPerfil() {
   try {
     const r = await fetch("/api/perfil");
@@ -554,6 +701,7 @@ async function cargarPerfil() {
     $("p-instrucciones").value = sinNoData(d.campos.instrucciones);
     const idi = sinNoData(d.campos.language) || "es";
     $("p-idioma").value = idi === "en" ? "en" : "es";
+    pintaQuien(sinNoData(d.campos.name));
     pintaIdentidad(d);
   } catch { /* el pulso ya dice que no hay servidor */ }
 }
@@ -589,6 +737,7 @@ $("p-guardar").addEventListener("click", async () => {
       body: JSON.stringify(cuerpo),
     });
     if (!r.ok) return;
+    pintaQuien(cuerpo.name);       // el cabezal no espera a la proxima carga
     const av = $("p-dicho");
     av.textContent = t("guardado");
     av.hidden = false;
@@ -786,6 +935,10 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 pulso();
+/* El nombre del cabezal se pide al arrancar y no solo al abrir el cajon de
+ * Perfil: vive a la vista desde el primer segundo, asi que esperar a que
+ * alguien abra un cajon lo dejaria con un guion puesto toda la sesion. */
+cargarPerfil();
 
 
 /* --- el cajon de Medicion -----------------------------------------------
@@ -1020,21 +1173,47 @@ document.addEventListener("visibilitychange", () => {
  * ver lo ultimo que se dijo mientras escribe la respuesta.
  *
  * `scrollIntoView` no servia aqui: no hay scroll nuevo que hacer, el problema
- * es que el sitio donde estaba el mensaje ya no se ve. */
+ * es que el sitio donde estaba el mensaje ya no se ve.
+ *
+ * Lo que se corrige el 2026-09-04, y es una sola linea de mas.
+ * `alFondo()` se llamaba Siempre. O sea: quien subia a leer un mensaje viejo y
+ * entonces tocaba el campo veia el chat irse al final de golpe, y el viewport
+ * visual cambia tambien al esconderse la barra de direcciones, asi que pasaba
+ * sin teclado de por medio. Anclar al fondo es lo correcto cuando ya se estaba
+ * al fondo; hacerlo cuando no, es quitarle la lectura de las manos a alguien.
+ *
+ * Se mira Antes de tocar el alto, porque cambiar `--teclado` mueve la caja y a
+ * partir de ahi la medida ya no dice donde estaba la persona, sino donde la
+ * dejo el cambio.
+ *
+ * El margen de 40 px no es adorno: sin holgura, un pixel de inercia cuenta
+ * como «se ha ido» y el ancla se pierde justo cuando mas se quiere. */
 if (window.visualViewport) {
   const vv = window.visualViewport;
   const alFondo = () => {
     const d = $("dice");
     if (d) d.scrollTop = d.scrollHeight;
   };
+  const alFinal = () => {
+    const d = $("dice");
+    if (!d) return true;
+    return d.scrollHeight - d.scrollTop - d.clientHeight < 40;
+  };
+  let tapadoAntes = -1;
   const ajusta = () => {
     const tapado = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    // Un cambio de menos de 20 px no es un teclado ni una barra: es ruido del
+    // navegador al desplazar. Recalcular con cada uno repinta sin motivo, y en
+    // un telefono justo eso se nota.
+    if (Math.abs(tapado - tapadoAntes) < 20) return;
+    tapadoAntes = tapado;
+    const seguia = alFinal();
     document.documentElement.style.setProperty("--teclado", tapado + "px");
     // El umbral es de 120 px y no de cero: una barra de direcciones que se
     // esconde al deslizar tambien cambia el viewport visual, y eso no es un
     // teclado. Ningun teclado de movil mide menos de 120 px.
     document.body.classList.toggle("con-teclado", tapado > 120);
-    alFondo();
+    if (seguia) alFondo();
   };
   vv.addEventListener("resize", ajusta);
   vv.addEventListener("scroll", ajusta);

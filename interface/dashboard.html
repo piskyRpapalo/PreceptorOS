@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=8">
+<link rel="stylesheet" href="/dashboard.css?v=10">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -19,12 +19,50 @@
   <h1 class="marca"><span class="marca-nombre">Preceptor</span><span class="marca-os">OS</span></h1>
 </div>
 
-<div class="retrato">
+<!-- Capa 2 · el cabezal. La rueda no estrena mecanismo: lleva `data-cajon` y
+     abre el cajón de Perfil, que es donde ya viven el idioma, el nombre y las
+     instrucciones. Un segundo panel de ajustes al lado del que ya existe
+     serían dos sitios donde cambiar lo mismo. -->
+<header class="cabezal" id="cabezal">
+  <button class="rueda" id="rueda" type="button" data-cajon="perfil" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.2"></circle>
+      <path d="M 19.4 15 a1.65 1.65 0 0 0 .33 1.82 l .06 .06 a2 2 0 1 1 -2.83 2.83
+               l -.06 -.06 a1.65 1.65 0 0 0 -1.82 -.33 a1.65 1.65 0 0 0 -1 1.51 V 21
+               a2 2 0 0 1 -4 0 v -.09 a1.65 1.65 0 0 0 -1.08 -1.51 a1.65 1.65 0 0 0 -1.82 .33
+               l -.06 .06 a2 2 0 1 1 -2.83 -2.83 l .06 -.06 a1.65 1.65 0 0 0 .33 -1.82
+               a1.65 1.65 0 0 0 -1.51 -1 H 3 a2 2 0 0 1 0 -4 h .09 A 1.65 1.65 0 0 0 4.6 9
+               a1.65 1.65 0 0 0 -.33 -1.82 l -.06 -.06 a2 2 0 1 1 2.83 -2.83 l .06 .06
+               a1.65 1.65 0 0 0 1.82 .33 H 9 a1.65 1.65 0 0 0 1 -1.51 V 3 a2 2 0 0 1 4 0 v .09
+               a1.65 1.65 0 0 0 1 1.51 a1.65 1.65 0 0 0 1.82 -.33 l .06 -.06 a2 2 0 1 1 2.83 2.83
+               l -.06 .06 a1.65 1.65 0 0 0 -.33 1.82 V 9 a1.65 1.65 0 0 0 1.51 1 H 21
+               a2 2 0 0 1 0 4 h -.09 a1.65 1.65 0 0 0 -1.51 1 Z"></path>
+    </svg>
+    <span class="sr" data-rotulo="ajustes">Ajustes</span>
+  </button>
+  <span class="quien" id="quien">—</span>
+  <h1 class="marca"><span class="marca-nombre">Preceptor</span><span class="marca-os">OS</span></h1>
+</header>
+
+<!-- Capa 4 · la esfera. Sin `overflow` en el contenedor, a propósito: nadie la
+     recorta. Se acerca por diámetro, y la aritmética de las tiras no se toca. -->
+<div class="presentacion">
   <div class="busto" id="busto" role="img"
        aria-label="Busto de mármol con un ojo encendido"></div>
-  <h1 class="marca"><span class="marca-nombre">Preceptor</span><span class="marca-os">OS</span></h1>
   <div class="mando">
   </div>
+</div>
+
+<!-- Capa 3 · agentes y herramientas. El panel se rellena desde el javascript
+     porque su contenido depende de lo que haya instalado; vacío en el marcado
+     es un panel honesto, no un hueco olvidado. -->
+<div class="lateral-zona">
+  <button class="lateral-boton" id="lateral-boton" type="button"
+          aria-expanded="false" aria-controls="lateral">
+    <span data-rotulo="agentes">Agentes y herramientas</span>
+  </button>
+  <div class="lateral" id="lateral" hidden></div>
 </div>
 
 <p class="fusion" id="fusion" hidden>
@@ -58,6 +96,11 @@
     </button>
   </form>
 </div>
+
+<!-- Capa 1 · los atajos de la herramienta elegida, debajo del campo. Se
+     rellenan desde el javascript con lo que sirva al cerebro que esté en uso:
+     escritos aquí a mano prometerían acciones que otro modelo no tiene. -->
+<div class="atajos" id="atajos" hidden></div>
 
 <nav class="barra-iconos" aria-label="Paneles">
   <button type="button" data-cajon="memoria" aria-expanded="false">
@@ -201,6 +244,16 @@
       <option value="en">English</option>
     </select></label>
 
+  <!-- El tema. «Como el sistema» es lo primero y es el valor de fábrica: la
+       decisión firmada el 2026-09-04 es que el sistema manda por defecto. Las
+       otras dos existen para quien quiera desobedecerlo, en los dos sentidos. -->
+  <label class="campo"><span id="et-tema"></span>
+    <select id="p-tema">
+      <option value="sistema" data-rotulo="tema_sistema">Como el sistema</option>
+      <option value="claro" data-rotulo="tema_claro">Claro</option>
+      <option value="oscuro" data-rotulo="tema_oscuro">Oscuro</option>
+    </select></label>
+
   <label class="campo"><span id="et-instrucciones"></span>
     <textarea id="p-instrucciones"></textarea></label>
   <p class="nota" id="nota-instrucciones"></p>
@@ -249,7 +302,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=8"></script>
+<script src="/dashboard.js?v=10"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

@@ -5,13 +5,51 @@
    ajuste del sistema deja de ser la misma. El violeta pasa de ser el suelo a
    ser la luz -- vive en los mandos y en los bordes, no en el fondo, que es lo
    que hacia que las laminas recortadas ensenaran su borde blanco. El panel de la frontera sigue su propio
-   camino porque ahi manda la legibilidad del dato, no la identidad. */
+   camino porque ahi manda la legibilidad del dato, no la identidad.
+
+   [Revocado 2026-09-04 por el Soberano: el sistema manda por defecto. Ver Capa 2]
+   El parrafo de arriba se queda escrito porque es lo que se penso y por que;
+   borrarlo dejaria el canon diciendo una cosa y el codigo haciendo otra. Lo
+   que cambia es la conclusion: ahora hay bloque oscuro atado a
+   `prefers-color-scheme`, y un interruptor de mano en `[data-tema]` que le
+   gana. La cara no se rompe con eso porque sus tiras traen alfa de verdad --
+   se apoyan sobre cualquier fondo-- y lo que si cambia de tono va por
+   variable: `--borde-busto` y `--sombra-busto`. */
 :root {
+  /* La profundidad se declara Aqui y en ningun otro sitio. Antes habia un solo
+     `z-index` en las novecientas lineas de este fichero --el telon-- y todo lo
+     demas se apilaba por el orden del marcado: una jerarquia que nadie
+     escribio y que se rompe la primera vez que alguien mueve una seccion.
+     Cuatro capas, y el telon por encima de las cuatro. */
+  --capa-1-chat:    10;   /* la conversacion, que es el suelo */
+  --capa-2-cabezal: 20;   /* rueda, nombre, ajustes */
+  --capa-3-lateral: 30;   /* el desplegable, que pisa a la 2 y a la 1 */
+  --capa-4-cara:    40;   /* la esfera. No la tapa nadie */
+  --capa-telon:     90;   /* el despertar, por encima de todo al arrancar */
   /* La cara y sus tiempos. Mismos nombres y mismos valores que en la web
      (`widget.css`), para que una sola cifra no viva en dos sitios diciendo
      cosas distintas. */
   --cara-chica: 102px;      /* era 68. Un 50 % mas, firmado 2026-09-02 */
   --cara-grande: 138px;     /* era 92, la misma proporcion */
+  /* La Capa 4, que es la cara puesta en el centro y acercada. Se acerca
+     subiendo el Diametro, jamas el `background-size`: las paradas de las tres
+     tiras estan calculadas contra el 490 % y el 840 %, y mover el tamano sin
+     recalcularlas ensena medio cuadro y medio del siguiente a la vez. Es el
+     error que parece inofensivo y esta contado dos veces mas abajo. */
+  --cara-centro: 168px;
+  --cara-centro-ancha: 208px;
+  /* El borde y la sombra de la esfera salen a variable por el modo oscuro. Son
+     los dos sitios donde una paleta invertida deja la cara flotando en un halo
+     que nadie penso: la lamina trae alfa de verdad y se apoya en cualquier
+     fondo, pero el anillo y su sombra estan pintados para marmol claro. */
+  --borde-busto: #6d5ae0;
+  --sombra-busto: rgba(109,90,224,.35);
+  /* Dos velos que llevaban el blanco cosido en el valor y no en un nombre. Se
+     vieron en oscuro el 2026-09-04: el hueco del chat salia como una plancha
+     gris clara y la barra de abajo como una franja casi blanca. No era el tema
+     lo que fallaba -- era que estos dos colores no podian cambiar con el. */
+  --velo-chat: rgba(255,255,255,.26);
+  --barra-fondo: rgba(255,255,255,.9);
   --anim-apertura: 5.1s;    /* 4,25 compases x 1,2 · ver `despertar` */
   --anim-reposo: 38.4s;     /* 9,6 s por color · el fundido va atado */
   --anim-habla: .864s;
@@ -151,7 +189,7 @@ body {
      pixeles. Firmado por el Soberano el 2026-09-02 -- un 50 % mas grande. */
   width: var(--cara-chica); height: var(--cara-chica); margin: 0; flex: none;
   border-radius: 50%; position: relative;
-  border: 2px solid var(--violeta); box-shadow: 0 6px 22px rgba(109,90,224,.35);
+  border: 2px solid var(--borde-busto); box-shadow: 0 6px 22px var(--sombra-busto);
   /* `pixelated` Fuera. Estaba puesto para una tira de 256 px que se pintaba a
      68: al ampliar a 102 el vecino mas cercano deja escalones en la barba.
      Estas laminas son fotografia de marmol, no pixel art. */
@@ -345,7 +383,7 @@ body {
   border-image: url("/assets/marco-marmol.png") 31 47 34 47 round;
   /* Apenas un velo: el marmol de debajo tiene que seguir viendose dentro
      del marco -- es la pizarra, no un papel liso encima de ella. */
-  background: rgba(255,255,255,.26);
+  background: var(--velo-chat);
   color: var(--ink);
 }
 .dice p { color: var(--ink); }
@@ -530,7 +568,7 @@ body {
 
 /* --- el telon ------------------------------------------------------------ */
 .telon {
-  position: fixed; inset: 0; z-index: 20;
+  position: fixed; inset: 0; z-index: var(--capa-telon);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 1.3rem;
   background: var(--fondo) url("/assets/marble-violet.webp") 0 0 / 340px auto repeat;
@@ -688,7 +726,7 @@ body {
    mirar. `ojo-ambar.webp` estaba en `assets/` desde agosto sin que nadie lo
    pintara. El ambar es ademas el color con el que esta casa marca lo medido. */
 .barra-iconos button[data-cajon="medicion"]   i { background-image: url("/assets/ojo-ambar.webp"), var(--vidrio); }
-.barra-iconos { background: rgba(255,255,255,.9); }
+.barra-iconos { background: var(--barra-fondo); }
 .barra-iconos button[aria-expanded="true"] { color: var(--violeta-hondo); background: transparent; }
 .barra-iconos button[aria-expanded="true"] i {
   border-color: var(--violeta);
@@ -911,3 +949,221 @@ body {
   border-radius: 50%; background: var(--violeta);
 }
 
+
+/* --- la topologia de cuatro capas ----------------------------------------
+   Firmada el 2026-09-04. Cuatro capas con profundidad declarada, y la escala
+   vive arriba del todo en `:root` -- no se escribe un `z-index` con numero
+   suelto en ningun sitio de este fichero.
+
+   El orden, de abajo a arriba: el chat es el suelo; el cabezal manda encima;
+   el lateral de agentes pisa a los dos cuando se abre; y la esfera no la tapa
+   nadie. La razon de que la cara sea la mas alta no es jerarquia de adorno --
+   es que un producto cuya promesa es «hay alguien ahi» no puede permitir que
+   un menu le pase por delante de la cara. */
+
+/* Capa 4 · la esfera -------------------------------------------------------
+   La cabecera era una fila --cara, nombre y mando, uno al lado del otro-- y
+   pasa a ser un circulo centrado. La cara se acerca subiendo el Diametro, que
+   es la unica forma de acercarla sin tocar la aritmetica de las tiras: las
+   paradas de reposo, habla y apertura estan calculadas contra su
+   `background-size` y moverlo sin recalcularlas ensena dos medios cuadros a la
+   vez. Aqui no se toca ni un porcentaje.
+
+   Y no la recorta nadie: `.presentacion` no lleva `overflow`, a proposito. El
+   `overflow: hidden` del cuerpo se queda donde esta --es lo que mata el
+   desplazamiento lateral-- y por eso la esfera se dimensiona para caber, en
+   vez de desbordar y pedir que le quiten la guardia a otro. */
+.presentacion {
+  position: relative; z-index: var(--capa-4-cara);
+  display: grid; place-items: center;
+  padding: .5rem 0 .2rem; flex: none;
+}
+.presentacion .busto {
+  width: var(--cara-centro); height: var(--cara-centro);
+}
+.presentacion .mando { margin-top: .3rem; }
+
+/* Capa 3 · el lateral de agentes y herramientas ----------------------------
+   En reposo es un boton discreto bajo la esfera. Abierto es un panel violeta
+   que crece desde el canto izquierdo, de arriba hacia abajo.
+
+   Se anima `transform` y no `height`, y no es una preferencia: una altura
+   animada obliga al navegador a recalcular la caja en cada fotograma, y el
+   presupuesto de esta interfaz esta escrito en otros tres sitios de este
+   fichero --un telefono que ya va justo-. Un `transform` no toca el flujo.
+
+   `transform-origin: top left` es lo que hace que crezca desde ese canto y no
+   desde el centro, que es el reparto por defecto y se lee como un acordeon. */
+.lateral-zona { position: relative; z-index: var(--capa-3-lateral); padding: 0 .7rem; }
+.lateral-boton {
+  display: inline-flex; align-items: center; gap: .45rem;
+  min-height: 44px; padding: .35rem .9rem; font: inherit;
+  font-size: .8rem; font-weight: 700; cursor: pointer;
+  color: var(--violeta-fuerte); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 999px;
+}
+.lateral-boton:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+.lateral-boton[aria-expanded="true"] {
+  color: #fff; background: var(--violeta); border-color: var(--violeta);
+}
+.lateral {
+  position: absolute; left: .7rem; top: calc(100% + .35rem);
+  width: min(17rem, calc(100vw - 1.4rem));
+  padding: .5rem; border-radius: var(--radio);
+  background: var(--violeta); color: #fff;
+  box-shadow: 0 12px 32px rgba(36,26,53,.34);
+  transform-origin: top left; transform: scaleY(0); opacity: 0;
+  transition: transform .18s ease-out, opacity .18s ease-out;
+}
+.lateral[hidden] { display: none; }
+.lateral.abierto { transform: scaleY(1); opacity: 1; }
+.lateral button {
+  display: block; width: 100%; text-align: left; font: inherit;
+  font-size: .82rem; font-weight: 600; color: #fff; cursor: pointer;
+  padding: .5rem .6rem; min-height: 42px;
+  background: transparent; border: 0; border-radius: 10px;
+}
+.lateral button:hover, .lateral button:focus-visible { background: rgba(255,255,255,.16); }
+.lateral button:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+/* Capa 2 · el cabezal ------------------------------------------------------
+   La rueda a la izquierda, el nombre a su derecha, la marca al final. Se apaga
+   cuando el chat toma el foco: pierde intensidad, no desaparece. Esconderlo
+   con `display` moveria la caja entera y el chat daria un salto justo al tocar
+   el campo, que es el defecto que la Capa 1 viene a matar aqui al lado. */
+.cabezal {
+  position: relative; z-index: var(--capa-2-cabezal); flex: none;
+  display: flex; align-items: center; gap: .5rem;
+  padding: .5rem .7rem .1rem;
+  transition: opacity .18s ease-out;
+}
+body.chat-activo .cabezal { opacity: .35; }
+.rueda {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; padding: 0; cursor: pointer;
+  color: var(--violeta-fuerte); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px;
+}
+.rueda svg { width: 1.25em; height: 1.25em; }
+.rueda:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+.quien {
+  flex: 1; min-width: 0; font-size: .84rem; font-weight: 700;
+  color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cabezal .marca { flex: none; }
+.cabezal .marca-nombre { font-size: 1.05rem; }
+.cabezal .marca-os { font-size: 1.35rem; }
+
+/* Capa 1 · el chat y sus atajos --------------------------------------------
+   `.dice` sigue siendo el unico que crece y el unico que se desplaza; eso no
+   se toca, es lo que impide que un historial largo empuje la barra de iconos
+   fuera de la pantalla.
+
+   `overscroll-behavior: contain` va Aqui y no en el cuerpo: llegar al tope del
+   chat dejaba de frenar y arrastraba la pagina, y con el teclado abierto ese
+   arrastre se lee exactamente como «ha saltado». */
+.dice { position: relative; z-index: var(--capa-1-chat); overscroll-behavior: contain; }
+/* Los atajos de la herramienta elegida, debajo del campo de escribir. Se
+   desplazan en horizontal en vez de partir en dos filas: dos filas de atajos
+   le comen al chat el alto que se le acaba de dar. */
+.atajos {
+  display: flex; gap: .4rem; padding: .1rem .7rem .5rem;
+  overflow-x: auto; overscroll-behavior-x: contain;
+}
+.atajos[hidden] { display: none; }
+.atajos button {
+  flex: none; font: inherit; font-size: .74rem; font-weight: 700;
+  color: var(--violeta-fuerte); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: .3rem .75rem; min-height: 36px; cursor: pointer;
+}
+.atajos button:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+
+@media (min-width: 720px) {
+  .presentacion .busto { width: var(--cara-centro-ancha); height: var(--cara-centro-ancha); }
+  .cabezal, .presentacion, .lateral-zona, .atajos {
+    max-width: 34rem; margin-inline: auto; width: 100%;
+  }
+}
+/* Quien pidio menos movimiento se queda con el panel, no sin el: lo que se
+   apaga es la transicion. Un menu que no aparece no es accesible, es un menu
+   roto. */
+@media (prefers-reduced-motion: reduce) {
+  .lateral { transition: none; }
+  .cabezal { transition: none; }
+}
+
+/* --- el modo oscuro -------------------------------------------------------
+   [Revocado 2026-09-04 por el Soberano: el sistema manda por defecto]
+   Revoca la paleta fija que declara la cabecera de este fichero. El sistema
+   manda por defecto y el interruptor de mano le gana, en los dos sentidos:
+   `[data-tema="claro"]` devuelve el marmol aunque el sistema pida oscuro.
+
+   Los valores oscuros viven una sola vez, en las variables `--n-*`, y los dos
+   bloques de abajo solo los enchufan. Duplicar el mapeo es inevitable en css
+   sin preprocesador; duplicar los Valores no lo es, y es lo que de verdad se
+   separa con el tiempo.
+
+   El marmol del fondo se retira en oscuro y se declara por que: no existe una
+   lamina oscura de esa textura, y teñir la clara con un filtro repinta el
+   fondo entero en cada desplazamiento -- que es justo el gasto que este
+   fichero lleva tres sitios evitando. Antes un fondo liso honesto que una
+   textura cara y mal teñida. */
+:root {
+  --n-fondo: #17131f;      --n-fondo-centro: #1e1929;
+  --n-ink: #ece9f5;        --n-ink-soft: #a79fbe;
+  --n-line: #392f4d;       --n-paper: rgba(38,31,53,.86);
+  --n-ground: rgba(38,31,53,.62);
+  --n-glass: rgba(38,31,53,.55);
+  --n-violeta-tenue: #251e3a;
+  --n-violeta-fuerte: #b3a4ff;
+  --n-circuito: #2f2743;
+  --n-velo-chat: rgba(255,255,255,.06);
+  --n-barra-fondo: rgba(30,25,41,.92);
+  --n-borde-busto: #8f7dff;
+  --n-sombra-busto: rgba(143,125,255,.42);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fondo: var(--n-fondo); --fondo-centro: var(--n-fondo-centro);
+    --ink: var(--n-ink); --ink-soft: var(--n-ink-soft);
+    --line: var(--n-line); --paper: var(--n-paper);
+    --ground: var(--n-ground); --glass: var(--n-glass);
+    --violeta-tenue: var(--n-violeta-tenue);
+    --violeta-fuerte: var(--n-violeta-fuerte);
+    --circuito: var(--n-circuito);
+    --borde-busto: var(--n-borde-busto);
+    --sombra-busto: var(--n-sombra-busto);
+    --velo-chat: var(--n-velo-chat); --barra-fondo: var(--n-barra-fondo);
+  }
+  :root:not([data-tema="claro"]) body { background-image: none; }
+}
+:root[data-tema="oscuro"] {
+  --fondo: var(--n-fondo); --fondo-centro: var(--n-fondo-centro);
+  --ink: var(--n-ink); --ink-soft: var(--n-ink-soft);
+  --line: var(--n-line); --paper: var(--n-paper);
+  --ground: var(--n-ground); --glass: var(--n-glass);
+  --violeta-tenue: var(--n-violeta-tenue);
+  --violeta-fuerte: var(--n-violeta-fuerte);
+  --circuito: var(--n-circuito);
+  --borde-busto: var(--n-borde-busto);
+  --sombra-busto: var(--n-sombra-busto);
+  --velo-chat: var(--n-velo-chat); --barra-fondo: var(--n-barra-fondo);
+}
+:root[data-tema="oscuro"] body { background-image: none; }
+/* El campo de escribir y las cajas de texto traian el blanco cosido en el
+   valor, no en una variable, asi que en oscuro se quedaban blancas con letra
+   clara encima. Se enganchan al papel del tema. */
+:root[data-tema="oscuro"] .escribir input,
+:root[data-tema="oscuro"] .campo input,
+:root[data-tema="oscuro"] .campo textarea,
+:root[data-tema="oscuro"] .campo select { background: var(--fondo-centro); color: var(--ink); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .escribir input,
+  :root:not([data-tema="claro"]) .campo input,
+  :root:not([data-tema="claro"]) .campo textarea,
+  :root:not([data-tema="claro"]) .campo select {
+    background: var(--fondo-centro); color: var(--ink);
+  }
+}
