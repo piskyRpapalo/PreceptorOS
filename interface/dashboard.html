@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=22">
+<link rel="stylesheet" href="/dashboard.css?v=23">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -144,6 +144,17 @@
        y mirar los tokens por segundo es el mismo gesto. Separarlos obligaría a
        cambiar de pantalla entre la decisión y su medida, que es justo donde se
        pierde la costumbre de medir. -->
+  <!-- El Espejo del Builder. Va en Medición y no en un cajón propio: preguntar
+       «hasta dónde llega esto» y «cuánto corre» es el mismo gesto, y separarlos
+       obligaría a cambiar de pantalla entre la duda y su medida.
+
+       No es un panel de métricas más. Es la transparencia hecha superficie: los
+       límites se ven mientras se trabaja, no se descubren cuando algo falla. Y
+       lo que no se mide sale declarado con su causa, como en todo lo demás. -->
+  <h3 class="sub-h" id="esp-titulo"></h3>
+  <div class="espejo" id="espejo"></div>
+  <p class="nota" id="esp-aviso"></p>
+
   <h3 class="sub-h" id="cer-titulo"></h3>
   <p class="nota" id="cer-uso"></p>
   <div id="cer-opciones"></div>
@@ -269,7 +280,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=13"></script>
+<script src="/dashboard.js?v=23"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

@@ -1256,3 +1256,12 @@ body.chat-activo .cabezal { opacity: .35; }
    devuelven mas de cien al chat y al campo. */
 body.con-teclado .presentacion { padding: .15rem 0 0; }
 body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
+
+/* --- el Espejo del Builder ----------------------------------------------
+   Se parece a las demas filas de Medicion a proposito: es el mismo tipo de
+   dato, no una seccion aparte con su propio idioma visual. Lo unico que se
+   distingue es el hueco -- un guion en ambar, que es el color con el que esta
+   casa marca lo medido y lo que falta por medir. */
+.espejo .dato { padding: .45rem 0; }
+.espejo .hueco { color: var(--ambar); font-weight: 800; }
+.espejo .causa { margin: .3rem 0 0; font-size: .74rem; font-style: italic; }

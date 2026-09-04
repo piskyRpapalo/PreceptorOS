@@ -361,10 +361,18 @@ class PWA(BaseHTTPRequestHandler):
         if ruta and os.path.isfile(ruta):
             cerebro = {"nombre": os.path.basename(ruta),
                        "bytes": os.path.getsize(ruta)}
-        return self._json(200, MET.paquete(
+        paquete = MET.paquete(
             cerebro=cerebro,
             turno=getattr(self.server, "ultimo_turno", None),
-            tokens_sesion=getattr(self.server, "tokens_sesion", 0)))
+            tokens_sesion=getattr(self.server, "tokens_sesion", 0))
+        # El Espejo del Builder pide una cosa que el paquete NO puede llevar: la
+        # memoria de la maquina. Los once campos son la unidad de comparacion
+        # entre maquinas, y meter ahi los gigas del cacharro haria que un
+        # portatil y una torre dejaran de ser comparables por un numero que no
+        # habla del modelo. Viaja al lado, en su propia llave, igual que el
+        # vatiaje del enchufe.
+        paquete["espejo"] = MET.memoria_del_sistema()
+        return self._json(200, paquete)
 
     # --- el cerebro · la unica eleccion de modelo que hace la persona -------
     #

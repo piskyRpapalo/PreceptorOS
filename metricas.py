@@ -254,6 +254,39 @@ def _rss_del_runner():
                   f"residente · sirviendo {quien}")
 
 
+def memoria_del_sistema():
+    """Lo que hay y lo que queda en la maquina, para el Espejo del Builder.
+
+    FUERA DEL PAQUETE, y a proposito. Los once campos son la unidad de
+    comparacion entre maquinas: meter aqui la memoria del sistema haria que un
+    paquete de un portatil de 8 GB y otro de una torre de 64 dejaran de ser
+    comparables por una cifra que no habla del modelo, sino del cacharro. Se
+    pide aparte, como el vatiaje del enchufe, y lo consume quien pinta.
+
+    `MemAvailable` y no `MemFree`: lo libre no cuenta la cache que el nucleo
+    soltaria en cuanto alguien pidiera memoria, asi que en una maquina en uso
+    sale siempre alarmantemente bajo. Lo DISPONIBLE es lo que de verdad se
+    puede pedir, que es la pregunta que hace quien va a cargar un modelo.
+    """
+    try:
+        with open("/proc/meminfo", encoding="utf-8") as fh:
+            datos = {}
+            for linea in fh:
+                clave, _, resto = linea.partition(":")
+                datos[clave] = int(resto.split()[0])     # kB
+    except (OSError, ValueError, IndexError) as e:
+        return [sin_dato("memoria_total_mb", f"no se pudo leer la memoria: {e}", "MiB"),
+                sin_dato("memoria_libre_mb", f"no se pudo leer la memoria: {e}", "MiB")]
+    if "MemTotal" not in datos or "MemAvailable" not in datos:
+        return [sin_dato("memoria_total_mb", "el sistema no declara su memoria", "MiB"),
+                sin_dato("memoria_libre_mb", "el sistema no declara su memoria", "MiB")]
+    return [medido("memoria_total_mb", round(datos["MemTotal"] / 1024), "MiB",
+                   "MemTotal de /proc/meminfo"),
+            medido("memoria_libre_mb", round(datos["MemAvailable"] / 1024), "MiB",
+                   "MemAvailable de /proc/meminfo, que es lo que de verdad se "
+                   "puede pedir -- no lo libre, que ignora la cache reclamable")]
+
+
 def _modelo(cerebro):
     """Los tres campos del modelo. `cerebro` es lo que sirve /api/estado."""
     c = cerebro or {}

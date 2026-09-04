@@ -94,6 +94,13 @@ const T = {
     at_resume: "Resume esto", at_pasos: "Dame los pasos",
     at_dudas: "Qué te falta saber",
     ph_dicho: "Escribe aquí",
+    esp_titulo: "Límites de esta sesión",
+    esp_quien: "Quién te contesta", esp_ritmo: "A qué ritmo",
+    esp_memoria: "Memoria del modelo", esp_libre: "Libre en la máquina",
+    esp_ventana: "Ventana de contexto", esp_gastado: "Gastado de la ventana",
+    esp_sin_conteo: "nadie cuenta los tokens de esta sesión, así que un número aquí sería inventado",
+    esp_lleno: "Mi contexto está lleno. Necesito que tú, como Builder, decidas si resumir o ampliar el hardware.",
+    esp_aviso: "Esto no es un cuadro de mandos: es dónde acaba tu máquina. Lo que no se puede medir sale dicho, nunca en cero.",
     saluda: "Soy tu Preceptor y vivo en esta máquina: lo que escribes aquí no sale de ella. Puedo recordar lo que me cuentes, ayudarte a llevar tus proyectos y decirte cuándo no sé algo. Escribe abajo, o toca uno de los atajos.",
   },
   en: {
@@ -176,6 +183,13 @@ const T = {
     at_resume: "Sum this up", at_pasos: "Give me the steps",
     at_dudas: "What are you missing",
     ph_dicho: "Write here",
+    esp_titulo: "This session's limits",
+    esp_quien: "Who answers you", esp_ritmo: "At what pace",
+    esp_memoria: "Model memory", esp_libre: "Free on the machine",
+    esp_ventana: "Context window", esp_gastado: "Spent from the window",
+    esp_sin_conteo: "nobody counts this session's tokens, so a number here would be invented",
+    esp_lleno: "My context is full. I need you, as the Builder, to decide whether to summarise or grow the hardware.",
+    esp_aviso: "This is not a dashboard: it is where your machine ends. What cannot be measured is said, never zeroed.",
     saluda: "I am your Preceptor and I live on this machine: what you write here never leaves it. I can remember what you tell me, help you carry your projects, and say when I do not know something. Write below, or tap one of the shortcuts.",
   },
 };
@@ -980,6 +994,57 @@ cargarPerfil();
    Un hueco se reconoce por `valor === null`, no por el nombre de su estado:
    el modulo garantiza esa equivalencia con una prueba, y comparar contra el
    valor evita escribir aqui nombres que este fichero no puede nombrar. */
+/* --- El Espejo del Builder ------------------------------------------------
+ * Cuatro filas y ninguna inventada. Vive en Medicion porque preguntar «hasta
+ * donde llega esto» y «cuanto corre» es el mismo gesto.
+ *
+ * La fila que mas importa es la que sale vacia. La ventana se sabe --32.768,
+ * medida en este nodo-- pero lo gastado de ella no lo cuenta nadie en este
+ * producto: `tokens_sesion` se declara y nunca se incrementa. Poner ahi una
+ * barra de progreso seria fabricar un sensor, que es exactamente lo que este
+ * modulo lleva escrito que no hace. Sale el hueco con su causa.
+ *
+ * Y por eso el aviso del contexto lleno se ensena cuando ocurre --el motor
+ * falla y lo dice-- y no cuando un calculo nuestro lo prediga. Un aviso
+ * adivinado que se equivoca ensena a ignorar los avisos. */
+function fila(caja, clave, campo, sufijo) {
+  const d = document.createElement("div");
+  d.className = "dato";
+  const et = document.createElement("span");
+  et.textContent = t(clave);
+  const v = document.createElement("b");
+  if (campo && campo.estado !== ausente && campo.valor !== null) {
+    v.textContent = campo.valor + (sufijo || "");
+  } else {
+    v.textContent = "—";
+    v.className = "hueco";
+    if (campo && campo.causa) d.title = campo.causa;
+  }
+  d.appendChild(et); d.appendChild(v);
+  caja.appendChild(d);
+  return d;
+}
+
+function pintaEspejo(por) {
+  const caja = $("espejo");
+  if (!caja) return;
+  $("esp-titulo").textContent = t("esp_titulo");
+  $("esp-aviso").textContent = t("esp_aviso");
+  caja.textContent = "";
+  fila(caja, "esp_ritmo", por.tokens_por_segundo, " tok/s");
+  fila(caja, "esp_memoria", por.consumo_ram_mb, " MiB");
+  fila(caja, "esp_libre", por.memoria_libre_mb, " MiB");
+  fila(caja, "esp_ventana", por.ventana_contexto, " tokens");
+  // El hueco declarado, con su causa escrita al lado y no escondida en un
+  // titulo: es la fila que ensena como se lee todo lo demas.
+  const g = fila(caja, "esp_gastado", null, "");
+  const causa = document.createElement("p");
+  causa.className = "nota causa";
+  causa.textContent = t("esp_sin_conteo");
+  caja.appendChild(causa);
+  return g;
+}
+
 async function pintaMedicion() {
   const tabla = $("med-tabla");
   const cab = $("med-modelo");
@@ -990,6 +1055,8 @@ async function pintaMedicion() {
     const d = await r.json();
     const por = {};
     d.metricas.forEach((m) => { por[m.clave] = m; });
+    (d.espejo || []).forEach((m) => { por[m.clave] = m; });
+    pintaEspejo(por);
 
     // La cabecera: que cerebro y de que base sale. `modelo_base` es
     // obligatorio en la norma, asi que si falta se dice, y no se omite.
