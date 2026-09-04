@@ -1,5 +1,11 @@
 <!doctype html>
-<html lang="es">
+<!-- `data-tema="oscuro"` va en el marcado y no lo pone el javascript: entre
+     que la hoja pinta y que el guion corre hay un instante, y en ese instante
+     la pantalla saldria clara para volverse oscura -- un destello blanco en la
+     apertura, que es justo donde el producto se presenta. Firmado 2026-09-04:
+     oscuro por defecto. Quien elija otra cosa la guarda, y el guion la aplica
+     encima de esta. -->
+<html lang="es" data-tema="oscuro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=31">
+<link rel="stylesheet" href="/dashboard.css?v=44">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -17,6 +23,15 @@
 <div class="telon" id="telon" aria-hidden="true">
   <div class="telon-busto"></div>
   <h1 class="marca"><span class="marca-nombre">Preceptor</span><span class="marca-os">OS</span></h1>
+</div>
+
+<!-- La eleccion de idioma, y solo la primera vez. Va entre el telón y el home
+     porque es lo primero que hay que decidir: todo lo que viene despues está
+     escrito en algún idioma, y adivinarlo por el del navegador es suponer.
+     Quien ya eligió no la vuelve a ver. -->
+<div class="eleccion" id="eleccion" hidden>
+  <h2 class="eleccion-titulo" id="eleccion-titulo"></h2>
+  <div class="eleccion-cajas" id="eleccion-cajas"></div>
 </div>
 
 <!-- Capa 2 · el cabezal. La rueda no estrena mecanismo: lleva `data-cajon` y
@@ -204,7 +219,7 @@
      2026-09-04. Como cajón bajo dejaba su contenido en un cuarto de pantalla
      con desplazamiento propio: se podía abrir el Manifiesto y no leerlo. -->
 <section class="cajon pleno" id="cajon-perfil" aria-label="Perfil" hidden>
-  <button class="cerrar" type="button" data-volver aria-label="Cerrar">
+  <button class="cerrar" type="button" data-cerrar aria-label="Cerrar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
          stroke-linecap="round" aria-hidden="true">
       <path d="M 6 6 L 18 18"></path><path d="M 18 6 L 6 18"></path>
@@ -223,15 +238,12 @@
     <input id="p-nombre" type="text" autocomplete="off"></label>
   <label class="campo"><span id="et-intereses"></span>
     <input id="p-intereses" type="text" autocomplete="off"></label>
-  <label class="campo"><span id="et-idioma"></span>
-    <!-- Cada idioma se escribe en su idioma. Un selector que dice «Spanish»
-         en inglés obliga a saber inglés para elegir castellano, que es
-         exactamente la barrera que estos idiomas vienen a quitar. -->
-    <select id="p-idioma">
-      <option value="es">Español</option>
-      <option value="en">English</option>
-      <option value="pt">Português</option>
-    </select></label>
+  <div class="campo"><span id="et-idioma"></span>
+    <!-- Las mismas cajas que la pantalla de elección, no un desplegable: quien
+         eligió al entrar reconoce el control al volver a él. Un desplegable
+         además obliga a leer su rótulo, que está en un idioma que quizá no sea
+         el de quien mira — justo el problema que esto viene a resolver. -->
+    <div class="eleccion-cajas dentro" id="p-idioma" role="radiogroup"></div></div>
 
   <!-- El tema. «Como el sistema» es lo primero y es el valor de fábrica: la
        decisión firmada el 2026-09-04 es que el sistema manda por defecto. Las
@@ -298,7 +310,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=31"></script>
+<script src="/dashboard.js?v=42"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

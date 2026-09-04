@@ -24,7 +24,14 @@
   --capa-1-chat:    10;   /* la conversacion, que es el suelo */
   --capa-2-cabezal: 20;   /* rueda, nombre, ajustes */
   --capa-3-lateral: 30;   /* el desplegable, que pisa a la 2 y a la 1 */
-  --capa-4-cara:    40;   /* la esfera. No la tapa nadie */
+  --capa-4-cara:    40;   /* la esfera. No la tapa nadie de las de abajo */
+  /* La 5 es la excepcion, y por eso es una capa y no un caso: los ajustes a
+     pantalla completa SI pisan la cara. Las capas 1 a 3 conviven con ella --se
+     usan mirandola-- y la 5 no: quien abre los ajustes ha salido de la
+     conversacion, y dejar la cara flotando encima de sus opciones seria decir
+     que sigue dentro. Firmado por el Soberano el 2026-09-04. */
+  --capa-5-pleno:   50;
+  --capa-eleccion:  80;   /* la primera pregunta, encima del tablero */
   --capa-telon:     90;   /* el despertar, por encima de todo al arrancar */
   /* La cara y sus tiempos. Mismos nombres y mismos valores que en la web
      (`widget.css`), para que una sola cifra no viva en dos sitios diciendo
@@ -73,6 +80,7 @@
      claro tira a marmol y en oscuro se funde con la lamina, y en los dos casos
      la cara conserva su temperatura. */
   --disco-cara:    #f4f1f8;
+  --sombra-lateral: rgba(76,63,181,.35);
   --anim-apertura: 5.1s;    /* 4,25 compases x 1,2 · ver `despertar` */
   --anim-reposo: 38.4s;     /* 9,6 s por color · el fundido va atado */
   --anim-habla: .864s;
@@ -1139,6 +1147,7 @@ body.chat-activo .cabezal { opacity: .35; }
   --n-mando-tinta:   #f0eaff;
   --n-mando-sombra:  rgba(0,0,0,.5);
   --n-disco-cara:    #3b2f63;
+  --n-sombra-lateral: rgba(0,0,0,.55);
   --n-velo-chat: rgba(255,255,255,.06);
   --n-barra-fondo: rgba(30,25,41,.92);
   --n-borde-busto: #8f7dff;
@@ -1160,10 +1169,12 @@ body.chat-activo .cabezal { opacity: .35; }
   --mando-fondo: var(--n-mando-fondo);
   --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
     --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
+    --sombra-lateral: var(--n-sombra-lateral);
     --marmol: var(--n-marmol);
     --mando-fondo: var(--n-mando-fondo);
     --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
     --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
+    --sombra-lateral: var(--n-sombra-lateral);
   }
 }
 :root[data-tema="oscuro"] {
@@ -1177,6 +1188,16 @@ body.chat-activo .cabezal { opacity: .35; }
   --borde-busto: var(--n-borde-busto);
   --sombra-busto: var(--n-sombra-busto);
   --velo-chat: var(--n-velo-chat); --barra-fondo: var(--n-barra-fondo);
+  --marmol: var(--n-marmol);
+  --mando-fondo: var(--n-mando-fondo);
+  --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
+  --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
+    --sombra-lateral: var(--n-sombra-lateral);
+  --marmol: var(--n-marmol);
+  --mando-fondo: var(--n-mando-fondo);
+  --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
+  --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
+    --sombra-lateral: var(--n-sombra-lateral);
 }
 /* El campo de escribir y las cajas de texto traian el blanco cosido en el
    valor, no en una variable, asi que en oscuro se quedaban blancas con letra
@@ -1324,7 +1345,8 @@ body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
      eso; uno a pantalla completa, no -- sin `fixed` el `inset: 0` no lo hace
      ocupar la ventana, lo deja en el flujo con el alto que tenga. Se midio en
      el navegador: salia de 379 px en una ventana de 812. */
-  position: fixed; inset: 0; max-height: none; border-radius: 0;
+  position: fixed; inset: 0; z-index: var(--capa-5-pleno);
+  max-height: none; border-radius: 0;
   transform: translateY(-100%);
   padding-top: calc(1rem + env(safe-area-inset-top));
 }
@@ -1362,3 +1384,86 @@ body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
   .cajon.pleno { max-width: none; inset: 0; transform: translateY(-100%); }
   .cajon.pleno.abierto { transform: translateY(0); }
 }
+
+/* --- la eleccion de idioma, una sola vez ---------------------------------
+   Ocupa la pantalla entera y va por debajo del telón: primero se presenta el
+   producto, luego se pregunta. Cubre el tablero en vez de convivir con él
+   porque no es una preferencia más — es la condición de todo lo que se lee
+   después, y ofrecerla junto al chat invitaría a ignorarla y quedarse en un
+   idioma que nadie eligió. */
+.eleccion {
+  position: fixed; inset: 0; z-index: var(--capa-eleccion);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.4rem; padding: 1.5rem;
+  background: var(--fondo) var(--marmol) 0 0 / 340px auto repeat;
+}
+.eleccion[hidden] { display: none; }
+.eleccion-titulo {
+  margin: 0; max-width: 22rem; text-align: center;
+  font-size: 1.15rem; font-weight: 800; line-height: 1.4; color: var(--ink);
+}
+/* En recuadros y no en un desplegable: los idiomas que hay se ven todos a la
+   vez, y cada uno escrito en el suyo. Un desplegable los esconde detrás de un
+   toque y, sobre todo, obliga a leer el rótulo del desplegable — que está en
+   un idioma que quizá no sea el de quien mira. */
+.eleccion-cajas {
+  display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center;
+  max-width: 26rem;
+}
+.eleccion-caja {
+  min-width: 8.5rem; min-height: 56px; padding: .7rem 1.2rem;
+  font: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+  color: var(--mando-tinta); background: var(--mando-fondo);
+  border: 2px solid var(--mando-aro); border-radius: var(--radio);
+  box-shadow: 0 2px 10px var(--mando-sombra);
+}
+.eleccion-caja:focus-visible { outline: 2px solid var(--violeta); outline-offset: 3px; }
+
+/* Las mismas cajas dentro de Ajustes: más pequeñas, porque ahí conviven con el
+   resto de campos y no son la única pregunta de la pantalla. */
+.eleccion-cajas.dentro { max-width: none; gap: .4rem; justify-content: flex-start; }
+.eleccion-cajas.dentro .eleccion-caja {
+  min-width: 0; min-height: 42px; padding: .35rem .8rem; font-size: .82rem;
+  border-width: 1px; box-shadow: none;
+}
+.eleccion-cajas.dentro .eleccion-caja[aria-checked="true"] {
+  color: #fff; background: var(--violeta); border-color: var(--violeta);
+}
+
+/* El lateral, ajustado al contorno de la esfera. Firmado el 2026-09-04 tras
+   verlo en el Doogee: con rótulos largos el panel llegaba hasta debajo de la
+   cara, y como la Capa 4 va por encima de la 3 —que es la doctrina— la cara se
+   pintaba sobre el menú y cortaba las palabras a la mitad.
+
+   La cura no es tapar la cara ni apartarla: es UNA palabra por entrada. Cada
+   una se llama como el cajón que abre —Medición, Camino, Memoria, Proyectos,
+   Frontera— que además es el nombre que la persona ya conoce. Con eso el panel
+   cabe a la izquierda del círculo y nada se solapa.
+
+   El bloque violeta macizo se va con ellos: cinco pastillas sueltas dejan ver
+   el mármol entre medias, y lo que antes era un rectángulo que chocaba con un
+   círculo pasa a ser una columna que lo acompaña. */
+.lateral { width: auto; padding: .4rem; background: transparent; box-shadow: none; }
+/* En el violeta de la casa, no en el bronce. El bronce es de los mandos del
+   cabezal --la rueda y el propio boton-- porque ahi hace falta separarlos del
+   marmol con un color que las vetas no tienen. Estas pastillas no compiten con
+   el marmol: son el menu, y el menu de esta casa es violeta desde que se
+   escribio la Capa 3. Dos familias de color con dos trabajos, no una mezcla. */
+.lateral button {
+  width: auto; margin-bottom: .32rem; padding: .44rem .95rem;
+  font-size: .8rem; font-weight: 700;
+  background: var(--violeta); color: #fff;
+  border: 1px solid var(--violeta-hondo); border-radius: 999px;
+  box-shadow: 0 2px 10px var(--sombra-lateral);
+}
+.lateral button:last-child { margin-bottom: 0; }
+.lateral button:hover, .lateral button:focus-visible {
+  background: var(--violeta-hondo); border-color: var(--violeta);
+}
+
+/* El canto metálico, fuera del pleno. Existe para un cajón que se asoma desde
+   abajo: le da filo a un panel pequeño sobre el mármol. En uno a pantalla
+   completa no hay panel que filetear —el panel ES la pantalla— y el anillo
+   acababa dibujando una banda oscura a media altura, justo por encima de
+   «Guardar». Visto en el Doogee el 2026-09-04. */
+.cajon.pleno::before { display: none; }

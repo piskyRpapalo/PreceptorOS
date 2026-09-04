@@ -459,6 +459,42 @@ def t_cara_sin_texto_suelto():
         "\n  ".join(f"{r}: {t!r}" for r, t in sueltos))
 
 
+@caso("toda clave que la cara USA esta declarada en los diccionarios")
+def t_claves_usadas_existen():
+    """Un `t("algo")` sin entrada en el diccionario no falla: pinta vacio.
+
+    Ese es el problema. Se vio el 2026-09-04 con `elige_idioma`: la pantalla de
+    eleccion de idioma salio con las tres cajas y SIN titulo, porque la clave se
+    uso en el codigo y nunca llego al diccionario. Ninguna prueba lo vio -- la
+    de simetria compara los idiomas ENTRE ELLOS, y los tres carecian de ella por
+    igual, asi que estaban perfectamente simetricos en su hueco.
+
+    La web ya tenia esta comprobacion desde hace tiempo (`claves_que_usa` en
+    `test_web.py`); la cara del MVP no. Aqui se le pone.
+    """
+    for fichero in ("interface/dashboard.js", "interface/app.js"):
+        crudo = open(os.path.join(AQUI, fichero), encoding="utf-8").read()
+        sin_comentarios = re.sub(r"/\*.*?\*/", "", crudo, flags=re.S)
+        sin_comentarios = re.sub(r"(?m)//.*$", "", sin_comentarios)
+        usadas = set(re.findall(r'\bt\("([a-z_0-9]+)"\)', sin_comentarios))
+        if not usadas:
+            continue
+        m = re.search(r"\n\s{2,4}es:\s*\{", crudo)
+        if not m:
+            continue
+        trozo, prof = "", 0
+        for ch in crudo[m.end() - 1:]:
+            trozo += ch
+            prof += (ch == "{") - (ch == "}")
+            if prof == 0:
+                break
+        declaradas = set(re.findall(r"[\n,{]\s*([a-z_0-9]+)\s*:", trozo))
+        faltan = usadas - declaradas
+        assert not faltan, (
+            f"{fichero} usa claves que no estan en el diccionario: "
+            f"{sorted(faltan)} -- saldran vacias en pantalla")
+
+
 @caso("todos los diccionarios de la cara tienen las MISMAS claves")
 def t_diccionarios_simetricos():
     """Una clave que existe en un idioma y no en el otro es una fuga con fecha."""

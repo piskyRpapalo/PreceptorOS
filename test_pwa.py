@@ -676,6 +676,55 @@ class TestElDespertarOcurreUnaVez(unittest.TestCase):
                           f"la nombra: se movera igual para quien pidio que no")
 
 
+class TestElTemaOscuroSeDeclaraDosVeces(unittest.TestCase):
+    """Las dos puertas al tema oscuro tienen que abrir la MISMA habitacion.
+
+    El tema oscuro se declara dos veces por necesidad: una bajo
+    `prefers-color-scheme`, para quien no elige, y otra bajo `[data-tema]`,
+    para quien si. El css no tiene forma de compartir un bloque entre un
+    `@media` y un selector normal, asi que el mapeo se escribe dos veces -- y
+    dos listas a mano SIEMPRE se separan.
+
+    Se separaron. Medido en el Doogee el 2026-09-04: con el sistema en claro y
+    el atributo puesto, la app salia a medias -- campos oscuros, aros de bronce
+    y el marmol CLARO de fondo, con el texto de bienvenida casi invisible
+    encima. Seis variables estaban en el bloque del sistema y no en el del
+    atributo, entre ellas el fondo. En el escritorio no se veia, porque alli el
+    sistema ya pedia oscuro y mandaba el otro bloque.
+
+    Esta prueba no comprueba los VALORES: comprueba que los dos bloques hablen
+    de las mismas variables. Que valgan lo mismo es cosa de que las dos apunten
+    a la familia `--n-*`, que es justo para lo que existe.
+    """
+
+    def test_los_dos_bloques_oscuros_mapean_las_mismas_variables(self):
+        import re
+        css = open(os.path.join(AQUI, "interface", "dashboard.css"),
+                   encoding="utf-8").read()
+
+        def variables(patron):
+            m = re.search(patron, css, re.S)
+            self.assertIsNotNone(m, f"no encuentro el bloque: {patron}")
+            return set(re.findall(r"(--[a-z-]+):\s*var\(--n-", m.group(1)))
+
+        por_sistema = variables(
+            r"@media \(prefers-color-scheme: dark\) \{(.*?)\n\}\n")
+        por_atributo = variables(
+            r':root\[data-tema="oscuro"\] \{(.*?)\n\}')
+
+        self.assertTrue(por_sistema, "el bloque del sistema no mapea nada")
+        solo_sistema = por_sistema - por_atributo
+        solo_atributo = por_atributo - por_sistema
+        self.assertFalse(
+            solo_sistema,
+            f"estas variables solo cambian cuando el SISTEMA pide oscuro, no "
+            f"cuando lo pide la persona: {sorted(solo_sistema)}")
+        self.assertFalse(
+            solo_atributo,
+            f"estas variables solo cambian con el interruptor, no cuando el "
+            f"sistema pide oscuro: {sorted(solo_atributo)}")
+
+
 class TestLaCaraNoSeApaga(unittest.TestCase):
     """Ninguna animacion de la cara puede hacerla desaparecer.
 

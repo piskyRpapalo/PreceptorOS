@@ -15,6 +15,7 @@ let idioma = "es";
  * falta, y aqui se ve de un vistazo. */
 const T = {
   es: {
+    elige_idioma: "¿En qué idioma quieres que hablemos?",
     listo: "escribe aquí",
     sin_cerebro: "puedo preguntar y recordar, todavía no conversar",
     sin_servidor: "no alcanzo al servidor",
@@ -88,9 +89,9 @@ const T = {
     et_tema: "Tema", tema_sistema: "Como el sistema",
     tema_claro: "Claro", tema_oscuro: "Oscuro",
     sin_nombre: "sin nombre todavía",
-    lat_medir: "Medir este cerebro", lat_camino: "Ver el Camino",
-    lat_memoria: "Abrir la memoria", lat_proyectos: "Mis proyectos",
-    lat_frontera: "Qué sale de aquí",
+    lat_medir: "Medición", lat_camino: "Camino",
+    lat_memoria: "Memoria", lat_proyectos: "Proyectos",
+    lat_frontera: "Frontera",
     at_resume: "Resume esto", at_pasos: "Dame los pasos",
     at_dudas: "Qué te falta saber",
     ph_dicho: "Escribe aquí",
@@ -105,6 +106,7 @@ const T = {
     saluda: "Soy tu Preceptor y vivo en esta máquina: lo que escribes aquí no sale de ella. Puedo recordar lo que me cuentes, ayudarte a llevar tus proyectos y decirte cuándo no sé algo. Escribe abajo, o toca uno de los atajos.",
   },
   en: {
+    elige_idioma: "Which language shall we speak?",
     listo: "write here",
     sin_cerebro: "I can ask and remember, not converse yet",
     sin_servidor: "cannot reach the server",
@@ -178,9 +180,9 @@ const T = {
     et_tema: "Theme", tema_sistema: "Follow the system",
     tema_claro: "Light", tema_oscuro: "Dark",
     sin_nombre: "no name yet",
-    lat_medir: "Measure this brain", lat_camino: "See the Path",
-    lat_memoria: "Open the memory", lat_proyectos: "My projects",
-    lat_frontera: "What leaves this machine",
+    lat_medir: "Measure", lat_camino: "Path",
+    lat_memoria: "Memory", lat_proyectos: "Projects",
+    lat_frontera: "Frontier",
     at_resume: "Sum this up", at_pasos: "Give me the steps",
     at_dudas: "What are you missing",
     ph_dicho: "Write here",
@@ -195,6 +197,7 @@ const T = {
     saluda: "I am your Preceptor and I live on this machine: what you write here never leaves it. I can remember what you tell me, help you carry your projects, and say when I do not know something. Write below, or tap one of the shortcuts.",
   },
   pt: {
+    elige_idioma: "Em que idioma queres que falemos?",
     listo: "escreve aqui",
     sin_cerebro: "posso perguntar e recordar, ainda não conversar",
     sin_servidor: "não alcanço o servidor",
@@ -268,9 +271,9 @@ const T = {
     et_tema: "Tema", tema_sistema: "Como o sistema",
     tema_claro: "Claro", tema_oscuro: "Escuro",
     sin_nombre: "ainda sem nome",
-    lat_medir: "Medir este cérebro", lat_camino: "Ver o Caminho",
-    lat_memoria: "Abrir a memória", lat_proyectos: "Os meus projetos",
-    lat_frontera: "O que sai daqui",
+    lat_medir: "Medição", lat_camino: "Caminho",
+    lat_memoria: "Memória", lat_proyectos: "Projetos",
+    lat_frontera: "Fronteira",
     at_resume: "Resume isto", at_pasos: "Dá-me os passos",
     at_dudas: "O que te falta saber",
     ph_dicho: "Escreve aqui",
@@ -324,7 +327,13 @@ function cerrar() {
   document.querySelectorAll("[data-cajon]").forEach((b) =>
     b.setAttribute("aria-expanded", "false"));
 }
-document.querySelectorAll("[data-volver]").forEach((b) =>
+/* Dos formas de cerrar y DOS enganches, no uno. `data-volver` es un enlace de
+ * texto --«← Volver»-- y el pintado de rotulos le escribe encima en cada
+ * idioma; `data-cerrar` es el aspa de la Capa 5, que lleva un dibujo dentro.
+ * Con un solo enganche, el pintado le borraba el aspa y le dejaba el texto:
+ * dos controles distintos no pueden compartir la marca que decide que se les
+ * escribe encima. */
+document.querySelectorAll("[data-volver], [data-cerrar]").forEach((b) =>
   b.addEventListener("click", cerrar));
 document.querySelectorAll("[data-cajon]").forEach((b) =>
   b.addEventListener("click", () => abrir(b.dataset.cajon)));
@@ -341,6 +350,75 @@ document.querySelectorAll(".cajon").forEach((c) => {
   }, { passive: true });
 });
 
+/* --- la eleccion de idioma, una sola vez ---------------------------------
+ * Se ensena entre el telon y el home la primera vez, y nunca mas. Va ahi y no
+ * dentro de Ajustes porque todo lo que viene despues esta escrito en algun
+ * idioma: preguntarlo despues seria ensenar una pantalla en un idioma para
+ * preguntar en cual se quiere leer.
+ *
+ * Y no se adivina por el del navegador. Se puede leer `navigator.language`, y
+ * es un dato util, pero elegir por el es suponer: mucha gente usa el sistema en
+ * un idioma y prefiere leer en otro. Se pregunta, que cuesta un toque.
+ *
+ * La marca de «ya elegido» vive en este aparato, no en el perfil: el perfil
+ * viaja con la persona y esta pregunta es de la instalacion. */
+function yaEligio() {
+  try { return localStorage.getItem("idioma-elegido") === "si"; }
+  catch (_) { return true; }        // sin donde guardar, no se pregunta cada vez
+}
+
+/* El mismo control en los dos sitios: la pantalla de eleccion y Ajustes. Se
+ * dibuja una vez y se usa dos, para que no puedan divergir -- que es lo que
+ * pasa siempre con dos listas del mismo dato en dos ficheros. */
+function cajasIdioma(caja, puesto, alElegir) {
+  caja.textContent = "";
+  for (const [codigo, nombre] of Object.entries(nombres)) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "eleccion-caja";
+    b.lang = codigo;
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(codigo === puesto));
+    b.textContent = nombre;
+    b.addEventListener("click", () => alElegir(codigo));
+    caja.appendChild(b);
+  }
+}
+
+async function guardaIdioma(codigo) {
+  idioma = codigo;
+  try {
+    await fetch("/api/perfil", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: codigo }),
+    });
+  } catch { /* sin servidor la eleccion vale igual para esta sesion */ }
+  pulso();
+}
+
+function pintaEleccion() {
+  const caja = $("eleccion");
+  if (!caja || yaEligio()) return;
+  $("eleccion-titulo").textContent = t("elige_idioma");
+  cajasIdioma($("eleccion-cajas"), idioma, async (codigo) => {
+    try { localStorage.setItem("idioma-elegido", "si"); } catch (_) { /* sin sitio */ }
+    caja.hidden = true;
+    await guardaIdioma(codigo);
+  });
+  caja.hidden = false;
+}
+
+/* Los nombres, cada uno en SU idioma. Un selector que dice «Spanish» en ingles
+ * obliga a saber ingles para elegir castellano, que es la barrera que estos
+ * idiomas vienen a quitar. Salen de aqui y no del diccionario porque no se
+ * traducen: son nombres propios.
+ *
+ * En minuscula, aunque la convencion de JS pida versales para una constante:
+ * en este directorio la regla de la casa gana a la del lenguaje, porque un
+ * nombre en versales dispara la misma guardia que un texto en versales. Es la
+ * misma nota que lleva `ausente` unas lineas mas abajo. */
+const nombres = { es: "Español", en: "English", pt: "Português" };
+
 /* --- la primera linea, para quien acaba de entrar ------------------------
  * El hueco de conversacion nacia vacio. Medido entrando como usuario nuevo el
  * 2026-09-04: se ve una cara, un boton y un marco de bronce con nada dentro, y
@@ -356,7 +434,14 @@ document.querySelectorAll(".cajon").forEach((c) => {
  * conversacion que ya empezo. */
 function saluda() {
   const d = $("dice");
-  if (!d || d.children.length) return;
+  if (!d) return;
+  const ya = d.firstElementChild;
+  // Si la bienvenida ya esta, se reescribe en vez de dejarla: al cambiar de
+  // idioma seguia en el anterior, porque la condicion era «no hay nada» y si
+  // habia algo -- ella misma. La linea de bienvenida es la unica del hueco que
+  // no es un turno, asi que rehacerla no pisa nada de lo que se haya hablado.
+  if (ya && ya.className === "saluda") { ya.textContent = t("saluda"); return; }
+  if (d.children.length) return;
   const p = document.createElement("p");
   p.className = "saluda";
   p.textContent = t("saluda");
@@ -447,9 +532,13 @@ function aplicaTema(cual) {
   if (cual === "claro" || cual === "oscuro") raiz.setAttribute("data-tema", cual);
   else raiz.removeAttribute("data-tema");
 }
+/* Oscuro por defecto, firmado el 2026-09-04. Antes era «sistema», que en una
+ * maquina en claro daba una interfaz clara: se decidio que la piel oscura es
+ * la del producto, no una preferencia heredada. «Sistema» sigue estando -- es
+ * una opcion mas del interruptor, no el punto de partida. */
 function temaGuardado() {
-  try { return localStorage.getItem("tema") || "sistema"; }
-  catch (_) { return "sistema"; }
+  try { return localStorage.getItem("tema") || "oscuro"; }
+  catch (_) { return "oscuro"; }
 }
 aplicaTema(temaGuardado());
 
@@ -549,7 +638,13 @@ async function pulso() {
 }
 
 function pintarEstado(d) {
-  idioma = d.idioma === "en" ? "en" : "es";
+  // El idioma que manda el servidor vale si el tablero sabe hablarlo. Esta
+  // linea decia `d.idioma === "en" ? "en" : "es"`, la misma coercion de dos
+  // idiomas que ya se corrigio en `cargarPerfil` -- y esta, que corre en cada
+  // pulso, pisaba a aquella: se elegia portugues, se guardaba bien, y al
+  // siguiente pulso volvia a castellano sin que nada lo dijera. Dos sitios con
+  // la misma regla escrita a mano, y arreglar uno solo no arregla nada.
+  idioma = T[d.idioma] ? d.idioma : "es";
   document.documentElement.lang = idioma;
   if ($("pulso")) $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
   rotulo();
@@ -559,6 +654,7 @@ function pintarEstado(d) {
   // una alternativa sin la otra opcion, ofreciendo algo que no esta.
   $("dicho").placeholder = t("ph_dicho");
   saluda();
+  pintaEleccion();
   // Las etiquetas del marco tambien: estaban escritas en el HTML y por eso
   // no cambiaban. Un tablero que declara hablar dos idiomas y solo traduce
   // los mensajes esta a medio traducir, que se nota mas que no traducir.
@@ -880,7 +976,10 @@ async function cargarPerfil() {
     // selector volvia a ensenar «Español» y la persona no entendia por que su
     // eleccion no se quedaba. El diccionario es quien sabe que idiomas hay.
     const idi = sinNoData(d.campos.language) || "es";
-    $("p-idioma").value = T[idi] ? idi : "es";
+    cajasIdioma($("p-idioma"), T[idi] ? idi : "es", async (codigo) => {
+      await guardaIdioma(codigo);
+      cargarPerfil();
+    });
     pintaQuien(sinNoData(d.campos.name));
     pintaIdentidad(d);
   } catch { /* el pulso ya dice que no hay servidor */ }
@@ -939,7 +1038,6 @@ $("p-guardar").addEventListener("click", async () => {
   const cuerpo = {
     name: $("p-nombre").value,
     intereses: $("p-intereses").value,
-    language: $("p-idioma").value,
     instrucciones: $("p-instrucciones").value,
   };
   try {
