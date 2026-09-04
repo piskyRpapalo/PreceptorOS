@@ -76,6 +76,7 @@
   --anim-apertura: 5.1s;    /* 4,25 compases x 1,2 · ver `despertar` */
   --anim-reposo: 38.4s;     /* 9,6 s por color · el fundido va atado */
   --anim-habla: .864s;
+  --anim-pensar: 1.6s;   /* cinco laminas · 320 ms cada una */
 
   --violeta:      #6d5ae0;
   --violeta-hondo:#4c3fb5;
@@ -169,7 +170,8 @@ body {
    este bloque, y por eso se escribe antes que el codigo.
 
    `cara-secuencia-apertura-256.webp` · siete fotogramas, 1792x256. Al 700 %.
-   `cara-secuencia-reposo-256-tres.webp` · tres colores, 768x256. Al 367,5 %.
+   `cara-reposo-violeta-256.webp`     · una cara quieta, 256x256. Al 122,5 %.
+  `cara-secuencia-pensando-256.webp` · cinco laminas, 1280x256. Al 612,5 %.
 
   Por que tres y no cuatro, que es la aritmetica que mas facil se rompe aqui.
   La tira original traia cuatro, y el tercero salio vacio al recortarle el
@@ -243,8 +245,8 @@ body {
      apoyarse en marmol claro, y su alfa deja pasar lo que haya debajo.
      Poniendoles su propio disco, la cara se ve igual con las dos pieles y el
      tema sigue mandando en todo lo demas. */
-  background: var(--disco-cara) url("/assets/cara-secuencia-reposo-256-tres.webp")
-              4.206% 50% / 367.5% auto no-repeat;
+  background: var(--disco-cara) url("/assets/cara-reposo-violeta-256.webp")
+              50% 50% / 122.5% auto no-repeat;
 }
 
 /* La apertura, y por que no es `steps()`.
@@ -304,27 +306,16 @@ body {
    `respirar` se queda: mueve la Sombra, no la imagen, y es lo que impide que
    una cara quieta se lea como una aplicacion colgada. */
 .busto.despierto {
-  background-image: url("/assets/cara-secuencia-reposo-256-tres.webp");
-  background-size: 367.5% auto;
-  /* `fundido` fuera. Bajaba la opacidad a .55 en cada salto de color para
-     tapar el corte, y el precio era una cara que se desvanecia a medias varias
-     veces por minuto -- «se vuelve invisible», dicho por el Soberano el
-     2026-09-04. Se prefiere el corte limpio: un salto de color se lee como un
-     cambio, y una cara medio transparente se lee como una averia. */
-  /* `steps(4)` y no `steps(3)`. `jump-none` da exactamente n paradas, no n+1:
-     con 3 sobre una tira de cuatro colores las paradas caian en 0, 50 y 100 %,
-     y el 50 % no es ningun cuadro -- es la juntura entre el segundo y el
-     tercero. Se veia medio de cada uno, o sea un circulo casi vacio. El fallo
-     venia de antes; el zoom solo lo hizo visible, porque al ensanchar la tira
-     la juntura pasa de un hilo a un dedo. Cuatro colores son cuatro paradas.
-     El fichero ya lo sabia en la apertura: «seis valores son steps(6), no
-     siete». Aqui se conto mal el mismo dia. */
-  animation: reposo var(--anim-reposo) steps(3, jump-none) infinite,
-             respirar 3.6s ease-in-out infinite;
-}
-@keyframes reposo {
-  from { background-position:  4.206% 50%; }
-  to   { background-position: 95.794% 50%; }
+  /* Quieta, y solo respira. El ciclo de colores se retiro el 2026-09-04: eran
+     tres caras --violeta, azul y ambar-- y el salto de una a otra ensuciaba
+     justo lo que ahora importa, que es la transicion a pensar y a hablar. Una
+     cara que cambia de color sola tampoco decia nada: el color no significaba
+     ningun estado. El movimiento que queda es la Sombra, que es lo que impide
+     que una cara fija se lea como una aplicacion colgada. */
+  background-image: url("/assets/cara-reposo-violeta-256.webp");
+  background-size: 122.5% auto;
+  background-position: 50% 50%;
+  animation: respirar 3.6s ease-in-out infinite;
 }
 @keyframes respirar {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -345,7 +336,24 @@ body {
    ritmo constante. Eso no es un defecto estetico: es un riesgo para personas
    con epilepsia fotosensible. Ninguna animacion de esta cara puede apagarla;
    solo puede cambiarla. */
+/* Pensar y hablar son DOS cosas distintas desde el 2026-09-04, y antes eran
+   una: mientras el modelo generaba se movia la boca, o sea que la cara hablaba
+   sin haber dicho nada todavia. Ahora piensa mientras piensa --cinco laminas
+   del ojo, en bucle-- y mueve la boca cuando el texto llega. Las dos tiras
+   comparten el encuadre de reposo, medido cuadro a cuadro, asi que el paso de
+   una a otra no mueve la cabeza. */
 .busto.piensa {
+  background-image: url("/assets/cara-secuencia-pensando-256.webp");
+  background-size: 612.5% auto;
+  opacity: 1;
+  animation: pensar var(--anim-pensar) steps(5, jump-none) infinite,
+             latir 2.88s ease-in-out infinite;
+}
+@keyframes pensar {
+  from { background-position:  2.195% 50%; }
+  to   { background-position: 97.805% 50%; }
+}
+.busto.habla {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
   background-size: 490% auto;
   opacity: 1;
@@ -373,11 +381,11 @@ body {
    ultimo fotograma de la apertura, que es la cara de casa. Ni entrada, ni
    ciclo, ni boca, ni fundido. Solo el borde, que informa sin moverse. */
 @media (prefers-reduced-motion: reduce) {
-  .busto, .busto.despierto, .busto.piensa, .busto.gesto {
+  .busto, .busto.despierto, .busto.piensa, .busto.habla, .busto.gesto {
     animation: none; opacity: 1;
-    background-image: url("/assets/cara-secuencia-reposo-256-tres.webp");
-    background-size: 367.5% auto;
-    background-position: 4.206% 50%;
+    background-image: url("/assets/cara-reposo-violeta-256.webp");
+    background-size: 122.5% auto;
+    background-position: 50% 50%;
   }
 }
 

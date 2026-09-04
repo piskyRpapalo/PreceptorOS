@@ -719,7 +719,16 @@ async function turno(texto) {
     limpiar();
     linea(t("sin_red"), "malo");
   }
-  $("busto").classList.remove("piensa");
+  /* Pensar termina y empieza a hablar. La respuesta llega entera --no hay
+   * streaming-- asi que la boca se mueve mientras el texto acaba de aparecer y
+   * se para sola: dos vueltas de la tira de habla, que es lo que dura leer la
+   * primera linea. Dejarla moviendose despues seria una cara que sigue
+   * hablando cuando ya no dice nada. */
+  const cara = $("busto");
+  cara.classList.remove("piensa");
+  cara.classList.add("habla");
+  clearTimeout(cara._callar);
+  cara._callar = setTimeout(() => cara.classList.remove("habla"), 1730);
   pulso();
 }
 
