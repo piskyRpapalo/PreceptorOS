@@ -74,11 +74,13 @@ ROTULOS = {
         "memoria": ("Esto lo escribió la persona con la que hablas, en su "
                     "propia memoria. Úsalo si viene a cuento, con sus palabras:"),
         "proyectos": "Lo que tiene entre manos ahora mismo:",
+        "perfil": "Lo que te ha contado de sí misma:",
     },
     "en": {
         "memoria": ("The person you are talking to wrote this in their own "
                     "memory. Use it if it is relevant, in their words:"),
         "proyectos": "What they have in hand right now:",
+        "perfil": "What they have told you about themselves:",
     },
 }
 
@@ -255,7 +257,71 @@ def _cabe(partes, techo):
     return "\n".join(puestas)
 
 
-def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None):
+# --- las dos perillas del Laboratorio ---------------------------------------
+#
+# Se aceptan HOY aunque su interfaz no exista todavia. El motivo no es adelantar
+# trabajo: es que el punto de inyeccion es uno solo, y si manana hay que abrirlo
+# otra vez para meter un parametro, se abre con la interfaz ya colgando de el.
+# Aqui son dos argumentos con su valor por defecto; ahi serian una migracion.
+
+# LA PROFUNDIDAD · cuanto contexto viaja. El deslizador es 0-100 continuo, asi
+# que se mapea por bandas y no por los cinco valores exactos: un 63 tiene que
+# significar algo, no caerse al suelo.
+#
+# `perfil` es nombre e intereses, NO instrucciones -- esas ya viajan dentro del
+# prompt de sistema, y meterlas otra vez aqui las mandaria dos veces en cada
+# turno pagando dos veces su sitio en la ventana.
+PROFUNDIDADES = (
+    #  hasta, perfil, memorias, proyectos
+    (13,      False,  0,        False),   # 0 · turno aislado
+    (38,      True,   0,        False),   # 25 · solo perfil
+    (63,      True,   1,        False),   # 50 · perfil + la memoria mas cercana
+    (88,      True,   3,        True),    # 75 · perfil + top-3 + proyectos
+    (101,     True,   20,       True),    # 100 · todo lo que quepa bajo el techo
+)
+
+# EL FOCO · de donde sale. Vocabulario cerrado, como `proyectos.ESTADOS`: fuera
+# de la lista no hay foco, hay None, y quien llama decide.
+#
+# `proyecto` esta declarado y NO implementado, y se dice en vez de fingirse:
+# `engrams` no tiene columna de proyecto y `proyectos` no tiene lista de
+# engramas -- las dos tablas no se conocen. Filtrar por proyecto no es una
+# consulta que falte escribir, es un dato que no existe. Hasta que el esquema
+# crezca ese enlace, cae a `memoria` y esta fijado por prueba, para que el dia
+# que alguien lo conecte se entere de que habia un contrato esperandolo.
+FOCOS = ("memoria", "proyecto", "perfil", "libre")
+
+
+def _plan(profundidad):
+    """La banda que le toca a un valor del deslizador. None = lo de siempre."""
+    if profundidad is None:
+        return (False, LIMITE, True)
+    try:
+        v = max(0, min(100, int(profundidad)))
+    except (TypeError, ValueError):
+        return (False, LIMITE, True)
+    for hasta, perfil, memorias, proyectos in PROFUNDIDADES:
+        if v < hasta:
+            return (perfil, memorias, proyectos)
+    return (True, 20, True)
+
+
+def _perfil(c):
+    """Nombre e intereses, si los hay. Las instrucciones no: ya viajan."""
+    try:
+        p = M.leer_perfil(c)
+    except Exception:
+        return []
+    fuera = []
+    for clave in ("nombre", "intereses"):
+        valor = (p.get(clave) or "").strip()
+        if valor and valor != "NO_DATA":
+            fuera.append(valor)
+    return fuera
+
+
+def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
+              profundidad=None, foco=None):
     """Lo que la base sabe y viene a cuento, listo para ir delante del modelo.
 
     Devuelve un bloque de texto, o cadena vacía si no hay nada. La cadena vacía
@@ -265,16 +331,41 @@ def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None):
     --encuentra las palabras que se escribieron, no lo que se quiso decir--, y
     eso es una limitación declarada de `memory.buscar`, no un paso intermedio
     hacia otra cosa.
+
+    `profundidad` (0-100) y `foco` (`FOCOS`) son las dos perillas del
+    Laboratorio. Con las dos en None se comporta como el día que nació, que es
+    lo que el producto hace hoy: memorias y proyectos activos bajo el techo.
     """
     rot = ROTULOS[TX.normalizar(idioma)]
 
+    quiere_perfil, cuantas, quiere_proyectos = _plan(profundidad)
+
+    # El foco estrecha las fuentes; la profundidad decide cuánto de cada una.
+    # Un foco fuera del vocabulario no es un foco: se ignora, y se sigue con lo
+    # de siempre, en vez de dejar a alguien sin contexto por una errata.
+    if foco in FOCOS:
+        if foco == "libre":
+            return ""
+        if foco == "perfil":
+            cuantas, quiere_proyectos, quiere_perfil = 0, False, True
+        elif foco in ("memoria", "proyecto"):
+            # `proyecto` cae aquí a propósito: ver FOCOS.
+            quiere_proyectos, quiere_perfil = False, False
+            if not cuantas:
+                cuantas = limite
+
     bloques = []
 
-    recuerdos = _recuerdos(c, consulta, limite, idioma)
+    if quiere_perfil:
+        suyo = _perfil(c)
+        if suyo:
+            bloques.append((rot["perfil"], suyo))
+
+    recuerdos = _recuerdos(c, consulta, cuantas, idioma) if cuantas else []
     if recuerdos:
         bloques.append((rot["memoria"], recuerdos))
 
-    activos = _proyectos(c)
+    activos = _proyectos(c) if quiere_proyectos else []
     if activos:
         bloques.append((rot["proyectos"], activos))
 

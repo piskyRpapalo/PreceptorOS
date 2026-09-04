@@ -149,6 +149,100 @@ class TestRecuperar(unittest.TestCase):
             self.assertIn("huerto", bloque)
 
 
+class TestLasPerillas(unittest.TestCase):
+    """La Profundidad y el Foco. La interfaz no existe todavía; el contrato sí.
+
+    Se prueban HOY porque el punto de inyección es uno solo. El día que lleguen
+    los deslizadores, lo que tengan que mover ya estará fijado por prueba en vez
+    de decidirse entonces contra un backend que no lo esperaba.
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.db = os.path.join(self.tmpdir.name, "memory.db")
+        M.crear(self.db)
+
+    def tearDown(self):
+        self.tmpdir.cleanup()
+
+    def _poblar(self, c):
+        M.guardar_perfil(c, {"nombre": "Marta", "intereses": "la apicultura"})
+        M.escribir_engrama(c, what="las abejas enjambran en mayo")
+        PR.anadir(c, "el colmenar", estado="activo")
+
+    def test_sin_perillas_se_comporta_como_el_dia_que_nacio(self):
+        """El defecto no cambia. Las perillas se añaden, no reemplazan."""
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            bloque = H.recuperar(c, "abejas")
+            self.assertIn("abejas", bloque)
+            self.assertIn("colmenar", bloque)
+
+    def test_profundidad_cero_es_turno_aislado(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            self.assertEqual(H.recuperar(c, "abejas", profundidad=0), "")
+
+    def test_profundidad_veinticinco_es_solo_perfil(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            bloque = H.recuperar(c, "abejas", profundidad=25)
+            self.assertIn("Marta", bloque)
+            self.assertNotIn("enjambran", bloque)
+            self.assertNotIn("colmenar", bloque)
+
+    def test_profundidad_setenta_y_cinco_trae_los_proyectos(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            bloque = H.recuperar(c, "abejas", profundidad=75)
+            self.assertIn("Marta", bloque)
+            self.assertIn("enjambran", bloque)
+            self.assertIn("colmenar", bloque)
+
+    def test_un_valor_intermedio_no_se_cae_al_suelo(self):
+        """El deslizador es continuo: un 63 cae en su banda, no en la de 0."""
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            self.assertNotEqual(H.recuperar(c, "abejas", profundidad=63), "")
+
+    def test_foco_libre_no_inyecta_nada(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            self.assertEqual(H.recuperar(c, "abejas", foco="libre"), "")
+
+    def test_foco_perfil_no_toca_la_busqueda(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            bloque = H.recuperar(c, "abejas", foco="perfil")
+            self.assertIn("Marta", bloque)
+            self.assertNotIn("enjambran", bloque)
+
+    def test_foco_memoria_deja_fuera_los_proyectos(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            bloque = H.recuperar(c, "abejas", foco="memoria")
+            self.assertIn("enjambran", bloque)
+            self.assertNotIn("colmenar", bloque)
+
+    def test_foco_proyecto_esta_declarado_y_no_implementado(self):
+        """No hay dato que filtrar: `engrams` y `proyectos` no se conocen.
+
+        Se fija la caída a `memoria` a propósito. El día que alguien añada el
+        enlace en el esquema, esta prueba se pondrá roja y le dirá que había un
+        contrato esperándole -- que es exactamente lo que no pasó con las trece
+        suites de la deuda S4.
+        """
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            self.assertEqual(H.recuperar(c, "abejas", foco="proyecto"),
+                             H.recuperar(c, "abejas", foco="memoria"))
+
+    def test_un_foco_con_errata_no_deja_a_nadie_sin_contexto(self):
+        with M.abrir(self.db) as c:
+            self._poblar(c)
+            self.assertNotEqual(H.recuperar(c, "abejas", foco="memroia"), "")
+
+
 class TestElTurnoLasLleva(unittest.TestCase):
     """La integración: lo recuperado tiene que VIAJAR, no solo existir."""
 
