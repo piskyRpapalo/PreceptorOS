@@ -50,6 +50,25 @@
      lo que fallaba -- era que estos dos colores no podian cambiar con el. */
   --velo-chat: rgba(255,255,255,.26);
   --barra-fondo: rgba(255,255,255,.9);
+  /* El marmol, por nombre. Lo pintan DOS sitios --el cuerpo y el telon-- y el
+     telon lo llevaba cosido en su regla: en oscuro se quedaba con la lamina
+     clara mientras la tinta se volvia clara, y «Preceptor» desaparecia sobre
+     ella. Solo sobrevivia «OS», que es violeta y contrastaba con las dos. */
+  --marmol: url("/assets/marble-violet.webp");
+  /* El suelo del cabezal y el relleno de sus mandos. Existen porque sobre una
+     textura no hay contraste que calcular: lo que se mide es el par tinta/suelo,
+     y sin suelo no hay par. */
+  --mando-fondo:   rgba(255,255,255,.92);
+  --mando-aro:     #a97c11;
+  --mando-tinta:   var(--violeta-fuerte);
+  --mando-sombra:  rgba(36,26,53,.22);
+  /* El disco de detras de la cara, y es el que mas vueltas ha dado. Ni el papel
+     del tema --con el, en oscuro, la cara se apoyaba en casi negro y el color
+     frio del reposo salia cadaverico-- ni un blanco fijo, que en oscuro abre un
+     agujero claro en mitad del fondo y rompe la pieza. Es un violeta medio: en
+     claro tira a marmol y en oscuro se funde con la lamina, y en los dos casos
+     la cara conserva su temperatura. */
+  --disco-cara:    #f4f1f8;
   --anim-apertura: 5.1s;    /* 4,25 compases x 1,2 · ver `despertar` */
   --anim-reposo: 38.4s;     /* 9,6 s por color · el fundido va atado */
   --anim-habla: .864s;
@@ -113,7 +132,7 @@ body {
      no se repinte al desplazar: en esta CPU eso se nota. El color de debajo es
      el mismo violeta, asi que si la imagen tarda no hay destello blanco. */
   background-color: var(--fondo);
-  background-image: url("/assets/marble-violet.webp");
+  background-image: var(--marmol);
   background-size: 240px auto;
   background-repeat: repeat;
   background-attachment: fixed;
@@ -200,7 +219,14 @@ body {
      el 2026-09-04. En un cabezal al que se vuelve cien veces al dia, una
      entrada de cinco segundos deja de ser una entrada y pasa a ser una espera.
      Aqui solo hay dos estados: los colores del reposo y las bocas del habla. */
-  background: var(--paper) url("/assets/cara-secuencia-reposo-256.webp")
+  /* El disco de detras es propio y no el papel del tema. Se vio en oscuro el
+     2026-09-04: con `--paper` la cara se posaba sobre un disco casi negro y
+     uno de los cuatro colores del reposo --el frio-- salia verdoso y
+     cadaverico. No es culpa de la lamina: estas caras estan pintadas para
+     apoyarse en marmol claro, y su alfa deja pasar lo que haya debajo.
+     Poniendoles su propio disco, la cara se ve igual con las dos pieles y el
+     tema sigue mandando en todo lo demas. */
+  background: var(--disco-cara) url("/assets/cara-secuencia-reposo-256.webp")
               2.885% 50% / 490% auto no-repeat;
 }
 
@@ -573,7 +599,7 @@ body {
   position: fixed; inset: 0; z-index: var(--capa-telon);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 1.3rem;
-  background: var(--fondo) url("/assets/marble-violet.webp") 0 0 / 340px auto repeat;
+  background: var(--fondo) var(--marmol) 0 0 / 340px auto repeat;
   animation: caer .45s ease-out 1.8s both;
 }
 /* El telon no es un cartel: es el despertar. Los mismos ocho fotogramas de
@@ -1076,6 +1102,18 @@ body.chat-activo .cabezal { opacity: .35; }
   --n-violeta-tenue: #251e3a;
   --n-violeta-fuerte: #b3a4ff;
   --n-circuito: #2f2743;
+  /* La misma lamina, pintada con la paleta oscura. No es una inversion de
+     colores: invertir el RGB gira el tono al complementario y el violeta sale
+     verde amarillento. Se toma la forma --la veta es lo oscuro del original--
+     y se mapea entre el suelo oscuro y el violeta claro, asi que es el mismo
+     dibujo con los papeles cambiados: lo que era veta oscura sobre blanco es
+     ahora veta violeta sobre negro. Sale de `herramientas/marmol_oscuro.py`. */
+  --n-marmol: url("/assets/marble-violet-oscuro.webp");
+  --n-mando-fondo:   rgba(30,24,44,.94);
+  --n-mando-aro:     #e0b872;
+  --n-mando-tinta:   #f0eaff;
+  --n-mando-sombra:  rgba(0,0,0,.5);
+  --n-disco-cara:    #3b2f63;
   --n-velo-chat: rgba(255,255,255,.06);
   --n-barra-fondo: rgba(30,25,41,.92);
   --n-borde-busto: #8f7dff;
@@ -1093,8 +1131,15 @@ body.chat-activo .cabezal { opacity: .35; }
     --borde-busto: var(--n-borde-busto);
     --sombra-busto: var(--n-sombra-busto);
     --velo-chat: var(--n-velo-chat); --barra-fondo: var(--n-barra-fondo);
+  --marmol: var(--n-marmol);
+  --mando-fondo: var(--n-mando-fondo);
+  --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
+    --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
+    --marmol: var(--n-marmol);
+    --mando-fondo: var(--n-mando-fondo);
+    --mando-aro: var(--n-mando-aro); --mando-tinta: var(--n-mando-tinta);
+    --mando-sombra: var(--n-mando-sombra); --disco-cara: var(--n-disco-cara);
   }
-  :root:not([data-tema="claro"]) body { background-image: none; }
 }
 :root[data-tema="oscuro"] {
   --fondo: var(--n-fondo); --fondo-centro: var(--n-fondo-centro);
@@ -1108,7 +1153,6 @@ body.chat-activo .cabezal { opacity: .35; }
   --sombra-busto: var(--n-sombra-busto);
   --velo-chat: var(--n-velo-chat); --barra-fondo: var(--n-barra-fondo);
 }
-:root[data-tema="oscuro"] body { background-image: none; }
 /* El campo de escribir y las cajas de texto traian el blanco cosido en el
    valor, no en una variable, asi que en oscuro se quedaban blancas con letra
    clara encima. Se enganchan al papel del tema. */
@@ -1132,4 +1176,59 @@ body.chat-activo .cabezal { opacity: .35; }
 .saluda {
   font-size: .86rem; line-height: 1.5; color: var(--ink-soft);
   border-left: 3px solid var(--violeta); padding-left: .6rem;
+}
+
+/* --- el cabezal sobre el marmol -----------------------------------------
+   Se vio en el telefono el 2026-09-04, con la lamina oscura ya puesta: los dos
+   mandos y el nombre se hundian en el fondo. No era su color -- era que no
+   tenian ninguno: el boton iba transparente y el borde era una linea de la
+   misma familia que las vetas de detras.
+
+   La cura no es subir el contraste del texto, que sobre una textura no se
+   puede calcular: es darle suelo al cabezal. Una banda propia, y sobre ella
+   los mandos con su relleno. La misma regla que la web escribio primero --no
+   hay texto suelto sobre el marmol, porque el marmol no es un numero-. */
+/* El anillo es lo que hace visible el mando, y por eso cambia de color en vez
+   de ponerle una banda opaca detras: el marmol se queda entero, que es lo que
+   hace que esto parezca una cara y no un formulario.
+
+   Dos capas y las dos hacen falta. El aro exterior es ambar --el color con el
+   que esta casa marca lo medido, y el unico que no se confunde con las vetas,
+   que son violetas como el borde anterior--. Y el relleno es opaco: un aro
+   fuerte alrededor de nada sigue dejando el icono flotando sobre la textura.
+
+   La sombra no es adorno: separa el disco del fondo cuando la veta pasa justo
+   por debajo, que es donde se perdia. */
+.rueda, .lateral-boton {
+  background: var(--mando-fondo);
+  border: 2px solid var(--mando-aro);
+  color: var(--mando-tinta);
+  box-shadow: 0 2px 10px var(--mando-sombra);
+}
+.rueda:hover, .lateral-boton:hover,
+.rueda:focus-visible, .lateral-boton:focus-visible {
+  border-color: var(--violeta); background: var(--mando-fondo);
+}
+.lateral-boton[aria-expanded="true"] {
+  background: var(--violeta); border-color: var(--violeta); color: #fff;
+}
+.quien { color: var(--mando-tinta); font-weight: 800; }
+.cabezal .marca-nombre { color: var(--mando-tinta); }
+
+/* El canto dorado de la marca, y solo en el telon. Firmado el 2026-09-04.
+   No es decoracion suelta: es el mismo ambar del aro de los mandos, asi que la
+   pantalla de presentacion y el cabezal hablan el mismo idioma de material --
+   marmol y bronce-- en vez de dos.
+
+   `paint-order: stroke fill` es lo que lo hace posible sin adelgazar la letra.
+   Sin esa linea el trazo se pinta por encima del relleno y se come la mitad de
+   cada asta desde dentro: la palabra queda flaca y sucia. Con ella el trazo va
+   detras y la letra conserva su peso.
+
+   Sirve para las dos pieles porque el ambar ya cambia con el tema --mas hondo
+   sobre marmol claro, mas claro sobre el oscuro-- y en las dos separa la
+   palabra del fondo, que es lo que el violeta sobre violeta no hacia. */
+.telon .marca-nombre, .telon .marca-os {
+  -webkit-text-stroke: 2px var(--mando-aro);
+  paint-order: stroke fill;
 }
