@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=46">
+<link rel="stylesheet" href="/dashboard.css?v=58">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -234,28 +234,24 @@
   <p class="huella" id="id-huella">—</p>
   <p class="nota" id="id-nota"></p>
 
-  <label class="campo"><span id="et-nombre"></span>
-    <input id="p-nombre" type="text" autocomplete="off"></label>
-  <label class="campo"><span id="et-intereses"></span>
-    <input id="p-intereses" type="text" autocomplete="off"></label>
-  <div class="campo"><span id="et-idioma"></span>
-    <!-- Las mismas cajas que la pantalla de elección, no un desplegable: quien
-         eligió al entrar reconoce el control al volver a él. Un desplegable
-         además obliga a leer su rótulo, que está en un idioma que quizá no sea
-         el de quien mira — justo el problema que esto viene a resolver. -->
-    <div class="eleccion-cajas dentro" id="p-idioma" role="radiogroup"></div></div>
+  <!-- Estas dos son el harness: lo que la app le cuenta al modelo en cada
+       turno sobre quién le habla y cómo quiere que le hablen. Van juntas, con
+       más aire que el resto, porque son lo único de esta pantalla que cambia
+       las respuestas — todo lo demás cambia la pantalla. -->
+  <label class="campo campo-fuerte"><span id="et-nombre"></span>
+    <textarea id="p-nombre" rows="2"></textarea>
+    <small class="cuenta" id="cuenta-nombre"></small></label>
+  <label class="campo campo-fuerte"><span id="et-intereses"></span>
+    <textarea id="p-intereses" rows="2"></textarea>
+    <small class="cuenta" id="cuenta-intereses"></small></label>
 
   <!-- El tema. «Como el sistema» es lo primero y es el valor de fábrica: la
        decisión firmada el 2026-09-04 es que el sistema manda por defecto. Las
        otras dos existen para quien quiera desobedecerlo, en los dos sentidos. -->
-  <!-- Interruptor de tres, no desplegable. Un desplegable esconde dos de cada
-       tres opciones y pide dos toques para lo que aquí es un gesto; y esconde
-       precisamente cuál está puesto, que es lo primero que se viene a mirar. -->
-  <div class="campo"><span id="et-tema"></span>
-    <div class="interruptor" id="p-tema" role="radiogroup"></div></div>
 
-  <label class="campo"><span id="et-instrucciones"></span>
-    <textarea id="p-instrucciones"></textarea></label>
+  <label class="campo campo-fuerte"><span id="et-instrucciones"></span>
+    <textarea id="p-instrucciones" rows="3"></textarea>
+    <small class="cuenta" id="cuenta-instrucciones"></small></label>
   <p class="nota" id="nota-instrucciones"></p>
 
   <div class="dato"><span id="et-cerebro"></span><b id="a-motor">—</b></div>
@@ -268,6 +264,16 @@
   <div class="campo"><span id="et-cuaderno"></span>
     <div class="interruptor" id="p-captura" role="radiogroup"></div></div>
   <p class="nota" id="nota-captura"></p>
+
+  <!-- Idioma como desplegable y no como recuadros: en la pantalla de entrada
+       caben porque es una pantalla entera, pero aquí van dentro de un
+       formulario y vienen ocho. Ocho pastillas serían dos filas que empujan
+       todo lo demás fuera de la vista. -->
+  <label class="campo"><span id="et-idioma"></span>
+    <select id="p-idioma"></select></label>
+
+  <div class="campo"><span id="et-tema"></span>
+    <div class="interruptor" id="p-tema" role="radiogroup"></div></div>
 
   <!-- Guardar, al final del todo y encima del Manifiesto. Estaba en mitad de
        la pantalla, así que lo de debajo parecía quedar fuera de lo que se
@@ -320,7 +326,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=45"></script>
+<script src="/dashboard.js?v=49"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

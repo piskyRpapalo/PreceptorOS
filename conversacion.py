@@ -489,7 +489,8 @@ class SeAgotoElTiempo(Exception):
     """El modelo no llegó a tiempo. Estaba trabajando; no es lo mismo que fallar."""
 
 
-def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local"):
+def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local",
+          personalizada=True):
     """Un turno completo. Devuelve un dict; no imprime nada.
 
     Sin `motor`, levanta SinCerebro: quien llama decide qué decir, y el
@@ -498,6 +499,17 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
 
     Con `motor`, la respuesta **cruza la frontera** antes de volver. Si el
     output-guard salta queda la cicatriz y no se devuelve texto.
+
+    `personalizada=False` manda la pregunta SOLA, sin el prompt de sistema --que
+    es donde viven el caracter, el idioma, las instrucciones de la persona y el
+    punto del Camino en el que esta--. Existe para que se pueda notar la
+    diferencia: el mismo modelo, la misma maquina, con y sin lo que la app le
+    cuenta de ti. Sin un lado con el que comparar, «personalizado» es una
+    palabra; con el, es algo que se oye en la respuesta.
+
+    Lo que NO cambia es la frontera: la respuesta cruza el output-guard en los
+    dos casos. Apagar la personalizacion es hablar con el modelo a secas, no
+    hablar sin red de seguridad.
     """
     idioma = TX.normalizar(idioma)
     perfil = M.leer_perfil(c)
@@ -511,7 +523,8 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     # A.5 · el reloj del modelo. Se cronometra AQUI porque este es el unico
     # sitio que ve la llamada entera; la puerta se cronometra sola despues.
     _t0 = time.perf_counter()
-    cruda = motor(sistema + "\n\n" + (texto_persona or ""))
+    cruda = motor((sistema + "\n\n" + (texto_persona or ""))
+                  if personalizada else (texto_persona or ""))
     ms_motor = (time.perf_counter() - _t0) * 1000
     if not cruda:
         # No se registra: sin respuesta no hay cruce de frontera, y una latencia

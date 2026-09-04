@@ -67,7 +67,7 @@ INTERFAZ = os.path.join(AQUI, "interface")
 # `captura.activa()` ya lo leia del perfil desde el principio -- lo que faltaba
 # era la forma de escribirlo.
 CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones", "avatar",
-                 "captura")
+                 "captura", "personalizada")
 
 # Vocabulario cerrado de caras, en DOS familias. Lo que se guarde acaba en el
 # `src` de una imagen, asi que no puede ser texto libre: con texto libre, la
@@ -518,6 +518,8 @@ class PWA(BaseHTTPRequestHandler):
             "motor": bool(motor and hay),
             "cerebro": cerebro,
             "captura_activa": C.activa(perfil),
+            "personalizada": str(perfil.get("personalizada", "si"))
+                             .strip().lower() not in ("no", "0", "false", "off"),
             "turnos": cuenta,
             # La huella del armazon que sirve esta copia. Existe para poder
             # comparar dos instalaciones: el telefono guarda la cara en el
@@ -801,8 +803,14 @@ class PWA(BaseHTTPRequestHandler):
                 return self._json(503, {"estado": "bloqueado",
                                         "motivo": "sin motor"})
             try:
-                turno = _charla.turno(c, dicho, camino, motor=motor,
-                                      idioma=idioma)
+                # `personalizada` decide si el turno lleva el harness --prompt
+                # de sistema, instrucciones, idioma y punto del Camino-- o si
+                # la pregunta viaja sola. Por defecto si: la app existe para
+                # eso. Apagarlo es una prueba, no un modo de trabajo.
+                turno = _charla.turno(
+                    c, dicho, camino, motor=motor, idioma=idioma,
+                    personalizada=str(perfil.get("personalizada", "si"))
+                    .strip().lower() not in ("no", "0", "false", "off"))
             except _charla.SeAgotoElTiempo as e:
                 return self._json(504, {"estado": "tarde", "motivo": str(e)})
             except Exception as e:

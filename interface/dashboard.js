@@ -15,8 +15,8 @@ let idioma = "es";
  * falta, y aqui se ve de un vistazo. */
 const T = {
   es: {
-    cap_si: "Con cuaderno", cap_no: "Sin cuaderno",
-    nota_captura: "Con cuaderno, cada turno se guarda en tu memoria y el Preceptor puede recordarlo después. Sin él, hablas con el modelo a secas: nada de lo que digas se anota. Se puede cambiar cuando quieras, y lo ya guardado no se borra.",
+    cap_si: "Personalizada", cap_no: "Sin personalizar",
+    nota_captura: "Personalizada, la app le pasa al modelo quién eres, tus instrucciones y lo que ya hay en tu memoria y tus proyectos. Sin personalizar, la pregunta viaja sola. Cámbialo y pregunta lo mismo dos veces: la diferencia se oye, y es lo que esta app hace. En los dos casos la respuesta pasa por el filtro antes de volver.",
     elige_idioma: "¿En qué idioma quieres que hablemos?",
     listo: "escribe aquí",
     sin_cerebro: "puedo preguntar y recordar, todavía no conversar",
@@ -31,7 +31,6 @@ const T = {
     hablar: "Hablar", escribir: "Escribir",
     voz_apagada: "Dictado apagado",
     escuchando: "Escuchando… toca para parar",
-    nota_motor: "En un teléfono cada respuesta tarda minutos. No es que se haya colgado.",
     nota_sin: "Sin cerebro instalado, PreceptorOS pregunta y recuerda pero no conversa.",
     instalado: "instalado", sin_instalar: "sin instalar",
     et_modelo: "Modelo", ruta_es: "en", sin_modelo: "sin declarar",
@@ -65,9 +64,9 @@ const T = {
     front_como: "Se cuenta la clase y la cantidad, nunca el texto encontrado. Y si el filtro no puede terminar, no se envía nada.",
     voz_no: "Esta copia no lleva voz: falta {falta}.",
     volver: "← Volver", perfil: "Perfil", proyectos: "Proyectos",
-    et_nombre: "Cómo te llamas", et_intereses: "Lo que te interesa (separado por comas)",
+    et_nombre: "¿Quién eres?", et_intereses: "Lo que te interesa (separado por comas)",
     et_idioma: "Idioma", et_instrucciones: "Cómo quieres que te hable",
-    et_cerebro: "Cerebro", et_cuaderno: "Cuaderno de turnos",
+    et_cerebro: "Cerebro", et_cuaderno: "Cómo te responde",
     guardar: "Guardar", guardado: "Guardado.",
     ph_instrucciones: "Eres PreceptorOS, mi compañero de aprendizaje. Me hablas con respeto pero sin formalidad excesiva. Prefiero ejemplos concretos a teoría abstracta.",
     nota_instrucciones: "Esto se le dice a PreceptorOS en cada turno, después de su carácter y no en su lugar: ajustas cómo te habla, no lo que es.",
@@ -88,7 +87,7 @@ const T = {
     hecho: "hecho", empezado: "empezado", sin_empezar: "sin empezar",
     no_medible: "no medible desde aquí",
     agentes: "Agentes y herramientas",
-    et_tema: "Tema", tema_sistema: "Como el sistema",
+    et_tema: "Piel", tema_sistema: "Como el sistema",
     tema_claro: "Claro", tema_oscuro: "Oscuro",
     sin_nombre: "sin nombre todavía",
     lat_medir: "Medición", lat_camino: "Camino",
@@ -108,8 +107,8 @@ const T = {
     saluda: "Soy tu Preceptor y vivo en esta máquina: lo que escribes aquí no sale de ella. Puedo recordar lo que me cuentes, ayudarte a llevar tus proyectos y decirte cuándo no sé algo. Escribe abajo, o toca uno de los atajos.",
   },
   en: {
-    cap_si: "With notebook", cap_no: "Without notebook",
-    nota_captura: "With the notebook, every turn is saved to your memory and the Preceptor can recall it later. Without it, you talk to the bare model: nothing you say is written down. You can change this at any time, and what is already saved stays.",
+    cap_si: "Personalised", cap_no: "Plain",
+    nota_captura: "Personalised, the app tells the model who you are, your instructions and what is already in your memory and projects. Plain, the question travels alone. Switch it and ask the same thing twice: you can hear the difference, and it is what this app does. Either way the answer passes the filter before coming back.",
     elige_idioma: "Which language shall we speak?",
     listo: "write here",
     sin_cerebro: "I can ask and remember, not converse yet",
@@ -124,7 +123,6 @@ const T = {
     hablar: "Talk", escribir: "Write",
     voz_apagada: "Dictation off",
     escuchando: "Listening… tap to stop",
-    nota_motor: "On a phone each answer takes minutes. It has not frozen.",
     nota_sin: "With no brain installed, PreceptorOS asks and remembers but does not converse.",
     instalado: "installed", sin_instalar: "not installed",
     et_modelo: "Model", ruta_es: "at", sin_modelo: "not declared",
@@ -160,7 +158,7 @@ const T = {
     volver: "← Back", perfil: "Profile", proyectos: "Projects",
     et_nombre: "What to call you", et_intereses: "What interests you (comma separated)",
     et_idioma: "Language", et_instrucciones: "How you want to be spoken to",
-    et_cerebro: "Brain", et_cuaderno: "Turn notebook",
+    et_cerebro: "Brain", et_cuaderno: "How it answers you",
     guardar: "Save", guardado: "Saved.",
     ph_instrucciones: "You are PreceptorOS, my learning companion. Speak to me with respect but without excessive formality. I prefer concrete examples to abstract theory.",
     nota_instrucciones: "This is told to PreceptorOS on every turn, after its character and not in its place: you adjust how it speaks to you, not what it is.",
@@ -181,7 +179,7 @@ const T = {
     hecho: "done", empezado: "started", sin_empezar: "not started",
     no_medible: "not measurable from here",
     agentes: "Agents and tools",
-    et_tema: "Theme", tema_sistema: "Follow the system",
+    et_tema: "Skin", tema_sistema: "Follow the system",
     tema_claro: "Light", tema_oscuro: "Dark",
     sin_nombre: "no name yet",
     lat_medir: "Measure", lat_camino: "Path",
@@ -201,8 +199,8 @@ const T = {
     saluda: "I am your Preceptor and I live on this machine: what you write here never leaves it. I can remember what you tell me, help you carry your projects, and say when I do not know something. Write below, or tap one of the shortcuts.",
   },
   pt: {
-    cap_si: "Com caderno", cap_no: "Sem caderno",
-    nota_captura: "Com caderno, cada turno guarda-se na tua memória e o Preceptor pode recordá-lo depois. Sem ele, falas com o modelo em bruto: nada do que disseres fica escrito. Podes mudar quando quiseres, e o que já está guardado não se apaga.",
+    cap_si: "Personalizada", cap_no: "Sem personalizar",
+    nota_captura: "Personalizada, a app diz ao modelo quem és, as tuas instruções e o que já existe na tua memória e nos teus projetos. Sem personalizar, a pergunta viaja sozinha. Muda-o e pergunta o mesmo duas vezes: a diferença ouve-se, e é o que esta app faz. Nos dois casos a resposta passa pelo filtro antes de voltar.",
     elige_idioma: "Em que idioma queres que falemos?",
     listo: "escreve aqui",
     sin_cerebro: "posso perguntar e recordar, ainda não conversar",
@@ -217,7 +215,6 @@ const T = {
     hablar: "Falar", escribir: "Escrever",
     voz_apagada: "Ditado desligado",
     escuchando: "A ouvir… toca para parar",
-    nota_motor: "Num telemóvel cada resposta demora minutos. Não é que tenha bloqueado.",
     nota_sin: "Sem cérebro instalado, o PreceptorOS pergunta e recorda mas não conversa.",
     instalado: "instalado", sin_instalar: "por instalar",
     et_modelo: "Modelo", ruta_es: "em", sin_modelo: "por declarar",
@@ -251,9 +248,9 @@ const T = {
     front_como: "Conta-se a classe e a quantidade, nunca o texto encontrado. E se o filtro não puder terminar, não se envia nada.",
     voz_no: "Esta cópia não leva voz: falta {falta}.",
     volver: "← Voltar", perfil: "Perfil", proyectos: "Projetos",
-    et_nombre: "Como te chamas", et_intereses: "O que te interessa (separado por vírgulas)",
+    et_nombre: "Quem és?", et_intereses: "O que te interessa (separado por vírgulas)",
     et_idioma: "Idioma", et_instrucciones: "Como queres que te fale",
-    et_cerebro: "Cérebro", et_cuaderno: "Caderno de turnos",
+    et_cerebro: "Cérebro", et_cuaderno: "Como te responde",
     guardar: "Guardar", guardado: "Guardado.",
     ph_instrucciones: "És o PreceptorOS, o meu companheiro de aprendizagem. Falas-me com respeito mas sem formalidade excessiva. Prefiro exemplos concretos a teoria abstrata.",
     nota_instrucciones: "Isto diz-se ao PreceptorOS em cada turno, depois do seu carácter e não no lugar dele: ajustas como te fala, não o que é.",
@@ -274,7 +271,7 @@ const T = {
     hecho: "feito", empezado: "começado", sin_empezar: "por começar",
     no_medible: "não mensurável a partir daqui",
     agentes: "Agentes e ferramentas",
-    et_tema: "Tema", tema_sistema: "Como o sistema",
+    et_tema: "Pele", tema_sistema: "Como o sistema",
     tema_claro: "Claro", tema_oscuro: "Escuro",
     sin_nombre: "ainda sem nome",
     lat_medir: "Medição", lat_camino: "Caminho",
@@ -561,6 +558,45 @@ aplicaTema(temaGuardado());
  * Se guarda al pulsar, sin esperar a «Guardar»: es una decision de una sola
  * cosa, y hacerla depender de un boton al final de la pantalla invita a
  * cambiarla y creerse que ya esta. */
+/* --- los tres campos del harness: crecen, y dicen cuanto caben -----------
+ * Los tres son lo mismo --lo que la app le cuenta al modelo de ti-- asi que
+ * pesan lo mismo en la pantalla y se comportan igual: crecen con lo escrito,
+ * sin barra propia, porque un campo que hace scroll dentro esconde lo que ya
+ * pusiste justo cuando lo relees.
+ *
+ * El limite es una recomendacion, no un candado. Y sale de una cuenta, no de
+ * un gusto: la ventana medida en este nodo son 32.768 tokens, y a unos cuatro
+ * caracteres por token el 5 % de esa ventana --un techo ya generoso-- daria
+ * 2.185 caracteres por campo. Se recomiendan 500, que es bastante menos, por
+ * dos razones que el numero grande no ve: esto se manda entero en cada turno,
+ * asi que compite con la conversacion; y los modelos que esta app usa son
+ * pequenos, donde un prompt de sistema largo no anade contexto -- reparte la
+ * atencion. Pasarse no rompe nada, y por eso se avisa en vez de cortar. */
+const limiteHarness = 500;
+
+function crece(area) {
+  area.style.height = "auto";
+  area.style.height = area.scrollHeight + "px";
+}
+
+function cuentaHarness(area, salida) {
+  const n = (area.value || "").length;
+  salida.textContent = n + " / " + limiteHarness;
+  salida.classList.toggle("pasado", n > limiteHarness);
+}
+
+function enganchaHarness() {
+  for (const nombre of ["nombre", "intereses", "instrucciones"]) {
+    const area = $("p-" + nombre);
+    const salida = $("cuenta-" + nombre);
+    if (!area || !salida || area.dataset.enganchado) continue;
+    area.dataset.enganchado = "si";
+    const refresca = () => { crece(area); cuentaHarness(area, salida); };
+    area.addEventListener("input", refresca);
+    refresca();
+  }
+}
+
 function pintaCaptura(activo) {
   const caja = $("p-captura");
   if (!caja) return;
@@ -576,7 +612,7 @@ function pintaCaptura(activo) {
       try {
         await fetch("/api/perfil", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ captura: valor }),
+          body: JSON.stringify({ personalizada: valor }),
         });
       } catch { /* sin servidor no se pudo cambiar; el pulso lo dira */ }
       pulso();
@@ -769,8 +805,11 @@ function pintarEstado(d) {
   $("a-ruta").textContent = cb.ruta
     ? t("ruta_es") + " " + cb.ruta + (cb.motivo ? "  · " + cb.motivo : "")
     : (cb.causa || "");
-  pintaCaptura(!!d.captura_activa);
-  $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
+  pintaCaptura(!!d.personalizada);
+  // Con motor no se dice nada: la espera ya la cuenta el chat mientras pasa,
+  // y el ritmo real vive en el Espejo. Sin motor si, porque eso no lo dice
+  // nadie mas y cambia lo que la app puede hacer.
+  $("a-nota").textContent = d.motor ? "" : t("nota_sin");
 }
 
 /* --- decir ------------------------------------------------------------- */
@@ -1015,12 +1054,22 @@ async function cargarPerfil() {
     // selector volvia a ensenar «Español» y la persona no entendia por que su
     // eleccion no se quedaba. El diccionario es quien sabe que idiomas hay.
     const idi = sinNoData(d.campos.language) || "es";
-    cajasIdioma($("p-idioma"), T[idi] ? idi : "es", async (codigo) => {
-      await guardaIdioma(codigo);
-      cargarPerfil();
-    });
+    // Desplegable aqui y recuadros en la pantalla de entrada, a proposito: la
+    // entrada es una pantalla entera y los idiomas caben todos a la vista --
+    // que es lo que hace que se elija sin leer un rotulo--; Ajustes es un
+    // formulario, y ocho pastillas serian dos filas que empujan el resto fuera.
+    const sel = $("p-idioma");
+    sel.textContent = "";
+    for (const [codigo, nombre] of Object.entries(nombres)) {
+      const o = document.createElement("option");
+      o.value = codigo; o.textContent = nombre;
+      sel.appendChild(o);
+    }
+    sel.value = T[idi] ? idi : "es";
+    sel.onchange = () => guardaIdioma(sel.value).then(cargarPerfil);
     pintaQuien(sinNoData(d.campos.name));
     pintaIdentidad(d);
+    enganchaHarness();
   } catch { /* el pulso ya dice que no hay servidor */ }
 }
 

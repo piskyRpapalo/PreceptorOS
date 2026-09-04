@@ -253,8 +253,14 @@ body {
      apoyarse en marmol claro, y su alfa deja pasar lo que haya debajo.
      Poniendoles su propio disco, la cara se ve igual con las dos pieles y el
      tema sigue mandando en todo lo demas. */
+  /* 27,78 % y no 50: la cara va corrida un 5 % a la derecha dentro del
+     circulo. Firmado el 2026-09-04 tras verlo en el Doogee -- el busto viene
+     dibujado a la izquierda de su cuadro y los ojos quedaban descentrados
+     respecto del aro. Aqui SI llega la ventana: a 1,225x sobra un 9,2 % por
+     lado y se usa un 4,1 %, asi que no se asoma nada de fuera. Los tres
+     estados llevan el mismo desplazamiento, o la cara saltaria al pensar. */
   background: var(--disco-cara) url("/assets/cara-reposo-violeta-256.webp")
-              50% 50% / 122.5% auto no-repeat;
+              27.78% 50% / 122.5% auto no-repeat;
 }
 
 /* La apertura, y por que no es `steps()`.
@@ -322,7 +328,7 @@ body {
      que una cara fija se lea como una aplicacion colgada. */
   background-image: url("/assets/cara-reposo-violeta-256.webp");
   background-size: 122.5% auto;
-  background-position: 50% 50%;
+  background-position: 27.78% 50%;
   animation: respirar 3.6s ease-in-out infinite;
 }
 @keyframes respirar {
@@ -358,8 +364,8 @@ body {
              latir 2.88s ease-in-out infinite;
 }
 @keyframes pensar {
-  from { background-position:  2.195% 50%; }
-  to   { background-position: 97.805% 50%; }
+  from { background-position:  1.219% 50%; }
+  to   { background-position: 96.829% 50%; }
 }
 .busto.habla {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
@@ -369,8 +375,8 @@ body {
              latir 2.88s ease-in-out infinite;
 }
 @keyframes hablar {
-  from { background-position:  2.885% 50%; }
-  to   { background-position: 97.115% 50%; }
+  from { background-position:  1.603% 50%; }
+  to   { background-position: 95.833% 50%; }
 }
 @keyframes latir {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -382,7 +388,7 @@ body {
 .busto.gesto {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
   background-size: 490% auto;
-  background-position: 65.705% 50%;
+  background-position: 64.423% 50%;
 }
 
 /* Quien pidio menos movimiento se queda con la cara quieta y encendida: el
@@ -393,7 +399,7 @@ body {
     animation: none; opacity: 1;
     background-image: url("/assets/cara-reposo-violeta-256.webp");
     background-size: 122.5% auto;
-    background-position: 50% 50%;
+    background-position: 27.78% 50%;
   }
 }
 
@@ -716,14 +722,14 @@ body {
      En Y: anclada arriba, para que se vea el pelo entero. La figura ocupa del
      4,7 % al 90,6 % del alto y la ventana a 1,1x ensena hasta el 90,9 %: entra
      completa, pelo incluido, y no se pierde ni la peana. */
-  background: url("/assets/cara-secuencia-apertura-256-encuadrada.webp") 1.337% 0% / 770% auto no-repeat;
+  background: url("/assets/cara-secuencia-apertura-256-telon.webp") 0.746% 50% / 770% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
 }
 @keyframes despertar-entero {
-  from { background-position:  1.337% 0%; }
-  to   { background-position: 99.845% 0%; }
+  from { background-position:  0.746% 50%; }
+  to   { background-position: 99.254% 50%; }
 }
 @keyframes caer { to { opacity: 0; visibility: hidden; } }
 /* Quien pidio quietud no espera un segundo y medio a una cortina. */
@@ -1480,3 +1486,32 @@ body.con-teclado .atajos { display: none; }
    esto la fila de atajos queda medio tapada por la barra del sistema, no por
    el navegador. */
 .atajos { padding-bottom: calc(.5rem + env(safe-area-inset-bottom)); }
+
+/* Los dos campos que son el harness. Nombre e instrucciones son lo unico de
+   Ajustes que cambia las respuestas -- todo lo demas cambia la pantalla-- y
+   por eso llevan mas aire, su etiqueta mas grande y un canto violeta que los
+   agrupa. Antes compartian peso con el idioma y el tema, que estaban ademas
+   por encima: lo que decide como te habla el modelo quedaba debajo de la
+   eleccion de piel. */
+.campo-fuerte {
+  margin-top: 1.1rem; padding: .8rem .9rem;
+  background: var(--violeta-tenue); border: 1px solid var(--line);
+  border-left: 3px solid var(--violeta); border-radius: var(--radio);
+}
+.campo-fuerte span { font-size: .88rem; color: var(--ink); margin-bottom: .4rem; }
+.campo-fuerte textarea { min-height: 150px; }
+
+/* Los tres campos del harness crecen con lo escrito. Sin barra propia: un campo
+   que hace scroll dentro esconde lo que ya pusiste justo cuando lo relees. */
+.campo-fuerte textarea {
+  min-height: 3rem; resize: none; overflow: hidden; line-height: 1.5;
+}
+/* La cuenta, discreta y a la derecha. En ambar cuando se pasa, que es el color
+   con el que esta casa marca lo medido -- no en rojo: pasarse no rompe nada,
+   solo reparte peor la atencion del modelo. */
+.cuenta {
+  display: block; margin-top: .3rem; text-align: right;
+  font-size: .7rem; font-weight: 700; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.cuenta.pasado { color: var(--ambar); }
