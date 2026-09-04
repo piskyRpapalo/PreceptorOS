@@ -15,6 +15,8 @@ let idioma = "es";
  * falta, y aqui se ve de un vistazo. */
 const T = {
   es: {
+    cap_si: "Con cuaderno", cap_no: "Sin cuaderno",
+    nota_captura: "Con cuaderno, cada turno se guarda en tu memoria y el Preceptor puede recordarlo después. Sin él, hablas con el modelo a secas: nada de lo que digas se anota. Se puede cambiar cuando quieras, y lo ya guardado no se borra.",
     elige_idioma: "¿En qué idioma quieres que hablemos?",
     listo: "escribe aquí",
     sin_cerebro: "puedo preguntar y recordar, todavía no conversar",
@@ -106,6 +108,8 @@ const T = {
     saluda: "Soy tu Preceptor y vivo en esta máquina: lo que escribes aquí no sale de ella. Puedo recordar lo que me cuentes, ayudarte a llevar tus proyectos y decirte cuándo no sé algo. Escribe abajo, o toca uno de los atajos.",
   },
   en: {
+    cap_si: "With notebook", cap_no: "Without notebook",
+    nota_captura: "With the notebook, every turn is saved to your memory and the Preceptor can recall it later. Without it, you talk to the bare model: nothing you say is written down. You can change this at any time, and what is already saved stays.",
     elige_idioma: "Which language shall we speak?",
     listo: "write here",
     sin_cerebro: "I can ask and remember, not converse yet",
@@ -197,6 +201,8 @@ const T = {
     saluda: "I am your Preceptor and I live on this machine: what you write here never leaves it. I can remember what you tell me, help you carry your projects, and say when I do not know something. Write below, or tap one of the shortcuts.",
   },
   pt: {
+    cap_si: "Com caderno", cap_no: "Sem caderno",
+    nota_captura: "Com caderno, cada turno guarda-se na tua memória e o Preceptor pode recordá-lo depois. Sem ele, falas com o modelo em bruto: nada do que disseres fica escrito. Podes mudar quando quiseres, e o que já está guardado não se apaga.",
     elige_idioma: "Em que idioma queres que falemos?",
     listo: "escreve aqui",
     sin_cerebro: "posso perguntar e recordar, ainda não conversar",
@@ -547,6 +553,39 @@ aplicaTema(temaGuardado());
  * `aria-checked`: quien navega con lector de pantalla oye cual es sin tener
  * que abrir nada. Un desplegable escondia dos de cada tres opciones y, sobre
  * todo, escondia cual estaba elegida -- que es lo primero que se viene a ver. */
+/* El cuaderno, interruptor de dos. Antes era un rotulo que decia «encendido» y
+ * no se podia tocar: enseñar un estado sin la forma de cambiarlo obliga a
+ * buscar donde se cambia, y no se cambiaba en ningun sitio -- la clave existia
+ * en el perfil desde el principio y ninguna puerta la escribia.
+ *
+ * Se guarda al pulsar, sin esperar a «Guardar»: es una decision de una sola
+ * cosa, y hacerla depender de un boton al final de la pantalla invita a
+ * cambiarla y creerse que ya esta. */
+function pintaCaptura(activo) {
+  const caja = $("p-captura");
+  if (!caja) return;
+  $("nota-captura").textContent = t("nota_captura");
+  caja.textContent = "";
+  for (const [valor, clave] of [["si", "cap_si"], ["no", "cap_no"]]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String((valor === "si") === activo));
+    b.textContent = t(clave);
+    b.addEventListener("click", async () => {
+      try {
+        await fetch("/api/perfil", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ captura: valor }),
+        });
+      } catch { /* sin servidor no se pudo cambiar; el pulso lo dira */ }
+      pulso();
+      cargarPerfil();
+    });
+    caja.appendChild(b);
+  }
+}
+
 function pintaTema() {
   const caja = $("p-tema");
   if (!caja) return;
@@ -730,7 +769,7 @@ function pintarEstado(d) {
   $("a-ruta").textContent = cb.ruta
     ? t("ruta_es") + " " + cb.ruta + (cb.motivo ? "  · " + cb.motivo : "")
     : (cb.causa || "");
-  $("a-captura").textContent = d.captura_activa ? t("encendido") : t("apagado");
+  pintaCaptura(!!d.captura_activa);
   $("a-nota").textContent = d.motor ? t("nota_motor") : t("nota_sin");
 }
 

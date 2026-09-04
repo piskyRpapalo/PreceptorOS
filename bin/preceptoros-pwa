@@ -62,7 +62,12 @@ INTERFAZ = os.path.join(AQUI, "interface")
 # Los campos del perfil que la interfaz puede tocar. El perfil tiene claves que
 # pone el producto y que una peticion no debe poder escribir, asi que esto es
 # una lista blanca y no una exclusion.
-CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones", "avatar")
+# `captura` entra el 2026-09-04: el cuaderno pasa de rotulo a interruptor, y
+# para que la persona pueda apagarlo tiene que poder viajar por esta puerta.
+# `captura.activa()` ya lo leia del perfil desde el principio -- lo que faltaba
+# era la forma de escribirlo.
+CAMPOS_PERFIL = ("name", "language", "intereses", "instrucciones", "avatar",
+                 "captura")
 
 # Vocabulario cerrado de caras, en DOS familias. Lo que se guarde acaba en el
 # `src` de una imagen, asi que no puede ser texto libre: con texto libre, la
