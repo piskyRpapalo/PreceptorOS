@@ -68,7 +68,14 @@ const T = {
     guardar: "Guardar", guardado: "Guardado.",
     ph_instrucciones: "Eres PreceptorOS, mi compañero de aprendizaje. Me hablas con respeto pero sin formalidad excesiva. Prefiero ejemplos concretos a teoría abstracta.",
     nota_instrucciones: "Esto se le dice a PreceptorOS en cada turno, después de su carácter y no en su lugar: ajustas cómo te habla, no lo que es.",
-    proy_intro: "Cosas que quieres volver a encontrar: un plan de negocio, una tesis, un repositorio. Es una lista, no un gestor de ficheros: guarda el título y la ruta, y no toca nada de tu disco.",
+    proy_intro: "Lo que tienes entre manos: un libro a medias, una aplicación, una idea que vuelve. No hay fechas límite ni prioridades: solo en qué punto lo dejaste.",
+    proy_vacio: "Todavía no hay ninguno. Escribe un título arriba y ya está: lo demás se rellena cuando te apetezca.",
+    et_pr_titulo: "Título", et_pr_desc: "Qué es", et_pr_estado: "Cómo va",
+    et_pr_nota: "Notas, ideas, lo que sea",
+    volver_lista: "← Todos los proyectos", ed_guardar: "Guardar cambios",
+    est_activo: "Activo", est_pausado: "Pausado", est_completado: "Completado",
+    ed_actualizado: (c) => `Última vez que lo tocaste: ${c}`,
+    sin_tocar: "sin tocar todavía",
     et_titulo: "Título", et_ruta: "Ruta (opcional)",
     anadir: "Añadir", no_esta: "no está ahí", quitar: "Quitar",
     abrir_panel: "Abrir el panel completo →", o_escribelo: "O escríbelo",
@@ -132,7 +139,14 @@ const T = {
     guardar: "Save", guardado: "Saved.",
     ph_instrucciones: "You are PreceptorOS, my learning companion. Speak to me with respect but without excessive formality. I prefer concrete examples to abstract theory.",
     nota_instrucciones: "This is told to PreceptorOS on every turn, after its character and not in its place: you adjust how it speaks to you, not what it is.",
-    proy_intro: "Things you want to find again: a business plan, a thesis, a repo. It is a list, not a file manager: it keeps the title and the path, and touches nothing on your disk.",
+    proy_intro: "What you have on your hands: a half-written book, an app, an idea that keeps coming back. No deadlines and no priorities: just where you left it.",
+    proy_vacio: "None yet. Write a title above and that is it: the rest gets filled in whenever you feel like it.",
+    et_pr_titulo: "Title", et_pr_desc: "What it is", et_pr_estado: "How it is going",
+    et_pr_nota: "Notes, ideas, anything",
+    volver_lista: "← All projects", ed_guardar: "Save changes",
+    est_activo: "Active", est_pausado: "Paused", est_completado: "Done",
+    ed_actualizado: (c) => `Last time you touched it: ${c}`,
+    sin_tocar: "not touched yet",
     et_titulo: "Title", et_ruta: "Path (optional)",
     anadir: "Add", no_esta: "not there", quitar: "Remove",
     abrir_panel: "Open the full panel →", o_escribelo: "Or write it",
@@ -262,14 +276,21 @@ function pintarEstado(d) {
       "et-idioma": "et_idioma", "et-instrucciones": "et_instrucciones",
       "et-cerebro": "et_cerebro", "et-cuaderno": "et_cuaderno",
       "et-modelo": "et_modelo",
-      "et-titulo": "et_titulo", "et-ruta": "et_ruta",
+      "et-titulo": "et_titulo",
       "nota-instrucciones": "nota_instrucciones", "proy-intro": "proy_intro",
+      "et-pr-titulo": "et_pr_titulo", "et-pr-desc": "et_pr_desc",
+      "et-pr-estado": "et_pr_estado", "et-pr-nota": "et_pr_nota",
+      "proy-vacio": "proy_vacio",
       "nota-memoria": "nota_memoria"})) {
     const el = $(id);
     if (el) el.textContent = t(clave);
   }
   $("p-guardar").textContent = t("guardar");
   $("pr-anadir").textContent = t("anadir");
+  $("pr-volver-lista").textContent = t("volver_lista");
+  $("ed-guardar").textContent = t("ed_guardar");
+  $("ed-quitar").textContent = t("quitar");
+  if (abierto !== null) pintaEstados();
   $("p-instrucciones").placeholder = t("ph_instrucciones");
   const titulos = { memoria: "tu_memoria", frontera: "la_frontera",
                     camino: "el_camino", perfil: "perfil",
@@ -570,36 +591,123 @@ $("p-guardar").addEventListener("click", async () => {
 });
 
 /* --- proyectos --------------------------------------------------------- */
+/* Dos vistas y un solo cajon. `abierto` es el proyecto que se esta editando, o
+   `null` si se esta viendo la lista; de ahi sale todo lo demas, para que no
+   haya dos sitios que puedan discrepar sobre en cual estamos.
+
+   Lo que este cuaderno no tiene, y es una decision: fechas limite, prioridades
+   y porcentajes de avance. Un proyecto propio al que le pones fecha deja de ser
+   tuyo y pasa a perseguirte. Esto solo recuerda que existe y en que punto lo
+   dejaste; la unica presion que ejerce es la de estar escrito. */
+let abierto = null;
+
 async function cargarProyectos() {
   try {
     const r = await fetch("/api/proyectos");
     const d = await r.json();
-    const ul = $("lista-proyectos");
-    ul.replaceChildren();
-    for (const p of d.proyectos) {
-      const li = document.createElement("li");
-      const b = document.createElement("b");
-      b.textContent = p.titulo;
-      li.appendChild(b);
-      if (p.ruta && p.ruta !== ausente) {
-        const ruta = document.createElement("div");
-        ruta.className = "ruta"; ruta.textContent = p.ruta;
-        li.appendChild(ruta);
-        if (!p.existe) {
-          // Se dice, no se borra. La persona decide si la arregla o la quita.
-          const falta = document.createElement("div");
-          falta.className = "falta"; falta.textContent = t("no_esta");
-          li.appendChild(falta);
-        }
-      }
-      const quitar = document.createElement("button");
-      quitar.className = "quitar"; quitar.type = "button";
-      quitar.textContent = t("quitar");
-      quitar.addEventListener("click", () => proyectoQuitar(p.id));
-      li.appendChild(quitar);
-      ul.appendChild(li);
+    pintaLista(d.proyectos || []);
+    // Si se estaba editando uno, se refresca con lo que devolvio el servidor:
+    // lo que se ensena tiene que ser lo que quedo guardado, no lo que se tecleo.
+    if (abierto) {
+      const fresco = (d.proyectos || []).find((p) => p.id === abierto.id);
+      if (fresco) { abierto = fresco; pintaEditor(); } else { volverALista(); }
     }
   } catch { /* sin servidor no hay lista */ }
+}
+
+function pintaLista(lista) {
+  const ul = $("lista-proyectos");
+  ul.replaceChildren();
+  $("proy-vacio").hidden = lista.length > 0;
+  for (const p of lista) {
+    const li = document.createElement("li");
+    const boton = document.createElement("button");
+    boton.type = "button"; boton.className = "abrir";
+
+    const cabeza = document.createElement("div");
+    cabeza.className = "cabeza";
+    const b = document.createElement("b");
+    b.textContent = p.titulo;
+    const chip = document.createElement("span");
+    chip.className = "chip " + (p.estado || "activo");
+    chip.textContent = t("est_" + (p.estado || "activo")) || p.estado;
+    cabeza.appendChild(b); cabeza.appendChild(chip);
+    boton.appendChild(cabeza);
+
+    if (p.descripcion && p.descripcion !== ausente) {
+      const desc = document.createElement("p");
+      desc.className = "desc"; desc.textContent = p.descripcion;
+      boton.appendChild(desc);
+    }
+    /* La ruta ya no se pide al crear, pero las entradas viejas la tienen y se
+       ensena: quitarla de la vista habria escondido un dato que la persona
+       escribio. Y si el sitio ya no esta, se dice; no se borra sola. */
+    if (p.ruta && p.ruta !== ausente) {
+      const ruta = document.createElement("div");
+      ruta.className = "ruta"; ruta.textContent = p.ruta;
+      boton.appendChild(ruta);
+      if (!p.existe) {
+        const falta = document.createElement("div");
+        falta.className = "falta"; falta.textContent = t("no_esta");
+        boton.appendChild(falta);
+      }
+    }
+    const cuando = document.createElement("p");
+    cuando.className = "cuando";
+    cuando.textContent = t("ed_actualizado")(p.actualizado || t("sin_tocar"));
+    boton.appendChild(cuando);
+
+    boton.addEventListener("click", () => { abierto = p; abrirEditor(); });
+    li.appendChild(boton);
+    ul.appendChild(li);
+  }
+}
+
+function abrirEditor() {
+  $("proy-lista-vista").hidden = true;
+  $("proy-editor").hidden = false;
+  $("cajon-proyectos").classList.add("editando");
+  pintaEditor();
+  $("cajon-proyectos").scrollTop = 0;
+}
+
+function volverALista() {
+  abierto = null;
+  $("proy-editor").hidden = true;
+  $("proy-lista-vista").hidden = false;
+  $("cajon-proyectos").classList.remove("editando");
+}
+
+function pintaEditor() {
+  if (!abierto) return;
+  $("ed-titulo").value = abierto.titulo || "";
+  $("ed-desc").value = sinNoData(abierto.descripcion);
+  $("ed-nota").value = sinNoData(abierto.nota);
+  $("ed-actualizado").textContent =
+    t("ed_actualizado")(abierto.actualizado || t("sin_tocar"));
+  pintaEstados();
+}
+
+/* Los tres estados, como grupo de radio y no como menu desplegable: son tres,
+   caben, y un desplegable esconde dos de cada tres. */
+const estadosProy = ["activo", "pausado", "completado"];
+function pintaEstados() {
+  const caja = $("ed-estados");
+  if (!caja) return;
+  caja.replaceChildren();
+  for (const est of estadosProy) {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(!!abierto && abierto.estado === est));
+    b.textContent = t("est_" + est);
+    // El estado se guarda al tocarlo, sin pasar por «guardar»: es un gesto, no
+    // un formulario. El texto si espera al boton, que es donde se piensa.
+    b.addEventListener("click", () => {
+      if (!abierto) return;
+      proyectoGuardar({ editar: abierto.id, estado: est });
+    });
+    caja.appendChild(b);
+  }
 }
 
 async function proyectoGuardar(cuerpo) {
@@ -609,14 +717,33 @@ async function proyectoGuardar(cuerpo) {
   });
   cargarProyectos();
 }
-function proyectoQuitar(id) { proyectoGuardar({ quitar: id }); }
 
 $("pr-anadir").addEventListener("click", () => {
   const titulo = $("pr-titulo").value.trim();
   if (!titulo) return;
-  proyectoGuardar({ titulo, ruta: $("pr-ruta").value });
-  $("pr-titulo").value = ""; $("pr-ruta").value = "";
+  proyectoGuardar({ titulo });
+  $("pr-titulo").value = "";
 });
+
+$("pr-volver-lista").addEventListener("click", volverALista);
+
+$("ed-guardar").addEventListener("click", () => {
+  if (!abierto) return;
+  proyectoGuardar({ editar: abierto.id, titulo: $("ed-titulo").value,
+                    descripcion: $("ed-desc").value, nota: $("ed-nota").value });
+});
+
+/* Quitar pide confirmacion, y borra la entrada, no el trabajo. Un proyecto en
+   esta lista es un recordatorio: al quitarlo no se pierde el libro, se pierde
+   la nota que decia por donde ibas. Conviene que se entienda antes de pulsar. */
+$("ed-quitar").addEventListener("click", () => {
+  if (!abierto) return;
+  if (!confirm(t("quitar") + ": " + abierto.titulo)) return;
+  const id = abierto.id;
+  volverALista();
+  proyectoGuardar({ quitar: id });
+});
+
 
 /* --- el Camino --------------------------------------------------------- */
 /* Los ocho peldaños salen del servidor, con su estado medido. Aqui NO se

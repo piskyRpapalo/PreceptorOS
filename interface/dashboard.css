@@ -643,6 +643,60 @@ body {
   border-radius: 999px; padding: .25rem .7rem; min-height: 36px; cursor: pointer;
 }
 
+/* --- proyectos: la lista y su editor -----------------------------------
+   El cajon normal se queda en 78vh porque ensena una lista y una lista se
+   hojea. Editando crece a 92vh, y no es capricho: el sitio donde se piensa en
+   voz alta es la nota, y una nota de cuatro lineas visibles invita a escribir
+   cuatro lineas. Se pide toda la pantalla cuando hay algo que escribir en
+   ella, no antes. */
+#cajon-proyectos.editando { max-height: 92vh; }
+#cajon-proyectos.editando #proy-editor {
+  display: flex; flex-direction: column; min-height: 62vh;
+}
+.campo-crece { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+.campo-crece textarea { flex: 1 1 auto; min-height: 8rem; resize: vertical; }
+
+/* El proyecto entero es el boton, no un enlace escondido dentro. En un telefono
+   el dedo va al bloque, no a las siete letras de «abrir». */
+.lista-proyectos .abrir {
+  display: block; width: 100%; text-align: left; font: inherit;
+  background: transparent; border: 0; padding: 0; cursor: pointer; color: inherit;
+}
+.lista-proyectos .cabeza {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
+}
+/* Los tres estados se distinguen por color y tambien por texto. Solo por color
+   seria invisible para quien no los separa. */
+.chip {
+  flex: none; font-size: .66rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; padding: .16rem .5rem; border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.chip.activo     { color: var(--violeta-fuerte); }
+.chip.pausado    { color: var(--ink-soft); }
+.chip.completado { color: var(--ok, #2f7d4f); }
+.lista-proyectos .desc { font-size: .78rem; color: var(--ink-soft); margin: .2rem 0 0; }
+.lista-proyectos .cuando { font-size: .7rem; color: var(--ink-soft); margin: .25rem 0 0; }
+
+/* El selector de estado. Botones de verdad con `aria-checked`, no un `select`:
+   son tres, caben, y un menu desplegable esconde dos de cada tres. */
+.estados { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 .7rem; }
+.estados button {
+  font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
+  color: var(--ink-soft); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: .35rem .8rem; min-height: 40px;
+}
+.estados button[aria-checked="true"] {
+  color: #fff; background: var(--violeta); border-color: var(--violeta);
+}
+.estados button:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+.acciones-proy { display: flex; gap: .5rem; align-items: center; margin-top: .6rem; }
+.acciones-proy .quitar {
+  font: inherit; font-size: .8rem; font-weight: 600; color: var(--stop);
+  background: transparent; border: 1px solid var(--line); border-radius: 999px;
+  padding: .4rem .9rem; min-height: 44px; cursor: pointer;
+}
+
 
 /* --- v4.0 «Liquid Glass Solar-Punk» · hermano del canon de la web ---------
    La app ya tenia superficies semitransparentes y esquinas de 16 px: estaba

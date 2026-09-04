@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=2">
+<link rel="stylesheet" href="/dashboard.css?v=3">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -220,16 +220,37 @@
   <div class="asa"></div>
   <button class="volver" type="button" data-volver>← Volver</button>
   <h2><span data-rotulo="proyectos">Proyectos</span></h2>
-  <p class="nota" id="proy-intro"></p>
-  <label class="campo"><span id="et-titulo"></span>
-    <input id="pr-titulo" type="text" autocomplete="off"></label>
-  <label class="campo"><span id="et-ruta"></span>
-    <input id="pr-ruta" type="text" autocomplete="off"></label>
-  <button class="guardar" type="button" id="pr-anadir"></button>
-  <ul class="lista-proyectos" id="lista-proyectos"></ul>
+  <!-- Dos vistas en el mismo cajon. La lista es lo que se ve al entrar; al
+       tocar un proyecto, el editor la sustituye y el cajon crece. No son dos
+       pantallas: es la misma, contando una cosa a la vez. -->
+  <div id="proy-lista-vista">
+    <p class="nota" id="proy-intro"></p>
+    <label class="campo"><span id="et-titulo"></span>
+      <input id="pr-titulo" type="text" autocomplete="off"></label>
+    <button class="guardar" type="button" id="pr-anadir"></button>
+    <ul class="lista-proyectos" id="lista-proyectos"></ul>
+    <p class="nota" id="proy-vacio" hidden></p>
+  </div>
+
+  <div id="proy-editor" hidden>
+    <button class="volver" type="button" id="pr-volver-lista"></button>
+    <label class="campo"><span id="et-pr-titulo"></span>
+      <input id="ed-titulo" type="text" autocomplete="off"></label>
+    <label class="campo"><span id="et-pr-desc"></span>
+      <textarea id="ed-desc" rows="2"></textarea></label>
+    <h3 class="sub-h" id="et-pr-estado"></h3>
+    <div class="estados" id="ed-estados" role="radiogroup"></div>
+    <label class="campo campo-crece"><span id="et-pr-nota"></span>
+      <textarea id="ed-nota" rows="8"></textarea></label>
+    <p class="nota" id="ed-actualizado"></p>
+    <div class="acciones-proy">
+      <button class="guardar" type="button" id="ed-guardar"></button>
+      <button class="quitar" type="button" id="ed-quitar"></button>
+    </div>
+  </div>
 </section>
 
-<script src="/dashboard.js?v=2"></script>
+<script src="/dashboard.js?v=3"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>
