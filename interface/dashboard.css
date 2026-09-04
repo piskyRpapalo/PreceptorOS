@@ -731,21 +731,6 @@ body {
   border-radius: 8px; background: var(--violeta-tenue);
   border: 1px solid var(--line); color: var(--ink);
 }
-.avatares { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .3rem; }
-/* Botones de verdad, no `div` con `onclick`: se llega con el tabulador y se
-   pulsan con la barra. Un selector de cara al que no se llega con el teclado
-   deja fuera a quien no usa el dedo. */
-.avatar {
-  width: 54px; height: 54px; flex: none; padding: 0; cursor: pointer;
-  border-radius: 50%; background: var(--paper) center / cover no-repeat;
-  border: 2px solid var(--line); image-rendering: pixelated;
-}
-.avatar[aria-checked="true"] {
-  border-color: var(--violeta);
-  box-shadow: 0 0 0 3px var(--violeta-tenue), 0 4px 14px rgba(109,90,224,.4);
-}
-.avatar:focus-visible { outline: 2px solid var(--violeta); outline-offset: 3px; }
-
 /* El aviso de que las cifras se estan midiendo ahora mismo. Un numero que
    cambia solo, sin nada que lo explique, se lee como una pantalla nerviosa en
    vez de como un instrumento. El punto no parpadea: en reposo la app tiene que
@@ -762,14 +747,3 @@ body {
   border-radius: 50%; background: var(--violeta);
 }
 
-/* Las dos familias de cara, separadas. El rotulo no es decoracion: puestas en
-   una sola fila, dieciseis dibujos se leen como dieciseis opciones iguales, y
-   no lo son -- el busto es quien eres y el ojo es la mirada que el cabezal se
-   pone al hablar. */
-.avatares { display: block; }
-.av-familia {
-  margin: .5rem 0 .3rem; font-size: .7rem; font-weight: 800;
-  letter-spacing: .03em; color: var(--violeta-fuerte); opacity: .85;
-}
-.av-familia:first-child { margin-top: 0; }
-.av-fila { display: flex; flex-wrap: wrap; gap: .5rem; }
