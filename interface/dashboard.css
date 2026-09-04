@@ -700,7 +700,7 @@ body {
      En Y: anclada arriba, para que se vea el pelo entero. La figura ocupa del
      4,7 % al 90,6 % del alto y la ventana a 1,1x ensena hasta el 90,9 %: entra
      completa, pelo incluido, y no se pierde ni la peana. */
-  background: url("/assets/cara-secuencia-apertura-256-centrada.webp") 1.337% 0% / 770% auto no-repeat;
+  background: url("/assets/cara-secuencia-apertura-256-encuadrada.webp") 1.337% 0% / 770% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
@@ -1286,4 +1286,71 @@ body.con-teclado .presentacion .busto { width: 64px; height: 64px; }
   font: inherit; font-size: .86rem; font-weight: 700; text-align: left;
   color: var(--violeta-fuerte); background: transparent; cursor: pointer;
   border: 0; border-top: 1px solid var(--line);
+}
+
+/* El Manifiesto desplegado. Monoespaciada no: es prosa, no un volcado. Se le
+   da alto máximo y desplazamiento propio para que no empuje el resto del
+   cajón fuera de la pantalla. */
+.manifiesto {
+  margin-top: .6rem; padding: .7rem .8rem; max-height: 46vh; overflow-y: auto;
+  overscroll-behavior: contain; white-space: pre-wrap; overflow-wrap: anywhere;
+  font-size: .78rem; line-height: 1.55; color: var(--ink);
+  background: var(--violeta-tenue); border: 1px solid var(--line);
+  border-radius: var(--radio);
+}
+.manifiesto[hidden] { display: none; }
+
+/* --- ajustes a pantalla completa -----------------------------------------
+   El cajón bajo servía para una lista que se hojea. Para Ajustes no: ahí se
+   lee la huella, se escriben instrucciones y desde el 2026-09-04 se abre el
+   Manifiesto, que son catorce mil caracteres. En 78vh con desplazamiento
+   propio se podía abrir y no leer, que fue justo lo que pasó.
+
+   Entra desde arriba y no desde abajo, y no es simetría: el cajón bajo es el
+   gesto de «asomar algo sin salir de donde estás», y esto es lo contrario --
+   se sale de la conversación y se entra en otro sitio. */
+.cajon.pleno {
+  /* `position: fixed` se declara aqui y no se hereda: la regla del canto
+     metalico, que va mas abajo en este fichero, deja `.cajon` en `relative`
+     para poder colgarle su anillo enmascarado. Los cajones bajos viven con
+     eso; uno a pantalla completa, no -- sin `fixed` el `inset: 0` no lo hace
+     ocupar la ventana, lo deja en el flujo con el alto que tenga. Se midio en
+     el navegador: salia de 379 px en una ventana de 812. */
+  position: fixed; inset: 0; max-height: none; border-radius: 0;
+  transform: translateY(-100%);
+  padding-top: calc(1rem + env(safe-area-inset-top));
+}
+.cajon.pleno.abierto { transform: translateY(0); }
+/* El aspa, arriba a la derecha. Se queda quieta mientras el contenido se
+   desplaza debajo: un cierre que hay que ir a buscar hacia arriba es un cierre
+   que no está. */
+.cajon.pleno .cerrar {
+  position: sticky; top: 0; float: right; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; padding: 0; cursor: pointer;
+  color: var(--mando-tinta); background: var(--mando-fondo);
+  border: 2px solid var(--mando-aro); border-radius: 999px;
+}
+.cajon.pleno .cerrar svg { width: 1.15em; height: 1.15em; }
+.cajon.pleno .cerrar:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+.cajon.pleno .manifiesto { max-height: none; }
+
+/* El interruptor del tema: tres, y se ve cuál está puesto sin abrir nada. */
+.interruptor { display: flex; gap: .3rem; }
+.interruptor button {
+  flex: 1; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
+  min-height: 42px; padding: .3rem .2rem;
+  color: var(--violeta-fuerte); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 999px;
+}
+.interruptor button[aria-checked="true"] {
+  color: #fff; background: var(--violeta); border-color: var(--violeta);
+}
+.interruptor button:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+
+@media (min-width: 720px) {
+  /* En pantalla ancha el cajón normal se centra y se estrecha; el pleno no:
+     sigue siendo pleno, que es su única razón de existir. */
+  .cajon.pleno { max-width: none; inset: 0; transform: translateY(-100%); }
+  .cajon.pleno.abierto { transform: translateY(0); }
 }

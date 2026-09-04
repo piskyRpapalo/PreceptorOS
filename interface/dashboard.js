@@ -95,7 +95,6 @@ const T = {
     at_dudas: "Qué te falta saber",
     ph_dicho: "Escribe aquí",
     manifiesto: "El Manifiesto del Builder",
-    manif_sin_red: "El manifiesto vive en la web: ábrelo cuando tengas conexión.",
     esp_titulo: "Límites de esta sesión",
     esp_quien: "Quién te contesta", esp_ritmo: "A qué ritmo",
     esp_memoria: "Memoria del modelo", esp_libre: "Libre en la máquina",
@@ -186,7 +185,6 @@ const T = {
     at_dudas: "What are you missing",
     ph_dicho: "Write here",
     manifiesto: "The Builder's Manifesto",
-    manif_sin_red: "The manifesto lives on the web: open it when you have a connection.",
     esp_titulo: "This session's limits",
     esp_quien: "Who answers you", esp_ritmo: "At what pace",
     esp_memoria: "Model memory", esp_libre: "Free on the machine",
@@ -277,7 +275,6 @@ const T = {
     at_dudas: "O que te falta saber",
     ph_dicho: "Escreve aqui",
     manifiesto: "O Manifesto do Builder",
-    manif_sin_red: "O manifesto vive na web: abre-o quando tiveres ligação.",
     esp_titulo: "Limites desta sessão",
     esp_quien: "Quem te responde", esp_ritmo: "A que ritmo",
     esp_memoria: "Memória do modelo", esp_libre: "Livre na máquina",
@@ -295,7 +292,13 @@ const velo = $("velo");
 function abrir(cual) {
   document.querySelectorAll(".cajon").forEach((c) => {
     const suyo = c.id === "cajon-" + cual;
-    if (suyo) { c.hidden = false; requestAnimationFrame(() => c.classList.add("abierto")); }
+    // El paso a abierto NO va por `requestAnimationFrame`, por lo mismo que el
+    // panel lateral: con la pestana en segundo plano el navegador no dispara
+    // ni un fotograma, la clase no se pone y el cajon se queda presente pero
+    // sin transformar -- ocupando la pantalla y comiendose los toques de lo que
+    // hay debajo. Leer `offsetWidth` fuerza el calculo de caja ahi mismo, que
+    // es lo unico que hacia falta, y es sincrono.
+    if (suyo) { c.hidden = false; void c.offsetWidth; c.classList.add("abierto"); }
     else { c.classList.remove("abierto"); c.hidden = true; }
   });
   velo.classList.add("visible");
@@ -449,10 +452,33 @@ function temaGuardado() {
   catch (_) { return "sistema"; }
 }
 aplicaTema(temaGuardado());
-$("p-tema").addEventListener("change", (e) => {
-  aplicaTema(e.target.value);
-  try { localStorage.setItem("tema", e.target.value); } catch (_) { /* sin sitio donde guardar */ }
-});
+
+/* El interruptor de tres. Se dibuja desde aqui y no en el marcado porque sus
+ * rotulos cambian con el idioma, y porque el que esta puesto se marca con
+ * `aria-checked`: quien navega con lector de pantalla oye cual es sin tener
+ * que abrir nada. Un desplegable escondia dos de cada tres opciones y, sobre
+ * todo, escondia cual estaba elegida -- que es lo primero que se viene a ver. */
+function pintaTema() {
+  const caja = $("p-tema");
+  if (!caja) return;
+  const puesto = temaGuardado();
+  caja.textContent = "";
+  for (const [valor, clave] of [["sistema", "tema_sistema"],
+                                ["claro", "tema_claro"],
+                                ["oscuro", "tema_oscuro"]]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(valor === puesto));
+    b.textContent = t(clave);
+    b.addEventListener("click", () => {
+      aplicaTema(valor);
+      try { localStorage.setItem("tema", valor); } catch (_) { /* sin sitio donde guardar */ }
+      pintaTema();
+    });
+    caja.appendChild(b);
+  }
+}
 
 /* --- Capa 1 · los atajos de debajo del campo -----------------------------
  * Tres gestos que no dependen de que el cerebro sepa nada raro: resumir, pedir
@@ -567,7 +593,7 @@ function pintarEstado(d) {
   // alcanza -- no existen como marcado hasta que alguien los dibuja.
   pintaAtajos();
   if (!lateral.hidden) pintaLateral();
-  $("p-tema").value = temaGuardado();
+  pintaTema();
   $("ir-manifiesto").textContent = t("manifiesto") + " →";
   $("p-guardar").textContent = t("guardar");
   $("pr-anadir").textContent = t("anadir");
@@ -869,20 +895,35 @@ function pintaIdentidad(d) {
   $("id-nota").textContent = id.huella ? t("id_nota") : (id.causa || "");
 }
 
-/* El Manifiesto vive en la web. Se comprueba `navigator.onLine` antes de
- * abrir: esta app promete funcionar sin red, y un boton que abre una pestana
- * en blanco cuando no hay conexion es peor que uno que lo dice. `onLine` no
- * garantiza que se llegue --dice que hay interfaz, no que haya internet-- pero
- * distingue el caso comun, que es el avion o el sotano. */
-$("ir-manifiesto").addEventListener("click", () => {
-  const av = $("manif-dicho");
-  if (navigator.onLine === false) {
-    av.textContent = t("manif_sin_red");
-    av.hidden = false;
-    setTimeout(() => { av.hidden = true; }, 4000);
+/* El Manifiesto se despliega aqui, no se abre fuera. La primera version
+ * enlazaba a la web y comprobaba `navigator.onLine`; el Soberano acepto la
+ * alternativa el 2026-09-04 y esa version se deshizo. El canon dice que la app
+ * no rutea a la web, y el motivo escrito es que un enlace saliente dentro de
+ * algo que promete funcionar sin internet es una ruta a la red justo donde se
+ * prometio que no la habia. Servirlo del propio disco cumple las dos cosas: la
+ * orden de tenerlo accesible, y la promesa de que sigue estandolo sin red.
+ *
+ * Se pide al pulsar y no al cargar: son catorce mil caracteres que la mayoria
+ * de las sesiones no abre nunca. */
+let manifiesto = null;
+$("ir-manifiesto").addEventListener("click", async () => {
+  const caja = $("manifiesto-texto");
+  const boton = $("ir-manifiesto");
+  if (!caja.hidden) {
+    caja.hidden = true;
+    boton.setAttribute("aria-expanded", "false");
     return;
   }
-  window.open("https://preceptoros.org/manifiesto.html", "_blank", "noopener");
+  if (manifiesto === null) {
+    try {
+      const r = await fetch("/api/manifiesto");
+      const d = await r.json();
+      manifiesto = d.texto || d.causa || t("sin_servidor");
+    } catch { manifiesto = t("sin_servidor"); }
+  }
+  caja.textContent = manifiesto;
+  caja.hidden = false;
+  boton.setAttribute("aria-expanded", "true");
 });
 
 $("p-guardar").addEventListener("click", async () => {

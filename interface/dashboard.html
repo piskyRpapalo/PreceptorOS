@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=26">
+<link rel="stylesheet" href="/dashboard.css?v=30">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -200,9 +200,16 @@
   <ul class="camino" id="camino"></ul>
 </section>
 
-<section class="cajon" id="cajon-perfil" aria-label="Perfil" hidden>
-  <div class="asa"></div>
-  <button class="volver" type="button" data-volver>← Volver</button>
+<!-- Ajustes se abre a pantalla completa y entra desde arriba, firmado el
+     2026-09-04. Como cajón bajo dejaba su contenido en un cuarto de pantalla
+     con desplazamiento propio: se podía abrir el Manifiesto y no leerlo. -->
+<section class="cajon pleno" id="cajon-perfil" aria-label="Perfil" hidden>
+  <button class="cerrar" type="button" data-volver aria-label="Cerrar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+         stroke-linecap="round" aria-hidden="true">
+      <path d="M 6 6 L 18 18"></path><path d="M 18 6 L 6 18"></path>
+    </svg>
+  </button>
   <h2><span data-rotulo="perfil">Perfil</span></h2>
 
   <!-- La identidad, arriba del todo. Es lo primero que alguien pregunta
@@ -229,12 +236,11 @@
   <!-- El tema. «Como el sistema» es lo primero y es el valor de fábrica: la
        decisión firmada el 2026-09-04 es que el sistema manda por defecto. Las
        otras dos existen para quien quiera desobedecerlo, en los dos sentidos. -->
-  <label class="campo"><span id="et-tema"></span>
-    <select id="p-tema">
-      <option value="sistema" data-rotulo="tema_sistema">Como el sistema</option>
-      <option value="claro" data-rotulo="tema_claro">Claro</option>
-      <option value="oscuro" data-rotulo="tema_oscuro">Oscuro</option>
-    </select></label>
+  <!-- Interruptor de tres, no desplegable. Un desplegable esconde dos de cada
+       tres opciones y pide dos toques para lo que aquí es un gesto; y esconde
+       precisamente cuál está puesto, que es lo primero que se viene a mirar. -->
+  <div class="campo"><span id="et-tema"></span>
+    <div class="interruptor" id="p-tema" role="radiogroup"></div></div>
 
   <label class="campo"><span id="et-instrucciones"></span>
     <textarea id="p-instrucciones"></textarea></label>
@@ -248,11 +254,13 @@
   <p class="nota" id="a-ruta"></p>
   <div class="dato"><span id="et-cuaderno"></span><b id="a-captura">—</b></div>
 
-  <!-- El Manifiesto. Vive en la web y esta app promete funcionar sin red, así
-       que el botón no finge: si no hay conexión lo dice, en vez de abrir una
-       pestaña en blanco. -->
-  <button class="enlace-manifiesto" id="ir-manifiesto" type="button"></button>
-  <p class="nota" id="manif-dicho" hidden></p>
+  <!-- El Manifiesto, servido desde este disco. No enlaza a la web: el canon
+       dice que la app no rutea fuera, y el motivo es que una herramienta que
+       promete funcionar sin internet no puede tener una puerta que lo pida.
+       Se despliega aquí mismo, y sigue estando en un avión. -->
+  <button class="enlace-manifiesto" id="ir-manifiesto" type="button"
+          aria-expanded="false" aria-controls="manifiesto-texto"></button>
+  <div class="manifiesto" id="manifiesto-texto" hidden></div>
   <p class="nota" id="a-nota"></p>
 </section>
 
@@ -290,7 +298,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=26"></script>
+<script src="/dashboard.js?v=29"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

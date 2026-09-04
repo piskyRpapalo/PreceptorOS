@@ -241,6 +241,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._camino()
         if ruta == "/api/metricas":
             return self._metricas()
+        if ruta == "/api/manifiesto":
+            return self._manifiesto()
         if ruta == "/api/cerebro":
             return self._cerebro_leer()
         if ruta.startswith("/api/voz"):
@@ -327,6 +329,36 @@ class PWA(BaseHTTPRequestHandler):
         if ruta == "/api/proyectos":
             return self._proyectos_guardar(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del
+    # producto, asi que NO se copia aqui: dos copias del mismo texto divergen, y
+    # la que envejece es siempre la que nadie mira. Se busca donde esta.
+    MANIFIESTO = os.path.join(os.path.dirname(AQUI), "Alejandria",
+                              "MANIFIESTO_BUILDER.md")
+
+    def _manifiesto(self):
+        """El Manifiesto, servido desde el disco de la persona.
+
+        POR QUE NO UN ENLACE A LA WEB, que es lo que se hizo primero y se
+        deshizo el 2026-09-04. El canon dice «prohibido rutear a la web desde
+        la app», y el motivo es que un enlace saliente dentro de una
+        herramienta que promete funcionar sin internet es una ruta a la red
+        justo donde se prometio que no la habia. Servirlo de aqui cumple las
+        dos cosas: esta accesible, y sigue estandolo en un avion.
+
+        Si el fichero no esta --una instalacion suelta que no trae el arbol de
+        doctrina-- se dice, con su causa. No se inventa un texto de relleno ni
+        se manda a nadie a buscarlo fuera.
+        """
+        try:
+            with open(self.MANIFIESTO, encoding="utf-8") as fh:
+                return self._json(200, {"estado": "ok", "texto": fh.read()})
+        except OSError as e:
+            return self._json(200, {
+                "estado": "NO_DATA",
+                "causa": "esta copia no trae el arbol de doctrina, asi que el "
+                         "manifiesto no esta en este disco",
+                "detalle": type(e).__name__})
 
     def _metricas(self):
         """Las once de METRICAS_NORMA. La interfaz PINTA; aqui se MIDE.
