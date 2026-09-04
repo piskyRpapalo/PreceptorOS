@@ -334,28 +334,37 @@ body {
 
 /* --- hablar --- */
 .hablar-zona { padding: 0 .7rem .6rem; }
-/* El boton de la lamina: la placa de bronce con el microfono. Sin rotulo a la
-   vista -- el microfono ya dice lo que hace. El texto sigue en el arbol, solo
-   que fuera de la pantalla: de ahi sale el nombre del boton para un lector de
-   pantalla, y quitarlo dejaria el mando mudo para quien no ve el dibujo.
-   El brillo violeta es una sombra proyectada sobre la silueta, no un halo
-   rectangular: `drop-shadow` sigue el alfa de la placa. */
-.hablar {
-  flex: none; width: 104px; height: 84px; font: inherit;
-  background: url("/assets/boton-hablar.png") center / contain no-repeat;
-  border: 0; cursor: pointer; padding: 0; position: relative;
-  filter: drop-shadow(0 0 9px rgba(109,90,224,.55));
-  transition: filter .18s ease-out;
+/* El mando de voz, junto a Enviar y no en la cabecera. Era una placa de bronce
+   de 104x84 px arriba del todo, y bajo ella habia un boton que solo enfoca el
+   campo de escribir: cien pixeles de adorno prometiendo un microfono que este
+   producto NO tiene. Ahora vive donde la web pone el suyo --pegado al boton de
+   mandar-- y se dibuja apagado, con el microfono tachado.
+
+   Apagado y no ausente, a proposito. El dictado del navegador manda el audio a
+   Google, y esta aplicacion promete que nada sale del aparato; quitarlo del
+   todo dejaria a quien lo busque sin saber por que no esta. Pulsandolo se lee
+   el motivo. Es la misma solucion que la web ya usa cuando el aparato no sabe
+   dictar en local: el boton queda, apagado, y se explica. */
+/* Se escribe `.escribir .hablar` y no `.hablar` a secas por especificidad, no
+   por gusto: la regla de al lado es `.escribir button`, que vale (0,1,1) y le
+   gana a una sola clase. Con `.hablar` pelado el microfono salia pintado de
+   violeta con el icono en blanco, o sea dos botones morados pegados que se
+   leian como uno solo y sin dibujo dentro. Se vio en el telefono. */
+.escribir .hablar {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; width: 48px; padding: 0; font: inherit; cursor: pointer;
+  color: var(--ink-soft); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px;
+  transition: color .18s ease-out, border-color .18s ease-out;
 }
-.hablar svg { display: none; }
-.hablar .rotulo-boton {
+.escribir .hablar:hover,
+.escribir .hablar:focus-visible { color: var(--violeta); border-color: var(--violeta); }
+.escribir .hablar:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+.escribir .hablar .rotulo-boton {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
 }
-.hablar.escuchando {
-  filter: drop-shadow(0 0 17px rgba(109,90,224,.95)) brightness(1.1) saturate(1.2);
-}
-.hablar:disabled { opacity: .45; filter: none; }
+.escribir .hablar:disabled { opacity: .45; }
 .escribir button {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
 }

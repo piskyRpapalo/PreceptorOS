@@ -15,7 +15,7 @@ let idioma = "es";
  * falta, y aqui se ve de un vistazo. */
 const T = {
   es: {
-    listo: "habla aquí",
+    listo: "escribe aquí",
     sin_cerebro: "puedo preguntar y recordar, todavía no conversar",
     sin_servidor: "no alcanzo al servidor",
     pensando: "pensando… esto puede tardar minutos",
@@ -26,6 +26,7 @@ const T = {
     sin_micro: "no me diste permiso para el micrófono.",
     sin_oir: "no te oí bien. Prueba a escribirlo.",
     hablar: "Hablar", escribir: "Escribir",
+    voz_apagada: "Dictado apagado",
     escuchando: "Escuchando… toca para parar",
     nota_motor: "En un teléfono cada respuesta tarda minutos. No es que se haya colgado.",
     nota_sin: "Sin cerebro instalado, PreceptorOS pregunta y recuerda pero no conversa.",
@@ -78,7 +79,7 @@ const T = {
     no_medible: "no medible desde aquí",
   },
   en: {
-    listo: "talk here",
+    listo: "write here",
     sin_cerebro: "I can ask and remember, not converse yet",
     sin_servidor: "cannot reach the server",
     pensando: "thinking… this can take minutes",
@@ -89,6 +90,7 @@ const T = {
     sin_micro: "you did not give me microphone permission.",
     sin_oir: "I did not hear you. Try writing it.",
     hablar: "Talk", escribir: "Write",
+    voz_apagada: "Dictation off",
     escuchando: "Listening… tap to stop",
     nota_motor: "On a phone each answer takes minutes. It has not frozen.",
     nota_sin: "With no brain installed, PreceptorOS asks and remembers but does not converse.",
@@ -201,8 +203,12 @@ function rotulo() {
   // El rotulo dice «Escribir» siempre, porque es lo que el boton hace. Un
   // rotulo que promete escuchar y lleva a un campo de texto es peor que uno
   // honesto y aburrido.
+  // El nombre accesible dice lo que el dibujo dice: el microfono esta tachado
+  // porque el dictado esta apagado. Antes ponia «Escribir», que era honesto con
+  // lo que el boton hace, pero no con lo que el icono promete; con el microfono
+  // al lado de Enviar, un lector de pantalla tiene que oir lo mismo que se ve.
   const r = $("rotulo-hablar");
-  if (r) r.textContent = t("escribir");
+  if (r) r.textContent = t("voz_apagada");
 }
 
 async function pulso() {
