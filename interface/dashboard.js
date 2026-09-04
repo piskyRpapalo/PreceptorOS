@@ -84,7 +84,7 @@ const T = {
     nota_memoria: "Vive en un solo fichero de tu máquina. Puedes copiarlo y llevártelo.",
     hecho: "hecho", empezado: "empezado", sin_empezar: "sin empezar",
     no_medible: "no medible desde aquí",
-    ajustes: "Ajustes", agentes: "Agentes y herramientas",
+    agentes: "Agentes y herramientas",
     et_tema: "Tema", tema_sistema: "Como el sistema",
     tema_claro: "Claro", tema_oscuro: "Oscuro",
     sin_nombre: "sin nombre todavía",
@@ -93,6 +93,8 @@ const T = {
     lat_frontera: "Qué sale de aquí",
     at_resume: "Resume esto", at_pasos: "Dame los pasos",
     at_dudas: "Qué te falta saber",
+    ph_dicho: "Escribe aquí",
+    saluda: "Soy tu Preceptor y vivo en esta máquina: lo que escribes aquí no sale de ella. Puedo recordar lo que me cuentes, ayudarte a llevar tus proyectos y decirte cuándo no sé algo. Escribe abajo, o toca uno de los atajos.",
   },
   en: {
     listo: "write here",
@@ -164,7 +166,7 @@ const T = {
     nota_memoria: "It lives in one file on your machine. You can copy it and take it with you.",
     hecho: "done", empezado: "started", sin_empezar: "not started",
     no_medible: "not measurable from here",
-    ajustes: "Settings", agentes: "Agents and tools",
+    agentes: "Agents and tools",
     et_tema: "Theme", tema_sistema: "Follow the system",
     tema_claro: "Light", tema_oscuro: "Dark",
     sin_nombre: "no name yet",
@@ -173,6 +175,8 @@ const T = {
     lat_frontera: "What leaves this machine",
     at_resume: "Sum this up", at_pasos: "Give me the steps",
     at_dudas: "What are you missing",
+    ph_dicho: "Write here",
+    saluda: "I am your Preceptor and I live on this machine: what you write here never leaves it. I can remember what you tell me, help you carry your projects, and say when I do not know something. Write below, or tap one of the shortcuts.",
   },
 };
 const t = (clave) => (T[idioma] || T.es)[clave];
@@ -224,6 +228,28 @@ document.querySelectorAll(".cajon").forEach((c) => {
     y0 = null;
   }, { passive: true });
 });
+
+/* --- la primera linea, para quien acaba de entrar ------------------------
+ * El hueco de conversacion nacia vacio. Medido entrando como usuario nuevo el
+ * 2026-09-04: se ve una cara, un boton y un marco de bronce con nada dentro, y
+ * nada dice que es esto ni que sabe hacer. La primera pregunta obvia --«que
+ * eres»-- se la lleva el modelo, y el modelo contesta con otra pregunta.
+ *
+ * Asi que la respuesta a esa pregunta NO se le pide al modelo: se escribe. Es
+ * lo unico de esta pantalla que tiene que ser igual siempre, decir la verdad
+ * siempre y no tardar veintiocho segundos.
+ *
+ * Se pinta solo si el hueco esta vacio, y desaparece sola en cuanto se habla:
+ * `linea()` anade al final y esto queda arriba, como la primera frase de una
+ * conversacion que ya empezo. */
+function saluda() {
+  const d = $("dice");
+  if (!d || d.children.length) return;
+  const p = document.createElement("p");
+  p.className = "saluda";
+  p.textContent = t("saluda");
+  d.appendChild(p);
+}
 
 /* --- Capa 3 · el lateral de agentes y herramientas -----------------------
  * Se rellena desde aqui y no desde el marcado porque lo que ofrece tiene que
@@ -392,8 +418,12 @@ function pintarEstado(d) {
   document.documentElement.lang = idioma;
   if ($("pulso")) $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
   rotulo();
-  $("dicho").placeholder = idioma === "en" ? "…or write it here"
-                                           : "…o escríbelo aquí";
+  // El rotulo del campo sale del diccionario como todo lo demas. Decia «…o
+  // escribelo aqui», y ese «o» era la segunda mitad de una disyuntiva cuya
+  // primera mitad --hablar por el microfono-- se retiro hace tiempo: quedaba
+  // una alternativa sin la otra opcion, ofreciendo algo que no esta.
+  $("dicho").placeholder = t("ph_dicho");
+  saluda();
   // Las etiquetas del marco tambien: estaban escritas en el HTML y por eso
   // no cambiaban. Un tablero que declara hablar dos idiomas y solo traduce
   // los mensajes esta a medio traducir, que se nota mas que no traducir.

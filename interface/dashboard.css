@@ -1167,3 +1167,12 @@ body.chat-activo .cabezal { opacity: .35; }
     background: var(--fondo-centro); color: var(--ink);
   }
 }
+
+/* La primera linea, la que recibe a quien acaba de entrar. Se distingue de lo
+   que dice el modelo --letra algo menor, sin la caja violeta de los mensajes
+   propios-- porque no es una respuesta: es la pantalla presentandose. Que se
+   parezca a un turno seria hacerle creer que ya ha hablado con algo. */
+.saluda {
+  font-size: .86rem; line-height: 1.5; color: var(--ink-soft);
+  border-left: 3px solid var(--violeta); padding-left: .6rem;
+}
