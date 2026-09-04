@@ -994,20 +994,30 @@ body {
 
    `transform-origin: top left` es lo que hace que crezca desde ese canto y no
    desde el centro, que es el reparto por defecto y se lee como un acordeon. */
-.lateral-zona { position: relative; z-index: var(--capa-3-lateral); padding: 0 .7rem; }
+/* Vive dentro del cabezal desde el 2026-09-04, y no en una fila propia bajo la
+   esfera. La fila costaba unos cincuenta pixeles de alto, y ese alto es el que
+   el chat echa en falta justo cuando sale el teclado -- que es el momento en
+   que menos sitio hay y mas importa. Cerrado no ocupa nada, porque el panel va
+   absoluto; solo ocupa el boton, que ahora es un icono del tamano de la rueda.
+
+   `position: static` a proposito: el panel se ancla al cabezal, que ya es
+   contexto de posicion y ocupa el ancho entero. Anclarlo a esta caja lo pegaria
+   al boton, y lo que se quiere es que caiga desde el canto izquierdo. */
+.lateral-zona { position: static; display: contents; }
 .lateral-boton {
-  display: inline-flex; align-items: center; gap: .45rem;
-  min-height: 44px; padding: .35rem .9rem; font: inherit;
-  font-size: .8rem; font-weight: 700; cursor: pointer;
-  color: var(--violeta-fuerte); background: var(--paper);
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; padding: 0; font: inherit; cursor: pointer;
+  color: var(--violeta-fuerte); background: transparent;
   border: 1px solid var(--line); border-radius: 999px;
 }
+.lateral-boton svg { width: 1.25em; height: 1.25em; }
 .lateral-boton:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
 .lateral-boton[aria-expanded="true"] {
   color: #fff; background: var(--violeta); border-color: var(--violeta);
 }
 .lateral {
-  position: absolute; left: .7rem; top: calc(100% + .35rem);
+  position: absolute; left: .7rem; top: calc(100% - .1rem);
+  z-index: var(--capa-3-lateral);
   width: min(17rem, calc(100vw - 1.4rem));
   padding: .5rem; border-radius: var(--radio);
   background: var(--violeta); color: #fff;
@@ -1082,7 +1092,7 @@ body.chat-activo .cabezal { opacity: .35; }
 
 @media (min-width: 720px) {
   .presentacion .busto { width: var(--cara-centro-ancha); height: var(--cara-centro-ancha); }
-  .cabezal, .presentacion, .lateral-zona, .atajos {
+  .cabezal, .presentacion, .atajos {
     max-width: 34rem; margin-inline: auto; width: 100%;
   }
 }

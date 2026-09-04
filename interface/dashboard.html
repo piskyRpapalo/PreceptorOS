@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/dashboard.css?v=11">
+<link rel="stylesheet" href="/dashboard.css?v=12">
 <link rel="stylesheet" href="/compass.css?v=39">
 </head>
 <body>
@@ -24,6 +24,22 @@
      instrucciones. Un segundo panel de ajustes al lado del que ya existe
      serían dos sitios donde cambiar lo mismo. -->
 <header class="cabezal" id="cabezal">
+  <!-- Capa 3 · agentes y herramientas. Vive en el cabezal y no en una fila
+       propia bajo la esfera: aquella fila costaba unos cincuenta pixeles de
+       alto que el chat necesita justo cuando sale el teclado. Cerrado no ocupa
+       nada --el panel va absoluto--, y abierto cae desde el canto izquierdo.
+       Firmado por el Soberano el 2026-09-04. -->
+  <div class="lateral-zona">
+    <button class="lateral-boton" id="lateral-boton" type="button"
+            aria-expanded="false" aria-controls="lateral">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M 4 7 h16"></path><path d="M 4 12 h16"></path><path d="M 4 17 h10"></path>
+      </svg>
+      <span class="sr" data-rotulo="agentes">Agentes y herramientas</span>
+    </button>
+    <div class="lateral" id="lateral" hidden></div>
+  </div>
   <button class="rueda" id="rueda" type="button" data-cajon="perfil" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -54,16 +70,6 @@
   </div>
 </div>
 
-<!-- Capa 3 · agentes y herramientas. El panel se rellena desde el javascript
-     porque su contenido depende de lo que haya instalado; vacío en el marcado
-     es un panel honesto, no un hueco olvidado. -->
-<div class="lateral-zona">
-  <button class="lateral-boton" id="lateral-boton" type="button"
-          aria-expanded="false" aria-controls="lateral">
-    <span data-rotulo="agentes">Agentes y herramientas</span>
-  </button>
-  <div class="lateral" id="lateral" hidden></div>
-</div>
 
 <p class="fusion" id="fusion" hidden>
   <span id="fusion-texto"></span><span class="puntos" id="puntos"></span>
@@ -302,7 +308,7 @@
   </div>
 </section>
 
-<script src="/dashboard.js?v=11"></script>
+<script src="/dashboard.js?v=12"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

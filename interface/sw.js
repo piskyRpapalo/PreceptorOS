@@ -10,7 +10,16 @@
 // Medido en un telefono el 2026-08-22 -- se veia la interfaz anterior y el
 // servidor decia la verdad. **Al tocar cualquier fichero de esta lista, se
 // sube el numero.** Es lo unico que hace que una actualizacion llegue.
-const Cache = "aurelius-armazon-v45";
+// v46 (2026-09-04): las cuatro capas, el tema del sistema y el ancla del
+// teclado tocaron dashboard.html, .css y .js -- los tres estan en la lista de
+// abajo. Se subio despues de que el telefono lo demostrara: la prueba del
+// Doogee devolvio la cara vieja --campo con el rotulo retirado y el hueco de
+// conversacion sin la linea de bienvenida-- mientras el servidor ya servia la
+// nueva. Es exactamente el fallo que el parrafo de arriba describe, cometido
+// por quien lo acababa de leer. La marca `?v=` de las hojas no lo cubre: el
+// que se sirve de la cache es `/dashboard.html`, que no lleva marca, y es el
+// que arrastra a los demas.
+const Cache = "aurelius-armazon-v47";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
