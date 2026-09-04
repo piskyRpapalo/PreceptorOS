@@ -161,7 +161,7 @@ body {
      entrada de cinco segundos deja de ser una entrada y pasa a ser una espera.
      Aqui solo hay dos estados: los colores del reposo y las bocas del habla. */
   background: var(--paper) url("/assets/cara-secuencia-reposo-256.webp")
-              4.688% 50% / 580% auto no-repeat;
+              2.885% 50% / 490% auto no-repeat;
 }
 
 /* La apertura, y por que no es `steps()`.
@@ -222,18 +222,26 @@ body {
    una cara quieta se lea como una aplicacion colgada. */
 .busto.despierto {
   background-image: url("/assets/cara-secuencia-reposo-256.webp");
-  background-size: 580% auto;
+  background-size: 490% auto;
   /* `fundido` fuera. Bajaba la opacidad a .55 en cada salto de color para
      tapar el corte, y el precio era una cara que se desvanecia a medias varias
      veces por minuto -- «se vuelve invisible», dicho por el Soberano el
      2026-09-04. Se prefiere el corte limpio: un salto de color se lee como un
      cambio, y una cara medio transparente se lee como una averia. */
-  animation: reposo var(--anim-reposo) steps(3, jump-none) infinite,
+  /* `steps(4)` y no `steps(3)`. `jump-none` da exactamente n paradas, no n+1:
+     con 3 sobre una tira de cuatro colores las paradas caian en 0, 50 y 100 %,
+     y el 50 % no es ningun cuadro -- es la juntura entre el segundo y el
+     tercero. Se veia medio de cada uno, o sea un circulo casi vacio. El fallo
+     venia de antes; el zoom solo lo hizo visible, porque al ensanchar la tira
+     la juntura pasa de un hilo a un dedo. Cuatro colores son cuatro paradas.
+     El fichero ya lo sabia en la apertura: «seis valores son steps(6), no
+     siete». Aqui se conto mal el mismo dia. */
+  animation: reposo var(--anim-reposo) steps(4, jump-none) infinite,
              respirar 3.6s ease-in-out infinite;
 }
 @keyframes reposo {
-  from { background-position:  4.688% 50%; }
-  to   { background-position: 95.313% 50%; }
+  from { background-position:  2.885% 50%; }
+  to   { background-position: 97.115% 50%; }
 }
 @keyframes respirar {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -256,14 +264,14 @@ body {
    solo puede cambiarla. */
 .busto.piensa {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
-  background-size: 580% auto;
+  background-size: 490% auto;
   opacity: 1;
   animation: hablar var(--anim-habla) steps(4, jump-none) infinite,
              latir 2.88s ease-in-out infinite;
 }
 @keyframes hablar {
-  from { background-position:  4.688% 50%; }
-  to   { background-position: 95.313% 50%; }
+  from { background-position:  2.885% 50%; }
+  to   { background-position: 97.115% 50%; }
 }
 @keyframes latir {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -274,8 +282,8 @@ body {
    habla, que es la unica que tiene bocas distintas. */
 .busto.gesto {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
-  background-size: 580% auto;
-  background-position: 65.104% 50%;
+  background-size: 490% auto;
+  background-position: 65.705% 50%;
 }
 
 /* Quien pidio menos movimiento se queda con la cara quieta y encendida: el
@@ -285,7 +293,7 @@ body {
   .busto, .busto.despierto, .busto.piensa, .busto.gesto {
     animation: none; opacity: 1;
     background-image: url("/assets/cara-secuencia-reposo-256.webp");
-    background-size: 580% auto;
+    background-size: 490% auto;
     background-position: 4.688% 50%;
   }
 }
@@ -514,16 +522,11 @@ body {
 }
 
 
-/* --- el nombre, en oro --------------------------------------------------- */
-/* Georgia y no una fuente de Google: pedirla por red rompe la promesa de que
-   esta cara no habla con nadie, y en un telefono sin datos no llegaria. El
-   espaciado ancho hace el trabajo que haria la Cinzel. */
-/* Las letras son la lamina, enteras. Se dan como <img> y no como fondo para
-   que lleven su texto alternativo: quien no ve la imagen tiene que leer el
-   nombre igual. */
-.marca { flex: 1; min-width: 0; margin: 0; text-align: left; }
-.marca img { width: 100%; max-width: 236px; height: auto; display: block; }
-@media (min-width: 720px) { .marca img { max-width: 300px; } }
+/* --- el nombre ----------------------------------------------------------- */
+/* Era una lamina (`titulo-preceptoros.png`, 184 kB) y se retiro el 2026-09-04:
+   a 236 px de ancho el dibujo gotico no se leia. Las reglas de la imagen se
+   van con ella; lo que dibuja la marca ahora esta mas arriba, en `.marca`. */
+.marca { flex: 1; min-width: 0; text-align: left; }
 
 /* --- el telon ------------------------------------------------------------ */
 .telon {
@@ -570,16 +573,42 @@ body {
      cuanto mas pequeno el circulo, mas dibujo se pierde. `min` lo ata al ancho
      del telefono para que no se salga en pantallas estrechas. */
   width: min(68vw, 320px); aspect-ratio: 1; border-radius: 50%; flex: none;
-  background: url("/assets/cara-secuencia-apertura-256.webp") 0% 50% / 700% auto no-repeat;
+  /* Acercada un 1,2x y recolocada, firmado el 2026-09-04. Dos correcciones
+     distintas y conviene no confundirlas.
+
+     El zoom es 1,1x, el paso medio entre no acercar nada y el 1,2x que se
+     probo: 1,2 se veia demasiado cerca. Siete cuadros por 1,1 son 770 % y el
+     paso queda en 1,1/6,7 = 16.418 %.
+
+     En X: el busto viene dibujado a la izquierda del cuadro. Y la primera
+     medida se quedo corta por contar el laser: incluyendo el haz y los
+     fragmentos el centro de masa sale en el 41 %, pero midiendo solo el marmol
+     --pixeles de baja saturacion-- sale en el 38,7 %, o sea 11,3 % descentrado
+     y no 8,7. El haz sale disparado hacia la derecha y tiraba del promedio
+     hacia el centro, escondiendo el problema que se venia a medir.
+
+     No se puede corregir entero, y el zoom es justo lo que compra el margen
+     para moverlo. La ventana de un cuadro no puede salirse de su cuadro o se
+     cuela un trozo del vecino -- que es el defecto de «la cara que se queda en
+     medio», visto en pantalla el 2026-09-04. El limite es c >= 0,5/zoom, y a
+     1,1x eso deja el centro de ventana en 0,4605: el desvio baja de 11,3 % a
+     8,1 % y no mas. Medido: a 1,15x quedaria en 6,2 %, a 1,2x en 4,3 %, y solo
+     a 1,3x se centraria del todo. Se eligio 1,1x -- el paso medio, firmado --
+     asi que el resto se arregla centrando el busto al generar la tira, en
+     `herramientas/unir_bustos.py`. Ahi no cuesta nada; aqui cuesta acercar.
+
+     En Y: anclada arriba, para que se vea el pelo entero. La figura ocupa del
+     4,7 % al 90,6 % del alto y la ventana a 1,1x ensena hasta el 90,9 %: entra
+     completa, pelo incluido, y no se pierde ni la peana. */
+  background: url("/assets/cara-secuencia-apertura-256.webp") 0.098% 0% / 770% auto no-repeat;
   border: 3px solid var(--violeta);
   box-shadow: 0 10px 34px rgba(109,90,224,.4);
   animation: despertar-entero 1.2s steps(7, jump-none) 1 both;
 }
 @keyframes despertar-entero {
-  from { background-position:   0% 50%; }
-  to   { background-position: 100% 50%; }
+  from { background-position:  0.098% 0%; }
+  to   { background-position: 98.605% 0%; }
 }
-.telon img { width: 72%; max-width: 400px; height: auto; }
 @keyframes caer { to { opacity: 0; visibility: hidden; } }
 /* Quien pidio quietud no espera un segundo y medio a una cortina. */
 @media (prefers-reduced-motion: reduce) { .telon { display: none; } }
