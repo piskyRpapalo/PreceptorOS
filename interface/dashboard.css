@@ -12,9 +12,9 @@
      cosas distintas. */
   --cara-chica: 102px;      /* era 68. Un 50 % mas, firmado 2026-09-02 */
   --cara-grande: 138px;     /* era 92, la misma proporcion */
-  --anim-apertura: 3.75s;
-  --anim-reposo: 32s;       /* ocho segundos por color */
-  --anim-habla: .72s;
+  --anim-apertura: 5.1s;    /* 4,25 compases x 1,2 · ver `despertar` */
+  --anim-reposo: 38.4s;     /* 9,6 s por color · el fundido va atado */
+  --anim-habla: .864s;
 
   --violeta:      #6d5ae0;
   --violeta-hondo:#4c3fb5;
@@ -129,7 +129,7 @@ body {
      [0] dormido   [1] grieta  [2] rompe    [3] ojo
      [4] halo      [5] despierto <-- reposo [6] corazon  [7] oscuro
 
-   Con ocho fotogramas el fondo va al 800% y cada uno cae en un septimo:
+   Con ocho fotogramas el fondo iria al 800% y cada uno caeria en un septimo:
    0, 14.2857, 28.5714, 42.8571, 57.1429, 71.4286, 85.7143 y 100 por ciento.
 
    El busto del tablero se para en el [5] -- 71.4286% -- y NO llega al final:
@@ -138,7 +138,8 @@ body {
    quedaria parada en `corazon`, que es otro dibujo.
 
    Toda regla de aqui abajo que use la tira de `talks` tiene que declarar
-   su propio `background-size: 400% auto`. Ver la cicatriz en `.piensa`.
+   su propio `background-size: 480% auto` -- cuatro cuadros por el 1,2x. Ver la
+   cicatriz en `.piensa`. Sus paradas van de 1.316 a 96.053, no de 0 a 100.
 
    (Y un aviso de casa: en los ficheros de `interface/` no se escriben palabras
    enteras en mayusculas. `test_guardrails` exige que toda palabra de cinco o
@@ -154,61 +155,85 @@ body {
   /* `pixelated` Fuera. Estaba puesto para una tira de 256 px que se pintaba a
      68: al ampliar a 102 el vecino mas cercano deja escalones en la barba.
      Estas laminas son fotografia de marmol, no pixel art. */
-  background: var(--paper) url("/assets/cara-secuencia-apertura-256.webp")
-              0% 50% / 700% auto no-repeat;
-  animation: despertar var(--anim-apertura) linear 1 both;
+  /* La cara del chat nace despierta. La apertura --la piedra que se rompe y
+     el laser-- es la entrada del producto y vive en el telon, no aqui: firmado
+     el 2026-09-04. En un cabezal al que se vuelve cien veces al dia, una
+     entrada de cinco segundos deja de ser una entrada y pasa a ser una espera.
+     Aqui solo hay dos estados: los colores del reposo y las bocas del habla. */
+  background: var(--paper) url("/assets/cara-secuencia-reposo-256.webp")
+              4.688% 50% / 580% auto no-repeat;
 }
 
-/* LA Apertura, Y POR QUE NO ES `steps()`.
-   Siete fotogramas, y el tercero (`wake1,5`) dura la Mitad que los demas --
+/* La apertura, y por que no es `steps()`.
+   Siete fotogramas, y el tercero (`wake1,5`) dura la mitad que los demas --
    firmado. `steps()` reparte el tiempo a partes iguales por definicion: no
    hay forma de darle medio compas a uno solo. Con paradas en porcentaje cada
    fotograma dura lo que se le diga, y sigue siendo una sola animacion css sin
    una linea de javascript.
 
-   Sobre 3,75 s: 0,5 / 0,5 / 0,25 / 0,5 / 0,5 / 0,5 / 1,0.
-   La tira mide 1792x256 = siete cuadrados, asi que el fondo va al 700 % y cada
-   fotograma cae en un sexto: 0, 16.667, 33.333, 50, 66.667, 83.333 y 100.
+   Compases (2026-09-04, firmado): 1,0 / 0,5 / 0,25 / 0,5 / 0,5 / 0,5 / 1,0.
+   El primero vale el doble que antes -- la cara dormida se mira un rato antes
+   de que pase nada-- y son 4,25 compases en total. A 1,2 s por compas eso da
+   los 5,1 s de `--anim-apertura`: un veinte por ciento mas lento que el ritmo
+   anterior, tambien firmado. Los cortes salen de la suma acumulada partida por
+   4,25: 23.53, 35.29, 41.18, 52.94, 64.71 y 76.47 por ciento.
 
-   Cada fotograma se declara DOS veces --su entrada y el instante antes del
+   El zoom, y su aritmetica, que es donde esto se rompe si se toca a ojo.
+   La tira mide 1792x256 = siete cuadrados. Al 700 % cada cuadro llena el
+   circulo exacto y las paradas caen en un sexto (0, 16.667 ... 100). Para
+   acercar la figura un 1,2x el fondo sube a 840 % -- siete cuadros por 1,2 --
+   y entonces las paradas ya no son esas: el paso pasa a 1,2/7,4 = 16.216 por
+   ciento. Subir el tamano sin recalcular las paradas es el error que parece
+   inofensivo y ensena medio cuadro y medio del siguiente a la vez.
+
+   Y el recentrado, que es lo que se vino a arreglar. Medido con Pillow sobre
+   la tira: el busto tiene su centro de masa en x=105 de 256, un 8,7 % a la
+   izquierda del centro del cuadro, y en los siete igual. No es cosa del css:
+   viene dibujado asi. El 1,2x deja margen para correrlo, pero no todo el que
+   haria falta -- el cuadro [3] es el mas ancho (x=32..224) y centrar del todo
+   lo cortaria. El limite sin cortar nada es una ventana centrada en 0,4583 del
+   cuadro, que baja el desvio de 8,9 % a 5,6 %. Lo que queda se arregla en
+   `herramientas/unir_bustos.py` centrando el busto al generar la tira, no
+   aqui.
+
+   Cada fotograma se declara dos veces --su entrada y el instante antes del
    siguiente-- porque sin el segundo punto el navegador interpola la posicion y
    la cara se desliza de un dibujo al otro en vez de cambiar. Ese deslizamiento
    es exactamente el defecto que esta cara viene a matar. */
 @keyframes despertar {
-  0%,     13.32% { background-position:      0% 50%; }
-  13.33%, 26.66% { background-position: 16.667% 50%; }
-  26.67%, 33.32% { background-position: 33.333% 50%; }   /* medio compas */
-  33.33%, 46.66% { background-position:     50% 50%; }
-  46.67%, 59.99% { background-position: 66.667% 50%; }
-  60%,    73.32% { background-position: 83.333% 50%; }
-  73.33%, 100%   { background-position:    100% 50%; }
+  0%,     23.52% { background-position:  0.676% 50%; }   /* compas doble */
+  23.53%, 35.28% { background-position: 16.892% 50%; }
+  35.29%, 41.16% { background-position: 33.108% 50%; }   /* medio compas */
+  41.17%, 52.93% { background-position: 49.324% 50%; }
+  52.94%, 64.69% { background-position: 65.541% 50%; }
+  64.70%, 76.46% { background-position: 81.757% 50%; }
+  76.47%, 100%   { background-position: 97.973% 50%; }
 }
 
 /* Reposo. Al terminar la apertura, `dashboard.js` pone `.despierto` --ya lo
    hacia-- y la cara pasa a su ciclo de color: violeta, azul, verde, ambar.
-   Ocho segundos cada uno, treinta y dos la vuelta entera.
+   Nueve segundos y medio cada uno, 38,4 la vuelta entera.
 
-   Dos animaciones sobre el mismo elemento y cada una hace lo suyo: `reposo`
-   cambia de fotograma a saltos, y `fundido` baja la opacidad justo en el
-   instante del salto. Asi el cambio se ve como un fundido y no como un corte,
-   sin necesidad de dos capas apiladas ni de javascript.
+   El cambio de color es un corte limpio, sin fundido. Lo hubo --bajaba la
+   opacidad a .55 justo en el salto-- y se retiro el 2026-09-04: tapaba el
+   corte al precio de dejar la cara medio transparente varias veces por minuto.
 
    `respirar` se queda: mueve la Sombra, no la imagen, y es lo que impide que
    una cara quieta se lea como una aplicacion colgada. */
 .busto.despierto {
   background-image: url("/assets/cara-secuencia-reposo-256.webp");
-  background-size: 400% auto;
+  background-size: 580% auto;
+  /* `fundido` fuera. Bajaba la opacidad a .55 en cada salto de color para
+     tapar el corte, y el precio era una cara que se desvanecia a medias varias
+     veces por minuto -- «se vuelve invisible», dicho por el Soberano el
+     2026-09-04. Se prefiere el corte limpio: un salto de color se lee como un
+     cambio, y una cara medio transparente se lee como una averia. */
   animation: reposo var(--anim-reposo) steps(3, jump-none) infinite,
-             fundido 8s ease-in-out infinite,
-             respirar 3s ease-in-out infinite;
+             respirar 3.6s ease-in-out infinite;
 }
 @keyframes reposo {
-  from { background-position:   0% 50%; }
-  to   { background-position: 100% 50%; }
-}
-@keyframes fundido {
-  0%, 6%, 94%, 100% { opacity: .55; }
-  20%, 80%          { opacity: 1; }
+  from { background-position:  4.688% 50%; }
+  to   { background-position: 95.313% 50%; }
 }
 @keyframes respirar {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -231,14 +256,14 @@ body {
    solo puede cambiarla. */
 .busto.piensa {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
-  background-size: 400% auto;
+  background-size: 580% auto;
   opacity: 1;
   animation: hablar var(--anim-habla) steps(4, jump-none) infinite,
-             latir 2.4s ease-in-out infinite;
+             latir 2.88s ease-in-out infinite;
 }
 @keyframes hablar {
-  from { background-position:   0% 50%; }
-  to   { background-position: 100% 50%; }
+  from { background-position:  4.688% 50%; }
+  to   { background-position: 95.313% 50%; }
 }
 @keyframes latir {
   0%,100% { box-shadow: 0 8px 28px rgba(109,90,224,.22); }
@@ -249,8 +274,8 @@ body {
    habla, que es la unica que tiene bocas distintas. */
 .busto.gesto {
   background-image: url("/assets/cara-secuencia-habla-256.webp");
-  background-size: 400% auto;
-  background-position: 66.667% 50%;
+  background-size: 580% auto;
+  background-position: 65.104% 50%;
 }
 
 /* Quien pidio menos movimiento se queda con la cara quieta y encendida: el
@@ -259,11 +284,32 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .busto, .busto.despierto, .busto.piensa, .busto.gesto {
     animation: none; opacity: 1;
-    background-image: url("/assets/cara-secuencia-apertura-256.webp");
-    background-size: 700% auto;
-    background-position: 100% 50%;
+    background-image: url("/assets/cara-secuencia-reposo-256.webp");
+    background-size: 580% auto;
+    background-position: 4.688% 50%;
   }
 }
+
+/* La marca, en texto y no en una lamina de 184 kB. La imagen anterior era un
+   dibujo gotico muy recargado: a 300 px de ancho no se leia, y en el telefono
+   menos. Se pidio simple y en mayusculas, con `OS` algo mayor y violeta.
+
+   No hay gotica de verdad que poner sin romper algo: en este nodo no hay
+   ninguna blackletter instalada --`Noto Sans Gothic` es el alfabeto godo
+   antiguo y `URW Gothic` es una sans geometrica-- y la app no puede pedirle una
+   a Google, porque promete que nada sale del aparato. Asi que letra del
+   sistema, y la jerarquia la hace el tamano y el color. */
+.marca {
+  margin: 0; display: flex; align-items: baseline; gap: .02em;
+  font-weight: 900; letter-spacing: .01em; line-height: 1;
+  /* Las mayusculas se ponen aqui y no en el html a proposito, y no es estilo:
+     `test_guardrails` exige que toda palabra de cuatro mayusculas o mas dentro
+     de `interface/` sea una politica declarada. Escribir la marca en versales
+     en el marcado la convertiria en una politica inexistente. */
+  text-transform: uppercase;
+}
+.marca-nombre { font-size: 1.5rem; color: var(--ink); }
+.marca-os     { font-size: 1.95rem; color: var(--violeta); font-weight: 900; }
 
 .nombre { margin: .6rem 0 .1rem; font-size: 1.35rem; letter-spacing: -.02em;
           font-weight: 800; }

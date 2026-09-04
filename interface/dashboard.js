@@ -236,7 +236,11 @@ async function pulso() {
     const r = await fetch("/api/estado");
     d = await r.json();
   } catch {
-    $("pulso").textContent = t("sin_servidor");
+    // `#pulso` salio del cabezal el 2026-09-04 con el mando de voz. Lo que
+    // decia --«escribe aqui»-- lo dice ya el propio campo, dos centimetros mas
+    // abajo. Se comprueba antes de escribir en vez de borrar estas lineas: el
+    // dia que vuelva un sitio donde decir «sin servidor», aqui esta el texto.
+    if ($("pulso")) $("pulso").textContent = t("sin_servidor");
     $("hablar").disabled = true;
     $("mandar").disabled = true;
     return;
@@ -246,14 +250,14 @@ async function pulso() {
   try {
     pintarEstado(d);
   } catch (e) {
-    $("pulso").textContent = "· " + (e && e.message ? e.message : e);
+    if ($("pulso")) $("pulso").textContent = "· " + (e && e.message ? e.message : e);
   }
 }
 
 function pintarEstado(d) {
   idioma = d.idioma === "en" ? "en" : "es";
   document.documentElement.lang = idioma;
-  $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
+  if ($("pulso")) $("pulso").textContent = d.motor ? t("listo") : t("sin_cerebro");
   rotulo();
   $("dicho").placeholder = idioma === "en" ? "…or write it here"
                                            : "…o escríbelo aquí";
@@ -498,9 +502,12 @@ function marcarFusionVista() {
    pero `hablar` y `latir` si podrian llegar aqui. */
 const bustoEl = $("busto");
 if (bustoEl) {
-  bustoEl.addEventListener("animationend", (e) => {
-    if (e.animationName === "despertar") bustoEl.classList.add("despierto");
-  });
+  /* Antes esto esperaba al `animationend` de `despertar` para encender el ciclo
+     de color. La apertura salio del cabezal el 2026-09-04 --es la entrada del
+     producto y vive en el telon--, asi que ese evento ya no llega nunca y la
+     cara se quedaria en el primer cuadro para siempre. Se enciende de entrada.
+     El oyente no se sustituye por un temporizador: no hay nada que esperar. */
+  bustoEl.classList.add("despierto");
 }
 
 function gesto() {
