@@ -185,6 +185,45 @@ class TestAnidar(unittest.TestCase):
             fila = memory.leer_engrama(c, cuerpo["id"])
         self.assertNotIn(SECRETO_FALSO, fila["what"])
 
+    def test_11_sin_origen_sigue_siendo_importado(self):
+        """El defecto no cambia. Anidar nacio para la doctrina Caza-Nido --texto
+        cazado en una IA de fuera-- y ese sigue siendo su caso por defecto.
+        """
+        _, cuerpo = self._anidar({"texto": "el puerto por defecto es el 8080"})
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertEqual(fila["origin"], "importado")
+
+    def test_12_el_gesto_de_guardar_un_turno_propio_marca_persona(self):
+        """«Guarda esto» sobre lo que escribio la persona NO es texto importado.
+
+        Sin esta distincion, dentro de seis meses un parrafo que escribio la
+        persona se leeria como algo cazado en una IA ajena. La marca es lo unico
+        que separa las dos cosas, y no se puede reconstruir despues.
+        """
+        _, cuerpo = self._anidar({"texto": "mi hija se llama Vera",
+                                  "origen": "persona"})
+        with memory.abrir(self.db) as c:
+            fila = memory.leer_engrama(c, cuerpo["id"])
+        self.assertEqual(fila["origin"], "persona")
+
+    def test_13_un_origen_fuera_del_vocabulario_se_para_en_la_puerta(self):
+        """La puerta declara su vocabulario; no lo deduce de lo que llegue.
+
+        Sin esta guardia el valor viaja hasta el `insert` y lo para el CHECK del
+        esquema: la persona veria un 500 con un `IntegrityError` en vez de un
+        motivo. Y lo que es peor, el vocabulario de `origin` NO se migra (D69),
+        asi que la puerta es el unico sitio donde se puede decir que no.
+        """
+        for malo in ("modelo", "PERSONA", "", 7, None):
+            with self.subTest(origen=malo):
+                cod, cuerpo = self._anidar({"texto": "algo", "origen": malo})
+                self.assertEqual(cod, 400, f"{malo!r} entro por la puerta")
+                self.assertEqual(cuerpo["estado"], "bloqueado")
+        with memory.abrir(self.db) as c:
+            n = c.execute("select count(*) from engrams").fetchone()[0]
+        self.assertEqual(n, 0, "se escribio una fila con origen invalido")
+
     def test_10_si_el_filtro_cae_no_se_escribe_nada(self):
         """Fail-closed, igual que `/api/frontera`: 409 y la memoria intacta."""
         with mock.patch.object(

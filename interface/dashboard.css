@@ -1515,3 +1515,44 @@ body.con-teclado .atajos { display: none; }
   font-variant-numeric: tabular-nums;
 }
 .cuenta.pasado { color: var(--ambar); }
+
+/* --- los dos gestos de escritura -----------------------------------------
+   «Guarda esto» vive dentro de la burbuja del turno, no en una fila aparte:
+   una fila propia por cada turno crece con la conversacion y se come el alto
+   que el chat necesita cuando sale el teclado. Aqui solo ocupa cuando hay algo
+   que guardar, que es siempre lo mismo que hay que leer.
+
+   Discreto a proposito: es una accion secundaria sobre algo que la persona ya
+   escribio. Un boton con el peso del de enviar competiria con el turno. */
+.dice p.mio { position: relative; }
+.guardar-turno {
+  display: block; margin: .45rem 0 0; padding: .2rem .5rem;
+  font: inherit; font-size: .72rem; cursor: pointer;
+  color: #fff; background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .34); border-radius: 999px;
+}
+.guardar-turno:hover:not(:disabled) { background: rgba(255, 255, 255, .26); }
+.guardar-turno:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.guardar-turno.hecho { opacity: .8; cursor: default; }
+/* Lo que el filtro tacho. Se lee, no se adorna: es la unica prueba de que lo
+   guardado no es exactamente lo que se escribio. */
+.dice .tachado {
+  display: block; margin: .35rem 0 0; font-size: .72rem;
+  color: rgba(255, 255, 255, .82);
+}
+
+/* El formulario del cajon. Dos campos y un boton: lo minimo para que el primer
+   recuerdo no pida aprender un formato antes de escribirlo. */
+.recuerdo-nuevo { display: flex; flex-direction: column; gap: .45rem; margin: .5rem 0 .3rem; }
+.recuerdo-nuevo textarea {
+  font: inherit; font-size: .88rem; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: .5rem .6rem; resize: vertical;
+}
+.recuerdo-nuevo textarea:focus-visible { outline: 2px solid var(--violeta); outline-offset: 1px; }
+.recuerdo-nuevo button {
+  align-self: flex-start; font: inherit; font-size: .82rem; font-weight: 600;
+  cursor: pointer; color: #fff; background: var(--violeta);
+  border: 0; border-radius: 999px; padding: .45rem .9rem; min-height: 40px;
+}
+.recuerdo-nuevo button:disabled { opacity: .55; cursor: default; }

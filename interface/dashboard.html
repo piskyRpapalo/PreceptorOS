@@ -141,6 +141,21 @@
   <div class="dato"><span data-rotulo="m_consentidos">Consentidos para aprender</span><b id="m-consent">—</b></div>
   <div class="dato"><span data-rotulo="m_corregidos">Corregidos por ti</span><b id="m-corr">—</b></div>
   <p class="nota" id="nota-memoria"></p>
+
+  <!-- El segundo gesto de escritura. El primero --«guarda esto» sobre un turno--
+       cubre el camino corto; este cubre el que empieza en blanco, cuando lo que
+       se quiere recordar no se acaba de decir en el chat. Los dos escriben por
+       la misma puerta, con el mismo filtro y el mismo origen. -->
+  <h3 class="sub-h" data-rotulo="m_nuevo">Escribe un recuerdo</h3>
+  <form class="recuerdo-nuevo" id="recuerdo-nuevo">
+    <label class="sr" for="r-que" data-rotulo="m_que">Qué quieres recordar</label>
+    <textarea id="r-que" rows="2" required></textarea>
+    <label class="sr" for="r-porque" data-rotulo="m_porque">Por qué te importa</label>
+    <textarea id="r-porque" rows="2"></textarea>
+    <button type="submit" id="r-guardar" data-rotulo="m_guardar">Guardar</button>
+  </form>
+  <p class="nota" id="r-nota"></p>
+  <p class="nota" id="r-dicho" aria-live="polite" hidden></p>
 </section>
 
 <section class="cajon" id="cajon-medicion" aria-label="Medición" hidden>

@@ -81,6 +81,16 @@ const T = {
     et_titulo: "Título", et_ruta: "Ruta (opcional)",
     anadir: "Añadir", no_esta: "no está ahí", quitar: "Quitar",
     abrir_panel: "Abrir el panel completo →", o_escribelo: "O escríbelo",
+    /* El gesto de «guarda esto» y el formulario del cajon. Los dos escriben en
+       la misma puerta, `/api/anidar`, con `origen: persona`. */
+    g_guarda: "Guarda esto", g_guardado: "Guardado en tu memoria",
+    g_fallo: "No se pudo guardar:",
+    g_tachado: "Se guardó así, con lo privado tachado:",
+    m_nuevo: "Escribe un recuerdo",
+    m_que: "Qué quieres recordar",
+    m_porque: "Por qué te importa (opcional)",
+    m_guardar: "Guardar",
+    m_nota_nueva: "Lo que escribas pasa por el filtro antes de tocar el disco. Verás lo que quedó guardado.",
     m_guardados: "Recuerdos guardados", m_consentidos: "Consentidos para aprender",
     m_corregidos: "Corregidos por ti",
     nota_memoria: "Vive en un solo fichero de tu máquina. Puedes copiarlo y llevártelo.",
@@ -173,6 +183,14 @@ const T = {
     et_titulo: "Title", et_ruta: "Path (optional)",
     anadir: "Add", no_esta: "not there", quitar: "Remove",
     abrir_panel: "Open the full panel →", o_escribelo: "Or write it",
+    g_guarda: "Save this", g_guardado: "Saved to your memory",
+    g_fallo: "Could not save:",
+    g_tachado: "It was saved like this, with the private parts struck out:",
+    m_nuevo: "Write a memory",
+    m_que: "What do you want to remember",
+    m_porque: "Why it matters to you (optional)",
+    m_guardar: "Save",
+    m_nota_nueva: "What you write goes through the filter before it touches the disk. You will see what was saved.",
     m_guardados: "Memories saved", m_consentidos: "Consented for learning",
     m_corregidos: "Corrected by you",
     nota_memoria: "It lives in one file on your machine. You can copy it and take it with you.",
@@ -265,6 +283,14 @@ const T = {
     et_titulo: "Título", et_ruta: "Caminho (opcional)",
     anadir: "Adicionar", no_esta: "não está aí", quitar: "Remover",
     abrir_panel: "Abrir o painel completo →", o_escribelo: "Ou escreve-o",
+    g_guarda: "Guarda isto", g_guardado: "Guardado na tua memória",
+    g_fallo: "Não foi possível guardar:",
+    g_tachado: "Foi guardado assim, com o privado riscado:",
+    m_nuevo: "Escreve uma memória",
+    m_que: "O que queres recordar",
+    m_porque: "Porque te importa (opcional)",
+    m_guardar: "Guardar",
+    m_nota_nueva: "O que escreveres passa pelo filtro antes de tocar o disco. Verás o que ficou guardado.",
     m_guardados: "Recordações guardadas", m_consentidos: "Consentidas para aprender",
     m_corregidos: "Corrigidas por ti",
     nota_memoria: "Vive num único ficheiro da tua máquina. Podes copiá-lo e levá-lo contigo.",
@@ -755,9 +781,13 @@ function pintarEstado(d) {
       "et-pr-titulo": "et_pr_titulo", "et-pr-desc": "et_pr_desc",
       "et-pr-estado": "et_pr_estado", "et-pr-nota": "et_pr_nota",
       "proy-vacio": "proy_vacio",
-      "nota-memoria": "nota_memoria"})) {
+      "nota-memoria": "nota_memoria", "r-nota": "m_nota_nueva"})) {
     const el = $(id);
     if (el) el.textContent = t(clave);
+  }
+  for (const [id, clave] of Object.entries({"r-que": "m_que", "r-porque": "m_porque"})) {
+    const el = $(id);
+    if (el) el.placeholder = t(clave);
   }
   // Los atajos y el lateral se repintan con el idioma: sus rotulos se escriben
   // desde el javascript, asi que el barrido de `data-rotulo` de arriba no los
@@ -841,9 +871,60 @@ function linea(texto, clase) {
     return p;
   }
   p.textContent = texto;
+  // Solo sobre lo que escribio la persona, y no sobre la respuesta: guardarla
+  // pediria un origen que el vocabulario no tiene --no es de la persona ni
+  // viene importado de fuera-- y ese vocabulario no se migra. Inventarle uno
+  // seria decidir por el esquema desde la interfaz.
+  if (clase === "mio") p.appendChild(botonGuardar(texto));
   $("dice").appendChild(p);
   p.scrollIntoView({ block: "end" });
   return p;
+}
+
+/* --- el gesto de «guarda esto» -------------------------------------------
+ * El camino mas corto de «entro» a «tengo memoria»: el primer recuerdo nace de
+ * algo que la persona ya escribio, no de un formulario en blanco.
+ *
+ * Se ensena lo guardado, no lo enviado. La puerta devuelve el texto ya pasado
+ * por su filtro, y puede no ser el mismo: si la persona no ve que se tacho de
+ * su texto, esta firmando a ciegas lo que entra en su propia memoria. Por eso
+ * el boton no se limita a decir «hecho».
+ */
+function botonGuardar(texto) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "guardar-turno";
+  b.textContent = t("g_guarda");
+  b.addEventListener("click", async () => {
+    b.disabled = true;
+    try {
+      const r = await fetch("/api/anidar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto, origen: "persona" }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        b.textContent = t("g_fallo") + " " + (d.motivo || "");
+        b.disabled = false;
+        return;
+      }
+      b.textContent = t("g_guardado");
+      b.classList.add("hecho");
+      // Si el filtro tacho algo, se dice y se ensena. Callarlo seria dejar en
+      // la memoria un texto distinto del que la persona creyo guardar.
+      if (d.texto !== texto) {
+        const n = document.createElement("small");
+        n.className = "tachado";
+        n.textContent = t("g_tachado") + " " + d.texto;
+        b.parentElement.appendChild(n);
+      }
+      pulso();
+    } catch {
+      b.textContent = t("g_fallo") + " " + t("sin_red");
+      b.disabled = false;
+    }
+  });
+  return b;
 }
 
 async function turno(texto) {
@@ -911,6 +992,46 @@ $("escribir").addEventListener("submit", (e) => {
   const t = $("dicho").value;
   $("dicho").value = "";
   turno(t);
+});
+
+/* --- el recuerdo escrito a mano -------------------------------------------
+ * El segundo gesto. Va por la misma puerta que el primero y con el mismo
+ * origen: dos caminos a la misma habitacion, no dos habitaciones.
+ *
+ * Se ensena lo que quedo guardado y no un «hecho» a secas, por la misma razon
+ * que en el turno: el filtro puede haber tachado algo, y un recuerdo que no es
+ * el que la persona creyo escribir es peor que uno que no se guardo.
+ */
+$("recuerdo-nuevo").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const que = $("r-que").value.trim();
+  if (!que) return;
+  const boton = $("r-guardar");
+  const dicho = $("r-dicho");
+  boton.disabled = true;
+  try {
+    const r = await fetch("/api/anidar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texto: que, porque: $("r-porque").value.trim() || null,
+                             origen: "persona" }),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      dicho.textContent = t("g_fallo") + " " + (d.motivo || "");
+    } else {
+      // El campo se vacia solo si de verdad se guardo. Vaciarlo antes de saber
+      // el resultado le quita a la persona lo unico que tenia si algo fallo.
+      $("r-que").value = ""; $("r-porque").value = "";
+      dicho.textContent = d.texto === que
+        ? t("g_guardado")
+        : t("g_tachado") + " " + d.texto;
+      pulso();
+    }
+  } catch {
+    dicho.textContent = t("g_fallo") + " " + t("sin_red");
+  }
+  dicho.hidden = false;
+  boton.disabled = false;
 });
 
 /* --- voz --------------------------------------------------------------- */

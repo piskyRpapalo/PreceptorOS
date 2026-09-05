@@ -101,6 +101,17 @@ AVATARES = tuple(n for f in FAMILIAS_AVATAR.values() for n in f)
 CEREBROS = ("base", "afinado")
 
 
+# Los origenes que la puerta admite, y son los tres del CHECK de `engrams`.
+# `importado` es el defecto porque anidar nacio para la doctrina Caza-Nido;
+# `persona` es el gesto de «guarda esto» sobre lo que uno mismo escribio. La
+# diferencia no es cosmetica: es lo unico que dentro de seis meses separa un
+# parrafo propio de uno cazado en una IA ajena, y no se reconstruye despues.
+#
+# Vocabulario CERRADO, y vive fuera de la clase por lo mismo que
+# `proyectos.ESTADOS`: es del producto, no del manejador.
+ORIGENES = ("persona", "intencion", "importado")
+
+
 def _ruta_visible(ruta):
     """Una ruta que se puede ensenar. Vivia dentro de `_estado` y ahora la
     comparten dos puertas: si la regla cambiara en un sitio y no en el otro,
@@ -660,6 +671,7 @@ class PWA(BaseHTTPRequestHandler):
     # se cuela hasta el `update` y decide el nombre de una columna desde fuera.
     CAMPOS_PROYECTO = ("titulo", "descripcion", "estado", "nota", "ruta")
 
+
     def _proyectos_guardar(self, datos):
         with M.abrir(self.server.ruta_db) as c:
             if datos.get("quitar") is not None:
@@ -756,6 +768,15 @@ class PWA(BaseHTTPRequestHandler):
         porque = datos.get("porque")
         if not isinstance(texto, str) or not isinstance(porque, (str, type(None))):
             return self._json(400, {"estado": "bloqueado", "motivo": "TypeError"})
+
+        # El origen se declara AQUI, como los campos de proyecto. Sin esta
+        # guardia el valor viaja hasta el `insert` y lo para el CHECK del
+        # esquema: la persona veria un 500 con una traza en vez de un motivo. Y
+        # el vocabulario de `origin` NO se migra (D69), asi que esta puerta es
+        # el unico sitio donde se puede decir que no.
+        origen = datos.get("origen", "importado")
+        if origen not in ORIGENES:
+            return self._json(400, {"estado": "bloqueado", "motivo": "origen"})
         if not texto.strip():
             # Un recuerdo vacio no es un recuerdo. Se para aqui y no en el
             # ValueError de `memory`, para que la interfaz reciba un motivo
@@ -779,7 +800,7 @@ class PWA(BaseHTTPRequestHandler):
             fila = M.escribir_engrama(
                 c, what=limpio["texto"],
                 why=limpio_porque["texto"] if limpio_porque else None,
-                origin="importado")
+                origin=origen)
 
         # Se devuelve lo GUARDADO, no lo recibido. Si la persona no puede ver
         # que se tacho de su texto, esta firmando a ciegas lo que entra en su
