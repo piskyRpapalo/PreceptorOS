@@ -1556,3 +1556,19 @@ body.con-teclado .atajos { display: none; }
   border: 0; border-radius: 999px; padding: .45rem .9rem; min-height: 40px;
 }
 .recuerdo-nuevo button:disabled { opacity: .55; cursor: default; }
+
+/* --- el canto dorado de lo que se pulsa (2026-09-05) ----------------------
+   Viene de preceptoros.org, donde se firmo esta misma semana: lo que se pulsa
+   lleva aro. Aqui faltaba en las tres piezas que mas se tocan --mandar, los
+   atajos y el campo-- y sin el se leian como bloques planos sobre el marmol.
+
+   `--mando-aro` y no un color nuevo: ya existe, ya gira con el tema --#a97c11
+   en claro, #e0b872 en oscuro-- y ya es el aro de los dos mandos del cabezal.
+   Un aro con dos nombres serian dos aros el dia que alguien cambie uno.
+
+   Va al final del fichero a proposito: el violeta de estos botones lo pone una
+   regla generica que no los nombra, asi que competir por especificidad seria
+   frágil. El orden decide, y aqui el orden es explicito. */
+#mandar { border: 2px solid var(--mando-aro); }
+.atajos button { border-color: var(--mando-aro); }
+#dicho { border-color: var(--mando-aro); }
