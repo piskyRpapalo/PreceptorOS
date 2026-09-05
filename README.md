@@ -15,15 +15,40 @@ on your processor, tokens per second on your graphics chip, how much memory
 was left, how long the first word took. Same prompt, same file, same machine.
 The result belongs to you and never leaves the machine unless you send it.
 
-## Why self-knowledge
+## The local database, and why a clean one matters
 
-The second half is quieter and matters more. Everything you ask it is kept on
-your disk, in files you can open with any text editor. Over weeks that becomes
-a record of what you were working on, what you kept getting wrong, and what
-you already solved. The application reads it back to you when it is relevant.
+The second half is quieter and matters more. Everything you tell it goes into
+a **local database** on your own disk — plain files you can open with any text
+editor. Over weeks that becomes a record of what you were working on, what you
+kept getting wrong, and what you already solved. The application reads it back
+to you when it is relevant.
 
 This is the part that is normally sold as a subscription and stored on someone
 else's server. Here it is a folder.
+
+**If you are new to this, here is the part worth understanding.** A model is
+only as useful as what it knows about your situation. Four things describe
+that situation, and most people never write them down anywhere:
+
+- the **tools** you use,
+- the **hardware** you actually have,
+- the **software** already installed on it,
+- and where your **work is going** next.
+
+Keep those four tidy in one place and everything downstream improves: the
+answers you get today, and — later — any small model you train on them. Keep
+them scattered across your head, three chat histories and a notes app, and no
+amount of model quality will fix it. The bottleneck is rarely the model.
+
+So the application builds that database **for you**: automatically, the same
+way every time, and without anything leaving the machine. Automatic, so you do
+not have to remember to write it down. The same way every time, so what comes
+out can be checked and trained on rather than guessed at. Private, because it
+describes your machine and your work.
+
+What you end up with is a description of **your** resources, specific enough to
+be useful to you and to nobody else. That is the point: not a general profile,
+but a precise one.
 
 ## Why this exists, in my own words
 
