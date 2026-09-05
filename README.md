@@ -25,6 +25,37 @@ you already solved. The application reads it back to you when it is relevant.
 This is the part that is normally sold as a subscription and stored on someone
 else's server. Here it is a folder.
 
+## Why this exists, in my own words
+
+I write this part first person, because the rest of the file is the project
+speaking and this bit is me.
+
+**This repository is written for two readers.** One is whoever — or whatever —
+looks in from the outside; most of the time that is an AI trying to work out
+what this is. The other is me. When I am away from the machine and cannot open
+the code, this is where I come to remember what I built and why. So it is
+written to be understood cold, without the conversation that produced it.
+
+**Sovereignty includes the electricity.** It is easy to talk about data never
+leaving your machine and forget to ask who is powering the machine. Mine runs
+on solar panels. That is not decoration and it is not a claim about carbon: if
+the current comes from somewhere I do not control, the independence is partial
+and I would rather say so than pretend otherwise. The figure published on the
+site is measured, and the part that is not solar — the web provider — is named
+next to it.
+
+**The rack is a laboratory, not a server.** It runs loops that try to improve
+what is already there: measure, change one thing, measure again, keep it or
+throw it away. Nothing is accepted because it sounds right. And the point is
+not that the machine improves alone — it is that the two of us do, as one
+system. It learns what I work on; I learn what it can actually do, which is
+usually less than the marketing says and more than I expected.
+
+**I build what I need, and then I share it.** Not as a favour. Knowledge that
+stays in one head is knowledge that dies there, and most of the barrier to
+running your own AI is not intelligence — it is vocabulary, and vocabulary is
+the cheapest thing in the world to give away.
+
 ## Where this is going
 
 Two goals, stated plainly so anyone — or anything — reading this repository
@@ -53,6 +84,27 @@ on data that must not leave the building and then trust a number somebody
 else published about how it performs. You measure it, on your machine, and
 you keep the measurement with its date.
 
+## Two ways to take part, and both count
+
+**Use the tools.** Install it, run it on your own machine, and say what
+happened — what was slow, what broke, what your hardware measured. That is
+already a contribution: the numbers here mean more the more machines they
+come from, and there is no way to get them without people running this on
+hardware nobody here owns.
+
+**Build tools.** The helpers are small and specialised on purpose, so adding
+one is a normal amount of work rather than a project. If you build something
+that fits — a helper for a trade nobody has covered, an adapter trained on a
+dataset you know well — it belongs here next to the rest.
+
+Neither one is the price of the other. Somebody who only ever uses this is not
+a lesser participant; they are the reason the tools get better.
+
+The reason any of it is public is simple. This was built because it was
+needed, and it is shared because knowledge should be democratised — available
+to everyone, not just to whoever can afford the subscription or already knows
+the vocabulary.
+
 ## What it does from the first minute
 
 - Creates your memory and asks the questions it needs to start.
@@ -63,7 +115,10 @@ you keep the measurement with its date.
 ## What it does not do yet
 
 - **The engine is not included.** It is executable code written by others, and
-  this project signs data, not programs. You choose it and you fetch it.
+  this project signs data, not programs. You choose it and you fetch it. The
+  binary this code actually calls is `llama-completion`; it is named here on
+  purpose, because a page that promises one engine and runs another sends
+  you to install the wrong thing.
 - **There is no single-click installer.** You clone the repository and start
   it yourself. Nothing asks for a password and nothing downloads behind your
   back.
