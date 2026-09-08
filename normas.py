@@ -40,6 +40,8 @@ cita legal sin edicion es una cita que nadie puede comprobar.
 """
 from __future__ import annotations
 
+import unicodedata
+
 # Las fuentes, con su edicion. Se nombran una vez y se referencian por clave:
 # repetir «Reglamento (UE) 2024/1689» en veinte sitios es garantizar que en
 # alguno se escriba distinto.
@@ -106,6 +108,68 @@ ANCLAS = {
         [("42001", "6.1.4")],
     ),
 }
+
+
+# --- EL LEXICO DE LA CASA · el negativo del molde ---------------------------
+#
+# Los nombres que YA existen. Se declaran aqui por una razon que costo dinero
+# el 2026-09-08: en una sola jornada invente dos nombres para cosas que la casa
+# ya nombraba --«Barra de Tiempo» donde se dice BARRA DEL CORTE, y «Acta de
+# Revision» donde no habia nombre y por tanto no me tocaba ponerlo--. Ninguna
+# prueba pudo verlo porque una prueba no sabe que palabras estaban ya cogidas.
+#
+# La regla del molde, con las palabras del Soberano: *«las paredes son el
+# negativo; el cristal fundido llena el hueco sin tocarlas. Lo que no este aqui
+# y haga falta se propone como DEUDA o como entrada nueva firmada, nunca como
+# hecho. Un hueco declarado vale mas que una pared movida a escondidas.»*
+#
+# Consecuencia practica, y es la que evita la proxima invencion: si algo
+# necesita nombre y no esta en esta lista, hay DOS salidas legitimas -- usar el
+# termino del texto legal que lo juzga (por eso `ANCLAS` esta justo arriba), o
+# dejarlo apuntado como deuda para que lo nombre el carbono. Inventarlo no es
+# una de las dos.
+LEXICO = (
+    "hub", "loratelier", "forja", "rack", "nodo soberano",
+    "la puerta", "la aduana", "el sello", "libro de pruebas",
+    "barra del corte", "brujula", "atajo", "brida", "peldano",
+    "hilo", "cicatriz", "santuario", "arnes", "expansion", "ecosistema",
+    "modo_santuario", "huella soberana", "second-brain", "mecanico",
+    "enjambre", "ventana", "pliegue", "linea", "cera", "cristal",
+)
+
+# Lo que cada nombre de la casa senala, cuando no es evidente. Solo se anota lo
+# que se sabe: un glosario que adivina es peor que uno corto.
+DONDE = {
+    "la puerta": "empieza_aqui.py",
+    "la aduana": "guardrails.py + output_guard.py",
+    "el sello": "el manifiesto",
+    "linea": "linea.py",
+    "huella soberana": "huella.py",
+    "modo_santuario": "soberania.py::modo_santuario",
+    "peldano": "M0-M7, los peldanos del camino",
+    "santuario": "nivel 0 de soberania",
+    "arnes": "nivel 1 de soberania",
+    "expansion": "nivel 2 de soberania",
+    "ecosistema": "nivel 3 de soberania",
+    "mecanico": "etapa 1 del Artesano",
+}
+
+
+def es_de_la_casa(nombre):
+    """¿Esta palabra ya existe en el vocabulario? Comparacion sin tildes.
+
+    Se normaliza sin acentos y sin articulo porque el lexico se escribe de dos
+    maneras --«la Aduana» y «Aduana»-- y un guardian que distinga las dos deja
+    pasar justo la variante que no se escribio.
+    """
+    def pelar(s):
+        s = unicodedata.normalize("NFD", str(s or "").strip().lower())
+        s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+        for art in ("el ", "la ", "los ", "las "):
+            if s.startswith(art):
+                s = s[len(art):]
+        return s
+    return pelar(nombre) in {pelar(x) for x in LEXICO}
 
 
 def ancla(concepto):

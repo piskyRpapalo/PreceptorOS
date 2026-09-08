@@ -9,6 +9,7 @@ no esta anclado se sepa que no lo esta.
 from __future__ import annotations
 
 import os
+import pathlib
 import re
 import sys
 import unittest
@@ -95,6 +96,85 @@ class TestNormas(unittest.TestCase):
             with self.subTest(concepto=concepto):
                 self.assertRegex(concepto, r"^[a-z][a-z0-9_]*$")
 
+    # --- el molde · que no entren nombres inventados ------------------------
+
+    def test_el_lexico_reconoce_sus_propias_palabras(self):
+        for palabra in N.LEXICO:
+            with self.subTest(palabra=palabra):
+                self.assertTrue(N.es_de_la_casa(palabra))
+        # Con articulo y con tildes, que es como se escriben de verdad.
+        self.assertTrue(N.es_de_la_casa("La Barra del Corte"))
+        self.assertTrue(N.es_de_la_casa("el Sello"))
+        self.assertTrue(N.es_de_la_casa("Brújula"))
+
+    def test_un_nombre_inventado_NO_pasa_por_de_la_casa(self):
+        """Los dos que invente el 2026-09-08, guardados como caso.
+
+        «Barra de Tiempo» donde se dice BARRA DEL CORTE, y «Acta de Revision»
+        donde no habia nombre y por tanto no me tocaba ponerlo. Ninguna prueba
+        pudo verlo entonces porque ninguna sabia que palabras estaban cogidas.
+        """
+        for inventado in ("Barra de Tiempo", "Acta de Revision",
+                          "Perimetro de Sanitizacion"):
+            with self.subTest(inventado=inventado):
+                self.assertFalse(N.es_de_la_casa(inventado))
+
+    def test_donde_solo_apunta_a_palabras_del_lexico(self):
+        """Un glosario que explica una palabra que no existe explica un fantasma."""
+        for clave in N.DONDE:
+            with self.subTest(clave=clave):
+                self.assertTrue(N.es_de_la_casa(clave),
+                                f"DONDE explica «{clave}» y no esta en LEXICO")
+
+    def test_los_bloques_de_la_web_usan_lexico_o_termino_legal(self):
+        """El cruce que habria cazado la invencion el mismo dia.
+
+        Cada linea de investigacion del LoRAtelier lleva un nombre visible. Ese
+        nombre tiene que salir de UNA de dos fuentes: el vocabulario de la casa,
+        o el termino del texto legal que juzga la pieza. Lo que no vale es una
+        tercera: una palabra bonita que se le ocurrio a quien lo escribio.
+
+        Se mira el castellano, que es donde se decide el nombre; las otras siete
+        son su traduccion y ya tienen su propio guardian en la web.
+        """
+        ruta = os.path.expanduser("~/p0x/preceptoros-web/public/taller-es.json")
+        if not os.path.isfile(ruta):
+            self.skipTest("el repo de la web no esta a mano")
+        import json
+        bloques = json.load(open(ruta, encoding="utf-8"))["bloques"]
+        # Terminos que salen de un texto legal, con su articulo. No son nombres
+        # de la casa y por eso se declaran: cada uno es una cita, no un invento.
+        LEGALES = {"supervision humana": "AI Act art. 14",
+                   "business": "marca del producto"}
+        # Y los que YA ESTABAN cuando llego el glosario, el 2026-09-08. Se
+        # enumeran en vez de ensancharle el lexico a la casa por mi cuenta:
+        # decidir que estas cuatro son canon no me toca, y ampliar la lista de
+        # arriba para que el gate calle es exactamente la pared movida a
+        # escondidas que el molde prohibe. Son el negativo: existian antes, y
+        # esta lista solo puede ENCOGER, por decision del carbono.
+        HEREDADOS = {"bienvenida", "medidor", "memoria de aprendizaje",
+                     "atencion al publico"}
+        for bid, campos in bloques.items():
+            nombre = campos["nombre"]
+            with self.subTest(bloque=bid, nombre=nombre):
+                if N.es_de_la_casa(nombre):
+                    continue
+                import unicodedata
+                pelado = unicodedata.normalize("NFD", nombre.lower())
+                pelado = "".join(c for c in pelado
+                                 if unicodedata.category(c) != "Mn")
+                for art in ("el ", "la ", "los ", "las "):
+                    if pelado.startswith(art):
+                        pelado = pelado[len(art):]
+                if pelado in HEREDADOS:
+                    continue
+                self.assertIn(
+                    pelado, LEGALES,
+                    f"el bloque «{bid}» se llama «{nombre}», que no esta en el "
+                    "lexico de la casa ni declarado como termino legal. Si "
+                    "hace falta un nombre nuevo, se propone como deuda y lo "
+                    "firma el carbono -- no se inventa aqui")
+
     def test_la_tabla_no_importa_nada_del_arbol(self):
         """Es una tabla: si dependiera del producto, el producto no podria
         citarla sin arrastrar medio arbol, y un auditor no podria leerla sola.
@@ -102,12 +182,19 @@ class TestNormas(unittest.TestCase):
         aqui = os.path.dirname(os.path.abspath(__file__))
         fuente = open(os.path.join(aqui, "normas.py"), encoding="utf-8").read()
         cuerpo = re.sub(r'"""[\s\S]*?"""', "", fuente)
+        # Lo que se prohibe es importar del ARBOL, que es lo que dice el nombre
+        # de esta prueba. La primera version exigia «ni un import», y salio
+        # roja sobre `unicodedata` -- biblioteca estandar, que no ata la tabla
+        # a nada. Una prueba mas estricta que su propio motivo obliga a
+        # retorcer el codigo para complacerla.
+        locales = {f.stem for f in pathlib.Path(aqui).glob("*.py")}
         importa = re.findall(r"(?m)^\s*(?:from|import)\s+([\w.]+)", cuerpo)
         for mod in importa:
             with self.subTest(modulo=mod):
-                self.assertIn(mod, ("__future__",),
-                              f"normas.py importa «{mod}» y no deberia "
-                              "importar nada")
+                self.assertNotIn(mod.split(".")[0], locales,
+                                 f"normas.py importa «{mod}» del arbol. Es una "
+                                 "tabla: si dependiera del producto, un auditor "
+                                 "no podria leerla sola")
 
 
 if __name__ == "__main__":
