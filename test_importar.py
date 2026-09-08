@@ -82,16 +82,46 @@ class TestImportar(unittest.TestCase):
             I.importar(c, paquete(firmada(par())))
             self.assertEqual(self.filas(c)[0]["arnes"], "web")
 
-    def test_la_tarea_entra_como_NO_DATA_y_no_como_libre(self):
+    def test_un_paquete_viejo_sin_tarea_entra_NO_DATA_y_no_libre(self):
         """`libre` es una afirmacion --«no vino por un atajo»--, no un hueco.
 
-        El paquete de la web no dice con que atajo se hizo el turno. Ponerle
-        `libre` seria comodo y falso, y ademas envenenaria justo la consulta
-        para la que se creo la columna: cuantos turnos vienen de cada atajo.
+        Desde este lado solo se ve el paquete, asi que si no trae la tarea no
+        hay forma de saber si hubo atajo. Ponerle `libre` seria comodo y falso,
+        y envenenaria justo la consulta para la que se creo la columna.
         """
         with M.abrir(self.db) as c:
             I.importar(c, paquete(firmada(par())))
             self.assertEqual(self.filas(c)[0]["tarea"], "NO_DATA")
+
+    def test_la_tarea_que_manda_la_web_se_conserva(self):
+        with M.abrir(self.db) as c:
+            I.importar(c, paquete(firmada(par(tarea="dataset"))))
+            self.assertEqual(self.filas(c)[0]["tarea"], "dataset")
+
+    def test_una_tarea_que_no_esta_en_el_vocabulario_cae_a_NO_DATA(self):
+        """El navegador no puede meter una tarea nueva por la puerta de atras.
+
+        Aceptarla dejaria entrar `Dataset`, `dataset ` y `DATASET` como tres
+        tareas distintas, y entonces el `group by` vuelve a no significar nada.
+        """
+        with M.abrir(self.db) as c:
+            I.importar(c, paquete(firmada(par(tarea="lo que sea"))))
+            self.assertEqual(self.filas(c)[0]["tarea"], "NO_DATA")
+
+    def test_los_ocho_atajos_de_la_web_son_los_de_captura(self):
+        """El paralelo que hace comparables los dos arneses.
+
+        Si las dos listas se separan, un turno de la web y otro de la app dejan
+        de poder compararse -- y nadie lo notaria, porque cada lado seguiria
+        siendo coherente consigo mismo.
+        """
+        import json
+        f = os.path.normpath(os.path.join(WEB, "..", "servicios.json"))
+        if not os.path.isfile(f):
+            self.skipTest("el repo de la web no esta a mano")
+        d = json.loads(open(f, encoding="utf-8").read())
+        web = {s["comando"].lstrip("/") for s in d["servicios"]}
+        self.assertEqual(web, set(captura.TAREAS) - {"libre"})
 
     # --- la firma ---------------------------------------------------------
 
@@ -232,8 +262,12 @@ class TestImportar(unittest.TestCase):
         campos = {l.split(":", 1)[0].strip()
                   for l in cuerpo.splitlines() if ":" in l
                   and not l.strip().startswith("//")}
+        # `tarea` entro el 2026-09-08, y esta prueba salto con ella un commit
+        # despues de escribirse -- que es exactamente su trabajo. Se anade aqui
+        # DESPUES de enseñarle al importador a leerla, nunca antes: ampliar la
+        # lista para callar el rojo seria convertir el guardian en un tramite.
         leidos = {"prompt", "respuesta", "correccion", "corregido", "modelo",
-                  "idioma", "motivo", "consent", "origen"}
+                  "idioma", "motivo", "tarea", "consent", "origen"}
         sin_leer = campos - leidos
         self.assertFalse(
             sin_leer,

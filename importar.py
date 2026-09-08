@@ -23,10 +23,17 @@ pueda comprobar hacia atras. Hasta ese dia, `firma_ok` vale NO_DATA: ni 0 ni 1.
 Un cero diria «se comprobo y fallo»; un uno mentiria. NO_DATA dice lo unico
 cierto: nadie lo ha comprobado.
 
-**No inventa la tarea.** El paquete de la web no trae con que atajo se hizo el
-turno, asi que entra como NO_DATA. Rellenarla con `libre` seria comodo y falso:
-`libre` significa «no vino por un atajo», que es una afirmacion, y aqui no se
-sabe. Queda anotado como lo que la web podria mandar y hoy no manda.
+**No inventa la tarea, y desde el 2026-09-08 tampoco hace falta.** El paquete
+de la web ahora la trae: los ocho comandos de `servicios.json` son los mismos
+ocho de `captura.TAREAS`, y la web puede afirmarla porque ve el texto entero
+que la persona escribio. Un paquete viejo que no la traiga entra en NO_DATA, y
+sigue siendo lo correcto para el: `libre` significa «no vino por un atajo», que
+es una afirmacion, y desde este lado --que solo recibe el paquete-- no se sabe.
+La misma palabra vale o no vale segun quien pueda demostrarla.
+
+Y se pasa por el vocabulario de `captura`, no se copia: una etiqueta que el
+navegador escriba mal no puede meter una tarea nueva en la tabla por la puerta
+de atras, que es justo donde el `group by` deja de significar algo.
 
 **No importa lo que no entiende.** Una correccion sin `prompt` o sin
 `respuesta` no es media correccion: es ruido con forma de dato. Se salta, se
@@ -181,8 +188,8 @@ def importar(c, paquete):
              (par.get("correccion") or "").strip() or None,
              (par.get("corregido") or "").strip() or None,
              (par.get("motivo") or "NO_DATA").strip() or "NO_DATA",
-             # La tarea no viene en el paquete. NO_DATA, no `libre`.
-             "NO_DATA",
+             # Del paquete si viene; si no, NO_DATA y nunca `libre`.
+             captura._del_vocabulario(par.get("tarea"), captura.TAREAS),
              # Lo unico que este importador sabe con certeza.
              "web",
              (par.get("origen") or "NO_DATA").strip() or "NO_DATA",
