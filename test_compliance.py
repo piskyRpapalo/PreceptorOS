@@ -48,7 +48,7 @@ CITA = re.compile(r"`(?!<)([a-z_]+\.py)::([a-zA-Z_][\w]*)`")
 # documento cita, si. La lista se declara para que el reverso pueda mirarla.
 PIEZAS = ("guardrails.py", "output_guard.py", "soberania.py", "captura.py",
           "importar.py", "medidas.py", "cifras.py", "soberano.py",
-          "huella.py", "traza.py")
+          "huella.py", "traza.py", "linea.py")
 
 
 def definidas(fichero):
@@ -140,6 +140,31 @@ class TestCompliance(unittest.TestCase):
                 self.assertIn(hueco, self.texto,
                               f"el documento ya no declara el hueco «{hueco}». "
                               "Si se cerro, se dice; si no, se mantiene")
+
+    def test_las_citas_legales_salen_de_la_tabla_y_no_del_teclado(self):
+        """Un articulo escrito a mano en el documento envejece por su cuenta.
+
+        `normas.py` es la unica fuente de anclas. Si el documento cita un
+        articulo que la tabla no conoce, o al reves, uno de los dos se quedo
+        atras -- y el que se queda atras siempre es el que nadie mira. Se
+        comprueban las citas del AI Act, que son las que un auditor busca
+        primero y las que mas han cambiado de numero entre borradores.
+        """
+        sys.path.insert(0, RAIZ)
+        import normas                                        # noqa: PLC0415
+        de_la_tabla = {r for _, refs in normas.ANCLAS.values()
+                       for f, r in refs if f == "ai_act"}
+        del_documento = set(re.findall(r"AI Act (art\. \d+)", self.texto))
+        huerfanas = del_documento - de_la_tabla
+        self.assertFalse(
+            huerfanas,
+            f"COMPLIANCE.md cita del AI Act {sorted(huerfanas)} y `normas.py` "
+            "no ancla nada ahi. O la tabla se quedo corta, o el documento se "
+            "invento una cita")
+
+    def test_el_documento_nombra_la_tabla_de_anclas(self):
+        """Si no la nombra, cada sesion futura volvera a escribir citas a mano."""
+        self.assertIn("normas.py", self.texto)
 
     def test_no_promete_conformidad(self):
         """La linea que separa un mapa honesto de una declaracion falsa.

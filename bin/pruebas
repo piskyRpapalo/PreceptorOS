@@ -215,6 +215,14 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # para ser una afirmacion falsa por escrito ante quien vino a
           # comprobarla.
           test_compliance
+          # test_linea y test_normas: el registro encadenado y la tabla de
+          # anclas legislativas. Entran en su mismo commit. La primera lleva
+          # dentro la prueba del SABOTEADOR --se manipula una fila por debajo y
+          # se exige que se cace-- y, lo que es mas raro, la que demuestra lo
+          # que NO garantiza: rehacer la cadena entera cuadra. Una suite que
+          # solo ensena lo que la pieza detecta deja creer que detecta todo.
+          test_linea
+          test_normas
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

@@ -63,6 +63,9 @@ llama a proponer.
 | Veredicto **con juez nombrado** | `captura.py::juzgar` | Un veredicto sin juez es una opinión con cara de medida. Se distingue quién juzga: el carbono, otro modelo, o un comprobador determinista |
 | Tasa de acierto | `captura.py::rendimiento` | Calculada solo sobre lo **juzgado**. Un turno sin juzgar no es un turno fallado |
 | Procedencia de lo importado | `importar.py::importar` | Origen, firma y autor de cada corrección que entra desde fuera, con `firma_ok` explícito |
+| **Registro encadenado append-only** | `linea.py::anotar`, `linea.py::verificar` | Cada evento lleva dentro la huella del anterior. Cambiar uno viejo obliga a recalcular todos los siguientes, y `verificar` lo ve y **dice en cuál**. No se pisa nada: una rectificación escribe un evento nuevo que apunta al viejo |
+| El estado como pliegue | `linea.py::pliegue` | El estado actual se **calcula** recorriendo lo que pasó, con la procedencia de cada valor. Por eso «qué sabía el sistema el martes» tiene respuesta |
+| El tramo auditable | `linea.py::tramo` | Recorta la línea por fecha y por sujeto. Es lo que dibuja la barra de tiempo y lo que consulta un auditor a mano |
 | Sello de integridad | `huella.py::leer`, `memory.py::_recuento_verificable` | Demuestra que la memoria no cambió, sin decir lo que dice |
 | Copia y restauración | `memory.py::respaldar`, `memory.py::restaurar` | Contingencia y rollback |
 
@@ -74,7 +77,19 @@ entrena al modelo a inventar antes que a callarse.
 
 ---
 
-## 4 · Transparencia y no engaño · AI Act art. 52
+## 4 · Transparencia y no engaño · AI Act art. 50
+
+> **Nota de numeración, y conviene leerla.** El acta de diseño citaba «art.
+> 52», que es la numeración del **borrador de 2021**. En el texto publicado
+> —Reglamento (UE) 2024/1689— las obligaciones de transparencia son el
+> **art. 50**; el 52 pasó a ser la clasificación de modelos de propósito
+> general con riesgo sistémico, que es otra cosa. Lo cazó `test_compliance` al
+> cruzar este documento contra `normas.py`, que es exactamente el fallo para el
+> que se escribió ese cruce.
+>
+> **Esto lo debe confirmar un jurista antes de que salga a un cliente.** Aquí
+> se corrige lo que se puede comprobar por coherencia interna; la validez de
+> una cita legal no la dictamina un test.
 
 | Control | Dónde vive | Qué hace exactamente |
 |---|---|---|
@@ -113,13 +128,40 @@ enseña lo verde no es un mapa.
 |---|---|---|
 | **Firma criptográfica** | La biblioteca estándar de Python no trae Ed25519. `importar.py` guarda las firmas que recibe con `firma_ok = NO_DATA`: ni comprobadas ni rechazadas | **No hay no repudio.** Los registros son íntegros (se detecta si cambian) pero no están firmados: no se puede demostrar ante un tercero quién los produjo |
 | **Sellado de tiempo** | Las marcas de tiempo las pone la misma máquina que emite el registro | Una fecha que depende del firmante no fecha nada ante un tercero |
-| **Registro estrictamente append-only** | Las tablas admiten `update`. La doctrina de linealidad está escrita y **no** implementada | El control técnico contra la manipulación de logs que exige ISO 27001 **todavía no existe**. Es la primera pieza de la hoja de ruta por esta razón |
+| **Append-only en las tablas viejas** | `linea.py` ya es append-only y encadenado, pero `engrams`, `profile` y `turnos` siguen admitiendo `update` — diez, contados | Los eventos nuevos están protegidos; **el histórico anterior a la línea, no**. La migración de esas tablas es la pieza que queda |
+| **Anclaje externo de la cadena** | La cadena detecta manipulación **parcial**. Quien pueda escribir el fichero puede rehacerla entera y volver a encadenarla | Sin publicar la última huella donde no se pueda retocar, o sin firma, la evidencia protege del retoque puntual y no del reescrito completo. **Está probado como tal**, no supuesto |
 | **Evaluación de sesgos del adaptador** | Entrenar un LoRA modifica el perfil de riesgo del modelo base (AI Act art. 10) y hoy no se documenta sistemáticamente | Un adaptador desplegado sin su documentación de propósito y sesgos es un cambio de perfil de riesgo sin declarar |
 | **Verificación de retención de PII** | La Frontera redacta, pero no hay un banco de pruebas ciego que lo demuestre con un conjunto de datos conocido | «Redacta» es hoy una afirmación de diseño, no una medida |
 
 ---
 
-## 7 · Cómo verificar todo esto sin fiarse de este documento
+## 7 · Las anclas legislativas · `normas.py`
+
+Cada concepto de la casa lleva declarado **qué artículo lo juzga**, en una sola
+tabla y no repetido por el árbol: `normas.citas("linea")` devuelve
+`AI Act art. 12`, `art. 19`, `ISO 27001 A.5.33`, `A.8.15`, `ISO 42001 8.3`.
+
+**No es un renombrado, y esa decisión está firmada.** El acta de la Notaría
+pide que *«el alma de la casa se mantenga, pero se traduzca al idioma de los
+auditores»*. Renombrar `frontera` a `perimetro_de_sanitizacion` costaría las
+dos cosas a la vez: el vocabulario que la gente ya usa, y la trazabilidad de
+todo lo escrito hasta hoy, que quedaría hablando de una pieza con otro nombre.
+
+**Y anclar no es cumplir.** El ancla señala al juez, no al veredicto:
+`sello_soberano` está anclado *y* declarado como hueco en la sección 6, a la
+vez. Si anclar significara cumplir, esta tabla sería una declaración de
+conformidad escrita por el propio interesado.
+
+Cada fuente lleva su **edición** (`normas.FUENTES`), y hay prueba que lo exige:
+los artículos del AI Act cambiaron de número entre borradores y las ISO se
+revisan. Una cita legal sin edición es una cita que nadie puede comprobar.
+
+La consulta que hace un auditor —llega con «art. 12» en la mano— es
+`normas.anclados_por("ai_act", "art. 12")`.
+
+---
+
+## 8 · Cómo verificar todo esto sin fiarse de este documento
 
 1. `python3 -m pytest -q` · la suite entera.
 2. `bin/pruebas` · el corredor, que además ejecuta **sabotajes**: rompe el
@@ -127,4 +169,6 @@ enseña lo verde no es un mapa.
    sobre código roto no prueba nada, y eso también se comprueba.
 3. `python3 test_superficie.py` · el candado de las dependencias.
 4. `python3 test_compliance.py` · que cada función citada aquí exista.
+5. `python3 test_normas.py` · que ninguna cita apunte a una fuente
+   fantasma y que cada fuente diga de qué edición habla.
 
