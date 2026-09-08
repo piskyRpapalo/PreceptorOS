@@ -202,6 +202,11 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # anada solo puede verse rojo AQUI -- alli nadie conoce este
           # traductor.
           test_medidas
+          # test_cifras: la regla del NO_DATA aplicada a los numeros. Entra en
+          # su mismo commit. Sus casos no son inventados: son las afirmaciones
+          # con las que los adaptadores de La Charla pasaron una corrida entera
+          # en verde -- «el modelo base ocupa unos 200 gigas», que son 4,4.
+          test_cifras
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

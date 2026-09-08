@@ -37,6 +37,7 @@ except ImportError:
     fuga = None
     FUGA_DISPONIBLE = False
 import descarga as _descarga
+import cifras as _cifras
 import output_guard as _output_guard
 import estado as _estado
 import hilos as _hilos
@@ -743,6 +744,19 @@ def charla(ruta, motor=None, entrada=None, salida=print, vueltas=None,
                 salida(tx(idioma, "charla_callado"))
                 continue
             salida(turno["texto"])
+            # LA CIFRA SIN RESPALDO SE MARCA, NO SE TAPA. Va DESPUES de la
+            # respuesta y nunca en su lugar: `output_guard` bloquea porque un
+            # `rm -rf /` no tiene lectura inocente, y una cifra si la tiene --
+            # puede ser correcta y venir de donde este programa no mira. Tirar
+            # la respuesta cambiaria un fallo por otro peor: la persona pierde
+            # una respuesta buena y aprende a desconfiar del aviso.
+            #
+            # El respaldo es lo que ENTRO en el turno: su pregunta y lo que la
+            # app sabe de esta maquina. No una lista de cifras permitidas, que
+            # envejeceria y ademas es imposible.
+            sueltas = _cifras.sin_respaldo(turno["texto"], dicho, _maquina_dice())
+            if sueltas:
+                salida(_cifras.aviso(sueltas, idioma=idioma))
             # El par entero, despues de que la persona ya tenga su respuesta.
             # Aqui abajo un fallo no puede tumbar el turno: `registrar` no
             # levanta nunca y devuelve None si no pudo. Y si la persona no
@@ -752,6 +766,21 @@ def charla(ruta, motor=None, entrada=None, salida=print, vueltas=None,
                                    modelo=modelo or "NO_DATA", idioma=idioma)
             camino = _cara.progreso_camino(c, ruta)
     return 0
+
+
+def _maquina_dice():
+    """Lo que esta app puede afirmar de esta maquina, como texto.
+
+    Sirve de respaldo para el sensor de cifras: si el modelo dice «16 hilos» y
+    la maquina declara 16 hilos, eso no es una cifra inventada. Se envuelve en
+    un try porque un fallo aqui no puede tumbar un turno -- sin respaldo el
+    sensor marca de mas, que es el lado seguro.
+    """
+    try:
+        import medidas as _med
+        return _med.maquina()
+    except Exception:
+        return ""
 
 
 def _peldano_actual(camino):
