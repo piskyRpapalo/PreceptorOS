@@ -1137,5 +1137,96 @@ def test_migracion_engrams_idempotente():
         f"la columna aparece {cols.count('origen_dispositivo')} veces")
 
 
+# --- RECUPERAR BAJO PRESUPUESTO -------------------------------------------
+# `buscar` cortaba por FILAS y estas pruebas exigen que `recuperar` corte por
+# TOKENS. La diferencia no es de estilo: con 67,17 tok/s de prompt medidos,
+# mil tokens son quince segundos de espera antes de la primera palabra.
+
+
+def _memoria_con(n, largo, prefijo="presupuesto"):
+    """n engramas del mismo tamano aproximado, todos casando con `prefijo`."""
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        for i in range(n):
+            M.escribir_engrama(c, what=f"{prefijo} numero {i} " + ("x" * largo),
+                               why="para medir cuanto cabe",
+                               where_ref="banco", learned="prueba")
+    return ruta
+
+
+@caso("recuperar corta por TOKENS y no por filas")
+def test_recuperar_corta_por_tokens():
+    # Diez engramas de ~400 caracteres: a 2,6 car/token son ~154 tokens cada
+    # uno mas los campos fijos. Con 300 de presupuesto no pueden entrar diez.
+    ruta = _memoria_con(10, 400)
+    with M.abrir(ruta) as c:
+        r = M.recuperar(c, "presupuesto", presupuesto=300)
+    assert r["candidatos"] == 10, f"la busqueda no encontro los diez: {r['candidatos']}"
+    assert len(r["engramas"]) < 10, "entraron los diez: no se corto por presupuesto"
+    assert r["tokens"] <= 300, f"se paso del presupuesto: {r['tokens']} > 300"
+    assert r["fuera"] == 10 - len(r["engramas"]), "la cuenta de los que faltan no cuadra"
+
+
+@caso("recuperar DECLARA que dejo algo fuera · truncar en silencio es la averia")
+def test_recuperar_declara_lo_que_falta():
+    ruta = _memoria_con(10, 400)
+    with M.abrir(ruta) as c:
+        apretado = M.recuperar(c, "presupuesto", presupuesto=300)
+        holgado = M.recuperar(c, "presupuesto", presupuesto=100000)
+    assert apretado["completo"] is False, "no avisa de que la respuesta es parcial"
+    assert apretado["fuera"] > 0
+    assert holgado["completo"] is True, "dice parcial cuando cabia todo"
+    assert holgado["fuera"] == 0
+
+
+@caso("recuperar respeta el ORDEN de relevancia, no el de tamano")
+def test_recuperar_no_reordena_por_tamano():
+    ruta = tmp_ruta()
+    M.crear(ruta)
+    with M.abrir(ruta) as c:
+        M.escribir_engrama(c, what="hallazgo " + ("y" * 600), why="el largo va primero")
+        M.escribir_engrama(c, what="hallazgo corto", why="el corto va detras")
+        r = M.recuperar(c, "hallazgo", presupuesto=100000)
+    ids = [e["id"] for e in r["engramas"]]
+    with M.abrir(ruta) as c:
+        orden = [e["id"] for e in M.buscar(c, "hallazgo")]
+    assert ids == orden, (
+        "recuperar reordeno: un recuerdo barato no puede adelantar a uno relevante")
+
+
+@caso("un engrama que no cabe SOLO no entra nunca · media verdad no se sirve")
+def test_recuperar_no_parte_un_engrama():
+    ruta = _memoria_con(1, 4000)
+    with M.abrir(ruta) as c:
+        r = M.recuperar(c, "presupuesto", presupuesto=50)
+    assert r["engramas"] == [], "colo un engrama que no cabia"
+    assert r["tokens"] == 0
+    assert r["fuera"] == 1 and r["completo"] is False, "no declara que se quedo fuera"
+
+
+@caso("la cuenta de tokens va POR ARRIBA, nunca por abajo")
+def test_tokens_aprox_conservador():
+    # La constante se midio contra el peor tokenizador del rack --Mistral, 2,63
+    # car/token-- asi que la estimacion tiene que quedar por encima del real de
+    # cualquiera de los tres. Si alguien la sube a 4 «porque es lo habitual»,
+    # este caso cae.
+    assert M.CARACTERES_POR_TOKEN <= 2.63, (
+        f"{M.CARACTERES_POR_TOKEN} car/token subestima: medido 2,63 en Mistral-7B "
+        "sobre el corpus real. Ver herramientas/medir_tokens.py")
+    assert M.tokens_aprox("") == 0, "el vacio no cuesta"
+    assert M.tokens_aprox("x" * 260) >= 100, "la estimacion se queda corta"
+
+
+@caso("presupuesto cero no devuelve nada, y lo dice")
+def test_recuperar_presupuesto_cero():
+    ruta = _memoria_con(3, 100)
+    with M.abrir(ruta) as c:
+        r = M.recuperar(c, "presupuesto", presupuesto=0)
+    assert r["engramas"] == [] and r["tokens"] == 0
+    assert r["candidatos"] == 3 and r["fuera"] == 3, (
+        "con presupuesto cero hay que seguir diciendo cuanto habia")
+
+
 if __name__ == "__main__":
     sys.exit(main_sabotaje() if "--sabotaje" in sys.argv[1:] else main())

@@ -927,6 +927,137 @@ def buscar(c, consulta, incluir_archivados=False, limite=50):
         raise BusquedaNoDisponible(f"la consulta no se pudo ejecutar: {e}") from e
 
 
+# --- RECUPERAR BAJO PRESUPUESTO -------------------------------------------
+#
+# POR QUE EXISTE, Y POR QUE NO BASTABA `buscar()`. `buscar` ordena bien --BM25,
+# que es lo correcto-- y despues corta por FILAS: `limite=50`. Cincuenta filas
+# pueden ser trescientos tokens o doce mil, y el codigo no lo sabe ni lo
+# pregunta. Eso convierte la recuperacion en una loteria de coste.
+#
+# Y EL COSTE AQUI NO ES EL DISCO, ES EL PROMPT. Medido en este nodo el
+# 2026-08-25: 67,17 tok/s de prompt con Vulkan. Es decir:
+#
+#     mil tokens de contexto ~ QUINCE SEGUNDOS de pared
+#     antes de que el modelo genere una sola palabra.
+#
+# Un recuerdo que se trae y no se usa no es ruido: son quince segundos por cada
+# mil tokens que alguien esta esperando delante de una pantalla. En el cerebro
+# local de `cc-local` esto ya se midio en su forma extrema -- 454 s esperando
+# el primer token, con el cliente al 1,1 % de CPU: no colgado, leyendo su
+# preambulo.
+#
+# ASI QUE RECUPERAR NO ES UNA CONSULTA: ES UNA DECISION DE COSTE. Se piden los
+# candidatos por relevancia y se llenan hasta un presupuesto, no hasta un
+# numero de filas. Lo que no cabe NO se recorta a la mitad ni desaparece en
+# silencio: se cuenta y se declara, porque un contexto truncado sin avisar es
+# la misma averia que una cifra sin procedencia.
+#
+# LO QUE ESTO LE DA AL USUARIO, que es lo que decide si merece la pena: sin
+# presupuesto, la memoria crece y el producto SE RALENTIZA CON EL USO -- quien
+# mas lo usa, peor lo tiene, y eso mata una herramienta local. Con presupuesto,
+# la memoria crece y el coste por turno se queda PLANO. Es la unica promesa que
+# la nube no puede hacer.
+
+# CARACTERES POR TOKEN · MEDIDO, no supuesto. La memoria es de biblioteca
+# estandar y no tiene tokenizador, asi que cuenta caracteres y divide. La
+# proporcion se midio el 2026-09-08 contra los TRES tokenizadores que este rack
+# sirve de verdad, y sobre el corpus REAL --los engramas vivos mas el glosario
+# del Ojo, 53.571 caracteres--:
+#
+#     Llama-3.2-3B    3,17 car/token
+#     Qwen3-4B        3,04 car/token
+#     Mistral-7B      2,63 car/token   <- el peor
+#
+# Se toma EL PEOR y no la media, y el motivo es asimetrico: pasarse del
+# presupuesto no avisa, solo hace esperar. Equivocarse hacia el lado que sobra
+# contexto cuesta un hueco; hacia el otro cuesta segundos de espera cada turno.
+#
+# Y de paso desmiente la cifra de manual. «Cuatro caracteres por token» habria
+# subestimado un 52 % contra Mistral: con un presupuesto de 1.200 se habrian
+# colado 1.824 tokens reales. Una constante heredada de otro idioma no es una
+# medida de este.
+#
+# Se vuelve a medir con `herramientas/medir_tokens.py` cuando cambien los
+# modelos servidos. La constante es de los modelos, no del idioma.
+CARACTERES_POR_TOKEN = 2.6
+
+# 1.200 tokens ~ 18 segundos de prompt a la velocidad medida. Es un techo
+# deliberadamente bajo: el objetivo no es traer todo lo que casa, es traer lo
+# que cabe en un turno que alguien esta esperando. Quien necesite mas, lo pide.
+PRESUPUESTO_POR_DEFECTO = 1200
+
+# Los campos que de verdad viajan al modelo. `id`, las fechas y `origen_*` son
+# metadatos de la memoria: pesan en la fila y no en el prompt, asi que contarlos
+# haria el presupuesto mas pequeno de lo que es sin que nadie salga ganando.
+CAMPOS_QUE_VIAJAN = ("what", "why", "where_ref", "learned")
+
+
+def tokens_aprox(texto):
+    """Cuantos tokens ocupa un texto, por arriba.
+
+    APROXIMADO Y CONSERVADOR, y las dos palabras van en el nombre a proposito:
+    quien lea `tokens_aprox` no puede confundirlo con una cuenta. Redondea
+    hacia arriba porque un presupuesto que se cree exacto se pasa; uno que se
+    sabe aproximado deja margen.
+    """
+    if not texto:
+        return 0
+    return int(len(str(texto)) / CARACTERES_POR_TOKEN) + 1
+
+
+def tokens_de_engrama(e):
+    """Lo que ese recuerdo le va a costar al prompt, no lo que ocupa en disco."""
+    return sum(tokens_aprox(e.get(k)) for k in CAMPOS_QUE_VIAJAN)
+
+
+def recuperar(c, consulta, presupuesto=PRESUPUESTO_POR_DEFECTO,
+              incluir_archivados=False, candidatos=50):
+    """Los recuerdos que casan, hasta donde alcance el presupuesto.
+
+    Devuelve un informe, no una lista, y esa es la diferencia entera con
+    `buscar()`. Una lista no puede decir que dejo fuera:
+
+        {"engramas": [...],        # los que entran, en orden de relevancia
+         "tokens": 940,            # lo que van a costar, aproximado
+         "presupuesto": 1200,
+         "candidatos": 17,         # lo que la busqueda encontro
+         "fuera": 6,               # lo que no cupo -- SE DICE
+         "completo": False}        # True solo si cabia todo
+
+    `completo` es la bandera que importa. `False` significa «esta respuesta se
+    da con parte de lo que hay», y quien la reciba --una persona o un modelo--
+    tiene derecho a saberlo. Es el mismo criterio que separa NO_DATA de cero en
+    el resto de esta casa: ausente y vacio no son lo mismo.
+
+    NO PARA EN EL PRIMERO QUE NO CABE. Sigue mirando: un recuerdo corto y
+    relevante que viene detras de uno largo entra igual, y descartarlo por el
+    orden desperdiciaria presupuesto pagado. Lo que NO hace es reordenar por
+    tamano -- eso pondria un recuerdo flojo y barato por delante de uno bueno,
+    y la relevancia es lo unico que aqui no se negocia.
+
+    Un engrama que por si solo no cabe en el presupuesto no entra NUNCA, ni
+    aunque este vacio el turno: recortarlo a la mitad seria entregar media
+    verdad sin decirlo. Cuenta como `fuera`, que es donde se ve.
+    """
+    presupuesto = max(0, int(presupuesto))
+    filas = buscar(c, consulta, incluir_archivados=incluir_archivados,
+                   limite=candidatos)
+
+    elegidos, gastado = [], 0
+    for e in filas:
+        cuesta = tokens_de_engrama(e)
+        if gastado + cuesta <= presupuesto:
+            elegidos.append(e)
+            gastado += cuesta
+
+    return {"engramas": elegidos,
+            "tokens": gastado,
+            "presupuesto": presupuesto,
+            "candidatos": len(filas),
+            "fuera": len(filas) - len(elegidos),
+            "completo": len(elegidos) == len(filas)}
+
+
 def registrar_salida(c, canal, texto_redactado, hallazgos, hash_original,
                      estado="ok", motivo=AUSENTE,
                      ms_motor=None, ms_frontera=None):
