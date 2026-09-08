@@ -358,6 +358,31 @@ class TestElCableConduce(unittest.TestCase):
                          "la cuenta de los que no cupieron no cuadra")
         self.assertEqual(completo, 1 if fuera == 0 else 0)
 
+    def test_el_rastro_anota_LO_QUE_COSTO_y_no_solo_cuantos(self):
+        """Cuantos recuerdos viajaron no dice cuanto se pago por ellos.
+
+        Sin esta cifra, `rendimiento_contexto.py` puede contar piezas y no
+        tokens -- y el techo de `herramientas.TECHO` seguiria siendo un juicio
+        de quien lo escribio en vez de una medida.
+
+        Se cuenta sobre el BLOQUE FINAL, con sus rotulos y sus saltos de linea,
+        porque eso es lo que viaja. La suma de las partes se quedaria corta.
+        """
+        import herramientas as H
+        with memory.abrir(self.db) as c:
+            for i in range(4):
+                memory.escribir_engrama(c, what=f"coste {i} " + "z" * 200)
+            bloque, rastro = H.recuperar(c, "coste", con_rastro=True)
+            self.assertTrue(bloque)
+            self.assertEqual(rastro["tokens"], memory.tokens_aprox(bloque))
+            self.assertGreater(rastro["tokens"], 0, "el bloque viajo y no costo nada")
+            self.assertLessEqual(rastro["tokens"], H.TECHO,
+                                 "el bloque se paso del techo que dice respetar")
+            tid = captura.registrar(c, "p", "r", rastro=rastro)
+            tok, = c.execute("select ctx_tokens from turnos where id=?",
+                             (tid,)).fetchone()
+        self.assertEqual(tok, rastro["tokens"], "la fila no anoto el coste")
+
     def test_sin_personalizada_el_rastro_es_None_y_no_un_cero(self):
         """Apagar el interruptor no es «la memoria no encontro nada»."""
         with memory.abrir(self.db) as c:

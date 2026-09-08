@@ -269,7 +269,7 @@ def _proyectos(c):
     return fuera
 
 
-def _rastro(ids, candidatos):
+def _rastro(ids, candidatos, bloque=""):
     """El informe del contexto, con la MISMA forma que da `memory.recuperar`.
 
     Se comparte la forma a proposito: `captura.registrar(rastro=...)` acepta
@@ -280,9 +280,19 @@ def _rastro(ids, candidatos):
     `completo` es False en cuanto se quedo algo fuera. Es la bandera que dice
     «este turno se contesto con parte de lo que habia», y quien despues juzgue
     la respuesta tiene derecho a saberlo antes de llamarlo fallo del modelo.
+
+    `tokens` SE CUENTA, y hasta hoy viajaba en None. El bloque ya estaba
+    compuesto aqui al lado -- era una llamada, no un dato que faltara. Y sin esa
+    cifra el turno anotaba CUANTOS recuerdos viajaron pero no CUANTO se pagó por
+    ellos, que es justo la medida con la que el techo de 456 podria dejar de ser
+    un juicio de quien lo escribio y pasar a salir de datos.
+
+    Se mide sobre el BLOQUE FINAL, el que de verdad se manda, y no sobre la suma
+    de sus partes: entre ellas van rotulos y saltos de linea que tambien viajan.
+    Es el mismo criterio que ya usa `_cabe` para no pasarse del techo.
     """
     return {"engramas": [{"id": i} for i in ids],
-            "tokens": None,
+            "tokens": M.tokens_aprox(bloque),
             "fuera": max(0, candidatos - len(ids)),
             "completo": len(ids) == candidatos}
 
@@ -430,7 +440,7 @@ def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
         bloques.append((rot["proyectos"], activos, None))
 
     if not bloques:
-        return ("", _rastro([], len(pares))) if con_rastro else ""
+        return ("", _rastro([], len(pares), "")) if con_rastro else ""
 
     # El presupuesto se reparte entre los bloques que haya, y el encabezado
     # cuenta: un rótulo sin nada debajo es peor que no ponerlo.
@@ -461,4 +471,4 @@ def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
         resto -= M.tokens_aprox(trozo) + 1
 
     bloque = "\n\n".join(trozos)
-    return (bloque, _rastro(viajaron, len(pares))) if con_rastro else bloque
+    return (bloque, _rastro(viajaron, len(pares), bloque)) if con_rastro else bloque
