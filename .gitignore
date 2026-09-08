@@ -18,6 +18,23 @@ docs/*
 !docs/ANALISIS_DOCTRINAL_v1_2.md
 !docs/SOBERANIA.md
 !docs/CANON_NIVELES.md
+# Excepcion firmada (2026-09-08): la matriz de cumplimiento SI viaja, y por la
+# misma razon que la brujula -- es documentacion del PRODUCTO, no un entregable
+# interno. Va a manos de un auditor externo, asi que un fichero que no esta en
+# el repo es un fichero cuya version nadie puede fijar, y una matriz de
+# cumplimiento sin version es una afirmacion sin fecha.
+#
+# NO entra en la lista de lexico de `test_compass`, y eso es deliberado: ese
+# guardian existe para que la brujula no filtre nombres de la casa, y este
+# documento es LITERALMENTE la tabla que traduce esos nombres al idioma
+# normativo. Prohibirle decir «Frontera» seria prohibirle su trabajo. Lo vigila
+# `test_compliance` en su lugar, que mira otra cosa: que lo que afirma exista.
+#
+# Y se publica CON SUS HUECOS dentro. Eso entrega un mapa de lo que este
+# sistema todavia no cubre, y se acepta a sabiendas: son huecos de
+# arquitectura --no hay Ed25519, el registro admite update-- y no secretos
+# explotables. Un mapa que solo ensena lo verde no es un mapa.
+!docs/COMPLIANCE.md
 # Las capturas del producto SI viajan: son la prueba visual del README, y
 # un README que describe una brujula sin ensenarla pide fe en vez de dar dato.
 !docs/screenshots/

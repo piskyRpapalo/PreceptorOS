@@ -207,6 +207,14 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # con las que los adaptadores de La Charla pasaron una corrida entera
           # en verde -- «el modelo base ocupa unos 200 gigas», que son 4,4.
           test_cifras
+          # test_compliance: el documento que va a manos de un auditor, atado
+          # al codigo que dice describir. Entra en su mismo commit. Su modo de
+          # fallo no es estar incompleto sino DESACTUALIZARSE sin que nadie lo
+          # note: el dia que alguien renombre `cruzar_frontera`, el documento
+          # sigue diciendo que existe, y eso deja de ser documentacion vieja
+          # para ser una afirmacion falsa por escrito ante quien vino a
+          # comprobarla.
+          test_compliance
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 
