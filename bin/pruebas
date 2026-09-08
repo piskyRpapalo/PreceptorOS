@@ -185,6 +185,16 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # que hace el navegador: dos implementaciones del mismo vinculo que
           # nadie compare acaban vinculando cosas distintas.
           test_soberano
+          # test_importar: EL PUENTE DE VUELTA. La web ya escribia los campos
+          # de `captura.turnos` uno a uno para que no hiciera falta traductor,
+          # y aun asi el puente iba en un solo sentido: no habia donde meter lo
+          # corregido al llegar aqui. Entra en su mismo commit, y ademas cruza
+          # con el OTRO repo -- lee `corregir.js` y comprueba que no escribe
+          # ningun campo que este lado tire. Esa comprobacion no puede vivir en
+          # la web (no conoce esta tabla) ni en la cabeza de nadie: un campo que
+          # se pierde callando es como se separan dos esquemas que decian ser
+          # el mismo.
+          test_importar
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

@@ -495,6 +495,51 @@ def respaldo(ruta, destino=None):
 
 
 
+def meter(ruta, origen):
+    """`--importar`: el paquete de la web entra en la memoria de aqui.
+
+    ENSEÑA EL INFORME ENTERO, no un «listo». Quien pega un paquete quiere saber
+    tres cosas, y las tres pueden decepcionar: cuantas entraron, cuantas ya
+    estaban, y cuales no se entendieron y por que. Un mensaje de exito que se
+    come las saltadas convierte un dato perdido en un dato que se cree tener.
+
+    `-` lee de la entrada estandar, que es lo que hace falta cuando el paquete
+    viaja en un portapapeles y no en un fichero.
+    """
+    import importar as _imp
+    if origen == "-":
+        texto = sys.stdin.read()
+    else:
+        try:
+            texto = open(origen, encoding="utf-8").read()
+        except OSError as e:
+            print(f"No se pudo leer «{origen}»: {e}", file=sys.stderr)
+            return 1
+    paquete = _imp.leer(texto)
+    if paquete is None:
+        print("Eso no es un paquete de PreceptorOS que yo sepa leer.",
+              file=sys.stderr)
+        print("Tiene que ser el JSON entero que copiaste en la web, empezando "
+              'por «{» y con su campo «esquema».', file=sys.stderr)
+        return 1
+    with M.abrir(ruta) as c:
+        inf = _imp.importar(c, paquete)
+    print(f"Correcciones en el paquete: {inf['entradas']}")
+    print(f"  nuevas:    {inf['nuevas']}")
+    print(f"  ya estaban: {inf['repetidas']}")
+    if inf["saltadas"]:
+        print(f"  saltadas:  {len(inf['saltadas'])}")
+        for s in inf["saltadas"]:
+            print(f"    · la {s['n'] + 1}: {s['motivo']}")
+    if inf["firmas_sin_verificar"]:
+        # Se dice SIEMPRE, y no solo cuando hay problema. Guardar una firma que
+        # nadie ha comprobado y no decirlo es dejar que parezca comprobada.
+        print(f"\n{inf['firmas_sin_verificar']} firma(s) guardadas SIN "
+              "verificar: la biblioteca estandar de Python no trae Ed25519.")
+        print("Se conservan enteras para el dia que se puedan comprobar.")
+    return 0
+
+
 def restaurar(ruta, origen, confirmar=None):
     """Devuelve una copia a su sitio. Simetrica de --backup, y desconfiada.
 
@@ -851,6 +896,10 @@ def main():
                     help="put a backup back in place (asks first)")
     ap.add_argument("--backup", nargs="?", const="", metavar="FILE",
                     help="verified copy of the whole memory, WAL included")
+    ap.add_argument("--importar", metavar="FILE",
+                    help="mete en tu memoria las correcciones que hiciste en "
+                         "la web (el paquete que copiaste alli; «-» para "
+                         "pegarlo por la entrada)")
     a = ap.parse_args()
 
     # Lo primero y en TODOS los modos, `--view` y `--export` incluidos: si esta
@@ -876,6 +925,9 @@ def main():
             argv_ex.append("--indexar")
         return _ex.main(argv_ex)
 
+    # Va DELANTE de todo lo que pregunta: meter un paquete no es una sesion.
+    if a.importar:
+        return meter(a.db, a.importar)
     if a.restore:
         return restaurar(a.db, a.restore)
     if a.backup is not None:
