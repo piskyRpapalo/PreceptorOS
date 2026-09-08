@@ -42,15 +42,38 @@ LO QUE NO SE HACE, QUE ES LA MITAD DEL CONTRATO
   no es cero por no haber -- pero esa distinción es para quien audita, no para
   quien está hablando.
 
-EL PRESUPUESTO, QUE SALE DE UNA CUENTA
---------------------------------------
-La ventana medida en este nodo son 32.768 tokens, y a unos cuatro caracteres
-por token eso son ~131.000 caracteres. El techo de aquí son 1.200, o sea el
-0,9 %. Es deliberadamente pequeño por dos razones que el número grande no ve:
-esto viaja ENTERO en cada turno, así que compite con la conversación; y se
-queda por debajo de los 1.500 que suman los tres campos del harness, porque lo
-que la persona escribió sobre sí misma a propósito no debe pesar menos que lo
-que la búsqueda haya dragado.
+EL PRESUPUESTO, QUE SALE DE UNA CUENTA — CORREGIDA EL 2026-09-08
+-----------------------------------------------------------------
+La ventana medida en este nodo son 32.768 tokens. Esta cuenta decía «a unos
+cuatro caracteres por token, ~131.000 caracteres», y ese cuatro era la cifra de
+manual, no una medida de esta casa. Medido contra los tres tokenizadores que el
+rack sirve, sobre el corpus real: Llama-3.2 da 3,17 · Qwen3 3,04 · **Mistral
+2,63**. Con el peor, la ventana son **86.180 caracteres — un 34 % menos** de lo
+que este fichero creía. El razonamiento estaba hecho sobre un tercio de aire.
+
+Y AHORA EL TECHO SE MIDE EN TOKENS, que es la unidad en la que se paga. Un
+techo en caracteres cambia de tamaño con el idioma sin que nadie lo toque: el
+mismo párrafo en ruso o en griego cuesta casi el doble de tokens que en
+castellano, y esta app habla ocho lenguas. Un presupuesto que vale distinto
+según el idioma de quien lo usa no es un presupuesto.
+
+456 tokens es EXACTAMENTE lo que valían los 1.200 caracteres de antes al ratio
+medido. Se conserva el comportamiento y se corrige la unidad: subir o bajar el
+techo es una decisión del Soberano, no un efecto colateral de arreglar una
+cuenta. Sigue siendo deliberadamente pequeño por dos razones que el número grande no
+ve: esto viaja ENTERO en cada turno, así que compite con la conversación; y se
+queda por debajo de lo que suman los tres campos del harness, porque lo que la
+persona escribió sobre sí misma a propósito no debe pesar menos que lo que la
+búsqueda haya dragado.
+
+DOS `recuperar` Y NO SON LO MISMO, que se dice aquí porque el nombre invita a
+confundirlos. `memory.recuperar` es el BUSCADOR: trae engramas por relevancia
+hasta un presupuesto y declara lo que dejó fuera. Este de aquí es el
+COMPOSITOR: decide qué clases de cosa van delante del modelo --perfil,
+memorias, proyectos-- y en qué proporción según la profundidad. Uno responde
+«qué recuerdos caben»; el otro, «qué se le pone delante». El compositor usará
+al buscador para su tramo de memorias; hoy todavía no, y queda dicho para que
+nadie lo dé por hecho leyendo los nombres.
 """
 from __future__ import annotations
 
@@ -63,7 +86,10 @@ import textos as TX
 LIMITE = 5
 
 # El techo, en caracteres. La cuenta está arriba, en el docstring del módulo.
-TECHO = 1200
+# EN TOKENS desde el 2026-09-08, no en caracteres. 456 es lo que valían los
+# 1.200 caracteres de antes al ratio medido (2,63 car/token, Mistral): mismo
+# comportamiento, unidad correcta. Ver el bloque del presupuesto, arriba.
+TECHO = 456
 
 # Los rótulos. Se dicen en positivo y con una instrucción concreta -- «úsalo si
 # viene a cuento» --, no «no lo recites»: una orden solo negativa invita al
@@ -247,11 +273,17 @@ def _cabe(partes, techo):
     Devuelve el bloque ya unido. Se mide sobre el texto final --con sus saltos
     de línea-- y no sobre la suma de las piezas, porque el techo es lo que
     viaja, no lo que se pensaba mandar.
+
+    EL TECHO SON TOKENS. Lo fue en caracteres hasta el 2026-09-08, y con ocho
+    lenguas eso significaba ocho presupuestos distintos sin que nadie lo
+    hubiera decidido: el mismo párrafo en ruso cuesta casi el doble de tokens
+    que en castellano. `M.tokens_aprox` cuenta por arriba y con la proporción
+    medida contra el peor tokenizador del rack, no con la cifra de manual.
     """
     puestas = []
     for parte in partes:
         candidato = "\n".join(puestas + [parte])
-        if len(candidato) > techo:
+        if M.tokens_aprox(candidato) > techo:
             continue
         puestas.append(parte)
     return "\n".join(puestas)

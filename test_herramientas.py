@@ -105,13 +105,21 @@ class TestRecuperar(unittest.TestCase):
 
     # --- el presupuesto ----------------------------------------------------
 
-    def test_respeta_el_techo_de_caracteres(self):
-        """Se manda entero en CADA turno: sin techo, la memoria se come la charla."""
+    def test_respeta_el_techo_de_tokens(self):
+        """Se manda entero en CADA turno: sin techo, la memoria se come la charla.
+
+        EL TECHO SON TOKENS desde el 2026-09-08, y este caso medía caracteres.
+        No es un detalle de unidades: un techo en caracteres vale distinto en
+        cada idioma --el mismo párrafo en ruso cuesta casi el doble de tokens
+        que en castellano-- y esta app habla ocho lenguas. Un presupuesto que
+        cambia de tamaño según quién lo use no es un presupuesto.
+        """
         with M.abrir(self.db) as c:
             for i in range(40):
                 M.escribir_engrama(c, what=f"melocoton numero {i} " + "x" * 200)
             bloque = H.recuperar(c, "melocoton", techo=600)
-            self.assertLessEqual(len(bloque), 600)
+            self.assertLessEqual(M.tokens_aprox(bloque), 600,
+                                 "el bloque se pasa del techo en TOKENS")
 
     def test_no_corta_un_recuerdo_por_la_mitad(self):
         """Se dejan fuera recuerdos ENTEROS, nunca se parte uno.
@@ -124,7 +132,7 @@ class TestRecuperar(unittest.TestCase):
             for i in range(10):
                 M.escribir_engrama(c, what=f"pera {i} " + "y" * 150)
             bloque = H.recuperar(c, "pera", techo=400)
-            self.assertLessEqual(len(bloque), 400)
+            self.assertLessEqual(M.tokens_aprox(bloque), 400)
             # Todo «pera N» que asome tiene que traer su carga completa detras.
             for i in range(10):
                 if f"pera {i}" in bloque:
