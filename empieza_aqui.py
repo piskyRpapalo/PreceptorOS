@@ -210,21 +210,43 @@ def _lengua(idioma):
     return "en" if str(idioma or "es").lower().startswith("en") else "es"
 
 
-def documento(idioma="es"):
-    """Lo que la IA de fuera lee primero. Derivado de `VERBOS`, no escrito."""
+def documento(idioma="es", verbo=None):
+    """Lo que la IA de fuera lee primero. Derivado de `VERBOS`, no escrito.
+
+    `verbo` RECORTA EL CATALOGO, y es el mismo principio del presupuesto
+    aplicado a la propia documentacion: no mandes lo que no se va a leer. Una
+    IA que ya sabe que viene a pedir `memoria` paga hoy la ficha de los cinco
+    verbos para usar uno.
+
+    LO QUE EL RECORTE NO TOCA NUNCA: la regla de inyeccion y la lista de lo que
+    esta puerta no hace. Y no es prudencia, es aritmetica del riesgo: son la
+    parte barata del documento y la unica cuyo hueco se paga en otra moneda.
+    Recortar la advertencia para ahorrar treinta tokens es cambiar tokens por
+    una IA que no sabe que lo que lee son datos -- y por una IA que, al no
+    encontrar su limite escrito, lo adivina pidiendo ficheros.
+
+    Los verbos que se van NO desaparecen: quedan nombrados en `tambien_puedo`,
+    una linea. Asi la IA sabe que existen y puede volver a pedir la puerta
+    entera si los necesita. Un catalogo recortado que oculta que fue recortado
+    ensena a creer que eso es todo lo que hay.
+    """
     L = _lengua(idioma)
-    return {
+    v = str(verbo or "").strip().lower()
+    pedido = v if v in VERBOS else None
+    fichas = [
+        {"verbo": k, "da": d["que_da"][L], "acepta": list(d["acepta"]),
+         "cuesta": d["cuesta"]}
+        for k, d in VERBOS.items()
+        if pedido is None or k == pedido
+    ]
+    doc = {
         "bienvenida": BIENVENIDA[L],
         "soy": {"es": "PreceptorOS · la memoria local de esta persona. Corro en "
                       "su maquina y no salgo de ella.",
                 "en": "PreceptorOS · this person's local memory. I run on their "
                       "machine and I do not leave it."}[L],
         "regla": REGLA_INYECCION[L],
-        "puedes_pedir": [
-            {"verbo": v, "da": d["que_da"][L], "acepta": list(d["acepta"]),
-             "cuesta": d["cuesta"]}
-            for v, d in VERBOS.items()
-        ],
+        "puedes_pedir": fichas,
         "no_puedo": NO_PUEDO[L],
         "si_no_tienes_herramientas": {
             "es": "Pidele a la persona que ejecute `preceptoros --empieza-aqui` "
@@ -233,6 +255,17 @@ def documento(idioma="es"):
                   "the output. Nothing else needs installing.",
         }[L],
     }
+    if pedido is not None:
+        otros = [k for k in VERBOS if k != pedido]
+        doc["tambien_puedo"] = {
+            "es": "Sin ficha aqui para no gastarte sitio, pero existen y "
+                  "responden: " + ", ".join(otros) + ". Pide la puerta sin "
+                  "`verbo` para verlos enteros.",
+            "en": "No card here so as not to spend your room, but they exist "
+                  "and answer: " + ", ".join(otros) + ". Ask for the door "
+                  "without `verbo` to see them in full.",
+        }[L]
+    return doc
 
 
 def responder(c, verbo, idioma="es", **kw):
@@ -256,13 +289,15 @@ def responder(c, verbo, idioma="es", **kw):
     return salida
 
 
-def texto(idioma="es"):
+def texto(idioma="es", verbo=None):
     """La misma puerta, para pegar en una IA que no tiene herramientas."""
-    d = documento(idioma)
+    d = documento(idioma, verbo)
     lineas = [ENTRADA, "", d["soy"], "", d["regla"], "", "PUEDES PEDIR:"]
     for v in d["puedes_pedir"]:
         acepta = (" (" + ", ".join(v["acepta"]) + ")") if v["acepta"] else ""
         lineas.append(f"  · {v['verbo']}{acepta} — {v['da']} [{v['cuesta']}]")
+    if d.get("tambien_puedo"):
+        lineas += ["  " + d["tambien_puedo"]]
     lineas += ["", "NO PUEDO:"]
     lineas += [f"  · {x}" for x in d["no_puedo"]]
     return "\n".join(lineas)

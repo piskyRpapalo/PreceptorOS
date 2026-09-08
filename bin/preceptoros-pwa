@@ -371,10 +371,14 @@ class PWA(BaseHTTPRequestHandler):
         dice ella misma en su `no_puedo`.
         """
         import empieza_aqui as EA
-        idioma = (self._consulta().get("idioma", ["es"]) or ["es"])[0]
-        d = EA.documento(idioma)
+        q = self._consulta()
+        idioma = (q.get("idioma", ["es"]) or ["es"])[0]
+        # `?verbo=memoria` recorta el catalogo a lo que se va a usar. La
+        # seguridad no se recorta nunca -- ver `empieza_aqui.documento`.
+        verbo = (q.get("verbo", [None]) or [None])[0]
+        d = EA.documento(idioma, verbo)
         d["llave"] = EA.LLAVE
-        d["pegable"] = EA.texto(idioma)
+        d["pegable"] = EA.texto(idioma, verbo)
         return self._json(200, d)
 
     def _manifiesto(self):

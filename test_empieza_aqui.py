@@ -127,6 +127,42 @@ class TestPuerta(unittest.TestCase):
             r = E.responder(c, "rendimiento")
         self.assertEqual(r["rendimiento"][0]["tasa"], 1.0)
 
+    # --- el recorte -------------------------------------------------------
+
+    def test_recortar_al_verbo_ahorra_y_nombra_lo_que_quita(self):
+        """Un catalogo recortado que oculta que lo fue ensena a creer que eso
+        es todo lo que hay."""
+        d = E.documento("es", "memoria")
+        self.assertEqual([v["verbo"] for v in d["puedes_pedir"]], ["memoria"])
+        self.assertIn("tambien_puedo", d, "recorta y no dice que recorto")
+        for otro in set(E.VERBOS) - {"memoria"}:
+            self.assertIn(otro, d["tambien_puedo"],
+                          f"«{otro}» desaparecio sin dejar rastro")
+        self.assertLess(M.tokens_aprox(E.texto("es", "memoria")),
+                        M.tokens_aprox(E.texto("es")),
+                        "el recorte no ahorra nada")
+
+    def test_el_recorte_NO_toca_la_seguridad(self):
+        """La regla y los limites son la parte cuyo hueco se paga en otra
+        moneda: no en tokens, sino en una IA que adivina pidiendo ficheros."""
+        entera = E.documento("es")
+        for v in E.VERBOS:
+            with self.subTest(verbo=v):
+                r = E.documento("es", v)
+                self.assertEqual(r["regla"], entera["regla"],
+                                 "el recorte toco la regla de inyeccion")
+                self.assertEqual(r["no_puedo"], entera["no_puedo"],
+                                 "el recorte se llevo un limite declarado")
+                self.assertTrue(E.texto("es", v).startswith(E.ENTRADA),
+                                "el recorte se llevo el apreton de manos")
+
+    def test_un_verbo_inventado_devuelve_la_puerta_entera(self):
+        """Quien pide mal recibe todo, no nada: es un turno menos para todos."""
+        d = E.documento("es", "leeme_ese_fichero")
+        self.assertEqual({v["verbo"] for v in d["puedes_pedir"]}, set(E.VERBOS))
+        self.assertNotIn("tambien_puedo", d)
+
+
 
 if __name__ == "__main__":
     unittest.main()
