@@ -16,6 +16,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import captura
+import linea
 import memory
 
 
@@ -393,6 +394,114 @@ class TestElCableConduce(unittest.TestCase):
                 (tid,)).fetchone()
         self.assertEqual(ids, "NO_DATA")
         self.assertIsNone(tok, "un cero se leeria como «no viajo nada»")
+
+
+
+class TestOLosDosONinguno(unittest.TestCase):
+    """El art. 12 en una prueba: ningun cambio sobrevive sin su evento.
+
+    Se escribe porque el 2026-09-08 se midio que `juzgar` NO lo cumplia, y el
+    comentario del codigo afirmaba que si. La ordenacion --anotar antes del
+    commit-- era correcta y aun asi no protegia nada: el `except Exception`
+    que da el contrato de «esta funcion no levanta» se tragaba el fallo de la
+    linea, `memory.abrir` veia una salida normal y hacia `commit()`. El
+    veredicto quedaba guardado, sin evento, y encima la funcion devolvia False.
+
+    De los tres estados posibles ese es el peor. Un fallo que avisa se
+    reintenta; un fallo silencioso se descubre tarde; pero un cambio guardado
+    que se reporta como fallido deja al sistema y a quien lo opera creyendo
+    cosas distintas, y ninguna de las dos es la que hay en el disco.
+
+    La prueba rompe la linea a proposito y comprueba las DOS mitades: que el
+    cambio no quedo, y que tampoco quedo el evento. Comprobar solo una deja
+    pasar justo el fallo que la motivo.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.ruta = os.path.join(self.tmp.name, "memory.db")
+        memory.crear(self.ruta)
+        self.original = captura._linea.anotar
+
+    def tearDown(self):
+        captura._linea.anotar = self.original
+        self.tmp.cleanup()
+
+    def _romper_la_linea(self):
+        def rota(*a, **k):
+            raise linea.NoSePudoAnotar("fallo simulado: disco lleno")
+        captura._linea.anotar = rota
+
+    def _un_turno(self):
+        with memory.abrir(self.ruta) as c:
+            return captura.registrar(c, "p", "r", modelo="m:v1", tarea="libre")
+
+    def _eventos(self, c):
+        try:
+            return c.execute("select count(*) from eventos").fetchone()[0]
+        except Exception:                                       # noqa: BLE001
+            return 0            # sin tabla es sin eventos, no un error
+
+    def _campos(self, tid):
+        with memory.abrir(self.ruta) as c:
+            f = c.execute("select veredicto, consent, correccion from turnos "
+                          "where id = ?", (tid,)).fetchone()
+            return {k: f[k] for k in ("veredicto", "consent", "correccion")}
+
+    def _correr(self, fn):
+        """Llama a `fn` con la linea rota. Devuelve (antes, despues, eventos).
+
+        Se compara contra el valor de ANTES y no contra `None`: el turno nace
+        con `veredicto='NO_DATA'`, no vacio, y una prueba que fijara `None` a
+        mano estaria comprobando el esquema en vez de la atomicidad.
+        """
+        tid = self._un_turno()
+        antes = self._campos(tid)
+        self._romper_la_linea()
+        try:
+            with memory.abrir(self.ruta) as c:
+                fn(c, tid)
+        except linea.NoSePudoAnotar:
+            pass                # levantar es una forma legitima de fallar
+        captura._linea.anotar = self.original
+        with memory.abrir(self.ruta) as c:
+            eventos = self._eventos(c)
+        return antes, self._campos(tid), eventos
+
+    def test_un_veredicto_no_sobrevive_sin_su_evento(self):
+        antes, despues, eventos = self._correr(
+            lambda c, t: captura.juzgar(c, t, "acierto", juez="carbono"))
+        self.assertEqual(eventos, 0)
+        self.assertEqual(
+            despues["veredicto"], antes["veredicto"],
+            "el veredicto quedo guardado sin evento en la linea: ante el "
+            "art. 12 eso es un veredicto que no ocurrio, y aqui esta")
+
+    def test_un_consentimiento_no_sobrevive_sin_su_evento(self):
+        antes, despues, eventos = self._correr(
+            lambda c, t: captura.consentir(c, t, True, motivo="prueba"))
+        self.assertEqual(eventos, 0)
+        self.assertEqual(despues["consent"], antes["consent"],
+                         "el consentimiento cambio sin dejar registro")
+
+    def test_una_correccion_no_sobrevive_sin_su_evento(self):
+        antes, despues, eventos = self._correr(
+            lambda c, t: captura.corregir(c, t, "otro texto", "prueba"))
+        self.assertEqual(eventos, 0)
+        self.assertEqual(despues["correccion"], antes["correccion"],
+                         "la correccion quedo guardada sin registro")
+
+    def test_juzgar_sigue_sin_levantar(self):
+        """El arreglo no puede romper el contrato que la funcion promete.
+
+        `juzgar` se llama con la respuesta ya delante de la persona: si
+        levantara, un fallo del cuaderno romperia la conversacion. Devuelve
+        False, y ahora ese False ademas significa que no quedo nada.
+        """
+        tid = self._un_turno()
+        self._romper_la_linea()
+        with memory.abrir(self.ruta) as c:
+            self.assertFalse(captura.juzgar(c, tid, "acierto", juez="carbono"))
 
 
 if __name__ == "__main__":

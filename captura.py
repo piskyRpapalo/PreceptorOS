@@ -317,6 +317,25 @@ def juzgar(c, turno_id, veredicto, juez="NO_DATA", motivo="NO_DATA"):
         c.commit()
         return True
     except Exception:
+        # EL ROLLBACK ES LO QUE HACE CIERTO EL COMENTARIO DE ARRIBA. Sin el, la
+        # ordenacion no protegia nada: `memory.abrir` hace `commit()` al salir
+        # con normalidad, y esta funcion --que por contrato no levanta-- salia
+        # con normalidad tambien. Resultado medido el 2026-09-08: `juzgar`
+        # devolvia False mientras el veredicto quedaba comprometido en
+        # `memory.db` sin un solo evento en la linea. Un veredicto sin registro
+        # es, ante el art. 12, un veredicto que no ocurrio -- y el peor de los
+        # tres estados posibles, porque el sistema sigue COMO SI hubiera
+        # quedado registro y ademas te ha dicho que fallo.
+        #
+        # Deshacer aqui no rompe el contrato de no levantar: sigue devolviendo
+        # False. Lo que cambia es que ahora False significa «no quedo nada»,
+        # que es lo que quien llama ya creia que significaba.
+        try:
+            c.rollback()
+        except Exception:                                       # noqa: BLE001
+            # Si ni el rollback se puede, no hay nada mas que esta funcion
+            # pueda hacer sin levantar. El False sigue siendo verdad.
+            pass
         return False
 
 
