@@ -39,6 +39,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 AQUI = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, AQUI)
 
+import medidas as MED
 import metricas as MET
 
 import memory as M                                          # noqa: E402
@@ -261,6 +262,15 @@ class PWA(BaseHTTPRequestHandler):
             return self._camino()
         if ruta == "/api/metricas":
             return self._metricas()
+        # La MISMA medida, en el esquema que la web publica. Dos rutas y un
+        # solo medidor: `/api/metricas` es el vocabulario de esta casa --once
+        # campos con su estado y su causa, que es lo que pinta el tablero-- y
+        # `/api/medidas` es el del otro lado. Traducir en el servidor y no en
+        # la interfaz es lo que impide que aparezca una tercera version de las
+        # mismas cifras el dia que alguien necesite el formato de la web desde
+        # otro sitio.
+        if ruta == "/api/medidas":
+            return self._medidas()
         if ruta == "/api/manifiesto":
             return self._manifiesto()
         if ruta == "/api/cerebro":
@@ -501,6 +511,36 @@ class PWA(BaseHTTPRequestHandler):
         # vatiaje del enchufe.
         paquete["espejo"] = MET.memoria_del_sistema()
         return self._json(200, paquete)
+
+    def _medidas(self):
+        """Lo mismo que `/api/metricas`, hablando el esquema de `medidas.json`.
+
+        Existe porque «mide tu equipo y guarda el resultado» producia un
+        fichero que no encajaba en ningun sitio: el medidor de aqui y la tabla
+        que la web publica hablaban de lo mismo --que va este modelo en esta
+        maquina-- con dos vocabularios distintos. Esta ruta devuelve el de la
+        web, para que un tester sea una fila el dia que el tablon abra.
+
+        NO MIDE NADA NUEVO. Llama al mismo `_metricas` y traduce, y por eso no
+        puede haber dos verdades: si las cifras cambian, cambian en las dos
+        rutas a la vez.
+        """
+        ruta = self.server.modelo
+        try:
+            eleccion = _afinado.elegir(_casa.raiz(), ruta or "")
+            if eleccion.ruta and os.path.isfile(eleccion.ruta):
+                ruta = eleccion.ruta
+        except Exception:
+            pass
+        cerebro = None
+        if ruta and os.path.isfile(ruta):
+            cerebro = {"nombre": os.path.basename(ruta),
+                       "bytes": os.path.getsize(ruta)}
+        paquete = MET.paquete(
+            cerebro=cerebro,
+            turno=getattr(self.server, "ultimo_turno", None),
+            tokens_sesion=getattr(self.server, "tokens_sesion", 0))
+        return self._json(200, MED.desde_paquete(paquete))
 
     # --- el cerebro · la unica eleccion de modelo que hace la persona -------
     #

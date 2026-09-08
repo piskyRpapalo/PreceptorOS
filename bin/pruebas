@@ -195,6 +195,13 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # se pierde callando es como se separan dos esquemas que decian ser
           # el mismo.
           test_importar
+          # test_medidas: el medidor de aqui hablando el esquema que la web
+          # publica. Entra en su mismo commit, y como la de al lado cruza con
+          # el OTRO repo: lee el `contrato.obligatorio` de `medidas.json` y
+          # exige que salgan todos sus campos. Un campo obligatorio que la web
+          # anada solo puede verse rojo AQUI -- alli nadie conoce este
+          # traductor.
+          test_medidas
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 
