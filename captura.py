@@ -80,7 +80,86 @@ RASTRO = (
     ("ctx_tokens", "integer"),
     ("ctx_fuera", "integer"),
     ("ctx_completo", "integer"),
+    # --- LO QUE CONVIERTE EL CUADERNO EN PRECEPTOR DE LoRAs (2026-09-08) ---
+    ("tarea", "text not null default 'NO_DATA'"),
+    ("arnes", "text not null default 'NO_DATA'"),
+    ("veredicto", "text not null default 'NO_DATA'"),
+    ("juez", "text not null default 'NO_DATA'"),
+    ("juzgado", "text"),
 )
+
+# --- LOS TRES VOCABULARIOS CERRADOS ---------------------------------------
+#
+# POR QUE CERRADOS, y no texto libre. `proyectos.ESTADOS` y `herramientas.FOCOS`
+# ya lo son, y por el mismo motivo: un campo libre no se puede agrupar. Con
+# `modelo` de texto libre --que es lo que habia-- la pregunta «como le fue a
+# este modelo en esta tarea» no tiene respuesta, tiene un `group by` sobre
+# cadenas que alguien escribio a mano en cuatro sitios distintos.
+#
+# Y ESA PREGUNTA ES EL PRODUCTO. Una base que no la contesta guarda turnos; una
+# que la contesta es un preceptor de LoRAs.
+
+# LA TAREA SALE DE LOS OCHO COMANDOS QUE YA ESTAN EN PRODUCCION en la web
+# (`servicios.json`), y no de una lista nueva. `comandos.js` lo dice mejor de lo
+# que lo diria yo: «EL COMANDO NO SE TRADUCE, LO QUE HACE SI. Un comando es un
+# IDENTIFICADOR». Eso los hace estables en las ocho lenguas y en las dos caras.
+#
+# Y ES EL PARALELO QUE PEDIA EL SOBERANO: los atajos de la web y los de la app
+# comparten etiqueta, asi que un turno de una y otro de la otra son COMPARABLES
+# -- un LoRA entrenado con los de aqui se puede medir contra los de alla. Con
+# dos vocabularios distintos, esa comparacion no existiria y nadie lo notaria.
+#
+# `libre` es la conversacion sin atajo, que es la mayoria: se declara en vez de
+# dejarla en NO_DATA, porque «no vino por un atajo» es un hecho, no un hueco.
+TAREAS = ("instalar", "perfil", "dataset", "script", "eco", "formatos",
+          "auditar", "frontera", "libre")
+
+# EL ARNES · la dimension del arnes doble. La MISMA base sirve a la IA de dentro
+# y a la de fuera, y sin esta columna sus turnos se mezclan: la media de un
+# modelo local a 5 tok/s con la de uno de frontera no describe a ninguno de los
+# dos.
+ARNESES = ("app", "web", "externo")
+
+# EL VEREDICTO, Y AQUI VA LA DOCTRINA DENTRO DEL ESQUEMA.
+#
+# Tres de los seis son ACIERTOS, y dos de esos tres los cuenta como fallo
+# cualquier banco de pruebas de fuera:
+#
+#   no_data   · dijo «no lo se» cuando de verdad no lo sabia.
+#   traspaso  · dijo «esto me excede, le toca a otro» y le tocaba.
+#
+# Un banco que los puntue como error entrena al modelo a INVENTAR antes que a
+# callarse -- que es exactamente el comportamiento que esta casa lleva un mes
+# combatiendo. Si el vocabulario no distingue «callarse bien» de «fallar», el
+# entrenamiento castigara justo lo que la doctrina exige.
+#
+#   mudo      · el reverso: dijo NO_DATA teniendo el dato delante. ESO si es
+#               fallo, y es distinto de alucinar: no invento, se rindio.
+#   alucinacion · afirmo algo que no estaba en `ctx_ids` y no es cierto. Con el
+#               rastro del contexto esto dejo de ser una intuicion y es una
+#               consulta.
+#
+# `NO_DATA` --el defecto-- significa NADIE LO HA JUZGADO. No es un cero: un
+# turno sin juzgar no es un turno fallado, y confundirlos hundiria la nota de
+# todo modelo nuevo por el mero hecho de ser nuevo.
+VEREDICTOS = ("acierto", "no_data", "traspaso", "fallo", "alucinacion", "mudo")
+
+# Los tres que cuentan a favor. Se declara la lista en vez de repetir el
+# criterio en cada consulta: el dia que entre un veredicto nuevo, se decide su
+# signo AQUI y una sola vez.
+ACIERTOS = ("acierto", "no_data", "traspaso")
+
+
+def _del_vocabulario(valor, vocabulario):
+    """Un valor fuera de la lista no es un error: es NO_DATA.
+
+    No se levanta y no se inventa. Levantar convertiria una etiqueta mal puesta
+    en un turno perdido --y este cuaderno existe precisamente para no perder
+    turnos--; aceptarla dejaria entrar `Instalar`, `instalar ` e `INSTALL` como
+    tres tareas distintas, y entonces el `group by` vuelve a no significar nada.
+    """
+    v = str(valor or "").strip().lower()
+    return v if v in vocabulario else "NO_DATA"
 
 CLAVE_PERFIL = "captura"
 
@@ -116,7 +195,7 @@ def activa(perfil):
 
 
 def registrar(c, prompt, respuesta, modelo="NO_DATA", idioma="NO_DATA",
-              rastro=None):
+              rastro=None, tarea=None, arnes=None):
     """Guarda el par y devuelve su id, o None si no se pudo.
 
     **Nunca levanta.** Se llama con la respuesta ya entregada a la persona: a
@@ -139,13 +218,15 @@ def registrar(c, prompt, respuesta, modelo="NO_DATA", idioma="NO_DATA",
         ids = ",".join(str(e["id"]) for e in r.get("engramas", [])) if r else ""
         cur = c.execute(
             "insert into turnos (prompt, respuesta, modelo, idioma, "
-            "ctx_ids, ctx_tokens, ctx_fuera, ctx_completo) "
-            "values (?, ?, ?, ?, ?, ?, ?, ?)",
+            "ctx_ids, ctx_tokens, ctx_fuera, ctx_completo, tarea, arnes) "
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (prompt.strip(), respuesta.strip(), modelo or "NO_DATA",
              idioma or "NO_DATA",
              ids if ids else "NO_DATA",
              r.get("tokens"), r.get("fuera"),
-             None if r.get("completo") is None else int(r["completo"])))
+             None if r.get("completo") is None else int(r["completo"]),
+             _del_vocabulario(tarea, TAREAS),
+             _del_vocabulario(arnes, ARNESES)))
         return cur.lastrowid
     except Exception:
         # Se caza TODO a proposito, y no es pereza. El contrato de esta
@@ -155,6 +236,110 @@ def registrar(c, prompt, respuesta, modelo="NO_DATA", idioma="NO_DATA",
         # convertiria un cuaderno al margen en una conversacion rota. Se
         # devuelve None, que es decir "no se guardo", y eso es honesto.
         return None
+
+
+def juzgar(c, turno_id, veredicto, juez="NO_DATA", motivo="NO_DATA"):
+    """Anota como le fue a un turno, y QUIEN lo dice.
+
+    EL JUEZ ES OBLIGATORIO EN EL ESQUEMA aunque su valor pueda ser NO_DATA, y
+    esa asimetria es deliberada: un veredicto sin juez es una opinion con cara
+    de medida. Aqui pueden juzgar tres clases de cosa --el carbono, otro modelo
+    del rack, o un comprobador determinista-- y no valen lo mismo. Un acierto
+    firmado por un script que compara contra el dato real no es un acierto
+    firmado por un modelo que opina; mezclarlos daria una nota media que no
+    describe nada.
+
+    Se guarda el juez TAL CUAL lo pasen --el nombre del modelo con su tag
+    completo, o el del comprobador-- porque el vocabulario de jueces todavia no
+    existe y fingir uno cerrado seria peor que dejarlo abierto y decirlo.
+
+    UN VEREDICTO SE PUEDE CAMBIAR, y no lleva historial. Es una decision: esto
+    es el cuaderno de lo que paso, no el de quien opino que. Si algun dia hace
+    falta seguir la pista de los cambios de veredicto, eso es otra tabla y otra
+    conversacion -- no una columna mas aqui.
+
+    Devuelve True si se anoto, False si no. **Nunca levanta**, por el mismo
+    contrato que `registrar`: esto se llama despues del turno, y a esas alturas
+    un fallo aqui no puede llevarse por delante nada.
+    """
+    v = _del_vocabulario(veredicto, VEREDICTOS)
+    if v == "NO_DATA":
+        # Un veredicto fuera del vocabulario NO se guarda como NO_DATA: eso
+        # borraria uno anterior valido con un valor que significa «sin juzgar».
+        # Se rechaza y se dice.
+        return False
+    try:
+        asegurar(c)
+        c.execute("update turnos set veredicto=?, juez=?, motivo=?, "
+                  "juzgado=datetime('now') where id=?",
+                  (v, str(juez or "NO_DATA"), str(motivo or "NO_DATA"),
+                   int(turno_id)))
+        c.commit()
+        return True
+    except Exception:
+        return False
+
+
+def rendimiento(c, arnes=None, desde=None):
+    """Como le fue a cada modelo en cada tarea. LA consulta del preceptor.
+
+    Devuelve una fila por (modelo, tarea) con lo que hace falta para decidir
+    que entrenar despues:
+
+        {"modelo": "preceptor-charla-web:v1", "tarea": "instalar",
+         "turnos": 42, "juzgados": 30, "aciertos": 24, "tasa": 0.8,
+         "alucinaciones": 2, "mudos": 1,
+         "ctx_tokens_medio": 312, "ctx_fuera_medio": 1.4,
+         "parciales": 7}
+
+    `tasa` SE CALCULA SOBRE LOS JUZGADOS, no sobre los turnos. Sobre el total,
+    un modelo nuevo con noventa turnos sin juzgar sacaria un 0,05 y pareceria
+    pesimo cuando lo unico que pasa es que nadie lo ha mirado. Sin juzgar no es
+    fallado -- es la misma distincion que separa NO_DATA de cero en toda esta
+    casa, y aqui decide a que modelo se le retira el apoyo.
+
+    Y `tasa` es None cuando no hay ni un juzgado. No es cero: cero significa
+    «se le miro y fallo todo».
+
+    LAS DOS COLUMNAS DE CONTEXTO VAN AL LADO DE LA NOTA a proposito. Una tasa
+    baja con `ctx_fuera_medio` alto NO es un modelo malo: es una recuperacion
+    que no le esta llevando el dato, y se arregla con presupuesto, no con
+    entrenamiento. Ese par de numeros juntos es la diferencia entre entrenar un
+    LoRA y arreglar una consulta -- y separadas, esa diferencia no se ve.
+    """
+    asegurar(c)
+    sql = ("select modelo, tarea, count(*) n, "
+           "sum(veredicto != 'NO_DATA') juzgados, "
+           "sum(veredicto in ('acierto','no_data','traspaso')) aciertos, "
+           "sum(veredicto = 'alucinacion') alucinaciones, "
+           "sum(veredicto = 'mudo') mudos, "
+           "avg(ctx_tokens) ctxt, avg(ctx_fuera) ctxf, "
+           "sum(ctx_completo = 0) parciales "
+           "from turnos")
+    donde, args = [], []
+    if arnes:
+        donde.append("arnes = ?")
+        args.append(_del_vocabulario(arnes, ARNESES))
+    if desde:
+        donde.append("cuando >= ?")
+        args.append(str(desde))
+    if donde:
+        sql += " where " + " and ".join(donde)
+    sql += " group by modelo, tarea order by n desc"
+
+    filas = []
+    for r in c.execute(sql, args):
+        juzgados, aciertos = r[3] or 0, r[4] or 0
+        filas.append({
+            "modelo": r[0], "tarea": r[1], "turnos": r[2],
+            "juzgados": juzgados, "aciertos": aciertos,
+            "tasa": (aciertos / juzgados) if juzgados else None,
+            "alucinaciones": r[5] or 0, "mudos": r[6] or 0,
+            "ctx_tokens_medio": round(r[7], 1) if r[7] is not None else None,
+            "ctx_fuera_medio": round(r[8], 2) if r[8] is not None else None,
+            "parciales": r[9] or 0,
+        })
+    return filas
 
 
 def consentir(c, turno_id, si=True, motivo="NO_DATA"):

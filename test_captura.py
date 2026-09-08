@@ -181,5 +181,131 @@ class TestRastroDelContexto(unittest.TestCase):
         self.assertEqual(n, 1, "la migracion se llevo por delante un turno viejo")
 
 
+
+# --- PRECEPTOR DE LoRAs ----------------------------------------------------
+# La base tiene que poder contestar «como le fue al modelo X en la tarea Y».
+# Sin vocabulario cerrado esa pregunta no tiene respuesta: tiene un group by
+# sobre cadenas que alguien escribio a mano en cuatro sitios.
+
+
+class TestPreceptorDeLoras(unittest.TestCase):
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="preceptor_")
+        self.db = os.path.join(self.dir, "m.db")
+        memory.crear(self.db)
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_la_tarea_sale_de_los_comandos_de_la_web(self):
+        """Los atajos de la web y las tareas de la app comparten vocabulario.
+
+        Si divergen, un turno de una cara y otro de la otra dejan de ser
+        comparables y nadie se entera: el `group by` sigue devolviendo filas.
+        """
+        import json
+        ruta = os.path.expanduser(
+            "~/p0x/preceptoros-web/public/servicios.json")
+        if not os.path.exists(ruta):
+            self.skipTest("la web no esta en este arbol")
+        with open(ruta, encoding="utf-8") as f:
+            comandos = {s["comando"].lstrip("/")
+                        for s in json.load(f)["servicios"]}
+        faltan = comandos - set(captura.TAREAS)
+        self.assertEqual(faltan, set(),
+                         f"la web tiene atajos que la app no sabe etiquetar: {faltan}")
+
+    def test_una_etiqueta_de_fuera_del_vocabulario_cae_a_NO_DATA(self):
+        """No se levanta --se perderia el turno-- y no se acepta tal cual."""
+        with memory.abrir(self.db) as c:
+            tid = captura.registrar(c, "p", "r", tarea="INSTALAR  ", arnes="movil")
+            tarea, arnes = c.execute(
+                "select tarea, arnes from turnos where id=?", (tid,)).fetchone()
+        self.assertEqual(tarea, "instalar", "no normaliza mayusculas ni espacios")
+        self.assertEqual(arnes, "NO_DATA", "cuela un arnes inventado")
+
+    def test_callarse_bien_CUENTA_COMO_ACIERTO(self):
+        """La doctrina, dentro del esquema.
+
+        Un banco que puntue `no_data` y `traspaso` como fallo entrena al modelo
+        a inventar antes que a callarse -- justo el comportamiento que esta casa
+        combate. Si este caso cae, el vocabulario dejo de defender la doctrina.
+        """
+        self.assertIn("no_data", captura.ACIERTOS)
+        self.assertIn("traspaso", captura.ACIERTOS)
+        self.assertNotIn("mudo", captura.ACIERTOS,
+                         "rendirse teniendo el dato delante no es acertar")
+        self.assertNotIn("alucinacion", captura.ACIERTOS)
+
+    def test_sin_juzgar_NO_es_fallado(self):
+        """Un modelo nuevo no puede sacar mala nota por ser nuevo."""
+        with memory.abrir(self.db) as c:
+            for _ in range(9):
+                captura.registrar(c, "p", "r", modelo="nuevo:v1", tarea="libre")
+            filas = captura.rendimiento(c)
+        f = filas[0]
+        self.assertEqual(f["turnos"], 9)
+        self.assertEqual(f["juzgados"], 0)
+        self.assertIsNone(f["tasa"],
+                          "sin un solo juicio la tasa no puede ser un numero: "
+                          "un cero se leeria como «fallo todo»")
+
+    def test_la_tasa_se_calcula_sobre_los_JUZGADOS(self):
+        with memory.abrir(self.db) as c:
+            ids = [captura.registrar(c, f"p{i}", "r", modelo="m:v1",
+                                     tarea="instalar") for i in range(10)]
+            captura.juzgar(c, ids[0], "acierto", juez="carbono")
+            captura.juzgar(c, ids[1], "no_data", juez="carbono")
+            captura.juzgar(c, ids[2], "traspaso", juez="carbono")
+            captura.juzgar(c, ids[3], "alucinacion", juez="carbono")
+            filas = captura.rendimiento(c)
+        f = filas[0]
+        self.assertEqual(f["juzgados"], 4)
+        self.assertEqual(f["aciertos"], 3, "no cuenta callarse bien como acierto")
+        self.assertAlmostEqual(f["tasa"], 0.75)
+        self.assertEqual(f["alucinaciones"], 1)
+
+    def test_un_veredicto_inventado_no_borra_uno_bueno(self):
+        with memory.abrir(self.db) as c:
+            tid = captura.registrar(c, "p", "r")
+            self.assertTrue(captura.juzgar(c, tid, "acierto", juez="carbono"))
+            self.assertFalse(captura.juzgar(c, tid, "regular", juez="carbono"),
+                             "acepto un veredicto fuera del vocabulario")
+            v, = c.execute("select veredicto from turnos where id=?",
+                           (tid,)).fetchone()
+        self.assertEqual(v, "acierto", "un veredicto invalido piso al bueno")
+
+    def test_el_juez_viaja_con_el_veredicto(self):
+        """Un veredicto sin juez es una opinion con cara de medida."""
+        with memory.abrir(self.db) as c:
+            tid = captura.registrar(c, "p", "r")
+            captura.juzgar(c, tid, "fallo", juez="qwen3-coder:30b", motivo="cifra")
+            v, j, m, cuando = c.execute(
+                "select veredicto, juez, motivo, juzgado from turnos where id=?",
+                (tid,)).fetchone()
+        self.assertEqual((v, j, m), ("fallo", "qwen3-coder:30b", "cifra"))
+        self.assertIsNotNone(cuando, "no anota cuando se juzgo")
+
+    def test_el_contexto_va_al_lado_de_la_nota(self):
+        """Tasa baja + mucho fuera = la busqueda, no el modelo.
+
+        Es la diferencia entre entrenar un LoRA y arreglar una consulta, y
+        separadas esas dos columnas no se ve.
+        """
+        with memory.abrir(self.db) as c:
+            for i in range(6):
+                memory.escribir_engrama(c, what=f"ancho {i} " + "z" * 400)
+            r = memory.recuperar(c, "ancho", presupuesto=300)
+            tid = captura.registrar(c, "p", "r", modelo="m:v1", tarea="libre",
+                                    rastro=r)
+            captura.juzgar(c, tid, "mudo", juez="carbono")
+            f = captura.rendimiento(c)[0]
+        self.assertGreater(f["ctx_fuera_medio"], 0,
+                           "no se ve que la busqueda dejo cosas fuera")
+        self.assertEqual(f["parciales"], 1)
+        self.assertEqual(f["mudos"], 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
