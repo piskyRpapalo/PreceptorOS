@@ -232,6 +232,8 @@ def _recuerdos(c, consulta, limite, idioma=None):
                 aciertos[ident] = [1, posicion]
 
     ordenados = sorted(aciertos.items(), key=lambda kv: (-kv[1][0], kv[1][1]))
+    # Cada linea sale emparejada con su id: es la unica forma de saber DESPUES
+    # cual sobrevivio al recorte. Ver `_cabe`.
     fuera = []
     for ident, _ in ordenados[:limite]:
         f = filas_por_id[ident]
@@ -243,7 +245,7 @@ def _recuerdos(c, consulta, limite, idioma=None):
         # al modelo le enseñaría a repetir un nombre interno.
         if porque and porque != "NO_DATA":
             que = f"{que} ({porque})"
-        fuera.append(que)
+        fuera.append((ident, que))
     return fuera
 
 
@@ -267,18 +269,42 @@ def _proyectos(c):
     return fuera
 
 
+def _rastro(ids, candidatos):
+    """El informe del contexto, con la MISMA forma que da `memory.recuperar`.
+
+    Se comparte la forma a proposito: `captura.registrar(rastro=...)` acepta
+    una sola, y si el compositor inventara la suya habria dos maneras de
+    describir el mismo hecho -- que es como se acaba con dos columnas que
+    cuentan cosas distintas y una consulta que promedia las dos.
+
+    `completo` es False en cuanto se quedo algo fuera. Es la bandera que dice
+    «este turno se contesto con parte de lo que habia», y quien despues juzgue
+    la respuesta tiene derecho a saberlo antes de llamarlo fallo del modelo.
+    """
+    return {"engramas": [{"id": i} for i in ids],
+            "tokens": None,
+            "fuera": max(0, candidatos - len(ids)),
+            "completo": len(ids) == candidatos}
+
+
 def _cabe(partes, techo):
     """Mete líneas mientras quepan ENTERAS. La que no cabe se queda fuera.
 
-    Devuelve el bloque ya unido. Se mide sobre el texto final --con sus saltos
-    de línea-- y no sobre la suma de las piezas, porque el techo es lo que
-    viaja, no lo que se pensaba mandar.
+    Se mide sobre el texto final --con sus saltos de línea-- y no sobre la suma
+    de las piezas, porque el techo es lo que viaja, no lo que se pensaba mandar.
 
     EL TECHO SON TOKENS. Lo fue en caracteres hasta el 2026-09-08, y con ocho
     lenguas eso significaba ocho presupuestos distintos sin que nadie lo
     hubiera decidido: el mismo párrafo en ruso cuesta casi el doble de tokens
     que en castellano. `M.tokens_aprox` cuenta por arriba y con la proporción
     medida contra el peor tokenizador del rack, no con la cifra de manual.
+
+    DEVUELVE LA LISTA de las que entraron, no el bloque ya unido. Unir es
+    trivial y lo hace quien llama; saber CUALES entraron no se puede deshacer
+    despues -- y hace falta, porque el turno tiene que poder anotar que
+    recuerdos viajaron de verdad. Un rastro deducido volviendo a buscar diria
+    otro conjunto que el que se mando, y dos verdades sobre el mismo turno es
+    peor que ninguna.
     """
     puestas = []
     for parte in partes:
@@ -286,7 +312,7 @@ def _cabe(partes, techo):
         if M.tokens_aprox(candidato) > techo:
             continue
         puestas.append(parte)
-    return "\n".join(puestas)
+    return puestas
 
 
 # --- las dos perillas del Laboratorio ---------------------------------------
@@ -353,6 +379,7 @@ def _perfil(c):
 
 
 def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
+              con_rastro=False,
               profundidad=None, foco=None):
     """Lo que la base sabe y viene a cuento, listo para ir delante del modelo.
 
@@ -391,32 +418,47 @@ def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
     if quiere_perfil:
         suyo = _perfil(c)
         if suyo:
-            bloques.append((rot["perfil"], suyo))
+            bloques.append((rot["perfil"], suyo, None))
 
-    recuerdos = _recuerdos(c, consulta, cuantas, idioma) if cuantas else []
-    if recuerdos:
-        bloques.append((rot["memoria"], recuerdos))
+    pares = _recuerdos(c, consulta, cuantas, idioma) if cuantas else []
+    if pares:
+        bloques.append((rot["memoria"], [l for _, l in pares],
+                        [i for i, _ in pares]))
 
     activos = _proyectos(c) if quiere_proyectos else []
     if activos:
-        bloques.append((rot["proyectos"], activos))
+        bloques.append((rot["proyectos"], activos, None))
 
     if not bloques:
-        return ""
+        return ("", _rastro([], len(pares))) if con_rastro else ""
 
     # El presupuesto se reparte entre los bloques que haya, y el encabezado
     # cuenta: un rótulo sin nada debajo es peor que no ponerlo.
-    fuera = []
+    # EL REPARTO SE MIDE EN TOKENS, igual que el techo. Estuvo en caracteres
+    # unas horas del 2026-09-08 --el techo cambio de unidad y esta aritmetica
+    # no-- y con eso `resto` se vaciaba unas 2,6 veces mas rapido de lo debido:
+    # el primer bloque entraba y los siguientes se quedaban sin sitio sin que
+    # nada fallara. Una unidad mezclada no da error; da menos contexto.
+    trozos, viajaron = [], []
     resto = techo
-    for rotulo, lineas in bloques:
-        disponible = resto - len(rotulo) - 1
+    for rotulo, lineas, ids in bloques:
+        disponible = resto - M.tokens_aprox(rotulo) - 1
         if disponible <= 0:
             continue
-        cuerpo = _cabe([f"- {l}" for l in lineas], disponible)
-        if not cuerpo:
+        partes = _cabe([f"- {l}" for l in lineas], disponible)
+        if not partes:
             continue
-        trozo = f"{rotulo}\n{cuerpo}"
-        fuera.append(trozo)
-        resto -= len(trozo) + 2          # los dos saltos que lo separan
+        if ids is not None:
+            # Las partes se construyen EN ORDEN desde `lineas`, asi que la
+            # posicion de cada superviviente indexa su id. Se compara por texto
+            # y no por indice para no depender de que `_cabe` conserve el orden
+            # el dia que alguien lo cambie.
+            for k, l in enumerate(lineas):
+                if f"- {l}" in partes:
+                    viajaron.append(ids[k])
+        trozo = rotulo + "\n" + "\n".join(partes)
+        trozos.append(trozo)
+        resto -= M.tokens_aprox(trozo) + 1
 
-    return "\n\n".join(fuera)
+    bloque = "\n\n".join(trozos)
+    return (bloque, _rastro(viajaron, len(pares))) if con_rastro else bloque

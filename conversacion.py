@@ -534,7 +534,24 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     # tiene que dejar la pregunta SOLA de verdad. Si la memoria siguiera
     # viajando, los dos lados de la comparacion tendrian contexto y la
     # diferencia que el producto quiere hacer notar se quedaria en el tono.
-    contexto = H.recuperar(c, texto_persona or "", idioma=idioma) if personalizada else ""
+    # EL RASTRO SALE DE AQUI, no de una segunda busqueda. `con_rastro` hace
+    # que el compositor diga QUE recuerdos sobrevivieron a su propio recorte --
+    # que es lo que de verdad viajo delante del modelo. Deducirlo despues,
+    # volviendo a buscar, daria otro conjunto: el turno quedaria anotado con un
+    # contexto que nunca se mando, y quien juzgue la respuesta la juzgaria
+    # contra lo que no vio.
+    #
+    # Sin `personalizada` no hay contexto Y NO HAY RASTRO VACIO: el rastro es
+    # None, que dice «no se anoto», no «no viajo nada». Un cero aqui haria
+    # parecer que la memoria no encontro nada cuando lo que pasa es que el
+    # interruptor esta apagado -- y son dos cosas muy distintas para quien
+    # despues mire por que el modelo no uso un recuerdo.
+    rastro = None
+    if personalizada:
+        contexto, rastro = H.recuperar(c, texto_persona or "", idioma=idioma,
+                                       con_rastro=True)
+    else:
+        contexto = ""
 
     _t0 = time.perf_counter()
     cruda = motor("\n\n".join(p for p in (sistema, contexto, texto_persona or "") if p)
@@ -557,6 +574,8 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
         "id_salida": salida["id_salida"],
         "sistema": sistema,
         "ms_motor": ms_motor,
+        # Viaja hasta quien registra el turno. Ver `captura.RASTRO`.
+        "rastro": rastro,
     }
 
 

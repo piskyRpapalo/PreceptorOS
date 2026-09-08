@@ -868,9 +868,17 @@ class PWA(BaseHTTPRequestHandler):
                                         "motivo": type(e).__name__})
             tid = None
             if C.activa(perfil):
+                # EL RASTRO Y EL ARNES VIAJAN CON EL TURNO. Sin el rastro,
+                # «alucino» y «la busqueda no lo trajo» son la misma fila y
+                # piden arreglos opuestos. Y `arnes="app"` porque esta base
+                # sirve tambien a la web y a las IA de fuera: promediar un
+                # modelo local a 5 tok/s con uno de frontera no describe a
+                # ninguno de los dos.
                 tid = C.registrar(c, dicho, turno["texto"],
                                   modelo=self.server.modelo or "NO_DATA",
-                                  idioma=idioma)
+                                  idioma=idioma,
+                                  rastro=turno.get("rastro"),
+                                  arnes="app")
         return self._json(200, {"estado": "ok", "texto": turno["texto"],
                                 "turno_id": tid})
 

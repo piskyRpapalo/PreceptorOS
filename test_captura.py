@@ -307,5 +307,68 @@ class TestPreceptorDeLoras(unittest.TestCase):
         self.assertEqual(f["mudos"], 1)
 
 
+
+class TestElCableConduce(unittest.TestCase):
+    """De punta a punta: la conversacion compone, y el turno queda anotado.
+
+    Las piezas ya tenian su caso cada una y aun asi el rastro no llegaba: nadie
+    pasaba `rastro=`. Una cadena probada por tramos y nunca entera es como se
+    construye un instrumento que devuelve NO_DATA para siempre sin que nada
+    falle.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="cable_")
+        self.db = os.path.join(self.dir, "m.db")
+        memory.crear(self.db)
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_lo_que_compuso_el_contexto_es_lo_que_queda_anotado(self):
+        import herramientas as H
+        with memory.abrir(self.db) as c:
+            # CUATRO y no seis: los candidatos los acota `herramientas.LIMITE`
+            # (5), asi que con seis engramas uno no llega ni a competir y la
+            # cuenta de `fuera` --que es «de lo que la busqueda trajo, esto no
+            # cupo»-- dejaria de ser exacta. La prueba se ajusta a la
+            # invariante real en vez de doblar el codigo para que cuadre.
+            for i in range(4):
+                memory.escribir_engrama(c, what=f"melocoton {i} " + "z" * 200,
+                                        why="para probar el cable")
+            bloque, rastro = H.recuperar(c, "melocoton", con_rastro=True)
+            self.assertTrue(bloque, "el compositor no puso nada delante")
+            tid = captura.registrar(c, "melocoton?", "una respuesta",
+                                    rastro=rastro, arnes="app", tarea="libre")
+            ids, fuera, completo = c.execute(
+                "select ctx_ids, ctx_fuera, ctx_completo from turnos where id=?",
+                (tid,)).fetchone()
+
+        anotados = [x for x in ids.split(",") if x.isdigit()]
+        self.assertTrue(anotados, "el turno quedo sin rastro pese a haber contexto")
+        # Y los anotados son EXACTAMENTE los que sobrevivieron al recorte: cada
+        # uno tiene que asomar en el bloque que se mando.
+        with memory.abrir(self.db) as c:
+            for sid in anotados:
+                que = memory.leer_engrama(c, int(sid))["what"]
+                self.assertIn(que[:24], bloque,
+                              f"el engrama {sid} figura como enviado y no esta "
+                              "en el bloque que viajo")
+        self.assertEqual(fuera, 4 - len(anotados),
+                         "la cuenta de los que no cupieron no cuadra")
+        self.assertEqual(completo, 1 if fuera == 0 else 0)
+
+    def test_sin_personalizada_el_rastro_es_None_y_no_un_cero(self):
+        """Apagar el interruptor no es «la memoria no encontro nada»."""
+        with memory.abrir(self.db) as c:
+            memory.escribir_engrama(c, what="algo que si estaba ahi")
+            tid = captura.registrar(c, "p", "r", rastro=None)
+            ids, tok = c.execute(
+                "select ctx_ids, ctx_tokens from turnos where id=?",
+                (tid,)).fetchone()
+        self.assertEqual(ids, "NO_DATA")
+        self.assertIsNone(tok, "un cero se leeria como «no viajo nada»")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
