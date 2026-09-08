@@ -180,6 +180,11 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # la llave pegada en la IA de fuera de alguien, ese otro puede ser
           # cualquiera. Entra en su mismo commit.
           test_empieza_aqui
+          # test_soberano: quien manda en este aparato. Entra en su mismo
+          # commit -- y sobre todo porque cruza la derivacion del codigo con la
+          # que hace el navegador: dos implementaciones del mismo vinculo que
+          # nadie compare acaban vinculando cosas distintas.
+          test_soberano
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

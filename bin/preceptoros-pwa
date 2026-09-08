@@ -253,6 +253,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._captura_listar()
         if ruta == "/api/empieza-aqui":
             return self._empieza_aqui()
+        if ruta == "/api/soberano":
+            return self._soberano()
         if ruta == "/api/estado":
             return self._estado()
         if ruta == "/api/camino":
@@ -336,6 +338,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._frontera(datos)
         if ruta == "/api/anidar":
             return self._anidar(datos)
+        if ruta == "/api/soberano":
+            return self._soberano_declarar(datos)
         if ruta == "/api/cerebro":
             return self._cerebro_elegir(datos)
         if ruta == "/api/charla":
@@ -353,6 +357,53 @@ class PWA(BaseHTTPRequestHandler):
     # la que envejece es siempre la que nadie mira. Se busca donde esta.
     MANIFIESTO = os.path.join(os.path.dirname(AQUI), "Alejandria",
                               "MANIFIESTO_BUILDER.md")
+
+    def _soberano(self):
+        """Quien manda en este aparato, y si ya lo sabe.
+
+        Devuelve el codigo declarado o `NO_DATA`. Y NO_DATA aqui no es un
+        error: es «nadie lo ha declarado todavia», que es lo que la interfaz
+        necesita para poder ofrecer declararlo. Un hueco y un vacio distintos,
+        como en el resto de esta casa.
+        """
+        import soberano as SB
+        with M.abrir(self.server.ruta_db) as c:
+            cod = SB.quien(c)
+        return self._json(200, {
+            "soberano": cod or "NO_DATA",
+            "declarado": bool(cod),
+            "como": "El codigo de vinculo de tu identidad, el mismo que ensena "
+                    "la web. Se declara UNA vez y se retira a proposito.",
+            "aviso": "Esto DECLARA quien manda; no lo verifica con una firma. "
+                     "El codigo se deriva de una clave publica, asi que quien "
+                     "lo vea puede escribirlo. Cubre tu maquina y tu red; no "
+                     "cubre a quien tenga tu pantalla delante.",
+        })
+
+    def _soberano_declarar(self, datos):
+        """Declara --o retira-- al Soberano de este aparato.
+
+        `{"codigo": "XXXX-XXXX-XXXX"}` declara. `{"retirar": true}` retira.
+
+        NO SOBRESCRIBE. Con un Soberano ya declarado, otro codigo recibe 409 y
+        no 200: un «ultimo que llega manda» es exactamente lo contrario de lo
+        que esta puerta sirve. Para cambiarlo hay que retirar antes, que es un
+        gesto y no un efecto colateral.
+        """
+        import soberano as SB
+        with M.abrir(self.server.ruta_db) as c:
+            if datos.get("retirar"):
+                SB.retirar(c)
+                return self._json(200, {"soberano": "NO_DATA", "declarado": False})
+            cod = SB.declarar(c, datos.get("codigo"))
+            if cod is None:
+                ya = SB.quien(c)
+                return self._json(409 if ya else 400, {
+                    "estado": "bloqueado",
+                    "motivo": "ya hay un Soberano declarado" if ya
+                              else "el codigo no tiene la forma de un vinculo",
+                    "soberano": ya or "NO_DATA"})
+            return self._json(200, {"soberano": cod, "declarado": True})
 
     def _empieza_aqui(self):
         """LA PUERTA. Lo unico que una IA de fuera necesita para empezar.
