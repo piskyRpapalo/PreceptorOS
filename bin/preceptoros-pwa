@@ -251,6 +251,8 @@ class PWA(BaseHTTPRequestHandler):
         ruta = self.path.split("?")[0]
         if ruta == "/api/captura":
             return self._captura_listar()
+        if ruta == "/api/empieza-aqui":
+            return self._empieza_aqui()
         if ruta == "/api/estado":
             return self._estado()
         if ruta == "/api/camino":
@@ -351,6 +353,29 @@ class PWA(BaseHTTPRequestHandler):
     # la que envejece es siempre la que nadie mira. Se busca donde esta.
     MANIFIESTO = os.path.join(os.path.dirname(AQUI), "Alejandria",
                               "MANIFIESTO_BUILDER.md")
+
+    def _empieza_aqui(self):
+        """LA PUERTA. Lo unico que una IA de fuera necesita para empezar.
+
+        Encargo del Soberano: que abrir Claude, ChatGPT o Gemini y pegar UNA
+        LINEA baste -- sin montar un servidor, sin dar permisos de carpeta uno
+        por uno, sin aprenderse un protocolo.
+
+        DEVUELVE LA LLAVE ADEMAS DEL DOCUMENTO, y esa es la mitad util: el
+        documento lo lee una maquina que ya llego; la llave es lo que la
+        persona COPIA para que llegue. Servir solo el documento seria abrir la
+        puerta y no dar la direccion.
+
+        GET Y SIN CUERPO: aqui no se decide nada, se describe. Un POST invitaria
+        a pensar que esta puerta hace algo, y no hace: es de solo lectura, y lo
+        dice ella misma en su `no_puedo`.
+        """
+        import empieza_aqui as EA
+        idioma = (self._consulta().get("idioma", ["es"]) or ["es"])[0]
+        d = EA.documento(idioma)
+        d["llave"] = EA.LLAVE
+        d["pegable"] = EA.texto(idioma)
+        return self._json(200, d)
 
     def _manifiesto(self):
         """El Manifiesto, servido desde el disco de la persona.

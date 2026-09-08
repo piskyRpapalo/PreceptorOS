@@ -173,6 +173,13 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # cosa, y con razon: es la suite que cubre lo que el producto le
           # cuenta al modelo de la persona.
           test_herramientas
+          # test_empieza_aqui: LA PUERTA. Es la suite que exige que lo que la
+          # puerta ANUNCIA y lo que la puerta HACE sean la misma lista -- el
+          # unico defecto de una superficie autodescriptiva que no se ve desde
+          # dentro: se ve en la sesion de otro, que no puede arreglarlo. Y con
+          # la llave pegada en la IA de fuera de alguien, ese otro puede ser
+          # cualquiera. Entra en su mismo commit.
+          test_empieza_aqui
           test_soberania)
 PROPIAS=(cara idioma manifest memory tono)
 

@@ -676,8 +676,57 @@ function pintaTema() {
  * no mandan solos, porque un atajo que manda sin que se lea lo que va a mandar
  * es un boton que habla por ti. */
 const atajos = $("atajos");
+
+/* --- el primero no escribe en el campo: copia la llave -------------------
+ * «Launch PreceptorOS», y va el primero porque es lo primero que hace falta.
+ *
+ * Qué hace: copia una línea al portapapeles. Esa línea se pega en las
+ * instrucciones de la ia de fuera --Claude, ChatGPT, Gemini-- y desde ahí esa
+ * ia sabe pedir la puerta y trabajar con esta memoria. Sin montar un servidor,
+ * sin dar permisos de carpeta uno por uno, sin aprenderse un protocolo.
+ *
+ * Por qué no escribe en el campo, como sus tres vecinos: los otros son cosas
+ * que se le dicen al modelo de aquí. Este es lo único del cuadro que sale
+ * hacia afuera, y escribirlo en el campo se lo mandaría al modelo equivocado.
+ * Mismo sitio, gesto distinto -- y por eso el rótulo es un verbo y no una
+ * frase: se ve que hace otra cosa antes de pulsarlo.
+ *
+ * La llave viene de la puerta, no escrita aquí. El día que cambie, cambia en
+ * un sitio. Una llave copiada en la interfaz es la que se queda vieja en las
+ * instrucciones de otra persona, donde nadie la mira.
+ *
+ * No se traduce, y es la misma razón por la que `/instalar` no se traduce: es
+ * un identificador. Si en alemán fuera otra cadena, el apretón de manos
+ * tendría ocho formas y ninguna guía escrita por un usuario serviría para
+ * otro.
+ *
+ * Y este comentario va en minúsculas a propósito. Hay un guardián que recorre
+ * `interface/` buscando nombres de política, y una palabra en versales dentro
+ * de la prosa se lee como uno: cayó con «primero». La regla ya estaba escrita
+ * y aun así se pisó, así que queda aquí, donde muerde. */
+function atajoLlave() {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = "Launch PreceptorOS";
+  b.addEventListener("click", async () => {
+    const antes = b.textContent;
+    try {
+      const d = await (await fetch("/api/empieza-aqui")).json();
+      await navigator.clipboard.writeText(d.llave);
+      b.textContent = "✓";
+    } catch (e) {
+      // Un hueco declarado con su causa, como todo aquí. Un botón que no hace nada y no
+      // dice por que es peor que uno que falta.
+      b.textContent = "sin dato";
+    }
+    setTimeout(() => { b.textContent = antes; }, 2200);
+  });
+  return b;
+}
+
 function pintaAtajos() {
   atajos.textContent = "";
+  atajos.appendChild(atajoLlave());
   for (const clave of ["at_resume", "at_pasos", "at_dudas"]) {
     const b = document.createElement("button");
     b.type = "button";
