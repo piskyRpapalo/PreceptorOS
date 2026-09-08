@@ -63,6 +63,8 @@ llama a proponer.
 | Veredicto **con juez nombrado** | `captura.py::juzgar` | Un veredicto sin juez es una opinión con cara de medida. Se distingue quién juzga: el carbono, otro modelo, o un comprobador determinista |
 | Tasa de acierto | `captura.py::rendimiento` | Calculada solo sobre lo **juzgado**. Un turno sin juzgar no es un turno fallado |
 | Procedencia de lo importado | `importar.py::importar` | Origen, firma y autor de cada corrección que entra desde fuera, con `firma_ok` explícito |
+| **El producto DEJA línea** | `captura.py::consentir`, `captura.py::corregir`, `captura.py::juzgar`, `importar.py::importar` | Los cuatro actos que el art. 12 quiere ver registrados escriben su evento **dentro de la misma transacción** que el cambio: o entran los dos, o no entra ninguno. Nunca hay un cambio sin su registro |
+| Clase de evidencia del juez | `captura.py::_actor_de` | La columna guarda el juez tal cual —el tag completo del modelo—; la línea guarda su **clase**. Un acierto firmado por un comprobador determinista no vale lo que uno firmado por un modelo que opina |
 | **Registro encadenado append-only** | `linea.py::anotar`, `linea.py::verificar` | Cada evento lleva dentro la huella del anterior. Cambiar uno viejo obliga a recalcular todos los siguientes, y `verificar` lo ve y **dice en cuál**. No se pisa nada: una rectificación escribe un evento nuevo que apunta al viejo |
 | El estado como pliegue | `linea.py::pliegue` | El estado actual se **calcula** recorriendo lo que pasó, con la procedencia de cada valor. Por eso «qué sabía el sistema el martes» tiene respuesta |
 | El tramo auditable | `linea.py::tramo` | Recorta la línea por fecha y por sujeto. Es lo que dibuja la barra de tiempo y lo que consulta un auditor a mano |

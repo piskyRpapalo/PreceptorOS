@@ -59,6 +59,7 @@ from __future__ import annotations
 import json
 
 import captura
+import linea as _linea
 
 # El esquema que este importador entiende. La web lo escribe en `taller.js`
 # como `esquema: ap.esquema_paquete || 1`. Se comprueba en vez de suponerse: un
@@ -197,6 +198,16 @@ def importar(c, paquete):
              (reg.get("autor") or "NO_DATA").strip() or "NO_DATA",
              # Ni 0 ni 1: nadie lo ha comprobado.
              "NO_DATA"))
+        # EL EVENTO DE IMPORTACION, con la procedencia dentro. Es el que
+        # contesta la pregunta que un auditor hace sobre cualquier dato que no
+        # nacio aqui: de donde salio, quien lo firmo, y si esa firma se
+        # comprobo. `firma_ok` viaja al evento con el mismo NO_DATA que va a la
+        # tabla -- si el registro dijera que si y la tabla que no se sabe, el
+        # registro seria el que miente.
+        _linea.anotar(c, "importacion", f"turno:{cur.lastrowid}",
+                      {"origen": (par.get("origen") or "NO_DATA"),
+                       "autor": (reg.get("autor") or "NO_DATA"),
+                       "firma": firma, "firma_ok": "NO_DATA"}, "carbono")
         informe["nuevas"] += 1
         informe["ids"].append(cur.lastrowid)
     return informe

@@ -31,6 +31,7 @@ el resto del producto funciona igual.
 """
 from __future__ import annotations
 
+import linea as _linea
 import sqlite3
 
 ESQUEMA_TURNOS = """
@@ -238,6 +239,30 @@ def registrar(c, prompt, respuesta, modelo="NO_DATA", idioma="NO_DATA",
         return None
 
 
+def _actor_de(juez):
+    """De quien juzga a la clase de actor que entiende la linea.
+
+    El juez se guarda TAL CUAL --el tag completo del modelo, o el nombre del
+    comprobador-- porque su vocabulario esta abierto a proposito. La linea, en
+    cambio, tiene tres clases cerradas, y la diferencia entre ellas es la que
+    importa ante un auditor: un acierto firmado por un script que compara
+    contra el dato real no vale lo mismo que uno firmado por un modelo que
+    opina.
+
+    Lo que no se reconoce cae a NO_DATA en vez de adivinarse. Llamar «modelo» a
+    un juez desconocido porque «suena a modelo» seria atribuir una clase de
+    evidencia por el aspecto del nombre.
+    """
+    j = str(juez or "").strip().lower()
+    if j in ("carbono", "humano", "persona"):
+        return "carbono"
+    if j.startswith("determinista") or j.startswith("script") or j.startswith("test"):
+        return "determinista"
+    if j in ("", "no_data"):
+        return "NO_DATA"
+    return "modelo"
+
+
 def juzgar(c, turno_id, veredicto, juez="NO_DATA", motivo="NO_DATA"):
     """Anota como le fue a un turno, y QUIEN lo dice.
 
@@ -253,10 +278,16 @@ def juzgar(c, turno_id, veredicto, juez="NO_DATA", motivo="NO_DATA"):
     completo, o el del comprobador-- porque el vocabulario de jueces todavia no
     existe y fingir uno cerrado seria peor que dejarlo abierto y decirlo.
 
-    UN VEREDICTO SE PUEDE CAMBIAR, y no lleva historial. Es una decision: esto
-    es el cuaderno de lo que paso, no el de quien opino que. Si algun dia hace
-    falta seguir la pista de los cambios de veredicto, eso es otra tabla y otra
-    conversacion -- no una columna mas aqui.
+    UN VEREDICTO SE PUEDE CAMBIAR, y esta columna no lleva historial. Aqui
+    vive el veredicto VIGENTE y nada mas: esto es el cuaderno de lo que paso,
+    no el de quien opino que.
+
+    Y LA OTRA TABLA LLEGO, el 2026-09-08. Este parrafo decia que seguir la
+    pista de los cambios de veredicto seria «otra tabla y otra conversacion»;
+    esa tabla es `linea.py`, asi que la conversacion es esta. Cada juicio deja
+    ademas un evento con su juez y su hora, y por eso ahora se puede contestar
+    «quien cambio este veredicto y cuando» sin anadir ni una columna a esta
+    tabla, que es exactamente lo que aquel parrafo pedia que no se hiciera.
 
     Devuelve True si se anoto, False si no. **Nunca levanta**, por el mismo
     contrato que `registrar`: esto se llama despues del turno, y a esas alturas
@@ -274,6 +305,15 @@ def juzgar(c, turno_id, veredicto, juez="NO_DATA", motivo="NO_DATA"):
                   "juzgado=datetime('now') where id=?",
                   (v, str(juez or "NO_DATA"), str(motivo or "NO_DATA"),
                    int(turno_id)))
+        # El evento va ANTES del commit, dentro de la misma transaccion: si no
+        # se puede anotar, no se guarda el veredicto tampoco. Y aqui `anotar`
+        # queda dentro del `try` que ya existia porque el contrato de esta
+        # funcion es no levantar nunca -- se llama despues del turno. Un
+        # veredicto perdido es un dato menos; un turno roto por anotar un
+        # veredicto seria una averia peor que la que se evita.
+        _linea.anotar(c, "veredicto", f"turno:{int(turno_id)}",
+                      {"veredicto": v, "juez": str(juez or "NO_DATA")},
+                      _actor_de(juez))
         c.commit()
         return True
     except Exception:
@@ -360,7 +400,22 @@ def consentir(c, turno_id, si=True, motivo="NO_DATA"):
         # ser autorizado. Un par sin motivo no se puede auditar despues.
         cur = c.execute("update turnos set consent = ? where id = ?",
                         (1 if si else 0, turno_id))
-    return cur.rowcount == 1
+    if cur.rowcount != 1:
+        return False
+    # O LOS DOS, O NINGUNO. El evento se escribe DESPUES del cambio y dentro de
+    # la misma transaccion, y si falla se deja subir: `memory.abrir` hace
+    # rollback y el cambio se deshace con el. Esa es la unica ordenacion que no
+    # puede producir un consentimiento sin registro -- y un consentimiento sin
+    # registro es, ante el art. 12, un consentimiento que no ocurrio.
+    #
+    # `revocacion` cuando baja y `consentimiento` cuando sube, y no un tipo
+    # solo con un campo dentro: retirar un permiso es el evento que un auditor
+    # busca por su nombre, y buscarlo dentro del JSON de otro tipo es la clase
+    # de consulta que nadie escribe.
+    _linea.anotar(c, "consentimiento" if si else "revocacion",
+                  f"turno:{turno_id}",
+                  {"consent": 1 if si else 0, "motivo": motivo}, "carbono")
+    return True
 
 
 def corregir(c, turno_id, texto, motivo="NO_DATA"):
@@ -380,7 +435,17 @@ def corregir(c, turno_id, texto, motivo="NO_DATA"):
         "update turnos set correccion = ?, motivo = ?, "
         "corregido = datetime('now') where id = ?",
         (texto.strip(), motivo, turno_id))
-    return cur.rowcount == 1
+    if cur.rowcount != 1:
+        return False
+    # El texto corregido NO viaja al evento, y es deliberado: la linea es un
+    # registro de QUE PASO, no una segunda copia de la memoria. Guardar el
+    # texto aqui lo duplicaria en un sitio que ademas no se puede rectificar
+    # -- y entonces borrar una correccion de la memoria dejaria su contenido
+    # vivo en la linea para siempre. Viaja su medida, que es lo que un auditor
+    # necesita para saber que hubo correccion y de que tamano.
+    _linea.anotar(c, "correccion", f"turno:{turno_id}",
+                  {"largo": len(texto.strip()), "motivo": motivo}, "carbono")
+    return True
 
 
 def pares(c, solo_consentidos=True):

@@ -245,5 +245,116 @@ class TestLinea(unittest.TestCase):
                 self.assertRegex(f, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
 
 
+class TestElCirculoCerrado(unittest.TestCase):
+    """El recorrido entero de un dato, y su rastro.
+
+    Esto no prueba una funcion: prueba que el producto DEJA LINEA. Una pieza de
+    registro que existe y que nadie llama es una capacidad, no un control -- y
+    la diferencia es justo la que un auditor viene a comprobar.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="circulo_")
+        self.db = os.path.join(self.dir, "m.db")
+        M.crear(self.db)
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_la_vida_entera_de_un_turno_queda_en_la_linea(self):
+        import captura
+        with M.abrir(self.db) as c:
+            tid = captura.registrar(c, "que ocupa el modelo", "unos 200 gigas",
+                                    modelo="qwen3:4b", idioma="es")
+            captura.juzgar(c, tid, "alucinacion", juez="carbono",
+                           motivo="se invento la cifra")
+            captura.corregir(c, tid, "4,4 GB, del catalogo firmado",
+                             motivo="cifra sin respaldo")
+            captura.consentir(c, tid, True, motivo="puede entrenar")
+            captura.consentir(c, tid, False, motivo="me lo pense mejor")
+
+        with M.abrir(self.db) as c:
+            eventos = L.tramo(c, sujeto=f"turno:{tid}")
+            tipos = [e["tipo"] for e in eventos]
+            self.assertEqual(
+                tipos, ["veredicto", "correccion", "consentimiento",
+                        "revocacion"],
+                "el recorrido no dejo los cuatro eventos, en orden")
+            ok, roto, n = L.verificar(c)
+            self.assertTrue(ok, f"la linea no verifica, roto en {roto}")
+            self.assertEqual(n, 4)
+
+    def test_el_estado_final_sale_de_plegar_y_el_camino_sigue_ahi(self):
+        """Consentir y luego revocar deja 0 -- y las dos cosas siguen escritas.
+
+        Es la propiedad entera: la celda diria «0», que es verdad y no es toda
+        la verdad. La linea dice ademas que hubo un si antes, cuando, y por que
+        se retiro. Ante el art. 12 eso es la diferencia entre un dato y un
+        registro.
+        """
+        import captura
+        with M.abrir(self.db) as c:
+            tid = captura.registrar(c, "hola", "que tal")
+            captura.consentir(c, tid, True, motivo="adelante")
+            captura.consentir(c, tid, False, motivo="mejor no")
+        with M.abrir(self.db) as c:
+            p = L.pliegue(c, f"turno:{tid}")
+            self.assertEqual(p["estado"]["consent"], 0)
+            self.assertEqual(p["estado"]["motivo"], "mejor no")
+            self.assertEqual(len(L.tramo(c, sujeto=f"turno:{tid}")), 2)
+            self.assertEqual(
+                c.execute("select consent from turnos where id=?",
+                          (tid,)).fetchone()[0], 0,
+                "la tabla y la linea tienen que decir lo mismo")
+
+    def test_el_juez_se_traduce_a_su_CLASE_de_evidencia(self):
+        """Un script que compara contra el dato real no vale lo que un modelo.
+
+        La columna guarda el juez tal cual --tag completo del modelo-- y la
+        linea guarda su clase, que es lo que hace comparables dos veredictos.
+        """
+        import captura
+        casos = [("carbono", "carbono"), ("qwen3-coder:30b", "modelo"),
+                 ("determinista:hash", "determinista"), ("NO_DATA", "NO_DATA")]
+        with M.abrir(self.db) as c:
+            for juez, esperado in casos:
+                tid = captura.registrar(c, f"p{juez}", "r")
+                captura.juzgar(c, tid, "acierto", juez=juez)
+                e = L.tramo(c, sujeto=f"turno:{tid}")[0]
+                self.assertEqual(e["actor"], esperado, f"juez {juez}")
+
+    def test_una_importacion_deja_su_procedencia(self):
+        import importar
+        paquete = {"esquema": 1, "correcciones": [{
+            "par": {"prompt": "p", "respuesta": "r", "origen": "preceptoros.org"},
+            "firma": "abc123", "autor": "TESTER-0747"}]}
+        with M.abrir(self.db) as c:
+            inf = importar.importar(c, paquete)
+            self.assertEqual(inf["nuevas"], 1)
+            e = L.tramo(c)[0]
+            self.assertEqual(e["tipo"], "importacion")
+            d = json.loads(e["datos"])
+            self.assertEqual(d["firma"], "abc123")
+            self.assertEqual(d["autor"], "TESTER-0747")
+            # Y la firma NO se da por buena aqui tampoco: si el registro dijera
+            # que si y la tabla que no se sabe, el registro seria el que miente.
+            self.assertEqual(d["firma_ok"], "NO_DATA")
+
+    def test_el_texto_corregido_NO_se_duplica_en_la_linea(self):
+        """La linea registra QUE PASO, no es una segunda copia de la memoria.
+
+        Si el texto viviera aqui, borrar una correccion de la memoria dejaria
+        su contenido vivo para siempre en un sitio que no se puede rectificar.
+        """
+        import captura
+        secreto = "esto no debe acabar en la linea"
+        with M.abrir(self.db) as c:
+            tid = captura.registrar(c, "p", "r")
+            captura.corregir(c, tid, secreto)
+            e = L.tramo(c, sujeto=f"turno:{tid}")[0]
+            self.assertNotIn(secreto, e["datos"])
+            self.assertEqual(json.loads(e["datos"])["largo"], len(secreto))
+
+
 if __name__ == "__main__":
     unittest.main()
