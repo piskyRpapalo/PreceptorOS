@@ -79,3 +79,19 @@ corpus/muestras.json
 .webui_secret_key
 **/.webui_secret_key
 *.secret_key
+
+# DATOS SOBERANOS. Firmado por el Soberano el 2026-09-12 (Frente A, Orden 1).
+# En este arbol vive `memory.db` --hoy un stub de 20 KB y 2 tablas-- que NADIE
+# habia cubierto: `git check-ignore` no lo tapaba y un `git add -A` distraido lo
+# habria subido. La viva (188 KB, 17 tablas, 141 turnos) esta en
+# `~/.preceptoros/` y fuera del repo, pero la regla se pone por PATRON y no por
+# fichero: el dia que alguien cree otra base aqui, ya esta cubierta.
+#
+# `ledger.jsonl` se ignora AQUI y solo aqui. En `preceptoros-web` el fichero del
+# mismo nombre esta rastreado A PROPOSITO --es el registro publico de firmas que
+# el sitio sirve-- y aquella regla es la contraria. Dos ficheros, un nombre,
+# reglas opuestas: por eso queda escrito en los dos sitios.
+*.db
+*.sqlite
+ledger.jsonl
+medidas.json
