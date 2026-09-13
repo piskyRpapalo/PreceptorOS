@@ -10,6 +10,7 @@ sitio donde eso se nota es el consentimiento.
 from __future__ import annotations
 
 import json
+import re
 import os
 import shutil
 import sys
@@ -259,6 +260,16 @@ class TestImportar(unittest.TestCase):
         texto = open(js, encoding="utf-8").read()
         # El objeto que la web firma y guarda.
         cuerpo = texto.split("var reg = {", 1)[1].split("};", 1)[0]
+        # SE QUITAN LOS COMENTARIOS ANTES DE PARTIR, y no es limpieza de
+        # estilo. Aqui solo se saltaban las lineas que empiezan por `//`; un
+        # bloque `/* ... */` dentro del objeto entraba como si fuera un campo, y
+        # el gate acusaba a la web de escribir un campo llamado «boton vive
+        # tambien en el Benchmark eso ya no identifica nada». Paso el
+        # 2026-09-13 y costo un rato entender que el acusado era el parser.
+        #
+        # Un guardian que se equivoca de culpable es peor que uno ausente:
+        # manda a arreglar el sitio que no era.
+        cuerpo = re.sub(r"/\*.*?\*/", "", cuerpo, flags=re.S)
         campos = {l.split(":", 1)[0].strip()
                   for l in cuerpo.splitlines() if ":" in l
                   and not l.strip().startswith("//")}
