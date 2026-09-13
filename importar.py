@@ -40,6 +40,15 @@ de atras, que es justo donde el `group by` deja de significar algo.
 cuenta y se dice cual. Se prefiere un informe con huecos a una tabla con
 adivinanzas.
 
+Y DESDE EL 2026-09-13, DOS CLASES DE PAR
+-----------------------------------------
+La web ya no manda una sola cosa por estos diez campos. Manda CORRECCIONES
+--una respuesta mejor-- y REESCRITURAS --un PROMPT mejor, la persona volvio a
+preguntar lo mismo con otras palabras--. El esquema es identico y el
+significado es el contrario, asi que la clase se guarda en su propia columna y
+el reparto se hace aqui. La explicacion entera esta junto a `_clase()`, que es
+donde se decide; si solo se lee una cosa de este fichero, que sea esa.
+
 LO QUE SI PONE DE SU PARTE
 --------------------------
 `arnes = 'web'`, que es la unica columna que esta funcion puede rellenar con
@@ -100,6 +109,17 @@ PROCEDENCIA = (
     ("firma", "text not null default 'NO_DATA'"),
     ("autor", "text not null default 'NO_DATA'"),
     ("firma_ok", "text not null default 'NO_DATA'"),
+    # `senal` vive AQUI y `tipo` vive en `captura.RASTRO`, y el reparto no es
+    # capricho. `captura.pares()` --el que arma el dataset-- filtra por `tipo`,
+    # asi que esa columna tiene que existir en TODA memoria, tambien en una que
+    # no haya importado nunca nada; si viviera aqui, `pares()` reventaria con
+    # «no such column» en una base recien creada. `senal` no la lee nadie de
+    # captura: solo la escribe este importador, que es la definicion de lo que
+    # va en PROCEDENCIA -- lo que unicamente se sabe al importar.
+    #
+    # Es la misma pareja `tipo`/`senal` que `ingesta.asegurar_columnas()` anade
+    # en el rack, repartida segun el esquema de ESTA app en vez de copiada.
+    ("senal", "text not null default 'NO_DATA'"),
 )
 
 
@@ -205,6 +225,68 @@ def verificar_firma(reg):
     return "NO_DATA"
 
 
+# --- DOS CLASES DE PAR, Y CONFUNDIRLAS ENVENENA EL DATASET -------------------
+#
+# Hasta el 2026-09-13 por esta puerta entraba una sola cosa: una CORRECCION.
+# `corregir.js` deja que alguien lea una respuesta mala y escriba la buena, y
+# `correccion` se guarda como LA RESPUESTA ELEGIDA, porque es lo que es.
+#
+# Desde hoy entra tambien una REESCRITURA, que `aprender.js` captura sin que
+# nadie se siente a escribir: la persona pregunta, no le sirve, y vuelve a
+# preguntar lo mismo con otras palabras. Es la senal mas valiosa que da la web
+# --dice que NO se entendio, y lo dice sin pedirle trabajo a nadie--.
+#
+# Y trae una trampa que hay que nombrar antes de que muerda: en una
+# reescritura, `correccion` NO es una respuesta mejor, es un PROMPT mejor.
+# Guardarla en la columna `correccion` --que es de donde `captura.pares()` saca
+# el lado ELEGIDO del par de preferencia-- entrenaria al modelo a CONTESTAR UNA
+# PREGUNTA CON OTRA PREGUNTA. Los diez campos son identicos, el significado es
+# el contrario, y nada en la tabla lo avisaria.
+#
+# EL REPARTO, que es el mismo que hace el rack:
+#
+#   correccion  · `correccion` -> columna `correccion`. Es una respuesta.
+#   reescritura · `correccion` -> `senal.reescrito_a`, FUERA de las columnas de
+#                 entrenamiento. `prompt` y `respuesta` se quedan con la forma
+#                 que fallo y con lo que esa forma se llevo -- las dos cosas
+#                 malas a proposito: juntas son el caso de estudio.
+#
+# DOS CERROJOS Y NO UNO. La columna `correccion` se queda vacia en una
+# reescritura Y ADEMAS `captura.pares()` filtra por `tipo = 'correccion'`.
+# Parece redundante y no lo es: el primero protege a quien lea la columna a
+# pelo, el segundo a quien construya el dataset por la puerta buena. El dia que
+# alguien cambie uno, el otro sigue de pie.
+#
+# UN PAQUETE SIN `tipo` ES UNA CORRECCION. No es una suposicion optimista: es
+# lo UNICO que podian ser los paquetes anteriores a hoy, porque la otra clase
+# no existia. Y `autoridad` es un BOOLEANO --«habia clave en ese momento»--, no
+# un identificador: el QUIEN ya viaja en la firma, y confundir las dos cosas
+# convertiria una senal agregada en un rastro personal.
+
+def _clase(par):
+    """(tipo, senal_json) del par. Fuera del vocabulario -> se dice y no entra.
+
+    Un `tipo` que no este en `captura.TIPOS` NO se degrada a «correccion»: eso
+    es exactamente como una clase desconocida acabaria en el dataset. Se
+    devuelve tal cual para que el que llama lo rechace, que es fallar cerrado.
+    """
+    bruto = par.get("tipo")
+    tipo = "correccion" if bruto is None or bruto == "" else str(bruto).strip().lower()
+    senal = {
+        "tipo": tipo,
+        # Booleano, no identificador. `1 if ... else 0` y no el valor crudo:
+        # asi un `autoridad: "davidpecero"` que llegara por error se guarda
+        # como un 1 y no como un nombre.
+        "autoridad": 1 if par.get("autoridad") else 0,
+        "turnos_antes": par.get("turnos_antes"),
+    }
+    if tipo == "reescritura":
+        # Lo bueno de una reescritura: la forma que SI decia lo que queria.
+        # Aqui, y no en la columna `correccion`.
+        senal["reescrito_a"] = (par.get("correccion") or "").strip()
+    return tipo, json.dumps(senal, ensure_ascii=False, separators=(",", ":"))
+
+
 def _clave(par, firma):
     """La llave de identidad de una correccion, para no duplicarla."""
     if firma and firma != "NO_DATA":
@@ -254,6 +336,19 @@ def importar(c, paquete):
                 {"n": i, "motivo": "sin prompt o sin respuesta"})
             continue
 
+        # LA CLASE SE DECIDE ANTES DE ESCRIBIR NADA, y una que no se reconoce
+        # no entra. Degradarla a «correccion» --que es lo que haria un
+        # `_del_vocabulario` aqui-- meteria en el dataset justo lo que no se
+        # sabe leer. Fallar cerrado es que se quede fuera y se diga cual.
+        tipo, senal = _clase(par)
+        if tipo not in captura.TIPOS:
+            informe["saltadas"].append(
+                {"n": i, "motivo": f"clase de par desconocida: «{tipo}». Este "
+                                   "importador solo sabe repartir "
+                                   f"{' y '.join(captura.TIPOS)}, y una clase "
+                                   "que no sabe leer no entra"})
+            continue
+
         firma = (reg.get("firma") or "NO_DATA").strip() or "NO_DATA"
 
         # SE VERIFICA ANTES DE DEDUPLICAR, y el orden importa.
@@ -297,8 +392,8 @@ def importar(c, paquete):
         cur = c.execute(
             "insert into turnos (prompt, respuesta, modelo, idioma, consent, "
             "correccion, corregido, motivo, tarea, arnes, "
-            "origen, firma, autor, firma_ok) "
-            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "origen, firma, autor, firma_ok, tipo, senal) "
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (prompt, respuesta,
              (par.get("modelo") or "NO_DATA").strip() or "NO_DATA",
              (par.get("idioma") or "NO_DATA").strip() or "NO_DATA",
@@ -307,7 +402,13 @@ def importar(c, paquete):
              # exactamente el traductor en medio donde se pierde el permiso.
              1 if str(par.get("consent") or "0").strip() in ("1", "true", "si")
              else 0,
-             (par.get("correccion") or "").strip() or None,
+             # EL CERROJO DE LA REESCRITURA. En una correccion, `correccion` es
+             # una respuesta mejor y va aqui. En una reescritura es un PROMPT
+             # mejor: la columna se queda VACIA y el texto viaja a
+             # `senal.reescrito_a`. Si entrara aqui, `captura.pares()` lo
+             # sacaria como el lado ELEGIDO de un par de preferencia.
+             None if tipo == "reescritura"
+             else (par.get("correccion") or "").strip() or None,
              (par.get("corregido") or "").strip() or None,
              (par.get("motivo") or "NO_DATA").strip() or "NO_DATA",
              # Del paquete si viene; si no, NO_DATA y nunca `libre`.
@@ -320,7 +421,13 @@ def importar(c, paquete):
              # «si» / «no» / «NO_DATA», los tres valores que hay. Se escribe lo
              # que dijo `verificar_firma`, que es NO_DATA cuando no se pudo
              # comprobar y nunca un cero que fingiria una comprobacion fallida.
-             veredicto))
+             veredicto,
+             # La clase, y la senal con lo que no cabe en columnas propias
+             # --`autoridad`, `turnos_antes` y, si es reescritura, el prompt
+             # bueno--. `tipo` va aparte y no dentro del JSON porque es por
+             # donde filtra el dataset: un filtro sobre texto JSON no es un
+             # filtro, es una esperanza.
+             tipo, senal))
         # EL EVENTO DE IMPORTACION, con la procedencia dentro. Es el que
         # contesta la pregunta que un auditor hace sobre cualquier dato que no
         # nacio aqui: de donde salio, quien lo firmo, y si esa firma se

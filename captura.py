@@ -87,6 +87,19 @@ RASTRO = (
     ("veredicto", "text not null default 'NO_DATA'"),
     ("juez", "text not null default 'NO_DATA'"),
     ("juzgado", "text"),
+    # --- LA CLASE DEL PAR (2026-09-13) ------------------------------------
+    #
+    # Por que el defecto es `correccion` y no `NO_DATA`, que es el defecto de
+    # todo lo demas en esta tupla. Porque aqui NO hay hueco: un turno guardado
+    # antes de hoy es una correccion, que es lo UNICO que podia ser -- no
+    # existia otra clase por la que hubiera entrado. `NO_DATA` diria «no se
+    # sabe» de algo que si se sabe, y ademas dejaria fuera del dataset a todos
+    # los turnos viejos, porque el filtro de `pares()` es positivo.
+    #
+    # `ALTER TABLE ADD COLUMN` con NOT NULL y DEFAULT rellena las filas que ya
+    # estan con ese defecto, asi que la migracion no deja NULLs que luego haya
+    # que interpretar.
+    ("tipo", "text not null default 'correccion'"),
 )
 
 # --- LOS TRES VOCABULARIOS CERRADOS ---------------------------------------
@@ -120,6 +133,27 @@ TAREAS = ("instalar", "perfil", "dataset", "script", "eco", "formatos",
 # modelo local a 5 tok/s con la de uno de frontera no describe a ninguno de los
 # dos.
 ARNESES = ("app", "web", "externo")
+
+# LA CLASE DEL PAR · el vocabulario que impide entrenar con lo contrario de lo
+# que se cree (2026-09-13). Desde hoy la web manda DOS cosas por el mismo
+# esquema de diez campos, y solo una de las dos se puede entrenar:
+#
+#   correccion · alguien leyo una respuesta mala y escribio la BUENA. El campo
+#                `correccion` es una RESPUESTA mejor. Es lo de siempre.
+#   reescritura · la persona pregunto, no le sirvio, y volvio a preguntar lo
+#                mismo con otras palabras. Aqui `correccion` NO es una
+#                respuesta: es un PROMPT mejor.
+#
+# LA TRAMPA, dicha antes de que muerda: meter el `correccion` de una
+# reescritura donde va una respuesta entrena al modelo a CONTESTAR UNA PREGUNTA
+# CON OTRA PREGUNTA. El esquema es identico, el significado es el contrario, y
+# nada en la tabla lo avisaria. Por eso la clase es una columna y no un matiz
+# que haya que recordar.
+#
+# Es el mismo reparto que hace el rack en `hexelion/laboratorio/ingesta.py`, y
+# se declara aqui por el mismo motivo que `ARNESES`: un filtro que se escribe a
+# mano en cada consulta se olvida en una.
+TIPOS = ("correccion", "reescritura")
 
 # EL VEREDICTO, Y AQUI VA LA DOCTRINA DENTRO DEL ESQUEMA.
 #
@@ -472,12 +506,25 @@ def pares(c, solo_consentidos=True):
 
     Un turno corregido sale como par de preferencia; uno sin corregir, como
     turno a secas. La forma es la que ya espera `datos/ESQUEMA.md`.
+
+    LAS REESCRITURAS NO SALEN DE AQUI, y es la linea que impide envenenar el
+    entrenamiento. En una reescritura `correccion` es un PROMPT mejor, no una
+    respuesta mejor; saldria por `elegido` --que es el lado bueno del par de
+    preferencia-- y entrenaria al modelo a contestar una pregunta con otra
+    pregunta. Valen mucho, pero para otra cosa: son REGLAS para la capa de
+    prompt, no ejemplos para un LoRA. Quien las quiera, que las lea de la
+    tabla mirando `tipo`.
+
+    EL FILTRO ES POSITIVO --`tipo = 'correccion'`-- y no `!= 'reescritura'`,
+    a proposito: asi FALLA CERRADO. El dia que entre una tercera clase por la
+    web, se queda fuera del dataset hasta que alguien decida que es, en vez de
+    colarse por no estar en la lista de excluidos.
     """
     asegurar(c)
     sql = ("select id, cuando, prompt, respuesta, correccion, idioma, motivo "
-           "from turnos")
+           "from turnos where tipo = 'correccion'")
     if solo_consentidos:
-        sql += " where consent = 1"
+        sql += " and consent = 1"
     sql += " order by id"
     fuera = []
     for id_, cuando, prompt, resp, corr, idioma, motivo in c.execute(sql):

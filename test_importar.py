@@ -244,6 +244,102 @@ class TestImportar(unittest.TestCase):
             self.assertEqual(filas[0]["origen"], "NO_DATA")
             self.assertEqual(filas[0]["firma_ok"], "NO_DATA")
 
+    # --- las dos clases de par (2026-09-13) ---------------------------------
+
+    def test_una_reescritura_no_acaba_en_la_columna_de_entrenamiento(self):
+        """El prompt bueno de una reescritura JAMAS sale por `elegido`.
+
+        Es la prueba que sujeta la unica linea que de verdad importa de todo
+        esto: en una reescritura `correccion` es un PROMPT mejor, y meterlo
+        donde va una respuesta entrena al modelo a contestar una pregunta con
+        otra pregunta. Se comprueban los DOS cerrojos, porque tener dos y
+        probar uno es tener uno.
+        """
+        bueno = "/instalar que pasos sigo para el nodo"
+        p = par(prompt="como configuro esto", respuesta="no me sirvio",
+                correccion=bueno, consent=1,
+                tipo="reescritura", autoridad=1, turnos_antes=3)
+        with M.abrir(self.db) as c:
+            inf = I.importar(c, I.leer(json.dumps(paquete(firmada(p)))))
+            self.assertEqual(inf["nuevas"], 1, "la reescritura tiene que ENTRAR: "
+                                               "se guarda, lo que no se hace es "
+                                               "entrenar con ella")
+            fila = self.filas(c)[0]
+            self.assertEqual(fila["tipo"], "reescritura")
+            # Cerrojo 1: la columna de la que sale `elegido` se queda vacia.
+            self.assertIsNone(fila["correccion"])
+            # Y el texto bueno no se pierde: vive donde no entrena.
+            senal = json.loads(fila["senal"])
+            self.assertEqual(senal["reescrito_a"], bueno)
+            self.assertEqual(senal["autoridad"], 1)
+            self.assertEqual(senal["turnos_antes"], 3)
+            # Las dos cosas malas se guardan juntas a proposito: son el caso.
+            self.assertEqual(fila["prompt"], "como configuro esto")
+            self.assertEqual(fila["respuesta"], "no me sirvio")
+
+            # Cerrojo 2: el constructor del dataset no la ve.
+            salida = captura.pares(c)
+            self.assertEqual(salida, [], "una reescritura no es material de "
+                                         "entrenamiento")
+            self.assertNotIn(bueno, json.dumps(salida, ensure_ascii=False))
+
+    def test_una_correccion_normal_sigue_entrando_al_dataset(self):
+        """El reverso, y hace falta: un filtro que lo deja todo fuera «pasa»
+        esta prueba a medias. Lo de siempre tiene que seguir funcionando."""
+        p = par(consent=1, tipo="correccion", autoridad=1)
+        with M.abrir(self.db) as c:
+            I.importar(c, I.leer(json.dumps(paquete(firmada(p)))))
+            fila = self.filas(c)[0]
+            self.assertEqual(fila["tipo"], "correccion")
+            self.assertEqual(fila["correccion"], "bien")
+            salida = captura.pares(c)
+            self.assertEqual(len(salida), 1)
+            self.assertEqual(salida[0]["clase"], "preferencia")
+            self.assertEqual(salida[0]["elegido"], "bien")
+
+    def test_un_paquete_sin_tipo_es_una_correccion(self):
+        """Lo unico que podian ser los paquetes anteriores al 2026-09-13.
+
+        No es optimismo: la otra clase no existia. Y el defecto importa, porque
+        el filtro de `pares()` es POSITIVO -- un NO_DATA aqui habria dejado
+        fuera del dataset a todo lo importado antes de hoy, callando.
+        """
+        p = par(consent=1)
+        self.assertNotIn("tipo", p)
+        with M.abrir(self.db) as c:
+            I.importar(c, I.leer(json.dumps(paquete(firmada(p)))))
+            self.assertEqual(self.filas(c)[0]["tipo"], "correccion")
+            self.assertEqual(len(captura.pares(c)), 1)
+
+    def test_una_clase_desconocida_no_entra_y_se_dice_cual(self):
+        """Fallar CERRADO. Degradar a «correccion» lo que no se sabe leer es
+        exactamente como una clase nueva acabaria en el dataset sin que nadie
+        lo decidiera."""
+        p = par(consent=1, tipo="resumen")
+        with M.abrir(self.db) as c:
+            inf = I.importar(c, I.leer(json.dumps(paquete(firmada(p)))))
+            self.assertEqual(inf["nuevas"], 0)
+            self.assertEqual(self.filas(c), [])
+            self.assertIn("resumen", inf["saltadas"][0]["motivo"])
+
+    def test_los_turnos_viejos_ganan_la_clase_sin_perderse(self):
+        """Una memoria de antes de hoy no tiene la columna, y al ganarla sus
+        turnos quedan como CORRECCIONES -- no como huecos. Si quedaran en
+        NO_DATA, el filtro positivo los borraria del dataset en silencio, que
+        es la peor forma de perder datos: sin error y sin aviso."""
+        with M.abrir(self.db) as c:
+            captura.asegurar(c)
+            c.execute("insert into turnos (prompt, respuesta, correccion, "
+                      "consent) values ('de antes', 'mala', 'buena', 1)")
+            # Se simula la base vieja quitandole la columna recien creada.
+            c.execute("alter table turnos drop column tipo")
+            self.assertNotIn("tipo", {d[1] for d in
+                                      c.execute("pragma table_info(turnos)")})
+            I.asegurar(c)
+            self.assertEqual(self.filas(c)[0]["tipo"], "correccion")
+            self.assertEqual(len(captura.pares(c)), 1,
+                             "el turno viejo sigue entrenando")
+
     # --- el cruce con la web -----------------------------------------------
 
     def test_los_campos_son_LOS_MISMOS_que_escribe_el_navegador(self):
@@ -254,7 +350,18 @@ class TestImportar(unittest.TestCase):
         empiece a escribir y aqui no se lea no da error en ningun sitio: se
         pierde, y se pierde callando.
         """
-        js = os.path.join(WEB, "corregir.js")
+        # DOS FICHEROS, PORQUE DESDE EL 2026-09-13 HAY DOS ESCRITORES.
+        # `corregir.js` firma correcciones y `aprender.js` firma reescrituras,
+        # por el mismo esquema y hacia esta misma puerta. Vigilar solo el
+        # primero dejaba al segundo libre para anadir un campo que aqui se
+        # perdiera callando -- que es justo lo que esta prueba existe para
+        # impedir, y la razon por la que se escribio.
+        for nombre in ("corregir.js", "aprender.js"):
+            with self.subTest(fichero=nombre):
+                self._campos_de(nombre)
+
+    def _campos_de(self, nombre):
+        js = os.path.join(WEB, nombre)
         if not os.path.isfile(js):
             self.skipTest("el repo de la web no esta a mano")
         texto = open(js, encoding="utf-8").read()
@@ -277,12 +384,22 @@ class TestImportar(unittest.TestCase):
         # despues de escribirse -- que es exactamente su trabajo. Se anade aqui
         # DESPUES de enseñarle al importador a leerla, nunca antes: ampliar la
         # lista para callar el rojo seria convertir el guardian en un tramite.
+        #
+        # `tipo`, `autoridad` y `turnos_antes` entraron el 2026-09-13 con las
+        # reescrituras, y se anaden aqui DESPUES de que `_clase()` los lea y
+        # los reparta: `tipo` a su columna, los otros dos a `senal`. El orden
+        # de las dos cosas es la prueba misma.
         leidos = {"prompt", "respuesta", "correccion", "corregido", "modelo",
-                  "idioma", "motivo", "tarea", "consent", "origen"}
+                  "idioma", "motivo", "tarea", "consent", "origen",
+                  "tipo", "autoridad", "turnos_antes"}
         sin_leer = campos - leidos
         self.assertFalse(
             sin_leer,
-            f"corregir.js escribe {sorted(sin_leer)} y este importador no los "
+            # EL MENSAJE NOMBRA EL FICHERO QUE SE LEYO, no uno fijo. Decia
+            # siempre «corregir.js» y desde que son dos, eso mandaria a abrir
+            # el fichero equivocado -- la misma trampa del guardian que se
+            # equivoca de culpable que ya mordio una vez mas arriba.
+            f"{nombre} escribe {sorted(sin_leer)} y este importador no los "
             "lee. Un campo que se pierde callando es como se separan dos "
             "esquemas que decian ser el mismo")
 
