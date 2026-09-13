@@ -65,7 +65,28 @@ import linea as _linea
 # como `esquema: ap.esquema_paquete || 1`. Se comprueba en vez de suponerse: un
 # paquete de una version futura puede tener los mismos nombres y otro
 # significado, y eso es peor que uno que no se parezca en nada.
-ESQUEMAS = (1,)
+ESQUEMAS = (1, "preceptoros/correcciones/1")
+
+# LAS DOS FORMAS DEL PAQUETE, y la segunda llego el 2026-09-13.
+#
+# `taller.js` escribia `{esquema: 1, correcciones: [...]}`. La puerta de
+# exportacion nueva de la web --`bronce.js`-- escribe
+# `{esquema: "preceptoros/correcciones/1", pares: [...]}`. Medido: el importador
+# rechazaba el fichero ENTERO, devolviendo None, y quien lo hubiera exportado no
+# habria sabido por que. Un exportador y un importador que dicen ser el mismo
+# esquema y no se entienden son dos esquemas.
+#
+# Se aceptan las dos y no se migra la vieja: hay paquetes exportados ahi fuera,
+# en aparatos de gente, y romperlos para tener una sola forma seria cobrarle a
+# quien ya hizo el trabajo.
+LISTAS = ("pares", "correcciones")
+
+
+def _lista(d):
+    for nombre in LISTAS:
+        if isinstance(d.get(nombre), list):
+            return d[nombre]
+    return None
 
 # Las columnas que este importador anade a `turnos`, con la misma migracion
 # aditiva que ya uso el rastro del contexto: una memoria creada antes de que
@@ -107,9 +128,81 @@ def leer(texto):
         return None
     if d.get("esquema") not in ESQUEMAS:
         return None
-    if not isinstance(d.get("correcciones"), list):
+    if _lista(d) is None:
         return None
     return d
+
+
+# VERIFICAR LA FIRMA CUANDO SE PUEDE, Y DECIRLO CUANDO NO.
+#
+# La cabecera de este fichero decia «la biblioteca estandar de Python no trae
+# Ed25519... hasta ese dia, firma_ok vale NO_DATA». Era cierto y sigue siendolo
+# para la Boveda --el producto que se instala la gente, que promete stdlib y no
+# se le puede meter una dependencia--. Pero en un nodo donde `cryptography` YA
+# esta (medido el 2026-09-13: 46.0.5 en el soberano), seguir diciendo NO_DATA es
+# tirar una comprobacion que se puede hacer.
+#
+# Asi que es OPCIONAL de verdad: si la biblioteca esta, se verifica y `firma_ok`
+# pasa a «si» o «no»; si no esta, se queda en NO_DATA con su causa. La promesa
+# de stdlib no se rompe --el import falla y el guion sigue-- y el nodo que puede
+# comprobar, comprueba.
+#
+# QUE SE VERIFICA: los bytes que firmo el navegador. `bronce.js` los manda en
+# `canonico`; si no vienen, no se reconstruyen aqui --reconstruirlos exige que
+# dos serializadores coincidan caracter a caracter, y esa suposicion es
+# justamente lo que un verificador no debe hacer--. Sin `canonico`, NO_DATA.
+# LA FIRMA NO SE VERIFICA AQUI, Y AHORA SE SABE POR QUE EXACTAMENTE.
+#
+# Estuve a punto de meter `cryptography` para comprobar el Ed25519, porque en el
+# nodo soberano esta instalado. `test_superficie.py` lo paro: analiza los imports
+# de todo lo alcanzable desde las puertas y `PERMITIDAS_EN_EL_CAMINO` esta VACIO
+# a proposito. Da igual que el import vaya dentro de una funcion -- el analisis
+# es estatico, y tiene que serlo: la promesa publica «MVP Python stdlib only» es
+# sobre lo que se INSTALA, no sobre lo que se ejecuta hoy aqui.
+#
+# Y el gate tenia razon en algo mas de fondo: verificar firmas es trabajo del
+# RACK, no de la Boveda. `hexelion/laboratorio/ingesta.py` ya lo hace con
+# `cryptography`, en un sitio donde esa dependencia esta declarada y no promete
+# nada a nadie. Meterla aqui habria movido una frontera para ganar una
+# comprobacion que ya existe al otro lado.
+#
+# LO QUE SI SE COMPRUEBA, Y CON BIBLIOTECA ESTANDAR: que el texto firmado sea el
+# que se guarda. `bronce.js` manda en `canonico` los bytes exactos que se
+# firmaron; reconstruirlos desde `par` es `json.dumps` y comparar dos cadenas.
+# Eso caza el ataque que de verdad importa --firmar un par honesto, cambiarle el
+# contenido y dejar la firma-- sin tocar una sola curva eliptica. Es el mismo
+# agujero que se cerro en `ingesta.py` el 2026-09-13 y que aqui seguia abierto.
+
+# Los campos del par en el ORDEN en que los escribe `corregir.js`. Importa:
+# `JSON.stringify` conserva el orden de insercion, asi que un campo movido
+# cambia los bytes.
+CAMPOS_PAR = ("prompt", "respuesta", "correccion", "corregido", "modelo",
+              "idioma", "motivo", "tarea", "consent", "origen")
+
+
+def _canonico(par):
+    orden = {k: par[k] for k in CAMPOS_PAR if k in par}
+    for k, v in par.items():
+        if k not in orden:
+            orden[k] = v
+    return json.dumps(orden, ensure_ascii=False, separators=(",", ":"))
+
+
+def verificar_firma(reg):
+    """«no» si el texto firmado no es el que se guarda. Nunca «si».
+
+    Tres valores posibles en la columna y aqui solo se pueden dar dos: «no»
+    --hay prueba de que el paquete se manipulo-- y `NO_DATA` --nadie ha
+    comprobado la curva--. Devolver «si» exigiria verificar el Ed25519, y eso
+    pasa en el rack. Un «si» desde aqui seria una garantia que este fichero no
+    puede dar.
+    """
+    texto = reg.get("canonico")
+    par = reg.get("par")
+    if isinstance(texto, str) and isinstance(par, dict):
+        if texto != _canonico(par):
+            return "no"
+    return "NO_DATA"
 
 
 def _clave(par, firma):
@@ -145,7 +238,7 @@ def importar(c, paquete):
     if not paquete:
         return informe
     asegurar(c)
-    for i, reg in enumerate(paquete.get("correcciones") or []):
+    for i, reg in enumerate(_lista(paquete) or []):
         informe["entradas"] += 1
         if not isinstance(reg, dict):
             informe["saltadas"].append({"n": i, "motivo": "no es un objeto"})
@@ -162,6 +255,32 @@ def importar(c, paquete):
             continue
 
         firma = (reg.get("firma") or "NO_DATA").strip() or "NO_DATA"
+
+        # SE VERIFICA ANTES DE DEDUPLICAR, y el orden importa.
+        #
+        # La llave de identidad es la FIRMA. Asi que un par legitimo al que
+        # alguien le cambie el contenido y le deje la firma original choca con
+        # el que ya esta, se cuenta como «repetida» y se descarta. No entra
+        # --eso esta bien-- pero con el orden viejo el intento no se contaba:
+        # `firmas_rotas` decia CERO habiendo una manipulacion delante. Medido
+        # el 2026-09-13 con un par firmado de verdad y su copia trucada.
+        #
+        # Un contador que dice cero cuando hubo un intento es peor que no
+        # tenerlo: se mira, se ve limpio, y se deja de mirar.
+        veredicto = verificar_firma(reg)
+        if veredicto == "no":
+            informe["firmas_rotas"] = informe.get("firmas_rotas", 0) + 1
+            informe["saltadas"].append(
+                # EL MOTIVO DICE LO QUE SE COMPROBO, ni mas ni menos. Decia
+                # «la firma no corresponde a esa clave publica» y aqui NO se
+                # mira ninguna clave: se compara el texto firmado con el que se
+                # guarda. Un motivo que describe una comprobacion que no se hizo
+                # manda a buscar el fallo donde no esta.
+                {"n": i, "motivo": "el texto firmado (`canonico`) no es el que "
+                                   "trae `par`: el paquete se manipulo despues "
+                                   "de firmarse. No entra"})
+            continue
+
         clave = _clave(par, firma)
         repetida = _ya_esta(c, clave)
         if repetida is not None:
@@ -170,6 +289,8 @@ def importar(c, paquete):
         if firma == "NO_DATA":
             informe["saltadas"].append(
                 {"n": i, "motivo": "sin firma: entra, pero sin procedencia"})
+        elif veredicto == "si":
+            informe["firmas_verificadas"] = informe.get("firmas_verificadas", 0) + 1
         else:
             informe["firmas_sin_verificar"] += 1
 
@@ -196,8 +317,10 @@ def importar(c, paquete):
              (par.get("origen") or "NO_DATA").strip() or "NO_DATA",
              firma,
              (reg.get("autor") or "NO_DATA").strip() or "NO_DATA",
-             # Ni 0 ni 1: nadie lo ha comprobado.
-             "NO_DATA"))
+             # «si» / «no» / «NO_DATA», los tres valores que hay. Se escribe lo
+             # que dijo `verificar_firma`, que es NO_DATA cuando no se pudo
+             # comprobar y nunca un cero que fingiria una comprobacion fallida.
+             veredicto))
         # EL EVENTO DE IMPORTACION, con la procedencia dentro. Es el que
         # contesta la pregunta que un auditor hace sobre cualquier dato que no
         # nacio aqui: de donde salio, quien lo firmo, y si esa firma se
@@ -207,7 +330,10 @@ def importar(c, paquete):
         _linea.anotar(c, "importacion", f"turno:{cur.lastrowid}",
                       {"origen": (par.get("origen") or "NO_DATA"),
                        "autor": (reg.get("autor") or "NO_DATA"),
-                       "firma": firma, "firma_ok": "NO_DATA"}, "carbono")
+                       # El evento dice lo MISMO que la tabla. Si el registro
+                       # dijera «si» y la tabla «no se sabe», el registro seria
+                       # el que miente, y un registro que miente no audita nada.
+                       "firma": firma, "firma_ok": veredicto}, "carbono")
         informe["nuevas"] += 1
         informe["ids"].append(cur.lastrowid)
     return informe
