@@ -66,6 +66,7 @@ y se dice que es lo mejor que hay, no que sea equivalente.
 from __future__ import annotations
 
 import json
+import pathlib
 
 import captura
 import linea as _linea
@@ -444,3 +445,110 @@ def importar(c, paquete):
         informe["nuevas"] += 1
         informe["ids"].append(cur.lastrowid)
     return informe
+
+
+# --- LA PUERTA, que era lo que faltaba -------------------------------------
+#
+# `importar()` estaba escrita, probada por `test_importar.py` y LLAMADA POR
+# NADIE: el unico sitio del arbol que la invocaba eran sus propias pruebas. O
+# sea que la app sabia leer lo que la web exporta y una persona no tenia como
+# pedirselo. Es el mismo patron que el laboratorio tenia con sus tres eslabones
+# --escrito y desconectado-- y cuesta lo mismo de arreglar: una puerta.
+#
+# Seco por defecto, como todo lo que escribe en esta casa. Y el seco no es un
+# camino aparte que un dia diverja: corre el MISMO `importar()` dentro de una
+# transaccion y la deshace. Lo que cuenta el informe en seco es exactamente lo
+# que pasaria, porque ya paso y se ha vuelto atras.
+
+def main(argv=None):
+    import argparse
+    import os
+    import sqlite3
+
+    ap = argparse.ArgumentParser(
+        description="Mete en TU memoria las correcciones que hiciste en la web.")
+    ap.add_argument("fichero", help="el .json que baja preceptoros.org")
+    ap.add_argument("--db", default=os.path.expanduser("~/.aurelius/memory.db"),
+                    help="la memoria donde entra (por defecto, la tuya)")
+    ap.add_argument("--ejecutar", action="store_true",
+                    help="sin esto no se escribe nada")
+    a = ap.parse_args(argv)
+
+    ruta = pathlib.Path(a.fichero)
+    if not ruta.is_file():
+        print(f"NO_DATA · no existe {ruta}")
+        return 2
+    paquete = leer(ruta.read_text(encoding="utf-8"))
+    if paquete is None:
+        print("NO_DATA · eso no es un paquete de correcciones de la web.")
+        print("Se esperaba un .json con `esquema` "
+              "«preceptoros/correcciones/1» y una lista de pares.")
+        return 2
+
+    if not pathlib.Path(a.db).parent.is_dir():
+        print(f"NO_DATA · no existe la carpeta de {a.db}")
+        return 2
+    # EL SECO CORRE SOBRE UNA COPIA, y no sobre una transaccion que se deshace.
+    # La prueba tumbo las dos versiones anteriores y enseno por que: dentro de
+    # `importar()` hay piezas que confirman por su cuenta --`captura` cierra su
+    # propia transaccion, y con razon: un veredicto a medias seria peor-- asi
+    # que ni el `rollback` automatico ni un `BEGIN` a mano llegan enteros al
+    # final. El primero dejaba escrito lo que decia no escribir; el segundo
+    # reventaba con «no transaction is active».
+    #
+    # Copiar la base con el `backup()` de sqlite --que se lleva tambien lo que
+    # esta en el diario WAL, cosa que copiar el fichero a pelo no hace-- corre
+    # el MISMO camino sobre la copia y la tira. El informe del seco es exacto
+    # porque no es una simulacion: es la importacion de verdad, en otro sitio.
+    import tempfile
+
+    destino = a.db
+    temporal = None
+    if not a.ejecutar:
+        temporal = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        temporal.close()
+        origen = sqlite3.connect(a.db)
+        copia = sqlite3.connect(temporal.name)
+        try:
+            origen.backup(copia)
+        finally:
+            copia.close()
+            origen.close()
+        destino = temporal.name
+
+    c = sqlite3.connect(destino)
+    c.row_factory = sqlite3.Row
+    try:
+        informe = importar(c, paquete)
+        c.commit()
+    finally:
+        c.close()
+        if temporal:
+            os.unlink(temporal.name)
+
+    print(f"fichero   · {ruta}")
+    print(f"memoria   · {a.db}")
+    print(f"entradas  · {informe['entradas']}")
+    print(f"nuevas    · {informe['nuevas']}")
+    print(f"repetidas · {informe['repetidas']} (ya estaban, no se duplican)")
+    if informe["saltadas"]:
+        print(f"saltadas  · {len(informe['saltadas'])}")
+        for s in informe["saltadas"]:
+            print(f"    #{s['n']} · {s['motivo']}")
+    # La firma se GUARDA entera y no se comprueba aqui: Ed25519 no esta en la
+    # biblioteca estandar y esta app promete correr sin dependencias. Quien SI
+    # la verifica es el laboratorio, con `cryptography`. Decirlo en cada pasada
+    # es la unica forma de que `firma_ok = NO_DATA` no se lea como un fallo.
+    if informe["firmas_sin_verificar"]:
+        print(f"firmas    · {informe['firmas_sin_verificar']} guardadas SIN "
+              "verificar · firma_ok = NO_DATA")
+        print("            (Ed25519 no viene en la biblioteca estandar y esta "
+              "app corre sin dependencias; el laboratorio si las verifica)")
+    if not a.ejecutar:
+        print("\nSECO · no se ha escrito nada. Repite con --ejecutar.")
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

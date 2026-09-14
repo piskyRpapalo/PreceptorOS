@@ -414,5 +414,59 @@ class TestImportar(unittest.TestCase):
         self.assertIn("correcciones: pares", texto)
 
 
+
+class LaPuerta(unittest.TestCase):
+    """`importar()` estaba escrita, probada y llamada por NADIE.
+
+    El unico sitio del arbol que la invocaba era este fichero de pruebas: la app
+    sabia leer lo que la web exporta, y una persona no tenia como pedirselo. Una
+    funcion sin puerta pasa todas sus pruebas y no sirve a nadie, que es la peor
+    forma de estar roto -- no da sintoma.
+
+    Se prueba la puerta, no la funcion: que un fichero que no es un paquete se
+    rechaza con su motivo, que el SECO no escribe, y que lo que el seco cuenta
+    es lo que el --ejecutar escribe. Ese ultimo punto es el que importa: el seco
+    corre el MISMO `importar()` dentro de una transaccion y la deshace, asi que
+    no puede divergir del camino de verdad por mucho que pase el tiempo.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.db = os.path.join(self.dir, "memory.db")
+        with M.abrir(self.db):          # crea el fichero y sus tablas
+            pass
+        self.json = os.path.join(self.dir, "paquete.json")
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def escribir(self, datos):
+        with open(self.json, "w", encoding="utf-8") as f:
+            json.dump(datos, f, ensure_ascii=False)
+
+    def cuantos(self):
+        with M.abrir(self.db) as c:
+            I.asegurar(c)
+            return c.execute("select count(*) from turnos").fetchone()[0]
+
+    def test_un_fichero_que_no_esta_no_se_inventa(self):
+        self.assertEqual(I.main([os.path.join(self.dir, "no-existe.json"),
+                                 "--db", self.db]), 2)
+
+    def test_lo_que_no_es_un_paquete_se_dice(self):
+        self.escribir({"esquema": "otra-cosa", "pares": []})
+        self.assertEqual(I.main([self.json, "--db", self.db]), 2)
+
+    def test_el_seco_no_escribe_y_el_ejecutar_si(self):
+        self.escribir(paquete(firmada(par())))
+        antes = self.cuantos()
+        self.assertEqual(I.main([self.json, "--db", self.db]), 0)
+        self.assertEqual(self.cuantos(), antes,
+                         "el seco escribio: deja de ser seco")
+        self.assertEqual(I.main([self.json, "--db", self.db, "--ejecutar"]), 0)
+        self.assertEqual(self.cuantos(), antes + 1,
+                         "el --ejecutar no escribio lo que el seco conto")
+
+
 if __name__ == "__main__":
     unittest.main()
