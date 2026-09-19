@@ -46,9 +46,9 @@ class GuiaResponse(BaseModel):
     modelo: str
 
 
-OLLAMA_URL = "http://100.81.82.34:11434/api/generate"
-OLLAMA_TAGS = "http://100.81.82.34:11434/api/tags"
-MODELO = "qwen38-limpio:latest"
+OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
+OLLAMA_TAGS = "http://127.0.0.1:11434/api/tags"
+MODELO = "preceptor-charla-web:v2"
 
 SYSTEM_PROMPT = """Eres el Oficial de Inventario del Ecosistema Soberano.
 Responde SIEMPRE en JSON estricto, sin markdown, sin envoltorios, sin bloques de codigo.
@@ -171,10 +171,12 @@ def health_check():
         ollama_ok = response.status_code == 200
         models = response.json().get("models", []) if ollama_ok else []
         nombres = [m.get("name", "") for m in models]
-        modelo_disponible = any(
-            n == MODELO or n == "oficial-inventario" or n.startswith("oficial-inventario:")
-            for n in nombres
-        )
+        # Pertenencia REAL y nada mas. Antes habia un `or` con
+        # `oficial-inventario` que aprobaba el chequeo aunque MODELO no
+        # estuviese: el 2026-09-19 devolvia `modelo_disponible: true` para
+        # `qwen38-limpio:latest`, que no existe, y listaba los 34 modelos sin
+        # el al lado. El /api/generate habria dado 404.
+        modelo_disponible = MODELO in nombres
         return {
             "status": "healthy" if modelo_disponible else "degraded",
             "ollama": "ok" if ollama_ok else "error",
