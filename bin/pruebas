@@ -223,7 +223,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # solo ensena lo que la pieza detecta deja creer que detecta todo.
           test_linea
           test_normas
-          test_soberania)
+          test_soberania
+          # test_apretar: la compresion de contexto que SOLO puede borrar
+          # unidades enteras. Entra en el corredor certificado porque su
+          # garantia --nada de la salida se invento-- es de las que dejan de
+          # comprobarse en cuanto viven en un guion aparte.
+          test_apretar)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
