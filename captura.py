@@ -199,6 +199,64 @@ def _del_vocabulario(valor, vocabulario):
 CLAVE_PERFIL = "captura"
 
 
+# LA VISTA DE ESTUDIOS · un turno que puede ENSEÑAR algo.
+#
+# Un estudio no es un turno. Un turno es lo que pasó; un estudio es un turno
+# del que se puede aprender, y eso depende de tres cosas que la tabla ya sabe
+# --- consentimiento, clase y veredicto --- pero que hay que leer juntas. Cada
+# consulta que las combinara a mano acabaría combinándolas distinto.
+#
+# LO QUE LA VISTA NO ENSEÑA, y es su regla principal: ni `prompt`, ni
+# `respuesta`, ni `correccion` en crudo. Solo sus LARGOS. Lo que se mide de un
+# estudio --- cuántos hay, de qué clase, con qué veredicto --- no necesita el
+# texto de nadie, y una vista que lo expusiera acabaría copiada en un informe,
+# en un log o en `loops.db`. El texto lo ve su dueño; el laboratorio ve la forma.
+#
+# `fue_corregido` es un SÍ/NO y no un largo, porque `corregido` guarda la FECHA
+# en que se corrigió, no el texto (ver `corregir()` más abajo). Medir su
+# longitud daría 19 --- los caracteres de un `datetime` --- y ese 19 parecería
+# un dato.
+#
+# Los cuatro estados, y por qué `sin_consentimiento` va PRIMERO en el CASE: un
+# turno sin consentimiento no es material de nadie, tenga la corrección que
+# tenga. Poner esa rama la primera hace imposible que otra la adelante.
+#
+# POR QUÉ `tipo` NO ENTRA EN EL ÍNDICE, aunque la vista lo lea. Lo llevaba, y
+# rompió `test_los_turnos_viejos_ganan_la_clase_sin_perderse`: esa prueba
+# simula una memoria anterior a la clase QUITANDO la columna, y sqlite se niega
+# a soltar una columna que un índice nombra. El índice habría bloqueado el
+# camino de migración que la casa tiene escrito y probado.
+#
+# Y sacarlo no cuesta nada, que es lo que lo convierte en decisión y no en
+# rodeo: `tipo` tiene DOS valores. Una columna de cardinalidad dos en la
+# tercera posición de un índice compuesto no separa casi nada; lo que separa de
+# verdad es `consent`, y después el veredicto y el arnés.
+ESQUEMA_ESTUDIOS = """
+create view if not exists estudios as
+select
+    id                as turno_id,
+    cuando, arnes, tarea, veredicto, tipo, consent, juez, juzgado, motivo,
+    ctx_completo, ctx_fuera,
+    case
+        when consent <> 1 or consent is null then 'sin_consentimiento'
+        when tipo = 'reescritura'
+             or coalesce(correccion, '') <> ''        then 'entrenable'
+        when veredicto in ('fallo','alucinacion','no_data','traspaso','mudo')
+                                                      then 'diagnostico'
+        else 'juzgado'
+    end               as estado,
+    case when coalesce(corregido, '') <> '' then 1 else 0 end as fue_corregido,
+    length(prompt)                      as prompt_len,
+    length(respuesta)                   as respuesta_len,
+    length(coalesce(correccion, ''))    as correccion_len
+from turnos;
+create index if not exists idx_turnos_estudio
+    on turnos(consent, veredicto, arnes, tarea);
+create index if not exists idx_turnos_tiempo_arnes
+    on turnos(cuando, arnes);
+"""
+
+
 def asegurar(c):
     """Crea la tabla si falta. Migración aditiva, como el resto de la casa.
 
@@ -217,6 +275,10 @@ def asegurar(c):
     for nombre, tipo in RASTRO:
         if nombre not in ya:
             c.execute(f"alter table turnos add column {nombre} {tipo}")
+    # La vista y sus indices van DESPUES de las columnas del rastro: la vista
+    # las nombra, y sobre una tabla vieja que aun no las tenga fallaria al
+    # crearse. El orden no es estetico.
+    c.executescript(ESQUEMA_ESTUDIOS)
 
 
 def activa(perfil):

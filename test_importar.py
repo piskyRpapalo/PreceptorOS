@@ -332,6 +332,12 @@ class TestImportar(unittest.TestCase):
             c.execute("insert into turnos (prompt, respuesta, correccion, "
                       "consent) values ('de antes', 'mala', 'buena', 1)")
             # Se simula la base vieja quitandole la columna recien creada.
+            #
+            # La vista `estudios` se retira PRIMERO, y no es un rodeo para que
+            # sqlite deje soltar la columna: una memoria anterior a `tipo` es
+            # anterior tambien a la vista, que nombra esa columna. Dejarla
+            # puesta simularia una base que no existio nunca.
+            c.execute("drop view if exists estudios")
             c.execute("alter table turnos drop column tipo")
             self.assertNotIn("tipo", {d[1] for d in
                                       c.execute("pragma table_info(turnos)")})
@@ -339,6 +345,16 @@ class TestImportar(unittest.TestCase):
             self.assertEqual(self.filas(c)[0]["tipo"], "correccion")
             self.assertEqual(len(captura.pares(c)), 1,
                              "el turno viejo sigue entrenando")
+            # Y la migracion devuelve la vista, que es lo que esta prueba gana
+            # al pasar por aqui: antes solo comprobaba la columna.
+            self.assertEqual(
+                1, c.execute("select count(*) from sqlite_master "
+                             "where type='view' and name='estudios'").fetchone()[0],
+                "la migracion no devolvio la vista de estudios")
+            self.assertEqual(
+                "entrenable",
+                c.execute("select estado from estudios").fetchone()[0],
+                "el turno viejo, con correccion y consent, es entrenable")
 
     # --- el cruce con la web -----------------------------------------------
 

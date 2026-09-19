@@ -224,7 +224,7 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           test_linea
           test_normas
           test_soberania)
-PROPIAS=(cara frente_e idioma manifest memory tono)
+PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
 for s in "${PROPIAS[@]}"; do suite_propia "$s"; done
