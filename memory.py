@@ -144,6 +144,43 @@ create table if not exists salidas (
     ms_motor      real,
     ms_frontera   real
 );
+create table if not exists topic_keys (
+    -- FRENTE E · la clave de tema estable.
+    --
+    -- Sin ella, dos recuerdos sobre LO MISMO no se reconocen entre si: uno dice
+    -- «el rack genera 16 tok/s» y otro «el rack va a 5 tok/s», y los dos viven
+    -- en paz porque nadie los ha puesto uno al lado del otro. La clave es lo
+    -- que los pone juntos, y de ahi sale poder detectar que se contradicen.
+    --
+    -- `clave` es la identidad y no un autoincrement a proposito: se quiere que
+    -- dos sesiones distintas que hablan del mismo tema lleguen a la MISMA
+    -- clave sin consultarse.
+    clave      text primary key check (length(trim(clave)) > 0),
+    etiqueta   text not null default 'NO_DATA',
+    creado     text not null default (datetime('now')),
+    visto      text not null default (datetime('now'))
+);
+create table if not exists contradicciones (
+    -- FRENTE E · Juez de Conflictos, fase C.
+    --
+    -- Cuando un engrama nuevo choca con uno viejo del mismo tema, NO se
+    -- sobrescribe ni se descarta: se anota el choque y se deja `pendiente`.
+    -- Elegir automaticamente cual de los dos vale seria inventar un veredicto,
+    -- que es justo lo que la casa no hace.
+    --
+    -- `medida` es obligatoria para cerrar: una contradiccion no se resuelve
+    -- diciendo «ya esta», se resuelve con la cifra que la zanja. Es la misma
+    -- regla que `bandeja_firmas.md` --- «RESUELTO · <cifra>, nunca una palabra».
+    id         integer primary key autoincrement,
+    clave      text not null references topic_keys(clave),
+    engrama_a  integer not null references engrams(id),
+    engrama_b  integer not null references engrams(id),
+    veredicto  text not null default 'pendiente'
+               check (veredicto in ('pendiente', 'resuelta', 'descartada')),
+    medida     text not null default 'NO_DATA',
+    creado     text not null default (datetime('now')),
+    cerrado    text
+);
 """
 
 
@@ -298,6 +335,15 @@ def crear(ruta):
         # D12: Migracion aditiva. Si la DB es vieja, le anyade la columna.
         try:
             c.execute("ALTER TABLE engrams ADD COLUMN origen_dispositivo TEXT NOT NULL DEFAULT 'NO_DATA'")
+        except sqlite3.OperationalError:
+            pass  # La columna ya existe
+        # FRENTE E · el tema. Por ALTER y no en el CREATE TABLE, igual que
+        # `origen_dispositivo`: asi una base vieja y una recien nacida acaban
+        # con la MISMA forma, y no hay dos ordenes de columna segun la edad.
+        # Sin `not null`: un recuerdo anterior al Juez de Conflictos no tiene
+        # tema, y decir NULL es mas honesto que inventarle uno.
+        try:
+            c.execute("ALTER TABLE engrams ADD COLUMN topic_key TEXT")
         except sqlite3.OperationalError:
             pass  # La columna ya existe
         # El indice de busqueda nace con el esquema. Si este sqlite no trae
@@ -766,6 +812,21 @@ def asegurar_tablas(c):
     try:
         c.execute("alter table engrams add column origen_dispositivo "
                   "text not null default 'NO_DATA'")
+    except sqlite3.OperationalError:
+        pass  # La columna ya existe (D12: migracion aditiva)
+    # FRENTE E · el tema al que pertenece este recuerdo. Aditiva igual que la
+    # de arriba y por el mismo motivo: una memoria nacida antes de esto no pasa
+    # por `crear()` nunca mas, y sin la columna el Juez de Conflictos no puede
+    # ni empezar --- fallaria con un error de sqlite en ingles, sin decir que
+    # la causa es la edad de la base.
+    #
+    # EL CAHIER YA ESTABA, y no se duplica. Lo que el Frente E pide como
+    # `que / por_que / donde / aprendido` son exactamente las columnas
+    # `what / why / where_ref / learned` que `engrams` tiene desde el principio.
+    # Anadir cuatro gemelas en castellano daria dos sitios donde escribir lo
+    # mismo, y al mes siguiente dirian cosas distintas.
+    try:
+        c.execute("alter table engrams add column topic_key text")
     except sqlite3.OperationalError:
         pass  # La columna ya existe (D12: migracion aditiva)
     for columna, defecto in (("estado", "'ok'"), ("motivo", f"'{AUSENTE}'")):
