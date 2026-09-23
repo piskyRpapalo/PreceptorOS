@@ -170,6 +170,11 @@ CARA_TEXTOS = {
     },
 }
 
+# Las siete lenguas nuevas (2026-09-23), traducidas en `textos_lenguas.py`
+# con las mismas 51 claves. La voz sigue siendo solo castellana.
+from textos_lenguas import CARA_MAS as _CARA_MAS  # noqa: E402
+CARA_TEXTOS.update(_CARA_MAS)
+
 # Los peldanos, recuperados de la interfaz anterior y filtrados: se quedan los
 # nombres del camino, se va el vocabulario de la casa.
 CAMINO = {
@@ -429,12 +434,15 @@ def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None, turnos=None,
             .replace("__BOTON_PUENTE__", boton_puente)
             .replace("__JS_PUENTE__", js_puente)
             .replace("__LANG__", inicial)
+            .replace("__DIR__", "rtl" if inicial == "ar" else "ltr")
+            .replace("__OPCIONES_IDIOMA__", "".join(
+                f'<option value="{i}">{i.upper()}</option>' for i, _n in TX.IDIOMAS))
             .replace("__N_AUDIO__", str(n_audio))
             .replace("__ARIA_VOZ__", aria_voz)
             .replace("__TALKS__", dato_uri("aurelius-talks.png"))
             .replace("__UP__", dato_uri("aurelius-up.png"))
             .replace("__IDIOMA__", inicial)
-            .replace("__TEXTOS__", _json({i: textos_cara(i) for i in ("en", "es")}))
+            .replace("__TEXTOS__", _json({i: textos_cara(i) for i, _n in TX.IDIOMAS}))
             .replace("__CAMINO__", _json(CAMINO))
             .replace("__PELDANOS__", _json(list(PELDANOS)))
             .replace("__AUDIO__", _json(audio))
@@ -493,7 +501,7 @@ _JS_PUENTE = r"""
 """
 
 PLANTILLA = r"""<!DOCTYPE html>
-<html lang="__LANG__">
+<html lang="__LANG__" dir="__DIR__">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
@@ -611,7 +619,7 @@ PLANTILLA = r"""<!DOCTYPE html>
   <div class="marco"><div id="busto" class="sprite" role="img" aria-label="Preceptor"></div></div>
   <div class="titulo"><h1 id="t-titulo">Preceptor</h1><span class="sub" id="t-sub"></span></div>
   <div class="huecos"></div>
-  <select id="lang" aria-label="Language"><option value="en">EN</option><option value="es">ES</option></select>
+  <select id="lang" aria-label="Language">__OPCIONES_IDIOMA__</select>
   <button type="button" class="boton" id="b-voz" aria-pressed="false"
           aria-label="__ARIA_VOZ__"></button>
   <button type="button" class="boton" id="b-pizarra"></button>
@@ -1106,6 +1114,9 @@ hablaViva = (DATOS.profile.voice === "on") && algunaVoz() && idioma === "es";
 el("lang").value = idioma;
 el("lang").onchange = function () {
   idioma = el("lang").value;
+  // El arabe se escribe de derecha a izquierda (2026-09-23).
+  document.documentElement.lang = idioma;
+  document.documentElement.dir = idioma === "ar" ? "rtl" : "ltr";
   FORMULARIO.language = idioma;
   rotular();
   if (!el("pz").hidden) { pintarPizarra(); }
@@ -1158,7 +1169,7 @@ def main(argv=None):
     ap.add_argument("--out", default=SALIDA_DEFECTO)
     ap.add_argument("--aplicar", metavar="FILE",
                     help="write into the memory what the face collected")
-    ap.add_argument("--idioma", choices=("en", "es"))
+    ap.add_argument("--idioma", choices=[i for i, _n in TX.IDIOMAS])
     # La voz es opcional por diseño. Si no está, la cara se genera igual y su
     # botón lo declara: una copia sin voz sigue siendo una copia entera.
     ap.add_argument("--piper", default=_entorno.leer("PIPER"),

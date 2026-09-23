@@ -173,13 +173,17 @@ def t4():
     # El mensaje tiene que nombrar los numeros que SI valen. "no es una de las
     # opciones" no vale: describe el error sin decir como salir de el, que es
     # exactamente el sitio donde la persona se quedo atascada.
+    # Desde el 2026-09-23 son nueve lenguas: el rechazo tiene que nombrar el
+    # RANGO que vale --el primero y el ultimo--, que es lo que antes eran «1 y 2».
+    import textos as _TX
+    ultimo = str(len(_TX.IDIOMAS))
     rechazo = [l for l in salida.splitlines() if "yes" in l.lower()
                and l.strip().startswith(("'", "\"", "·", "-", "yes"))
-               or ("yes" in l.lower() and re.search(r"\b1\b.*\b2\b", l))]
+               or ("yes" in l.lower() and re.search(rf"\b1\b.*\b{ultimo}\b", l))]
     assert rechazo, f"escribir 'yes' no produjo ningun rechazo visible:\n{salida[:900]}"
     texto = "\n".join(rechazo)
-    assert re.search(r"\b1\b", texto) and re.search(r"\b2\b", texto), \
-        f"el rechazo no dice que numeros valen: {texto!r}"
+    assert re.search(r"\b1\b", texto) and re.search(rf"\b{ultimo}\b", texto), \
+        f"el rechazo no dice que numeros valen (1-{ultimo}): {texto!r}"
     assert re.search(r"n[uú]mero|number", texto, re.I), \
         f"el rechazo no dice que se espera un numero: {texto!r}"
     # Y la pregunta se repite: rechazar sin volver a preguntar es colgar.
@@ -247,22 +251,26 @@ def t9():
     assert n == 0, f"elegir idioma y crear la base dejo {n} recuerdos"
 
 
-@caso("10 · el texto de los dos idiomas cubre las mismas claves")
+@caso("10 · el texto de las nueve lenguas cubre las mismas claves")
 def t10():
     import textos as X
+    # NUEVE DESDE EL 2026-09-23 (antes decia exactamente {"en","es"}). Las que
+    # se declaran en IDIOMAS y las que tienen columna tienen que ser las mismas.
     idiomas = sorted(X.TEXTOS)
-    assert set(idiomas) == {"en", "es"}, f"idiomas declarados: {idiomas}"
+    assert set(idiomas) == {i for i, _n in X.IDIOMAS}, f"idiomas declarados: {idiomas}"
     claves = {i: set(X.TEXTOS[i]) for i in idiomas}
-    falta_es = claves["en"] - claves["es"]
-    falta_en = claves["es"] - claves["en"]
-    assert not falta_es, f"al español le faltan claves: {sorted(falta_es)}"
-    assert not falta_en, f"al ingles le faltan claves: {sorted(falta_en)}"
+    for i in idiomas:
+        falta = claves["en"] - claves[i]
+        sobra = claves[i] - claves["en"]
+        assert not falta, f"a {i} le faltan claves: {sorted(falta)}"
+        assert not sobra, f"{i} trae claves que el ingles no tiene: {sorted(sobra)}"
     # Y los huecos de formato tienen que coincidir: una traduccion que pierde
     # un {campo} revienta en tiempo de ejecucion, no en tiempo de revision.
     for k in claves["en"]:
         h_en = set(re.findall(r"{(\w+)}", str(X.TEXTOS["en"][k])))
-        h_es = set(re.findall(r"{(\w+)}", str(X.TEXTOS["es"][k])))
-        assert h_en == h_es, f"la clave {k} no lleva los mismos huecos: {h_en} vs {h_es}"
+        for i in idiomas:
+            h_i = set(re.findall(r"{(\w+)}", str(X.TEXTOS[i][k])))
+            assert h_en == h_i, f"la clave {k} en {i} no lleva los mismos huecos: {h_en} vs {h_i}"
 
 
 @caso("11 · un solo recuerdo no se cuenta en plural, en ninguno de los dos")

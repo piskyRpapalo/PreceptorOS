@@ -25,14 +25,22 @@ DEFECTO = "es"
 # (clave, como se llama ese idioma en ese idioma). El nombre va en su propia
 # lengua a proposito: quien busca "Español" no esta leyendo la palabra
 # "Spanish".
-IDIOMAS = (("en", "English"), ("es", "Español"))
+# NUEVE DESDE EL 2026-09-23, las mismas que la web. El ORDEN no se toca: ingles
+# 1 y castellano 2, como siempre, porque las sesiones grabadas de las pruebas
+# eligen tecleando «1» o «2». Las siete nuevas van detras, cada una con su
+# nombre en su propia lengua; sus textos viven en `textos_lenguas.py`.
+IDIOMAS = (("en", "English"), ("es", "Español"), ("fr", "Français"),
+           ("pt", "Português"), ("it", "Italiano"), ("de", "Deutsch"),
+           ("ru", "Русский"), ("el", "Ελληνικά"), ("ar", "العربية"))
 
 PREGUNTA_IDIOMA = "Language · Idioma"
-AYUDA_IDIOMA = "Type 1 or 2 · Escribe 1 o 2"
+# Con nueve opciones ya no cabe «1 o 2», y la ayuda no puede estar en nueve
+# lenguas a la vez: la cifra es lo unico que se lee en todas. Se dice el rango.
+AYUDA_IDIOMA = "1-9 · Type the number · Escribe el número"
 # El rechazo de la primera pregunta tambien es bilingue: la persona que se
 # equivoca al elegir idioma todavia no ha elegido idioma.
-RECHAZO_IDIOMA = ("{entrada!r} · type the number: 1 or 2"
-                  " · escribe el número: 1 o 2")
+RECHAZO_IDIOMA = ("{entrada!r} · type the number: 1-9"
+                  " · escribe el número: 1-9")
 
 
 TEXTOS = {
@@ -375,6 +383,12 @@ TEXTOS = {
         "estado_cola": ". Todo lo que se ve viene de lo que tú escribiste.",
     },
 }
+
+
+# Las siete traducciones se funden aqui: para el resto del producto
+# `TEXTOS["fr"]` existe igual que `TEXTOS["es"]`.
+from textos_lenguas import TEXTOS_MAS as _MAS  # noqa: E402
+TEXTOS.update(_MAS)
 
 
 def normalizar(idioma):

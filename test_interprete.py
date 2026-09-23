@@ -143,9 +143,17 @@ class TestAvisoSigueAlIdioma(unittest.TestCase):
         self.assertIn("NOTE ·", en)
         self.assertNotIn("NOTA ·", en, "el inglés no tiene que leer español")
 
-    def test_un_idioma_que_no_hablamos_no_elige_por_nadie(self):
-        """`fr` no es una firma válida: se cae a los dos, no a uno inventado."""
+    def test_una_de_las_lenguas_nuevas_lee_la_nota_en_ingles(self):
         salida = I.aviso(self.FUERA, idioma="fr")
+        self.assertIn("NOTE ·", salida)
+        self.assertNotIn("NOTA ·", salida)
+
+    def test_un_idioma_que_no_hablamos_no_elige_por_nadie(self):
+        """`ja` no es una firma válida: se cae a los dos, no a uno inventado.
+
+        Hasta el 2026-09-23 el ejemplo era `fr`; desde entonces el producto
+        habla francés y la nota le llega en inglés (prueba de abajo)."""
+        salida = I.aviso(self.FUERA, idioma="ja")
         self.assertIn("NOTA ·", salida)
         self.assertIn("NOTE ·", salida)
 

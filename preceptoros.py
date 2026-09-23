@@ -658,7 +658,8 @@ def _idioma_firmado(ruta):
             elegido = M.leer_perfil(c).get("language", M.AUSENTE)
     except Exception:
         return None
-    return elegido if elegido in ("es", "en") else None
+    # Vale cualquier lengua que el producto hable (nueve desde el 2026-09-23).
+    return elegido if elegido in TX.TEXTOS else None
 
 
 def _sin_memoria(salida=print):

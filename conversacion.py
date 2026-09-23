@@ -434,16 +434,27 @@ def prompt_sistema(fase_actual, idioma=None, instrucciones=None,
     decir. Ver `narrador.glosario`.
     """
     idioma = TX.normalizar(idioma)
-    partes = [_arquetipo(idioma)]
-    glosario = N.glosario(idioma)
+    # LAS SIETE LENGUAS NUEVAS (2026-09-23) se le dicen al modelo EN INGLES, con
+    # una orden de contestar en la suya. El arquetipo, las guias y el glosario
+    # estan escritos y firmados en castellano e ingles; traducirlos a siete
+    # lenguas para un modelo de 3B no le hace entender mejor --le entiende mejor
+    # el ingles-- y el glosario de nombres del juego no se inventa: se firma.
+    base = idioma if idioma in ("es", "en") else "en"
+    partes = [_arquetipo(base)]
+    glosario = N.glosario(base)
     if glosario:
         partes.append(glosario)
-    partes.append(GUIA.get(idioma, GUIA["es"]).get(fase_actual, ""))
+    partes.append(GUIA.get(base, GUIA["es"]).get(fase_actual, ""))
     tabla = PRIMER_ENCUENTRO if primer_encuentro else YA_NOS_CONOCEMOS
-    partes.append(tabla.get(idioma, tabla["es"]))
+    partes.append(tabla.get(base, tabla["es"]))
+    if base != idioma:
+        nombre = dict(TX.IDIOMAS).get(idioma, idioma)
+        partes.append(f"Answer ALWAYS in {nombre} ({idioma}): it is the language "
+                      "the person chose. Keep the names of the game exactly as "
+                      "they are written above.")
     if instrucciones and instrucciones.strip():
         marco = ("Esto te lo pidió la persona con la que hablas:"
-                 if idioma != "en" else
+                 if base == "es" else
                  "This is what the person you are talking to asked for:")
         partes.append(f"{marco}\n{instrucciones.strip()}")
     return "\n\n".join(p for p in partes if p).strip()

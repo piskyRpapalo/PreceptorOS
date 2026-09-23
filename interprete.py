@@ -65,6 +65,12 @@ def aviso(v=None, idioma=None):
         return None
     v = tuple(v) if v is not None else actual()
     puesta = ".".join(str(n) for n in v)
-    if idioma in ("es", "en"):
-        return _linea(idioma, puesta)
+    if idioma == "es":
+        return _linea("es", puesta)
+    import textos as _TX
+    if idioma in _TX.TEXTOS:
+        # Las siete lenguas nuevas (2026-09-23) lo leen en ingles: es una nota
+        # tecnica de una linea, y traducirla siete veces no la hace mas cierta.
+        # Una lengua que el producto NO habla sigue cayendo a las dos, abajo.
+        return _linea("en", puesta)
     return _linea("es", puesta) + "\n" + _linea("en", puesta)
