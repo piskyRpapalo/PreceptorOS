@@ -329,7 +329,7 @@ async function fijarIdioma() {
     const d = await r.json();
     const l = (d.campos || d).language || d.idioma;
     // Nueve lenguas desde el 2026-09-23; una que no hay, al castellano de fabrica.
-    t = textos[l] || textos.es;
+    t = textos[l] || textos.en;
   } catch { /* sin respuesta, se queda el de fabrica */ }
   pintarEstaticos();
 }

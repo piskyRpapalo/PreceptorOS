@@ -20,7 +20,13 @@ from __future__ import annotations
 # nombre de juego arranca mudo. El ingles sigue entero para la sesion -- las
 # dos columnas de TEXTOS estan completas -- y los nombres clave del lore se
 # mantienen bilingues como marca. Lo que cambia es por donde se empieza.
-DEFECTO = "es"
+#
+# 2026-09-24 · ENGLISH FIRST. The Soberano: «in web and app, English must
+# dominate everything, for the future of the project; Spanish only for talking
+# with me». Both TEXTOS columns were already complete (812/812 green with this
+# default), and the lore's key names stay bilingual as brand. Spanish remains a
+# full language, one of nine; it is no longer where the product starts.
+DEFECTO = "en"
 
 # (clave, como se llama ese idioma en ese idioma). El nombre va en su propia
 # lengua a proposito: quien busca "Español" no esta leyendo la palabra
