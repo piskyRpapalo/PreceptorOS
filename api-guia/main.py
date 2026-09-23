@@ -2,7 +2,15 @@
 """
 API Guia - Ecosistema Soberano
 Endpoint: /api/guia
-Modelo: oficial-inventario:latest (Qwen3.8-27B-Uncensored via /api/generate)
+Modelo: el que diga MODELO, y solo ese. Hoy `preceptor-charla-web:v2`:
+Mistral 7B Instruct v0.3 Q4_K_M con un adaptador LoRA de 27 MB (el de la charla
+de la web). Esta linea decia «oficial-inventario:latest (Qwen3.8-27B-Uncensored)»
+mientras la constante decia otra cosa: el docstring mentia. Y el Oficial ya no
+se monta sobre el modelo sin censura -- ver `mente/decisiones` y capa1.py.
+
+Entre el modelo y quien llama esta `capa1.py`: guardian determinista a la
+entrada y a la salida (D38), y la salida va acotada por esquema con el
+`format` de Ollama (D39): el modelo no puede devolver otras claves.
 """
 
 import json
@@ -14,9 +22,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 
+import capa1
+
 app = FastAPI(
     title="API Guia - Ecosistema Soberano",
-    description="Agente de inventario con Qwen3.8-27B-Uncensored",
+    description="Agente de inventario · capa 1 determinista en la frontera",
     version="1.0.1"
 )
 
@@ -64,13 +74,28 @@ Schema obligatorio (exactamente estas claves):
   "thinking_trace": "traza de razonamiento solo si fue complejo"
 }"""
 
+# La misma forma, como esquema: alimenta el `format` de Ollama (decoding acotado)
+# y es lo que se valida al volver. Un fichero de verdad, dos consumidores.
+ESQUEMA = {
+    "type": "object",
+    "properties": {
+        "status": {"type": "string", "enum": ["ok", "error", "pending"]},
+        "comando": {"type": "string"},
+        "explicacion": {"type": "string"},
+        "servicio_afectado": {"type": "string"},
+        "riesgo": {"type": "string", "enum": ["none", "low", "medium", "high", "critical"]},
+        "thinking_trace": {"type": "string"},
+    },
+    "required": ["status", "comando", "explicacion", "servicio_afectado", "riesgo"],
+}
+
 
 def limpiar_respuesta(content: str) -> str:
     """Limpia residuos de , markdown y texto envolvente."""
     if not content:
         return ""
     # Eliminar bloques ...
-    content = re.sub(r"", "", content, flags=re.DOTALL)
+    content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
     # Eliminar bloques de codigo markdown
     content = re.sub(r"```(?:json)?", "", content)
     content = content.replace("```", "")
@@ -100,8 +125,14 @@ async def guia_endpoint(request: GuiaRequest):
         if request.contexto:
             prompt = f"CONTEXTO:\n{request.contexto}\n\nPREGUNTA:\n{request.pregunta}"
 
+        cortes = capa1.inspecciona_entrada(request.pregunta + " " + (request.contexto or ""))
+        if cortes:
+            return GuiaResponse(**capa1.retirado(cortes, "entrada"), modelo=MODELO,
+                                timestamp=datetime.now().isoformat())
+
         payload = {
             "model": MODELO,
+            "format": ESQUEMA,
             "system": SYSTEM_PROMPT,
             "prompt": prompt,
             "stream": False,
@@ -147,6 +178,10 @@ async def guia_endpoint(request: GuiaRequest):
                     "thinking_trace": ""
                 }
 
+        cortes = capa1.inspecciona_comando(str(guia_json.get("comando", "")))
+        if cortes:
+            guia_json = capa1.retirado(cortes, "salida")
+
         return GuiaResponse(
             status=guia_json.get("status", "error"),
             comando=guia_json.get("comando", ""),
@@ -182,7 +217,7 @@ def health_check():
             "ollama": "ok" if ollama_ok else "error",
             "modelo": MODELO,
             "modelo_disponible": modelo_disponible,
-            "modelos_cargados": nombres,
+            "modelos_instalados": nombres,  # /api/tags lista lo instalado, no lo cargado
             "version": "1.0.1",
             "timestamp": datetime.now().isoformat()
         }
@@ -196,4 +231,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="100.81.82.34", port=9001, log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=9001, log_level="info")
