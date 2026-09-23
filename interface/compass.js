@@ -57,12 +57,41 @@
     en: { rangos: ["Untempered", "Bronze", "Silver", "Gold", "Fire"],
           camino: "The Path", detalle: "Detail", titulo: "Learning compass",
           sinRed: function (m) { return "offline · data from " + m + " min ago"; },
-          sinDato: "no data" }
+          sinDato: "no data" },
+    // Las siete lenguas nuevas (2026-09-23), las mismas que el resto de la app.
+    pt: { rangos: ["Sem têmpera", "Bronze", "Prata", "Ouro", "Fogo"],
+          camino: "O Caminho", detalle: "Detalhe", titulo: "Bússola de aprendizagem",
+          sinRed: function (m) { return "sem ligação · dado de há " + m + " min"; },
+          sinDato: "sem dado" },
+    fr: { rangos: ["Non trempé", "Bronze", "Argent", "Or", "Feu"],
+          camino: "Le Chemin", detalle: "Détail", titulo: "Boussole d'apprentissage",
+          sinRed: function (m) { return "hors ligne · donnée d'il y a " + m + " min"; },
+          sinDato: "sans donnée" },
+    it: { rangos: ["Non temprato", "Bronzo", "Argento", "Oro", "Fuoco"],
+          camino: "Il Cammino", detalle: "Dettaglio", titulo: "Bussola dell'apprendimento",
+          sinRed: function (m) { return "offline · dato di " + m + " min fa"; },
+          sinDato: "senza dato" },
+    de: { rangos: ["Ungehärtet", "Bronze", "Silber", "Gold", "Feuer"],
+          camino: "Der Weg", detalle: "Detail", titulo: "Lernkompass",
+          sinRed: function (m) { return "offline · Daten von vor " + m + " min"; },
+          sinDato: "keine Daten" },
+    ru: { rangos: ["Без закалки", "Бронза", "Серебро", "Золото", "Огонь"],
+          camino: "Путь", detalle: "Подробно", titulo: "Компас обучения",
+          sinRed: function (m) { return "нет связи · данные " + m + " мин назад"; },
+          sinDato: "нет данных" },
+    el: { rangos: ["Αβάφτιστο", "Χαλκός", "Ασήμι", "Χρυσός", "Φωτιά"],
+          camino: "Ο Δρόμος", detalle: "Λεπτομέρεια", titulo: "Πυξίδα μάθησης",
+          sinRed: function (m) { return "χωρίς σύνδεση · δεδομένα πριν από " + m + " λεπ"; },
+          sinDato: "χωρίς δεδομένα" },
+    ar: { rangos: ["بلا تقسية", "برونز", "فضة", "ذهب", "نار"],
+          camino: "الطريق", detalle: "التفاصيل", titulo: "بوصلة التعلّم",
+          sinRed: function (m) { return "بلا اتصال · بيانات منذ " + m + " د"; },
+          sinDato: "بلا بيانات" }
   };
   var t = textos.es;
 
   function idioma(d) {
-    t = textos[d && d.idioma === "en" ? "en" : "es"];
+    t = textos[d && textos[d.idioma] ? d.idioma : "es"];
     var b = $("compass-modo-camino"), e = $("compass-modo-detalle");
     if (b) b.textContent = t.camino;
     if (e) e.textContent = t.detalle;

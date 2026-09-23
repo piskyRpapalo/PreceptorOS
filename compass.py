@@ -722,11 +722,9 @@ class LearningCompass:
             import memory as M
             perfil = M.leer_perfil(c)
             valor = str(perfil.get("language", "") or "").strip().lower()
-            # El panel tiene textos en es/en; una de las siete lenguas nuevas
-            # cae al ingles, que se lee en mas sitios que el castellano.
-            if valor in ("es", "en"):
-                return valor
-            return "en" if valor in __import__("textos").TEXTOS else "es"
+            # Desde el 2026-09-23 la brujula habla las nueve lenguas del
+            # producto: vale cualquiera que `textos` conozca.
+            return valor if valor in __import__("textos").TEXTOS else "es"
         except Exception:
             return "es"
         finally:
