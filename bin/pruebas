@@ -228,7 +228,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # unidades enteras. Entra en el corredor certificado porque su
           # garantia --nada de la salida se invento-- es de las que dejan de
           # comprobarse en cuanto viven en un guion aparte.
-          test_apretar)
+          test_apretar
+          # test_clases: la clase de una direccion (LOOPBACK/ANY/LAN/TAILNET/
+          # PUBLIC) con un solo dueno. El doctor del rack la importa de aqui;
+          # la tabla fijada ya encontro que su copia vieja clasificaba mal
+          # `[fe80::1]%eno1`. Entra en el corredor en su MISMO commit.
+          test_clases)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
