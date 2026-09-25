@@ -162,6 +162,15 @@ The suite is large on purpose. Anything that reports a number is checked
 against the case where the number is missing, because a meter that invents a
 reading is worse than no meter.
 
+## A note on names
+
+The product is **PreceptorOS**. You will still meet the older internal name
+**Aurelius** in a few technical places: environment variables that start with
+`AURELIUS_` and the data folder `~/.aurelius`, which is a link to
+`~/.preceptoros`. They are legacy names, kept on purpose so that nothing
+already running breaks. They will move only with a migration that keeps both
+names working, never with a blind rename.
+
 ## Licence
 
 See `LICENSE`.
