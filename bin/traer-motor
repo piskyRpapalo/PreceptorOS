@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Trae a la app el motor PURO de theGame desde la web, con su huella. Una fuente, no un fork.
+
+    PRECEPTOROS_WEB=<raiz de preceptoros-web> bin/traer-motor
+
+POR QUE UNA COPIA Y NO UNA RUTA. La app corre en aparatos (un telefono con Termux, un portatil)
+donde no hay un checkout de la web al lado. Pero dos motores que se desvian en silencio son dos
+juegos: por eso la copia lleva MANIFIESTO con el sha256 de cada fichero, la `contenido_v` del
+motor y el commit de la web del que salio, y el runner se NIEGA a jugar con un fichero que no
+case. Refrescar es volver a correr esto; editar la copia a mano la rompe a proposito.
+Solo biblioteca estandar."""
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+APP = Path(__file__).resolve().parent.parent
+DESTINO = APP / "atlas"
+PIEZAS = {"atlas-motor.js": "public/assets/atlas-motor.js", "atlas-partida.js": "public/assets/atlas-partida.js",
+          "atlas-piloto.js": "public/assets/atlas-piloto.js", "juez.js": "public/game/juez.js"}
+
+
+def main():
+    web = Path(os.environ.get("PRECEPTOROS_WEB", str(Path.home() / "preceptoros-web")))
+    faltan = [o for o in PIEZAS.values() if not (web / o).is_file()]
+    if faltan:
+        print(f"NO_DATA · {web} no trae {', '.join(faltan)}")
+        return 2
+    DESTINO.mkdir(exist_ok=True)
+    man = {"esquema": "preceptoros.motor-atlas/1", "ficheros": {}}
+    for d, o in PIEZAS.items():
+        shutil.copyfile(web / o, DESTINO / d)
+        man["ficheros"][d] = hashlib.sha256((DESTINO / d).read_bytes()).hexdigest()
+    m = re.search(r"contenido_v:\s*'([^']+)'", (DESTINO / "atlas-motor.js").read_text(encoding="utf-8"))
+    man["contenido_v"] = m.group(1) if m else "NO_DATA"
+    r = subprocess.run(["git", "-C", str(web), "rev-parse", "--short", "HEAD"], capture_output=True, text=True)
+    man["web_commit"] = r.stdout.strip() if r.returncode == 0 else "NO_DATA"
+    (DESTINO / "MANIFIESTO.json").write_text(json.dumps(man, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"motor {man['contenido_v']} · web {man['web_commit']} · {len(PIEZAS)} ficheros con su sha256")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

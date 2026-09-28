@@ -1,0 +1,11 @@
+{
+ "contenido_v": "2026-09-27.1",
+ "esquema": "preceptoros.motor-atlas/1",
+ "ficheros": {
+  "atlas-motor.js": "7e2b9c6420a7f5a32258a1ad6cd0c80824e16b356ad667910b6a3ba25f3e1ed0",
+  "atlas-partida.js": "cc26f8fa088c2012ddfd342f6c19e9e28f89e0b855839eda067a856fabbee690",
+  "atlas-piloto.js": "44e1788f93e9a2c9f8d8cd0a906faf7952936b06afedb299f1657acd0ac02866",
+  "juez.js": "d9b4d44e06bf4f5b0f71598375abcfcd25143ec67cbb4e7adc6f2be6c5ec6af6"
+ },
+ "web_commit": "288536f"
+}
