@@ -83,6 +83,8 @@ class Motor:
             self.p.wait(timeout=5)
         except Exception:
             self.p.kill()
+        finally:
+            self.p.stdout.close()
 
 
 # --- el escudo termico ------------------------------------------------------------------------
@@ -166,6 +168,8 @@ def correr(pensar, decisiones=20, cada=25, ley=LEY, escudo=None, nombre="NO_DATA
     try:
         mo = Motor(corre=corre)
     except SinMotor as e:
+        if callable(getattr(pensar, "cierra", None)):
+            pensar.cierra()
         return {"esquema": "atlas.corrida/1", "estado": "NO_DATA", "causa": str(e)}
     pasos, ultima = [], 0.0
     try:
@@ -195,6 +199,9 @@ def correr(pensar, decisiones=20, cada=25, ley=LEY, escudo=None, nombre="NO_DATA
         contenido_v, web = mo.contenido_v, mo.web_commit
     finally:
         mo.cierra()
+        # Si quien piensa tiene su propio proceso (la regla fija como motor), tambien se cierra aqui.
+        if callable(getattr(pensar, "cierra", None)):
+            pensar.cierra()
     ms = [p["ms"] for p in pasos]
     validas = sum(p["valida"] for p in pasos)
     return {
@@ -270,6 +277,7 @@ def _pensar_regla(cada, corre=None):
         a = mo.orden(op="piloto")["accion"]
         mo.orden(op="aplica", accion=a)
         return json.dumps(a)
+    pensar.cierra = mo.cierra
     return pensar
 
 

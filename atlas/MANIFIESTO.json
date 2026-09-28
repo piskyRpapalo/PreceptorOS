@@ -5,7 +5,8 @@
   "atlas-motor.js": "7e2b9c6420a7f5a32258a1ad6cd0c80824e16b356ad667910b6a3ba25f3e1ed0",
   "atlas-partida.js": "cc26f8fa088c2012ddfd342f6c19e9e28f89e0b855839eda067a856fabbee690",
   "atlas-piloto.js": "44e1788f93e9a2c9f8d8cd0a906faf7952936b06afedb299f1657acd0ac02866",
-  "juez.js": "d9b4d44e06bf4f5b0f71598375abcfcd25143ec67cbb4e7adc6f2be6c5ec6af6"
+  "juego_comun.mjs": "e280a99291d17f5d4816e8d730e24e4ceb11913fb67a8c6372f6f1f20f5a30c3",
+  "juez.js": "1567321c1ed221573a0f275bea6d4b4ec6abc889981d22e497e9519e78197f17"
  },
- "web_commit": "288536f"
+ "web_commit": "9e58db1"
 }

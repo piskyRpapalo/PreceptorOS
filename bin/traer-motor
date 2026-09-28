@@ -21,7 +21,9 @@ from pathlib import Path
 APP = Path(__file__).resolve().parent.parent
 DESTINO = APP / "atlas"
 PIEZAS = {"atlas-motor.js": "public/assets/atlas-motor.js", "atlas-partida.js": "public/assets/atlas-partida.js",
-          "atlas-piloto.js": "public/assets/atlas-piloto.js", "juez.js": "public/game/juez.js"}
+          "atlas-piloto.js": "public/assets/atlas-piloto.js", "juez.js": "public/game/juez.js",
+          # lo comun de lab y app (legales, forma, huella): una sola vez, en la web, fuera de public/
+          "juego_comun.mjs": "atlas/juego_comun.mjs"}
 
 
 def main():

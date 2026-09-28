@@ -37,30 +37,15 @@ const M = require(join(AQUI, 'atlas-motor.js'));
 const Pa = require(join(AQUI, 'atlas-partida.js'));
 const Pi = require(join(AQUI, 'atlas-piloto.js'));
 const J = require(join(AQUI, 'juez.js'));
-const SIN_DIA = 'sin-dia';
-const BANDAS = ['arrecife', 'ruinas', 'bosque', 'nucleo'];
-/* Lo que puede proponer un modelo: el enum de atlas.accion/1 SIN invocar (no gasta). */
-const ENUM = ['esperar', 'recoger', 'reparar', 'aplazar', 'bajar_a'];
-
+/* Lo comun con el lab (legales, forma) viene de la web y SOLO despues de comprobar su huella. */
+const C = await import('./juego_comun.mjs');
 let e = null, ley = null, min = 0;
 const ins = (x) => { const i = Pa.instantanea(x, M); delete i.eventos; return i; };
 const metr = (x, m) => {
   let xp = 0; x.xp.forEach((v) => { xp += v; });
   return { fase: M.fase(x), nucleo: M.nivelNucleo(x), integridad_min: m, xp };
 };
-function forma(a) {
-  if (!a || ENUM.indexOf(a.accion) < 0) { return 'accion fuera del enum'; }
-  if (a.accion === 'bajar_a' && BANDAS.indexOf(a.banda) < 0) { return 'banda fuera del enum'; }
-  if (a.accion !== 'bajar_a' && 'banda' in a) { return 'banda sin bajar_a'; }
-  return '';
-}
-function legales(x) {
-  const out = [{ accion: 'esperar' }];
-  for (const a of [{ accion: 'recoger' }, { accion: 'reparar' }, { accion: 'aplazar' }, ...BANDAS.map((b) => ({ accion: 'bajar_a', banda: b }))]) {
-    if (!J.sinEfecto(M, Pa, x, a)) { out.push(a); }
-  }
-  return out;
-}
+const forma = C.forma, legales = (x) => C.legales(M, Pa, J, x);
 function base(l, cada, n) {
   let x = M.inicial(l), m = x.integridad;
   for (let d = 0; d < n; d++) {

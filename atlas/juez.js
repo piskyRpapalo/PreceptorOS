@@ -97,7 +97,9 @@
     var r = v.piloto, h = v.humano;
     p.textContent = v.alucinacion ? texto('juez_nulo', {})
       : texto('juez_' + v.gana, { h: v.horizonte, np: r.nucleo, ip: r.integridad_min,
-                                  nh: h ? h.nucleo : '', ih: h ? h.integridad_min : '' });
+                                  nh: h ? h.nucleo : '', ih: h ? h.integridad_min : '' }) +
+        /* Decidio la XP: se ensena. */
+        (h && v.gana !== 'empate' && r.nucleo === h.nucleo && r.integridad_min === h.integridad_min ? ' · XP ' + h.xp + ' / ' + r.xp : '');
     p.hidden = false;
     D('voz', 'voz_juez_' + (v.alucinacion ? 'nulo' : v.gana));
   }
