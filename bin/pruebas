@@ -238,7 +238,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # tuberia (D68) con el motor de la web verificado por su huella, y se
           # mide contra la regla fija. Incluye el sabotaje: un byte tocado en el
           # motor y no juega. Entra en su MISMO commit (2026-09-28).
-          test_atlas_runner)
+          test_atlas_runner
+          # test_nodo_app: ¿este aparato es cuenta nodo? Lo dice la cedula del
+          # rack (nodos.py cedula), leida con el mismo codigo de vinculo que la
+          # web; una cedula tocada no pasa, y su autenticidad es NO_DATA porque
+          # no va firmada. Incluye el cruce con la cedula real del rack.
+          test_nodo_app)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
