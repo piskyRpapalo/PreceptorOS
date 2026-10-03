@@ -19,14 +19,19 @@
 // por quien lo acababa de leer. La marca `?v=` de las hojas no lo cubre: el
 // que se sirve de la cache es `/dashboard.html`, que no lleva marca, y es el
 // que arrastra a los demas.
-const Cache = "aurelius-armazon-v93";
+// v94 (2026-10-03): la consola soberana toca dashboard.html y trae dos piezas
+// nuevas, consola.css y consola.js, que entran en la lista con su `?v=`.
+const Cache = "aurelius-armazon-v94";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
                  // red no se dibuja ninguna rosa y el `catch` de compass.js se
                  // lo traga en silencio: la brujula desapareceria justo cuando
                  // el producto promete funcionar sin conexion.
-                 "/compass.css?v=39", "/compass.js?v=39", "/assets/compass.svg?v=39"];
+                 "/compass.css?v=39", "/compass.js?v=39", "/assets/compass.svg?v=39",
+                 // La consola: sin estas dos, sin red el home pediria piezas
+                 // que no estan y la barra no saldria.
+                 "/consola.css?v=1", "/consola.js?v=1"];
 
 self.addEventListener("install", (e) => {
   // skipWaiting: sin esto, el service worker nuevo espera a que se cierren

@@ -17,6 +17,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/dashboard.css?v=58">
 <link rel="stylesheet" href="/compass.css?v=39">
+<link rel="stylesheet" href="/consola.css?v=1">
 </head>
 <body>
 
@@ -89,6 +90,11 @@
 <p class="fusion" id="fusion" hidden>
   <span id="fusion-texto"></span><span class="puntos" id="puntos"></span>
 </p>
+
+<!-- La consola soberana: que hay en esta maquina, en una fila de pestanas
+     encima del chat. Solo lectura. La rellena `consola.js` desde
+     `/api/consola`; sin javascript se queda oculta y el chat no cambia. -->
+<nav class="consola" id="consola" aria-label="Consola soberana" hidden></nav>
 
 <main class="dice" id="dice" aria-live="polite"></main>
 
@@ -343,5 +349,6 @@
 
 <script src="/dashboard.js?v=49"></script>
 <script src="/compass.js?v=39"></script>
+<script src="/consola.js?v=1"></script>
 </body>
 </html>

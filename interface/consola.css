@@ -1,0 +1,53 @@
+/* consola.css · la barra de la consola soberana, encima del chat.
+   Usa los tokens de dashboard.css (--ink, --paper, --line...), asi que hereda
+   el tema claro/oscuro sin redefinir nada. Cerrada ocupa una fila de pestanas;
+   abierta, el panel flota encima del chat en vez de empujarlo: el chat sigue
+   siendo el protagonista y no salta de sitio al abrir un cajon. */
+.consola {
+  flex: none; position: relative; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: .3rem;
+  padding: .2rem .7rem; font-size: .8rem;
+}
+.consola[hidden] { display: none; }
+.consola-cajon { position: static; }
+.consola-titulo {
+  cursor: pointer; list-style: none;
+  padding: .2rem .55rem; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  min-height: 1.8rem; display: inline-flex; align-items: center;
+}
+.consola-titulo::-webkit-details-marker { display: none; }
+.consola-titulo:focus-visible,
+.consola-select:focus-visible,
+.consola-boton:focus-visible,
+.consola-enlace:focus-visible { outline: 2px solid var(--violeta, #6d5ae0); outline-offset: 2px; }
+.consola-cajon[open] > .consola-titulo { background: var(--violeta-hondo, #4c3fb5); color: #fff; }
+.consola-cuerpo {
+  position: absolute; left: .7rem; right: .7rem; top: 100%;
+  max-height: min(55vh, 26rem); overflow-y: auto;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radio, 16px);
+  box-shadow: var(--depth, 0 8px 32px rgba(36,26,53,.10));
+  padding: .6rem .8rem; backdrop-filter: blur(10px);
+}
+.consola-sub { font-size: .8rem; margin: .6rem 0 .2rem; color: var(--ink-soft); }
+.consola-sub:first-child { margin-top: 0; }
+.consola-lista { margin: 0; padding-left: 1.1rem; }
+.consola-lista li { margin: .15rem 0; }
+.consola-fila { display: flex; gap: .5rem; justify-content: space-between; padding: .1rem 0; }
+.consola-etq { color: var(--ink-soft); }
+.consola-val { text-align: right; overflow-wrap: anywhere; }
+/* El «no data» se ve distinto de un dato, y sigue siendo texto: ni gris invisible
+   ni barra vacia. Cursiva + color suave + el rotulo literal. */
+.consola-nd { font-style: italic; color: var(--ink-soft); }
+.consola-nota { font-size: .75rem; color: var(--ink-soft); margin: .2rem 0; }
+.consola-select { width: 100%; margin: .2rem 0 .4rem; font: inherit; padding: .3rem;
+  background: var(--fondo-centro, #fff); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; }
+.consola-detalle summary { cursor: pointer; margin: .3rem 0; }
+.consola-boton-nd { display: inline-flex; gap: .4rem; align-items: center; margin-left: .4rem; }
+.consola-boton { font: inherit; padding: .1rem .5rem; border-radius: 8px;
+  border: 1px dashed var(--line); background: transparent; color: var(--ink-soft); }
+.consola-boton[aria-disabled="true"] { cursor: not-allowed; }
+.consola-causa { font-size: .72rem; color: var(--ink-soft); }
+.consola-enlace { color: var(--violeta-fuerte, #3f3196); }
+@media (prefers-reduced-motion: reduce) { .consola-cuerpo { backdrop-filter: none; } }

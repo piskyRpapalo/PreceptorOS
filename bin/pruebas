@@ -243,7 +243,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # rack (nodos.py cedula), leida con el mismo codigo de vinculo que la
           # web; una cedula tocada no pasa, y su autenticidad es NO_DATA porque
           # no va firmada. Incluye el cruce con la cedula real del rack.
-          test_nodo_app)
+          test_nodo_app
+          # test_consola: la consola soberana del home (2026-10-03). SOLO
+          # LECTURA y sin socket (D68), comprobado sobre el arbol sintactico;
+          # la instantanea del rack rancia o ausente es NO_DATA entera. Lleva
+          # su propio sabotaje (`--sabotaje`), que corre con los demas abajo.
+          test_consola)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
@@ -257,7 +262,7 @@ echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 
 if [ "$RAPIDO" = "0" ]; then
   echo
   echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
-  for s in idioma fuga; do
+  for s in idioma fuga consola; do
     salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
     linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
     det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"

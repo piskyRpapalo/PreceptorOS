@@ -1,0 +1,192 @@
+{
+ "esquema": "preceptoros.companeros/1",
+ "estado": "PROPUESTA",
+ "fuente": "ids: encargo del agente app 2026-10-03 · nombres y rol: preceptoros-web public/agentes-es.json (OFICIAL, commit bcb57e5, sha256 83aee7bf…)",
+ "nota": "El personaje narra, no decide. Ninguna ficha lleva campos de decisión: consola.py los rechaza por lista blanca. Permisos y herramientas vacíos hasta que se firmen uno a uno.",
+ "companeros": [
+  {
+   "id": "instalador",
+   "nombre": "El Instalador",
+   "rol": "Te instala el producto y te presenta a los demás.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "privacidad",
+   "nombre": "El Aduanero",
+   "rol": "Tacha lo privado antes de que salga de tu aparato.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "escritor",
+   "nombre": "El Escritor",
+   "rol": "Escribe contigo: guiones, notas y textos largos.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "traductor",
+   "nombre": "El Traductor",
+   "rol": "Traduce en local, sin mandar el texto a ninguna nube.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "coder",
+   "nombre": "El Artesano",
+   "rol": "Lee tu código, propone el arreglo y escribe la prueba.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "analista",
+   "nombre": "El Analista",
+   "rol": "Mira números y trazas y te dice qué cambió.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "aprendiz",
+   "nombre": "El Aprendiz",
+   "rol": "Convierte lo que haces en memoria que puedes releer.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  },
+  {
+   "id": "bibliotecario",
+   "nombre": "El Bibliotecario",
+   "rol": "Ordena tu memoria: busca, enlaza y quita duplicados.",
+   "modelo_base": {
+    "estado": "NO_DATA",
+    "causa": "ningún modelo asignado ni medido para este compañero"
+   },
+   "adaptador": {
+    "estado": "NO_DATA",
+    "causa": "sin adaptador entrenado; irá al lado de la base, nunca encima"
+   },
+   "permisos": [],
+   "herramientas": [],
+   "paralelo": {
+    "estado": "NO_DATA",
+    "causa": "sin medición de cuántos caben a la vez en esta máquina"
+   },
+   "requiere_firma": {
+    "salida_externa": true,
+    "causa": "todo lo que salga del aparato lo firma la persona, una por una"
+   }
+  }
+ ]
+}

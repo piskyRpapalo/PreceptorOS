@@ -54,6 +54,7 @@ import cara as _cara                                        # noqa: E402
 import casa as _casa
 import version as _version
 import voz as _voz                                        # noqa: E402
+import consola as _consola                                  # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
@@ -221,6 +222,10 @@ ESTATICOS = {
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/compass.css": ("compass.css", "text/css; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
+    # La consola soberana: una barra de solo lectura encima del chat. Fichero
+    # propio y no dentro de dashboard.js, que ya pasa de 140 KB.
+    "/consola.css": ("consola.css", "text/css; charset=utf-8"),
+    "/consola.js": ("consola.js", "application/javascript; charset=utf-8"),
     "/manifest.json": ("manifest.json", "application/manifest+json"),
     "/sw.js": ("sw.js", "application/javascript; charset=utf-8"),
 }
@@ -275,6 +280,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._manifiesto()
         if ruta == "/api/cerebro":
             return self._cerebro_leer()
+        if ruta == "/api/consola":
+            return self._consola()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -557,6 +564,22 @@ class PWA(BaseHTTPRequestHandler):
     def _cerebro_leer(self):
         try:
             return self._json(200, _cerebro_paquete(self.server.modelo))
+        except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado",
+                                    "motivo": type(e).__name__})
+
+    def _consola(self):
+        """La consola soberana. SOLO LECTURA: ni escribe ni abre un socket.
+
+        Reusa `_cerebro_paquete` -- el mismo que sirve `/api/cerebro` -- para
+        que el home no pueda decir un cerebro y el turno usar otro. Y le pasa
+        `_ruta_visible`, para que las rutas de la consola sigan la misma regla
+        que las del tablero.
+        """
+        try:
+            return self._json(200, _consola.vista(
+                _cerebro_paquete(self.server.modelo), _casa.raiz(),
+                visible=_ruta_visible))
         except Exception as e:                      # nunca tumba el tablero
             return self._json(500, {"estado": "bloqueado",
                                     "motivo": type(e).__name__})
