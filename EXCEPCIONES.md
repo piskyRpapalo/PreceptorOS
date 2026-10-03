@@ -40,3 +40,22 @@ Total: **1**.
 
   Si esa orden devuelve un pragma que no está en la tabla, o la tabla tiene uno
   que la orden no devuelve, la tabla está mal y se arregla la tabla.
+
+## Excepciones de promesa (capacidades firmadas)
+
+Otra clase de excepción: no apaga una guardia del código, **acota una promesa pública**. Se
+registra aquí para que la promesa y su excepción se lean juntas.
+
+### Voz en web y app por motor de terceros · firmada 2026-10-04
+
+- **Firma:** Soberano, frase espontánea en sesión («acepto la voz en app y web, con nube de tercero declarada y killswitch»). DECLARADO: no es firma ed25519.
+- **Alcance:** reconocimiento de habla **por pulsación**, revocable, en `voz-web` y `voz-app`. Nunca escucha continua.
+- **Riesgo:** cuando el aparato no puede reconocer en local, el motor del navegador puede enviar el audio a un tercero (en Chrome, Google) que PreceptorOS no controla.
+- **Mitigación (ya en `preceptoros-web/public/assets/voice.js` desde el 2026-09-05):** primero en local (`processLocally`), sin preguntar, porque nada sale. La nube solo después de aceptar el trato dicho entero. El permiso dura **una sesión** (`sessionStorage`).
+- **Pendiente para cerrarla** (sin esto la excepción sigue PROPUESTA en esas partes):
+  - registro del sí con alcance, TTL, hash y fecha;
+  - indicador **sonoro** de micrófono abierto y cerrado;
+  - killswitch que **verifica** que el reconocimiento terminó, o declara el fallo;
+  - sabotajes en rojo: micrófono sin firma, killswitch que afirma sin verificar, página que promete «cero nube» usando el motor del tercero.
+- **Promesa reformulada:** «La página no hace peticiones externas al cargar. El micrófono web, si lo firmas, puede usar el motor del navegador y enviar audio a un tercero para transcribir. PreceptorOS no guarda tu audio salvo el texto que tú firmes.»
+- **Caducidad:** la del permiso, que es la sesión. La excepción se revisa si cambia el motor del navegador.
