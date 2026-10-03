@@ -37,6 +37,7 @@ import json
 import os
 import pathlib
 
+import decisor as _decisor
 import estado as _estado
 import guardrails as G
 
@@ -323,6 +324,21 @@ def thegame(raiz_repo=AQUI):
     }
 
 
+# --- decisor tier 1 ------------------------------------------------------------
+def decisor_tier1(raiz_repo=AQUI):
+    """Qué conjunto de reglas sugiere compañero, con su sello. La sugerencia
+    en sí la da `POST /api/decisor` sobre un texto; aquí solo se describe."""
+    try:
+        c = _decisor.cargar(os.path.join(raiz_repo, "reglas", "companeros.json"))
+    except _decisor.ReglasInvalidas as e:
+        return nd(f"reglas inválidas: {e}")
+    return {"estado": c.get("estado", "PROPUESTA"), "tarea": c.get("tarea"),
+            "version": c.get("version"), "sha256": c["sha256"],
+            "reglas": len(c.get("reglas") or []), "opciones": c["opciones"],
+            "score": nd(_decisor.CAUSA_SIN_PROB),
+            "regla": "la sugerencia no decide: elige la persona"}
+
+
 # --- juez de media -----------------------------------------------------------
 def juez_media():
     return {
@@ -460,6 +476,7 @@ def vista(cerebro_paquete, raiz_casa, raiz_ollama=None, ahora=None,
         "modelos": lambda: {"producto": modelos_producto(cerebro_paquete),
                             "pc": modelos_pc(raiz_ollama, visible)},
         "companeros": lambda: companeros(raiz_repo),
+        "decisor": lambda: decisor_tier1(raiz_repo),
         "thegame": lambda: thegame(raiz_repo),
         "juez_media": juez_media,
         "rack": lambda: rack(raiz_casa, ahora, visible),

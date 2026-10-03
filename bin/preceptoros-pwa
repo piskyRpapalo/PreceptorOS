@@ -55,6 +55,7 @@ import casa as _casa
 import version as _version
 import voz as _voz                                        # noqa: E402
 import consola as _consola                                  # noqa: E402
+import decisor as _decisor                                  # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
@@ -367,6 +368,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._perfil_guardar(datos)
         if ruta == "/api/proyectos":
             return self._proyectos_guardar(datos)
+        if ruta == "/api/decisor":
+            return self._decisor(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
 
     # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del
@@ -580,6 +583,31 @@ class PWA(BaseHTTPRequestHandler):
             return self._json(200, _consola.vista(
                 _cerebro_paquete(self.server.modelo), _casa.raiz(),
                 visible=_ruta_visible))
+        except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado",
+                                    "motivo": type(e).__name__})
+
+    def _decisor(self, datos):
+        """La sugerencia del tier 1: ¿qué compañero contestaría este texto?
+
+        POST y no GET a proposito: el texto de la persona en la URL acabaria en
+        el registro del servidor. No se guarda nada: entra un texto, sale una
+        decision tipada y la frase que la cuenta. La sugerencia NO decide; la
+        interfaz la ensena y quien elige es la persona.
+        """
+        texto = datos.get("texto") if isinstance(datos, dict) else None
+        if not isinstance(texto, str) or not texto.strip() or len(texto) > 4000:
+            return self._json(400, {"estado": "bloqueado",
+                                    "motivo": "hace falta un texto de 1 a 4000 caracteres"})
+        try:
+            fichas = _consola.companeros()["fichas"]
+            opciones = [f["id"] for f in fichas]
+            decision = _decisor.decidir({"texto": texto}, opciones)
+            return self._json(200, {
+                "decision": decision,
+                "narracion": _decisor.narrar(decision, fichas),
+                "forma_valida": _decisor.valida_salida(decision, opciones) == [],
+                "elige": "la persona"})
         except Exception as e:                      # nunca tumba el tablero
             return self._json(500, {"estado": "bloqueado",
                                     "motivo": type(e).__name__})

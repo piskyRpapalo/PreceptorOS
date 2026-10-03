@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""sellar-reglas · recalcula el sha256 de un conjunto de reglas del decisor.
+
+Uso:  bin/sellar-reglas reglas/companeros.json
+
+Vive en `bin/` y no en `decisor.py` a proposito: el decisor SOLO LEE su tabla.
+Sellar es escribir, y escribir una regla es un acto de quien la propone --
+con su replay en verde (`python3 -m unittest test_decisor`) antes de sellar.
+"""
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import decisor  # noqa: E402
+
+if len(sys.argv) != 2:
+    sys.exit(__doc__)
+ruta = sys.argv[1]
+with open(ruta, encoding="utf-8") as fh:
+    conjunto = json.load(fh)
+conjunto["sha256"] = decisor.sellar(conjunto)
+decisor.validar(conjunto)
+parcial = ruta + ".partial"
+with open(parcial, "w", encoding="utf-8") as fh:
+    fh.write(json.dumps(conjunto, ensure_ascii=False, indent=1) + "\n")
+os.replace(parcial, ruta)
+print(conjunto["sha256"])

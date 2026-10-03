@@ -136,6 +136,48 @@
     (comp.rechazadas || []).forEach(function (r) {
       c.appendChild(el("p", "consola-nd", "Ficha rechazada " + (r.id || "?") + ": " + r.causa));
     });
+    sugerencia(c, v.decisor);
+  }
+
+  // La sugerencia del tier 1. No decide: ensena una decision tipada y su
+  // frase. Elige la persona, siempre -- por eso aqui no hay boton de aceptar.
+  function sugerencia(c, dec) {
+    c.appendChild(el("h3", "consola-sub", "Sugerencia del tier 1" +
+      (dec && !esNoData(dec) ? " (" + dec.estado + ", " + dec.reglas + " reglas)" : "")));
+    if (!dec || esNoData(dec)) { c.appendChild(el("p", "consola-nd", valor(dec))); return; }
+    var f = el("form", "consola-sugerir");
+    var lab = el("label", "consola-etq", "Mensaje");
+    lab.htmlFor = "consola-sug-texto";
+    var inp = el("input", "consola-select");
+    inp.id = "consola-sug-texto"; inp.type = "text"; inp.maxLength = 4000;
+    inp.autocomplete = "off";
+    var b = el("button", "consola-boton consola-boton-vivo", "Sugerir");
+    b.type = "submit";
+    var sal = el("div", "consola-salida");
+    sal.setAttribute("role", "status");
+    sal.setAttribute("aria-live", "polite");
+    f.appendChild(lab); f.appendChild(inp); f.appendChild(b);
+    c.appendChild(f); c.appendChild(sal);
+    c.appendChild(el("p", "consola-nota", dec.regla + " · reglas " + String(dec.sha256).slice(0, 19) + "…"));
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var dicho = document.getElementById("dicho");
+      var texto = inp.value || (dicho ? dicho.value : "");
+      sal.textContent = "";
+      if (!texto.trim()) { sal.appendChild(el("p", "consola-nd", "Escribe un mensaje primero.")); return; }
+      fetch("/api/decisor", { method: "POST", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ texto: texto }) })
+        .then(function (r) { if (!r.ok) throw new Error("el servidor respondió " + r.status); return r.json(); })
+        .then(function (res) {
+          var d = res.decision || {};
+          sal.appendChild(el("p", d.noul ? "consola-nd" : null, res.narracion));
+          sal.appendChild(fila("Se abstiene (noul)", !!d.noul));
+          var nds = (d.no_data || []).filter(function (x) { return x.campo === "score"; });
+          sal.appendChild(fila("Score", d.score === null ? { estado: ND, causa: (nds[0] || {}).causa } : d.score));
+          sal.appendChild(fila("Reglas que casaron", d.judge && d.judge.regla ? d.judge.regla : "ninguna"));
+        })
+        .catch(function (e) { sal.appendChild(el("p", "consola-nd", ND + " · " + (e && e.message ? e.message : "sin respuesta"))); });
+    });
   }
 
   function modelos(c, v) {

@@ -1,0 +1,128 @@
+{
+ "esquema": "preceptoros.reglas-decisor/1",
+ "tarea": "enrutado-companeros",
+ "version": 1,
+ "estado": "PROPUESTA",
+ "nota": "Reglas por oficio, sobre texto en minusculas y sin tildes. Una regla nueva entra solo si el replay de reglas/companeros.golden.jsonl no empeora ningun caso. Se sella con bin/sellar-reglas.",
+ "opciones": [
+  "instalador",
+  "privacidad",
+  "escritor",
+  "traductor",
+  "coder",
+  "analista",
+  "aprendiz",
+  "bibliotecario"
+ ],
+ "reglas": [
+  {
+   "id": "instalar",
+   "patron": "\\binstal",
+   "opcion": "instalador",
+   "peso": 2
+  },
+  {
+   "id": "configurar",
+   "patron": "\\bconfigur",
+   "opcion": "instalador",
+   "peso": 1
+  },
+  {
+   "id": "arrancar",
+   "patron": "\\barranc",
+   "opcion": "instalador",
+   "peso": 1
+  },
+  {
+   "id": "install",
+   "patron": "\\b(install|setup)\\b",
+   "opcion": "instalador",
+   "peso": 2
+  },
+  {
+   "id": "privacidad",
+   "patron": "\\bprivad|\\bprivacidad|\\bprivacy",
+   "opcion": "privacidad",
+   "peso": 2
+  },
+  {
+   "id": "tachar",
+   "patron": "\\btach|\\bsecreto|\\bcontrasen|\\bpassword|datos personales",
+   "opcion": "privacidad",
+   "peso": 2
+  },
+  {
+   "id": "escribir",
+   "patron": "\\bescrib|\\bescrit",
+   "opcion": "escritor",
+   "peso": 1
+  },
+  {
+   "id": "texto-largo",
+   "patron": "\\bguion|\\bensayo|\\bcarta\\b|\\barticulo|\\bcapitulo|\\bcuento|\\bwrite\\b|\\bdraft",
+   "opcion": "escritor",
+   "peso": 2
+  },
+  {
+   "id": "traducir",
+   "patron": "\\btradu|\\btranslat",
+   "opcion": "traductor",
+   "peso": 3
+  },
+  {
+   "id": "idioma-destino",
+   "patron": "\\bal (ingles|espanol|frances|aleman|italiano|portugues|ruso|griego|arabe)\\b",
+   "opcion": "traductor",
+   "peso": 2
+  },
+  {
+   "id": "codigo",
+   "patron": "\\bcodigo\\b|\\bcode\\b|\\bscript|\\bfuncion\\b|\\bbug\\b|\\bcompila|\\bpython\\b|\\bjavascript\\b",
+   "opcion": "coder",
+   "peso": 2
+  },
+  {
+   "id": "test",
+   "patron": "\\btests?\\b|\\bprueba unitaria|\\bpruebas unitarias",
+   "opcion": "coder",
+   "peso": 2
+  },
+  {
+   "id": "numeros",
+   "patron": "\\bnumeros?\\b|\\bcifras?\\b|\\bmetricas?\\b|\\bestadistic|\\bgrafic",
+   "opcion": "analista",
+   "peso": 2
+  },
+  {
+   "id": "trazas",
+   "patron": "\\btrazas?\\b|\\blogs?\\b|\\bque cambio\\b|\\bcompara",
+   "opcion": "analista",
+   "peso": 2
+  },
+  {
+   "id": "aprender",
+   "patron": "\\baprend|\\bensena|\\blearn",
+   "opcion": "aprendiz",
+   "peso": 2
+  },
+  {
+   "id": "releer",
+   "patron": "\\bapuntes?\\b|\\breleer|\\bque hice\\b|\\bdiario\\b",
+   "opcion": "aprendiz",
+   "peso": 2
+  },
+  {
+   "id": "buscar-memoria",
+   "patron": "\\bbusca\\w* en (mi|la) memoria|\\brecuerd\\w* donde",
+   "opcion": "bibliotecario",
+   "peso": 3
+  },
+  {
+   "id": "ordenar",
+   "patron": "\\bordena|\\bduplicad|\\benlaz|\\betiquet|\\barchiv",
+   "opcion": "bibliotecario",
+   "peso": 2
+  }
+ ],
+ "sha256": "sha256:726c33058660faa9667aad70462a4dc8574b3a2c51d5d0c91bb859bb6a3da0d2"
+}

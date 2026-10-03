@@ -448,11 +448,17 @@ class TestPuerta(Base):
     def test_la_cara_no_manda_ni_guarda_nada(self):
         js = open(os.path.join(AQUI, "interface", "consola.js"), encoding="utf-8").read()
         for prohibido in ("innerHTML", "outerHTML", "insertAdjacentHTML", "localStorage",
-                          "sessionStorage", "XMLHttpRequest", "WebSocket", "method:",
-                          "eval(", "document.write"):
+                          "sessionStorage", "XMLHttpRequest", "WebSocket",
+                          "eval(", "document.write", "sendBeacon"):
             self.assertNotIn(prohibido, js, prohibido)
-        self.assertEqual(js.count("fetch("), 1)
-        self.assertIn('fetch("/api/consola"', js)
+        import re
+        # Lista CERRADA de puertas a las que habla la barra. Una nueva entra
+        # aqui a mano, en su mismo commit -- no se cuela.
+        destinos = re.findall(r'fetch\("([^"]+)"', js)
+        self.assertEqual(len(destinos), js.count("fetch("), "un fetch sin destino literal")
+        self.assertLessEqual(set(destinos), {"/api/consola", "/api/decisor"})
+        # El unico POST es el del decisor, que no guarda nada.
+        self.assertEqual(js.count('method: "POST"'), 1)
         self.assertIn('aria-disabled', js)
 
 

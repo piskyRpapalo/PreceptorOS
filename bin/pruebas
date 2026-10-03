@@ -248,7 +248,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # LECTURA y sin socket (D68), comprobado sobre el arbol sintactico;
           # la instantanea del rack rancia o ausente es NO_DATA entera. Lleva
           # su propio sabotaje (`--sabotaje`), que corre con los demas abajo.
-          test_consola)
+          test_consola
+          # test_decisor: el tier 1 por reglas (2026-10-04). Elige de la tabla
+          # o dice NO_DATA; un empate jamas se desempata por orden; reglas sin
+          # sha256 no se usan; el personaje narra y no toca la decision; el
+          # replay del golden frena la regla que empeora. Con su `--sabotaje`.
+          test_decisor)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
@@ -262,7 +267,7 @@ echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 
 if [ "$RAPIDO" = "0" ]; then
   echo
   echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
-  for s in idioma fuga consola; do
+  for s in idioma fuga consola decisor; do
     salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
     linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
     det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"

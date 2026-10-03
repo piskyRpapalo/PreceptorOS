@@ -51,3 +51,7 @@
 .consola-causa { font-size: .72rem; color: var(--ink-soft); }
 .consola-enlace { color: var(--violeta-fuerte, #3f3196); }
 @media (prefers-reduced-motion: reduce) { .consola-cuerpo { backdrop-filter: none; } }
+.consola-sugerir { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+.consola-sugerir .consola-select { flex: 1 1 12rem; width: auto; margin: 0; }
+.consola-boton-vivo { border-style: solid; color: var(--ink); cursor: pointer; }
+.consola-salida { margin-top: .3rem; }
