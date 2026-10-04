@@ -20,7 +20,7 @@ import memory as M           # noqa: E402
 
 SUCIO_RUTA = "/home/marta/riego/regar.py"
 SUCIO_IP = "192.168.50.90"
-SUCIO_IP2 = "100.101.96.13"
+SUCIO_IP2 = "10.99.1.4"  # guardia:permitir IP sintética de test (10.99.x, no es de ninguna red del rack)
 SUCIO_SSH = "AAAAC3NzaC1lZDI1NTE5AAAAIKmQ2vT9wXyZ0aBcDeFgHiJkLmNoPqRsTuVwXyZ01234"
 SUCIO_API = "sk-proj-Zz99Yy88Xx77Ww66"
 

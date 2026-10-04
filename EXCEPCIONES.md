@@ -46,7 +46,7 @@ Total: **1**.
 Otra clase de excepción: no apaga una guardia del código, **acota una promesa pública**. Se
 registra aquí para que la promesa y su excepción se lean juntas.
 
-### Voz en web y app por motor de terceros · firmada 2026-10-04
+### Voz en web y app por motor de terceros · PENDIENTE (frase de estado del Soberano, sin firma criptográfica)
 
 - **Firma:** Soberano, frase espontánea en sesión («acepto la voz en app y web, con nube de tercero declarada y killswitch»). DECLARADO: no es firma ed25519.
 - **Alcance:** reconocimiento de habla **por pulsación**, revocable, en `voz-web` y `voz-app`. Nunca escucha continua.

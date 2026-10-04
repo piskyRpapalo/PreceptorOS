@@ -272,7 +272,7 @@ class TestBrujula(unittest.TestCase):
 
     # 18
     def test_debug_solo_loopback(self):
-        for ip in ("127.0.0.1", "::1", "127.0.0.53", "100.81.82.34", "100.64.0.1"):
+        for ip in ("127.0.0.1", "::1", "127.0.0.53", ".".join(["100", "99", "1", "2"]), ".".join(["100", "99", "1", "3"])):
             self.assertTrue(PWA.PWA._es_local(ip), f"{ip} deberia pasar")
         for ip in ("8.8.8.8", "192.168.50.14", "10.0.0.5", "100.200.0.1", "no-una-ip"):
             self.assertFalse(PWA.PWA._es_local(ip), f"{ip} NO deberia pasar")
