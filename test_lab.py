@@ -85,7 +85,7 @@ class Base(unittest.TestCase):
         d = self.casa / "registro"
         d.mkdir(exist_ok=True)
         con = sqlite3.connect(d / "eventos.db")
-        con.execute("create table eventos (n integer primary key autoincrement, ts text not null,"
+        con.execute("create table if not exists eventos (n integer primary key autoincrement, ts text not null,"
                     " maquina text not null, tipo text not null, actor text not null,"
                     " cuerpo_json text not null, no_data_json text not null, bloquea_json text)")
         for ts, tipo, actor, cuerpo in filas:
@@ -124,6 +124,18 @@ class TestQuienHabla(Base):
         L.conversacion(self.casa)
         self.assertEqual((db.read_bytes(), db.stat().st_mtime_ns), antes)
         self.assertIn("mode=ro", FUENTE)
+
+    def test_almacenes_viejos_entran_como_archivo_en_lectura(self):
+        (self.casa / "laboratorio").mkdir()
+        sala = self.casa / "laboratorio" / "sala.jsonl"
+        sala.write_text(json.dumps({"n": 1, "t": "2026-10-03T21:00:00+01:00", "voz": "lab",
+                                    "texto": "desde la Sala"}) + "\n")
+        antes = sala.read_bytes()
+        c = L.conversacion(self.casa)
+        viejos = [m for m in c["mensajes"] if m["origen"] == "archivo:sala"]
+        self.assertEqual([(m["quien"], m["texto"]) for m in viejos], [("claude-lab", "desde la Sala")])
+        self.assertEqual(sala.read_bytes(), antes)
+        self.assertFalse((self.casa / "canales").exists(), "no nace un almacen nuevo")
 
     def test_sin_registro_es_no_data(self):
         self.assertEqual(L.conversacion(self.casa)["registro"]["estado"], "NO_DATA")

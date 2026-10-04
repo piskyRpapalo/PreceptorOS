@@ -1,34 +1,33 @@
 #!/usr/bin/env python3
-"""canales.py · canales entre agentes, como ficheros de solo añadir. Sin sockets.
+"""canales.py · el adaptador de la app sobre el canal ÚNICO: `eventos.db` del registro.
 
-**Solo biblioteca estándar.**
+**Solo biblioteca estándar. Sin sockets.**
 
-POR QUÉ EXISTE
---------------
-Los agentes (app, web, lab, el orquestador) se hablaban por la Sala, un
-servidor con su puerto. Un canal no necesita un puerto: necesita un sitio donde
-añadir una línea y de donde leerla. Aquí un canal ES un fichero
-`<casa>/canales/<canal>.jsonl`, una línea por mensaje, y nada más.
+POR QUÉ CAMBIÓ (2026-10-04, regla de unificación del Soberano)
+---------------------------------------------------------------
+Este módulo nació escribiendo sus propios `<casa>/canales/<canal>.jsonl`, y eso
+hacía cuatro canales de mensajes en la misma casa (la Sala, el Acta, estos
+ficheros y el registro). El canal canónico es UNO: `<casa>/registro/eventos.db`,
+de solo anexar, saneado, y que leen todos los agentes. Así que esto ya no es un
+almacén: es la VISTA de la app sobre ese canal. Un mensaje es un evento de tipo
+`mensaje` cuyo cuerpo dice en qué hilo va (orquesta, app, web, lab). Los
+`.jsonl` viejos quedan como archivo, en lectura.
 
-    python3 canales.py di <canal> <voz> "texto" [--sello S] [--rol R] [--maquina JSON]
-    python3 canales.py lee <canal> [--desde N]
+    python3 canales.py di <hilo> <voz> "texto" [--sello S] [--rol R] [--maquina JSON]
+    python3 canales.py lee <hilo> [--desde N]
 
-LAS REGLAS, Y POR QUÉ
----------------------
-* **Un canal no es autoridad.** Un mensaje no concede permisos, no cuenta como
-  firma y no cambia nada del estado, del ledger ni de los interruptores, diga
-  lo que diga su texto. Este módulo no importa nada que pueda cambiarlos: la
-  frontera es lo que NO está importado, y una prueba lo comprueba.
-* **La voz `soberano` no se toma, se tiene.** Ningún agente escribe con ella:
-  `di()` la rechaza siempre. Solo `di_soberano()` la usa, y solo la llama la
-  puerta de la app a la que la persona escribe desde su pantalla.
-* **Nada sale sin pasar por guardrails.** Texto, rol y cada texto de `maquina`
-  pasan por `redactar_salida` antes de tocar el disco. Si el filtro no puede
-  terminar, no se escribe: falla cerrado.
-* **Una línea entera o ninguna.** Se escribe bajo `flock` exclusivo, con `n`
-  = último `n` + 1 leído bajo ese mismo cerrojo, en una sola llamada `write`
-  sobre un fichero en modo añadir. Dos escritores a la vez no se pisan ni
-  repiten número.
+LAS GARANTÍAS, QUE NO CAMBIAN
+-----------------------------
+* **Un mensaje no es autoridad.** No concede permisos ni cuenta como firma. Este
+  módulo solo toca la tabla `eventos`; la base de autoridad no la nombra.
+* **El actor `soberano` no se toma, se tiene.** `di()` lo rechaza siempre, con
+  mayúsculas, tildes o un cero por o. Solo `di_soberano()` lo usa, y solo la
+  llama la puerta de la app a la que escribe la persona.
+* **Nada entra sin pasar por guardrails**, y después por los patrones privados
+  del registro: si aún quedara algo privado, no se anexa (falla cerrado).
+* **Una fila entera o ninguna.** Se anexa bajo `flock` exclusivo sobre el
+  fichero de la base y dentro de una transacción inmediata de SQLite; el `n`
+  lo da la propia tabla. Dos escritores a la vez no se pisan.
 """
 from __future__ import annotations
 
@@ -37,6 +36,7 @@ import datetime as _dt
 import json
 import os
 import re
+import sqlite3
 import sys
 import unicodedata
 from pathlib import Path
@@ -44,57 +44,104 @@ from pathlib import Path
 import casa as _casa
 import guardrails as G
 
-# `fcntl` es POSIX. Sin el no hay cerrojo, y sin cerrojo no se escribe: leer
-# sigue funcionando (la app no deja de arrancar en otra plataforma), escribir
-# se rechaza con su causa en vez de arriesgar dos lineas con el mismo `n`.
 try:
     import fcntl
 except ImportError:                                  # pragma: no cover
     fcntl = None
 
-ESQUEMA = "preceptoros.canal/1"
-CANALES = ("orquesta", "app", "web", "lab")
+ESQUEMA = "preceptoros.canal/2"
+TIPO = "mensaje"
+CANALES = ("orquesta", "app", "web", "lab")          # hilos dentro del canal único
 SELLOS = ("MEDIDO", "EMULADO", "NO_DATA", "PROPUESTA", "REQUIERE_FIRMA", "DECLARADO")
 VOZ_RESERVADA = "soberano"
-_VOZ = re.compile(r"^[a-z][a-z0-9_-]{0,31}$")
+_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,60}$")     # el mismo `SLUG` del registro
 TOPE_TEXTO = 8000
 TOPE_MAQUINA = 4000
-TOPE_LECTURA = 200          # mensajes por lectura: un canal no se vuelca entero
+TOPE_LECTURA = 200
+
+# Los mismos patrones que el registro usa para rechazar lo privado. Copia
+# DECLARADA (el registro vive fuera de este repo público): test_canales cruza
+# las dos listas cuando el registro está en la máquina.
+PRIVADO = [
+    (re.compile(r"\b100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d{1,3}\.\d{1,3}\b"), "IP de la tailnet"),
+    (re.compile(r"/home/[A-Za-z0-9_.-]+"), "ruta /home/<usuario>"),
+    (re.compile(r"ssh-(ed25519|rsa|ecdsa)\S*\s+AAAA"), "clave SSH"),
+    (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "clave privada"),
+    (re.compile(r"ed25519:[1-9A-HJ-NP-Za-km-z]{40,}"), "clave NEAR"),
+]
+
+# El esquema de la tabla, idéntico al del registro, por si la casa aún no lo
+# tiene. Solo `create ... if not exists`: nunca se altera una tabla que exista.
+ESQUEMA_EVENTOS = """
+create table if not exists eventos (
+  n            integer primary key autoincrement,
+  ts           text not null,
+  maquina      text not null,
+  tipo         text not null,
+  actor        text not null,
+  cuerpo_json  text not null,
+  no_data_json text not null,
+  bloquea_json text
+);
+create trigger if not exists eventos_sin_update before update on eventos
+  begin select raise(abort, 'canal: solo anexar'); end;
+create trigger if not exists eventos_sin_delete before delete on eventos
+  begin select raise(abort, 'canal: se archiva, no se borra'); end;
+"""
+
+
+_REGISTRO = {}
+
+
+def _registro():
+    """El módulo del Registro Único, si esta máquina lo tiene y ya conoce el tipo
+    `mensaje`. Vive fuera de este repo público: se busca en PRECEPTOROS_REGISTRO_PY
+    o en su sitio del rack. Sin él, el adaptador anexa con el mismo esquema."""
+    ruta = os.environ.get("PRECEPTOROS_REGISTRO_PY") or str(Path.home() / "p0x" / "registro" / "registro.py")
+    if ruta in _REGISTRO:
+        return _REGISTRO[ruta]
+    mod = None
+    if os.path.isfile(ruta):
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("registro_unico", ruta)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            if TIPO not in getattr(mod, "TIPOS_EVENTO", ()):
+                mod = None
+        except Exception:
+            mod = None
+    _REGISTRO[ruta] = mod
+    return mod
 
 
 class CanalRechazado(ValueError):
-    """El mensaje no se escribe. La causa va en el texto de la excepción."""
+    """El mensaje no se anexa. La causa va en el texto de la excepción."""
 
 
-def directorio(base=None):
-    return Path(base or _casa.raiz()) / "canales"
+def ruta_canal(base=None):
+    return Path(base or _casa.raiz()) / "registro" / "eventos.db"
 
 
-def ruta(canal, base=None):
+def _hilo(canal):
     if canal not in CANALES:
-        raise CanalRechazado(f"canal desconocido: {canal!r} (son {', '.join(CANALES)})")
-    return directorio(base) / f"{canal}.jsonl"
-
-
-def _normal(voz):
-    t = unicodedata.normalize("NFKD", str(voz or "")).lower().strip()
-    return "".join(c for c in t if not unicodedata.combining(c))
+        raise CanalRechazado(f"hilo desconocido: {canal!r} (son {', '.join(CANALES)})")
+    return canal
 
 
 def es_soberano(voz):
-    """«Soberano», « soberano », «Sóberano»: todas son la misma voz reservada."""
-    return _normal(voz).replace("0", "o") == VOZ_RESERVADA
+    t = unicodedata.normalize("NFKD", str(voz or "")).lower().strip()
+    t = "".join(c for c in t if not unicodedata.combining(c))
+    return t.replace("0", "o") == VOZ_RESERVADA
 
 
 def _limpio(texto, casa):
-    """Redacción de guardrails + la casa fuera. Falla cerrado."""
     if casa and casa != "/" and casa in texto:
         texto = texto.replace(casa, "~")
     try:
-        tachado, _h = G.redactar_salida(texto)
-    except Exception as e:                       # el filtro no terminó: no hay escritura
+        return G.redactar_salida(texto)[0]
+    except Exception as e:                           # el filtro no terminó: no hay escritura
         raise CanalRechazado(f"el filtro no pudo terminar ({type(e).__name__})") from None
-    return tachado
 
 
 def _limpia_maquina(valor, casa):
@@ -109,36 +156,8 @@ def _limpia_maquina(valor, casa):
     return _limpio(str(valor), casa)
 
 
-def _ultimo_n(fh):
-    """El `n` de la última línea legible. Se lee bajo el cerrojo."""
-    fh.seek(0, os.SEEK_END)
-    tam = fh.tell()
-    trozo = min(tam, 64 * 1024)
-    fh.seek(tam - trozo)
-    # En binario: un salto a mitad de un caracter UTF-8 no puede romper la
-    # lectura; la primera linea del trozo puede salir cortada y se salta.
-    for linea in reversed(fh.read(trozo).decode("utf-8", "replace").splitlines()):
-        try:
-            n = json.loads(linea).get("n")
-        except (ValueError, AttributeError):
-            continue
-        if isinstance(n, int):
-            return n
-    if tam > trozo:                              # cola sin nada legible: se recorre entero
-        fh.seek(0)
-        ultimo = 0
-        for linea in fh:
-            try:
-                n = json.loads(linea.decode("utf-8", "replace")).get("n")
-            except (ValueError, AttributeError):
-                continue
-            if isinstance(n, int):
-                ultimo = n
-        return ultimo
-    return 0
-
-
-def _escribir(canal, voz, texto, sello, rol, maquina, base):
+def _anexar(canal, actor, texto, sello, rol, maquina, base):
+    hilo = _hilo(canal)
     if not isinstance(texto, str) or not texto.strip():
         raise CanalRechazado("hace falta texto")
     if len(texto) > TOPE_TEXTO:
@@ -153,87 +172,147 @@ def _escribir(canal, voz, texto, sello, rol, maquina, base):
     if fcntl is None:
         raise CanalRechazado("esta plataforma no tiene flock: sin cerrojo no se escribe")
     casa = os.path.expanduser("~")
-    destino = ruta(canal, base)
-    mensaje = {
-        "canal": canal, "voz": voz,
-        "rol": _limpio(str(rol or ""), casa)[:120],
-        "texto": _limpio(texto, casa),
-        "maquina": _limpia_maquina(maquina, casa),
-        "sello": sello,
-    }
+    cuerpo = {"hilo": hilo, "texto": _limpio(texto, casa),
+              "rol": _limpio(str(rol or ""), casa)[:120], "sello": sello,
+              "maquina": _limpia_maquina(maquina, casa)}
+    crudo = json.dumps(cuerpo, ensure_ascii=False, sort_keys=True)
+    for patron, que in PRIVADO:                       # segunda puerta, la del registro
+        if patron.search(crudo):
+            raise CanalRechazado(f"lleva {que}: el canal no guarda lo privado")
+    destino = ruta_canal(base)
     destino.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    fd = os.open(destino, os.O_RDWR | os.O_APPEND | os.O_CREAT, 0o600)
-    with os.fdopen(fd, "r+b") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
-        try:
-            n = _ultimo_n(fh) + 1
-            t = _dt.datetime.now().astimezone().isoformat(timespec="seconds")
-            linea = json.dumps({"n": n, "t": t, **mensaje}, ensure_ascii=False) + "\n"
-            fh.seek(0, os.SEEK_END)
-            fh.write(linea.encode("utf-8"))       # una sola escritura, en modo añadir
-            fh.flush()
-            os.fsync(fh.fileno())
-        finally:
-            fcntl.flock(fh, fcntl.LOCK_UN)
-    return {"n": n, "t": t, **mensaje}
+    ts = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    no_data = [{"campo": "bloquea", "causa": "el adaptador de la app no calcula bloqueos"}]
+    # Solo se pasa por el registro si su canal YA existe: `Registro.inicializar`
+    # crearía también la base de autoridad, y la app no crea nada ahí.
+    reg = _registro() if destino.is_file() else None
+    fd = os.open(destino, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        if reg is not None:
+            r = reg.Registro(destino.parent).anexar_evento(TIPO, actor, cuerpo)
+            if r.get("estado") != "OK":
+                raise CanalRechazado(f"el registro no lo anexó: {r.get('causa')}")
+            filas = _filas(base, "select n, ts from eventos where tipo = ? and actor = ? and cuerpo_json = ?"
+                                 " order by n desc limit 1", (TIPO, actor, crudo))
+            if not filas:
+                raise CanalRechazado("el registro dijo OK y la fila no aparece")
+            (n, ts), via = filas[0], "registro.anexar_evento"
+        else:
+            con = sqlite3.connect(destino, timeout=30, isolation_level=None)
+            try:
+                con.executescript(ESQUEMA_EVENTOS)
+                con.execute("begin immediate")
+                cur = con.execute(
+                    "insert into eventos (ts, maquina, tipo, actor, cuerpo_json, no_data_json, bloquea_json)"
+                    " values (?,?,?,?,?,?,NULL)",
+                    (ts, os.uname().nodename, TIPO, actor, crudo, json.dumps(no_data, ensure_ascii=False)))
+                n = cur.lastrowid
+                con.execute("commit")
+            finally:
+                con.close()
+            via = "adaptador (mismo esquema; registro.py no disponible aquí)"
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
+    return {"n": n, "t": ts, "canal": hilo, "voz": actor, "via": via,
+            **{k: cuerpo[k] for k in ("rol", "texto", "maquina", "sello")}}
 
 
 def di(canal, voz, texto, sello="DECLARADO", rol="", maquina=None, base=None):
-    """Un agente escribe en un canal. Nunca con la voz `soberano`."""
+    """Un agente anexa un mensaje. Nunca con el actor `soberano`."""
     if not isinstance(voz, str) or es_soberano(voz):
         raise CanalRechazado("la voz soberano no la toma ningún agente")
-    if not _VOZ.match(voz):
-        raise CanalRechazado("la voz es un nombre corto en minúsculas ([a-z][a-z0-9_-]*)")
-    return _escribir(canal, voz, texto, sello, rol, maquina, base)
+    if not _SLUG.match(voz):
+        raise CanalRechazado("el actor es un slug en minúsculas ([a-z0-9][a-z0-9-]*)")
+    return _anexar(canal, voz, texto, sello, rol, maquina, base)
 
 
 def di_soberano(canal, texto, sello="DECLARADO", base=None):
     """La persona escribe desde la app. Solo la llama la puerta de la PWA.
+    Tampoco esto concede nada: una frase no es una firma."""
+    return _anexar(canal, VOZ_RESERVADA, texto, sello, "persona", {"via": "app"}, base)
 
-    Tampoco esto concede nada: un mensaje del Soberano en un canal es una
-    frase, no una firma. Las firmas viven donde viven (ledger, interruptores,
-    ritual), y este módulo no las toca.
-    """
-    return _escribir(canal, VOZ_RESERVADA, texto, sello, "persona", {"via": "app"}, base)
+
+def _filas(base, sql, args):
+    destino = ruta_canal(base)
+    if not destino.is_file():
+        return None
+    con = sqlite3.connect(f"file:{destino}?mode=ro", uri=True, timeout=5)
+    try:
+        return con.execute(sql, args).fetchall()
+    finally:
+        con.close()
 
 
 def lee(canal, desde=0, base=None, tope=TOPE_LECTURA):
-    """{canal, mensajes, corruptas, ultimo}. Una línea rota se cuenta, no se pinta."""
-    destino = ruta(canal, base)
-    mensajes, corruptas, ultimo = [], 0, 0
+    """{canal, mensajes, corruptas, ultimo}. Solo lectura (mode=ro)."""
+    hilo = _hilo(canal)
     try:
-        with open(destino, "r", encoding="utf-8") as fh:
-            for linea in fh:
-                try:
-                    m = json.loads(linea)
-                except ValueError:
-                    corruptas += 1
-                    continue
-                if not isinstance(m, dict) or not isinstance(m.get("n"), int):
-                    corruptas += 1
-                    continue
-                ultimo = max(ultimo, m["n"])
-                if m["n"] > desde:
-                    mensajes.append(m)
-    except FileNotFoundError:
-        return {"canal": canal, "estado": "NO_DATA", "causa": "el canal aún no tiene mensajes",
+        filas = _filas(base, "select n, ts, actor, cuerpo_json from eventos where tipo = ?"
+                             " order by n", (TIPO,))
+    except sqlite3.Error as e:
+        return {"canal": hilo, "estado": "NO_DATA", "causa": f"el canal no se pudo leer ({type(e).__name__})",
                 "mensajes": [], "corruptas": 0, "ultimo": 0}
-    return {"canal": canal, "estado": "MEDIDO", "mensajes": mensajes[-tope:],
-            "recortados": max(0, len(mensajes) - tope), "corruptas": corruptas,
-            "ultimo": ultimo}
+    if filas is None:
+        return {"canal": hilo, "estado": "NO_DATA", "causa": "el canal aún no tiene mensajes",
+                "mensajes": [], "corruptas": 0, "ultimo": 0}
+    mensajes, corruptas, ultimo = [], 0, 0
+    for n, ts, actor, cj in filas:
+        try:
+            c = json.loads(cj)
+        except ValueError:
+            corruptas += 1
+            continue
+        if not isinstance(c, dict) or c.get("hilo") != hilo:
+            continue
+        ultimo = max(ultimo, n)
+        if n > desde:
+            mensajes.append({"n": n, "t": ts, "canal": hilo, "voz": actor,
+                             "rol": c.get("rol", ""), "texto": c.get("texto", ""),
+                             "maquina": c.get("maquina") or {}, "sello": c.get("sello")})
+    return {"canal": hilo, "estado": "MEDIDO", "mensajes": mensajes[-tope:],
+            "recortados": max(0, len(mensajes) - tope), "corruptas": corruptas, "ultimo": ultimo}
 
 
 def resumen(base=None):
-    """Los canales que existen y su último `n`. Para la lista de la consola."""
+    return [{"canal": c, "ultimo": lee(c, desde=10 ** 12, base=base)["ultimo"], "corruptas": 0}
+            for c in CANALES]
+
+
+def archivo(base=None):
+    """Los almacenes viejos, SOLO como archivo en lectura: la Sala, los
+    `.jsonl` de la primera versión de este módulo y, si la casa lo declara con
+    PRECEPTOROS_ACTA, el Acta. Nada de aquí se escribe."""
+    raiz = Path(base or _casa.raiz())
+    fuentes = [("sala", raiz / "laboratorio" / "sala.jsonl")]
+    fuentes += [(f"canales-v1:{p.stem}", p) for p in sorted((raiz / "canales").glob("*.jsonl"))]
+    acta = os.environ.get("PRECEPTOROS_ACTA")
+    if acta:
+        fuentes.append(("acta", Path(acta)))
     salida = []
-    for c in CANALES:
-        r = lee(c, desde=10 ** 12, base=base)
-        salida.append({"canal": c, "ultimo": r["ultimo"], "corruptas": r["corruptas"]})
+    for nombre, ruta in fuentes:
+        try:
+            with open(ruta, "r", encoding="utf-8") as fh:
+                lineas = fh.readlines()[-TOPE_LECTURA:]
+        except OSError:
+            continue
+        for linea in lineas:
+            try:
+                m = json.loads(linea)
+            except ValueError:
+                continue
+            if not isinstance(m, dict):
+                continue
+            salida.append({"origen": f"archivo:{nombre}", "n": m.get("n") or m.get("id"),
+                           "t": m.get("t") or m.get("ts"), "voz": m.get("voz") or m.get("de"),
+                           "texto": m.get("texto") or m.get("humano") or "",
+                           "sello": m.get("sello") or "DECLARADO", "maquina": {"archivo": nombre}})
     return salida
 
 
 def _cli(argv=None):
-    p = argparse.ArgumentParser(prog="canales.py", description="canales de solo añadir")
+    p = argparse.ArgumentParser(prog="canales.py", description="la app sobre el canal único")
     sub = p.add_subparsers(dest="orden", required=True)
     d = sub.add_parser("di")
     d.add_argument("canal")
@@ -252,8 +331,7 @@ def _cli(argv=None):
                 maquina = json.loads(a.maquina)
             except ValueError:
                 raise CanalRechazado("--maquina no es JSON") from None
-            print(json.dumps(di(a.canal, a.voz, a.texto, a.sello, a.rol, maquina),
-                             ensure_ascii=False))
+            print(json.dumps(di(a.canal, a.voz, a.texto, a.sello, a.rol, maquina), ensure_ascii=False))
         else:
             print(json.dumps(lee(a.canal, a.desde), ensure_ascii=False, indent=1))
     except CanalRechazado as e:

@@ -5,7 +5,8 @@
 
 QUÉ JUNTA
 ---------
-* Los canales nativos (`canales.py`) y, SOLO EN LECTURA, el canal del Registro
+* El canal ÚNICO, `<casa>/registro/eventos.db`: los `mensaje` por `canales.py`
+  (el adaptador de la app) y, SOLO EN LECTURA, el resto del canal del Registro
   Único (`<casa>/registro/eventos.db`, tipos duda, propuesta, evidencia y
   nodo.genesis). Se abre con `mode=ro`: la app no tiene camino de escritura al
   registro, y la base de autoridad ni se nombra.
@@ -127,6 +128,11 @@ def conversacion(base, tope=80):
                              "sello": m.get("sello"), "maquina": m.get("maquina") or {}})
     est_reg, del_registro = eventos(base)
     mensajes += del_registro
+    # Los almacenes viejos (la Sala, los .jsonl de canales v1, el Acta si la
+    # casa la declara) entran como ARCHIVO, en lectura y marcados como tal.
+    casa = os.path.expanduser("~")
+    for m in _canales.archivo(base):
+        mensajes.append({**m, "quien": quien(m.get("voz")), "texto": _texto(m.get("texto"), casa)})
     cero = _dt.datetime(1970, 1, 1, tzinfo=_dt.timezone.utc)
     mensajes.sort(key=lambda m: (_fecha(m["t"]) or cero, m["origen"], m["n"] or 0))
     return {"esquema": ESQUEMA, "voces": list(VOCES), "registro": est_reg,

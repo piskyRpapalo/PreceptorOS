@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test_canales.py · los canales entre agentes. Solo biblioteca estandar.
+"""test_canales.py · el adaptador de la app sobre el canal unico (eventos.db).
 
 Lo que se defiende:
   1. Ningun agente escribe con la voz `soberano` (ni en mayusculas, ni con
@@ -21,6 +21,7 @@ import importlib.util
 import json
 import multiprocessing
 import os
+import sqlite3
 import pathlib
 import shutil
 import subprocess
@@ -42,7 +43,10 @@ FUENTE = open(RUTA, encoding="utf-8").read()
 import estado as E                                          # noqa: E402
 
 PERMITIDOS = {"__future__", "argparse", "datetime", "fcntl", "json", "os", "re", "sys",
-              "unicodedata", "pathlib", "casa", "guardrails"}
+              "unicodedata", "pathlib", "casa", "guardrails", "sqlite3",
+              # importlib carga el Registro Unico de la maquina, para anexar por
+              # SU puerta. De ese modulo solo se llama `anexar_evento`.
+              "importlib"}
 
 
 def _escritor(base, voz, veces, cola):
@@ -69,8 +73,18 @@ class Base(unittest.TestCase):
         self.env.stop()
         self.tmp.cleanup()
 
-    def crudo(self, canal):
-        return (self.casa / "canales" / f"{canal}.jsonl").read_text(encoding="utf-8")
+    def filas(self):
+        db = self.casa / "registro" / "eventos.db"
+        if not db.exists():
+            return []
+        con = sqlite3.connect(db)
+        try:
+            return con.execute("select n, tipo, actor, cuerpo_json from eventos order by n").fetchall()
+        finally:
+            con.close()
+
+    def crudo(self, canal=None):
+        return "\n".join(f"{a} {c}" for _n, _t, a, c in self.filas())
 
 
 class TestVozSoberano(Base):
@@ -80,7 +94,7 @@ class TestVozSoberano(Base):
             with self.subTest(voz=voz):
                 with self.assertRaises(K.CanalRechazado):
                     K.di("app", voz, "hola", base=self.casa)
-        self.assertFalse((self.casa / "canales" / "app.jsonl").exists())
+        self.assertEqual(self.filas(), [])
 
     def test_la_cli_tampoco(self):
         r = subprocess.run([sys.executable, RUTA, "di", "app", "soberano", "hola"],
@@ -92,6 +106,7 @@ class TestVozSoberano(Base):
     def test_la_persona_si(self):
         m = K.di_soberano("orquesta", "para todo un momento", base=self.casa)
         self.assertEqual((m["voz"], m["n"], m["maquina"]), ("soberano", 1, {"via": "app"}))
+        self.assertEqual([(t, a) for _n, t, a, _c in self.filas()], [("mensaje", "soberano")])
 
     def test_vocabularios_cerrados(self):
         with self.assertRaises(K.CanalRechazado):
@@ -116,22 +131,46 @@ class TestConcurrencia(Base):
             dados += cola.get(timeout=120)
         for h in hijos:
             h.join(timeout=60)
-        lineas = self.crudo("lab").splitlines()
-        self.assertEqual(len(lineas), 480)
-        ns = [json.loads(l)["n"] for l in lineas]          # una linea rota revienta aqui
+        filas = self.filas()
+        self.assertEqual(len(filas), 480, "se perdieron mensajes")
+        for _n, _t, _a, c in filas:
+            json.loads(c)                                  # una fila rota revienta aqui
+        ns = [f[0] for f in filas]
         self.assertEqual(sorted(ns), list(range(1, 481)), "n repetido o con huecos")
         self.assertEqual(sorted(dados), list(range(1, 481)))
 
-    def test_una_linea_rota_se_cuenta_y_no_para_el_canal(self):
+    def test_fila_rota_se_cuenta_y_el_canal_sigue(self):
         K.di("web", "web", "uno", base=self.casa)
-        with open(self.casa / "canales" / "web.jsonl", "a", encoding="utf-8") as fh:
-            fh.write('{"n": 2, "texto": "a med\n')
+        con = sqlite3.connect(self.casa / "registro" / "eventos.db")
+        con.execute("insert into eventos (ts, maquina, tipo, actor, cuerpo_json, no_data_json)"
+                    " values ('t', 'x', 'mensaje', 'web', '{a medias', '[]')")
+        con.commit()
+        con.close()
         m = K.di("web", "web", "tres", base=self.casa)
-        self.assertEqual(m["n"], 2)
+        self.assertEqual(m["n"], 3)
         r = K.lee("web", base=self.casa)
         self.assertEqual(r["corruptas"], 1)
-        self.assertEqual([x["n"] for x in r["mensajes"]], [1, 2])
-        self.assertEqual([x["n"] for x in K.lee("web", desde=1, base=self.casa)["mensajes"]], [2])
+        self.assertEqual([x["n"] for x in r["mensajes"]], [1, 3])
+        self.assertEqual([x["n"] for x in K.lee("web", desde=1, base=self.casa)["mensajes"]], [3])
+
+    def test_solo_anexar(self):
+        K.di("web", "web", "uno", base=self.casa)
+        con = sqlite3.connect(self.casa / "registro" / "eventos.db")
+        with self.assertRaises(sqlite3.DatabaseError):
+            con.execute("update eventos set actor = 'soberano'")
+        with self.assertRaises(sqlite3.DatabaseError):
+            con.execute("delete from eventos")
+        con.close()
+
+    def test_los_hilos_no_se_mezclan_y_otros_tipos_no_son_mensajes(self):
+        K.di("web", "web", "para web", base=self.casa)
+        K.di("lab", "lab", "para lab", base=self.casa)
+        con = sqlite3.connect(self.casa / "registro" / "eventos.db")
+        con.execute("insert into eventos (ts, maquina, tipo, actor, cuerpo_json, no_data_json)"
+                    " values ('t', 'x', 'duda', 'hexelion', '{\"hilo\": \"web\", \"texto\": \"no\"}', '[]')")
+        con.commit()
+        con.close()
+        self.assertEqual([m["texto"] for m in K.lee("web", base=self.casa)["mensajes"]], ["para web"])
 
 
 class TestRedaccion(Base):
@@ -146,11 +185,55 @@ class TestRedaccion(Base):
             self.assertNotIn(prohibido, crudo, prohibido)
         self.assertIn("REDACTED", crudo)
 
+    def test_segunda_puerta_si_guardrails_deja_pasar_algo(self):
+        with mock.patch.object(K.G, "redactar_salida", side_effect=lambda t: (t, [])):
+            with self.assertRaises(K.CanalRechazado):
+                K.di("app", "app", "mira /home/otro/x", base=self.casa)  # guardia:permitir fixture: la segunda puerta debe rechazarla
+        self.assertEqual(self.filas(), [])
+
     def test_si_el_filtro_falla_no_se_escribe(self):
         with mock.patch.object(K.G, "redactar_salida", side_effect=RuntimeError("roto")):
             with self.assertRaises(K.CanalRechazado):
                 K.di("app", "app", "hola", base=self.casa)
-        self.assertFalse((self.casa / "canales" / "app.jsonl").exists())
+        self.assertEqual(self.filas(), [])
+
+
+REAL = os.path.join(__import__("pwd").getpwuid(os.getuid()).pw_dir, "p0x", "registro", "registro.py")
+
+
+@unittest.skipUnless(os.path.isfile(REAL), "NO_DATA · el Registro Único no está en esta máquina")
+class TestPorElRegistro(Base):
+    """Con el registro presente, el mensaje entra por `Registro.anexar_evento`:
+    el mismo saneo que el resto de agentes. Y la app no crea la base de autoridad."""
+
+    def setUp(self):
+        super().setUp()
+        self.env2 = mock.patch.dict(os.environ, {"PRECEPTOROS_REGISTRO_PY": REAL})
+        self.env2.start()
+        K._REGISTRO.clear()
+
+    def tearDown(self):
+        self.env2.stop()
+        K._REGISTRO.clear()
+        super().tearDown()
+
+    def test_entra_por_anexar_evento(self):
+        primero = K.di("lab", "claude-lab", "crea el canal", base=self.casa)
+        self.assertTrue(primero["via"].startswith("adaptador"))   # el canal aun no existia
+        m = K.di("lab", "claude-lab", "hola, Lab", base=self.casa)
+        self.assertEqual(m["via"], "registro.anexar_evento")
+        self.assertEqual(m["n"], 2)
+        self.assertEqual([x["texto"] for x in K.lee("lab", base=self.casa)["mensajes"]],
+                         ["crea el canal", "hola, Lab"])
+        self.assertFalse((self.casa / "registro" / "autoridad.db").exists())
+        with self.assertRaises(K.CanalRechazado):
+            K.di("lab", "soberano", "hola", base=self.casa)
+
+    def test_los_patrones_privados_son_los_del_registro(self):
+        reg = K._registro()
+        self.assertIsNotNone(reg)
+        self.assertEqual([(p.pattern, q) for p, q in K.PRIVADO],
+                         [(p.pattern, q) for p, q in reg.PRIVADO])
 
 
 class TestNoEsAutoridad(Base):
@@ -158,7 +241,7 @@ class TestNoEsAutoridad(Base):
     def _foto(self):
         return sorted((str(p.relative_to(self.casa)), p.read_bytes())
                       for p in self.casa.rglob("*")
-                      if p.is_file() and "canales" not in p.parts and p.name != "policies.json")
+                      if p.is_file() and p.name not in ("eventos.db", "policies.json"))
 
     def test_firmado_en_el_texto_no_cambia_nada(self):
         E.fijar_nivel(1, self.casa)
@@ -185,6 +268,11 @@ class TestNoEsAutoridad(Base):
             elif isinstance(n, ast.Call) and getattr(n.func, "id", None) == "__import__":
                 vistos.add("__import__")
         self.assertLessEqual(vistos, PERMITIDOS, vistos - PERMITIDOS)
+        # Solo la tabla del canal: ninguna otra tabla ni base se nombra.
+        self.assertNotIn("entradas", FUENTE)
+        for gesto in (".aplicar(", ".apagar(", ".preparar(", ".inicializar(", ".plan_llamar(", ".leer_ro("):
+            self.assertNotIn(gesto, FUENTE, gesto)
+        self.assertNotIn("ATTACH", FUENTE.upper().replace("ATTACHED", ""))
 
 
 class TestPuerta(Base):
@@ -241,20 +329,17 @@ class TestPuerta(Base):
 SABOTAJES = (
     ("un agente escribe como soberano",
      "    if not isinstance(voz, str) or es_soberano(voz):", "    if not isinstance(voz, str):"),
-    ("escritura sin cerrojo", "        fcntl.flock(fh, fcntl.LOCK_EX)\n", "        pass\n"),
-    ("sin cerrojo y en dos trozos",
-     '        fcntl.flock(fh, fcntl.LOCK_EX)\n',
-     '        pass\n'),
+    # Dos cambios a la vez: el cerrojo fuera y SQLite sin espera. Sin ninguno de
+    # los dos, escritores simultaneos pierden mensajes ("database is locked").
+    ("sin cerrojo ni espera", "        fcntl.flock(fd, fcntl.LOCK_EX)\n", "        pass\n",
+     ("sqlite3.connect(destino, timeout=30,", "sqlite3.connect(destino, timeout=0,")),
+    ("sin la segunda puerta del registro", "        if patron.search(crudo):", "        if False:"),
     ("texto sin redactar", '"texto": _limpio(texto, casa),', '"texto": texto,'),
-    ("capa maquina sin redactar", '"maquina": _limpia_maquina(maquina, casa),', '"maquina": maquina,'),
-    ("un mensaje firmado cambia el estado", "    return {\"n\": n, \"t\": t, **mensaje}\n",
-     "    if \"firm\" in texto.lower():\n        import estado\n"
-     "        estado.fijar_nivel(3, Path(base) if base else None)\n"
-     "    return {\"n\": n, \"t\": t, **mensaje}\n"),
+    ("capa maquina sin redactar", '"maquina": _limpia_maquina(maquina, casa)}', '"maquina": maquina}'),
+    ("un mensaje firmado cambia el estado", '    return {"n": n, "t": ts,',
+     '    if "firm" in texto.lower():\n        import estado\n'
+     '        estado.fijar_nivel(3, Path(base) if base else None)\n    return {"n": n, "t": ts,'),
 )
-# El tercero lleva ademas la escritura partida: se aplica encima del segundo.
-PARTIDA = ('            fh.write(linea.encode("utf-8"))',
-           '            _b = linea.encode("utf-8"); fh.write(_b[:40]); fh.flush(); fh.write(_b[40:])')
 
 
 def sabotaje():
@@ -276,13 +361,13 @@ def sabotaje():
             print(f"RESULTADO SABOTAJE: 0/{len(SABOTAJES)}")
             return 1
         print("VERDE · copia intacta")
-        for nombre, antes, despues in SABOTAJES:
-            if antes not in fuente or (nombre.startswith("sin cerrojo y") and PARTIDA[0] not in fuente):
+        for nombre, antes, despues, *extra in SABOTAJES:
+            if antes not in fuente or any(a not in fuente for a, _d in extra):
                 print(f"  CRITICO · {nombre}: el ancla ya no existe en canales.py")
                 continue
             roto = fuente.replace(antes, despues, 1)
-            if nombre.startswith("sin cerrojo y"):
-                roto = roto.replace(PARTIDA[0], PARTIDA[1], 1)
+            for a, d in extra:
+                roto = roto.replace(a, d, 1)
             if corre(roto) != 0:
                 detectadas += 1
                 print(f"  ROJO  · {nombre} · detectado")
