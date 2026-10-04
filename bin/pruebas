@@ -259,7 +259,12 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # la vez no repiten n ni parten lineas; nada llega al disco sin
           # guardrails; «firmado» en un texto no cambia el estado. Con su
           # `--sabotaje`.
-          test_canales)
+          test_canales
+          # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
+          # cerrado; el orquestador contesta con su voz y por tuberia; registro
+          # en solo lectura; tok/s solo medido; LoRA solo con hash. Con su
+          # `--sabotaje`.
+          test_lab)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
@@ -273,7 +278,7 @@ echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 
 if [ "$RAPIDO" = "0" ]; then
   echo
   echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
-  for s in idioma fuga consola decisor canales; do
+  for s in idioma fuga consola decisor canales lab; do
     salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
     linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
     det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"

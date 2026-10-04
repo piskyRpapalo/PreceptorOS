@@ -57,6 +57,7 @@ import voz as _voz                                        # noqa: E402
 import consola as _consola                                  # noqa: E402
 import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
+import lab as _lab                                          # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
@@ -286,6 +287,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._consola()
         if ruta == "/api/canales":
             return self._canales_leer()
+        if ruta == "/api/lab":
+            return self._lab_leer()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -375,6 +378,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._decisor(datos)
         if ruta == "/api/canales":
             return self._canales_decir(datos)
+        if ruta == "/api/lab":
+            return self._lab_decir(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
 
     # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del
@@ -610,6 +615,34 @@ class PWA(BaseHTTPRequestHandler):
         except _canales.CanalRechazado as e:
             return self._json(400, {"estado": "bloqueado", "motivo": str(e)})
         except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+
+    def _lab_leer(self):
+        """El Lab hablando: canales + canal del registro (solo lectura) y los
+        tres modelos con su estado real. Nada aqui abre un socket."""
+        try:
+            raiz = _casa.raiz()
+            return self._json(200, {"conversacion": _lab.conversacion(raiz),
+                                    "modelos": _lab.modelos_lab(raiz)})
+        except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+
+    def _lab_decir(self, datos):
+        """La persona habla al Lab; el orquestador mini contesta por tuberia.
+        La voz es siempre `soberano`, igual que en `_canales_decir`."""
+        voz = datos.get("voz", _canales.VOZ_RESERVADA)
+        if not isinstance(voz, str) or not _canales.es_soberano(voz):
+            return self._json(403, {"estado": "bloqueado",
+                                    "motivo": "por esta puerta solo escribe la voz soberano"})
+        texto = datos.get("texto")
+        if not isinstance(texto, str) or not texto.strip() or len(texto) > 4000:
+            return self._json(400, {"estado": "bloqueado",
+                                    "motivo": "hace falta un texto de 1 a 4000 caracteres"})
+        try:
+            return self._json(200, _lab.responder(texto, _casa.raiz()))
+        except _canales.CanalRechazado as e:
+            return self._json(400, {"estado": "bloqueado", "motivo": str(e)})
+        except Exception as e:
             return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
 
     def _canales_decir(self, datos):

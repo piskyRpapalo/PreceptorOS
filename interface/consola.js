@@ -313,6 +313,94 @@
     });
   }
 
+  // --- el Lab hablando ---------------------------------------------------------
+  // Quien habla, siempre con su nombre. La persona escribe; contesta el
+  // orquestador mini por tuberia. Si no hay motor, se dice: no se inventa.
+  function labHablando(c) {
+    var mods = el("div", "consola-lab-modelos");
+    var lista = el("div", "consola-canal-lista");
+    lista.setAttribute("aria-live", "polite");
+    var f = el("form", "consola-sugerir");
+    var lt = el("label", "consola-etq", "Habla al Lab");
+    lt.htmlFor = "consola-lab-texto";
+    var inp = el("input", "consola-select");
+    inp.id = "consola-lab-texto"; inp.type = "text"; inp.maxLength = 4000; inp.autocomplete = "off";
+    var b = el("button", "consola-boton consola-boton-vivo", "Decir");
+    b.type = "submit";
+    var eco = el("p", "consola-nota");
+    eco.setAttribute("role", "status");
+    f.appendChild(lt); f.appendChild(inp); f.appendChild(b);
+    c.appendChild(lista); c.appendChild(f); c.appendChild(eco); c.appendChild(mods);
+
+    function modelo(nombre, x) {
+      var d = el("details", "consola-detalle");
+      var tok = x && x.tok_s && !esNoData(x.tok_s) ? x.tok_s.generacion + " tok/s (" + x.tok_s.backend + ", " + x.tok_s.fecha + ")" : valor(x && x.tok_s);
+      d.appendChild(el("summary", null, nombre + " · " + (x && x.tag ? x.tag : "—") + " · " + tok));
+      if (!x) return d;
+      d.appendChild(fila("Disponible aquí", x.disponible === undefined ? null : x.disponible));
+      if (x.causa) d.appendChild(fila("Causa", x.causa));
+      d.appendChild(fila("sha256 del blob", x.sha256 || { estado: ND, causa: "sin blob" }));
+      d.appendChild(fila("Adaptador", x.adaptador && !esNoData(x.adaptador) ? x.adaptador.estado + " · " + x.adaptador.sha256 : x.adaptador));
+      return d;
+    }
+
+    function pinta(r) {
+      lista.textContent = ""; mods.textContent = "";
+      var ms = (r.conversacion || {}).mensajes || [];
+      ms.slice(-40).forEach(function (m) {
+        var art = el("article", "consola-mensaje");
+        art.appendChild(el("p", "consola-etq", m.quien + " · " + m.t + " · " + m.origen));
+        art.appendChild(el("p", null, m.texto));
+        var d = el("details", "consola-detalle");
+        d.appendChild(el("summary", null, "Capa máquina"));
+        d.appendChild(fila("Sello", m.sello));
+        d.appendChild(el("pre", "consola-pre", JSON.stringify(m.maquina || {}, null, 1)));
+        art.appendChild(d);
+        lista.appendChild(art);
+      });
+      if (!ms.length) lista.appendChild(el("p", "consola-nd", ND + " · el Lab aún no ha dicho nada"));
+      var reg = (r.conversacion || {}).registro;
+      if (esNoData(reg)) lista.appendChild(el("p", "consola-nd", "Registro: " + valor(reg)));
+      var mo = r.modelos || {};
+      mods.appendChild(el("h3", "consola-sub", "Los tres modelos"));
+      mods.appendChild(modelo("Orquestador mini", mo.mini));
+      mods.appendChild(modelo("Orquestador grande", mo.grande));
+      var e = mo.eleccion || {};
+      var de = el("details", "consola-detalle");
+      de.appendChild(el("summary", null, "Modelo de elección · tier 1 " + (e.tier1 && e.tier1.modelo ? e.tier1.modelo : valor(e.tier1))));
+      de.appendChild(fila("Tier 1 · sha", e.tier1 && e.tier1.sha256 ? e.tier1.sha256 : valor(e.tier1)));
+      de.appendChild(fila("Tier 2", e.tier2));
+      de.appendChild(fila("Adaptador", e.adaptador));
+      mods.appendChild(de);
+      lista.scrollTop = lista.scrollHeight;
+    }
+
+    function carga() {
+      fetch("/api/lab", { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("el servidor respondió " + r.status); return r.json(); })
+        .then(pinta)
+        .catch(function (e) { lista.textContent = ""; lista.appendChild(el("p", "consola-nd", ND + " · " + e.message)); });
+    }
+
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!inp.value.trim()) return;
+      b.setAttribute("aria-disabled", "true");
+      eco.textContent = "El orquestador está pensando…";
+      fetch("/api/lab", { method: "POST", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ texto: inp.value }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.motivo || r.status); return j; }); })
+        .then(function (j) {
+          inp.value = "";
+          eco.textContent = esNoData(j.respuesta) ? "Sin respuesta: " + valor(j.respuesta) : "";
+          carga();
+        })
+        .catch(function (e) { eco.textContent = ND + " · " + e.message; })
+        .then(function () { b.removeAttribute("aria-disabled"); });
+    });
+    carga();
+  }
+
   // --- el primer arranque: niebla amable con una sola accion ------------------
   function niebla(nav, p) {
     var n = p && p.niebla;
@@ -451,6 +539,10 @@
     if (!nav) return;
     nav.textContent = "";
     niebla(nav, v.primer_paso);
+    // El Lab va primero y abierto: es la conversacion con la que se presenta.
+    labHablando(cajon(nav, "El Lab", "lab"));
+    var labCajon = document.getElementById("consola-lab");
+    if (labCajon) labCajon.open = true;
     conQuien(cajon(nav, "Con quién hablas", "quien"), v);
     modelos(cajon(nav, "Modelos", "modelos"), v);
     juego(cajon(nav, "TheGame", "thegame"), v);

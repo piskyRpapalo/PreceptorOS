@@ -456,12 +456,12 @@ class TestPuerta(Base):
         # aqui a mano, en su mismo commit -- no se cuela.
         destinos = re.findall(r'fetch\("([^"?]+)', js)
         self.assertEqual(len(destinos), js.count("fetch("), "un fetch sin destino literal")
-        self.assertLessEqual(set(destinos), {"/api/consola", "/api/decisor", "/api/canales"})
+        self.assertLessEqual(set(destinos), {"/api/consola", "/api/decisor", "/api/canales", "/api/lab"})
         # Dos POST y solo dos: el del decisor (no guarda nada) y el de la
         # persona escribiendo en un canal con la voz soberano.
         posts = re.findall(r'fetch\("([^"?]+)"[^)]*method: "POST"', js)
-        self.assertEqual(sorted(posts), ["/api/canales", "/api/decisor"])
-        self.assertEqual(js.count('method: "POST"'), 2)
+        self.assertEqual(sorted(posts), ["/api/canales", "/api/decisor", "/api/lab"])
+        self.assertEqual(js.count('method: "POST"'), 3)
         self.assertIn('aria-disabled', js)
 
 

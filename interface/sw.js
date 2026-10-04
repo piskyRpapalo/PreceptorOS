@@ -25,7 +25,8 @@
 // consola.js y consola.css suben a ?v=2.
 // v96 (2026-10-04): niebla del primer arranque y el cuerpo del nodo;
 // consola.js y consola.css suben a ?v=3.
-const Cache = "aurelius-armazon-v96";
+// v97 (2026-10-04): el Lab hablando y los tres modelos; consola ?v=4.
+const Cache = "aurelius-armazon-v97";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
@@ -35,7 +36,7 @@ const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/compass.css?v=39", "/compass.js?v=39", "/assets/compass.svg?v=39",
                  // La consola: sin estas dos, sin red el home pediria piezas
                  // que no estan y la barra no saldria.
-                 "/consola.css?v=3", "/consola.js?v=3"];
+                 "/consola.css?v=4", "/consola.js?v=4"];
 
 self.addEventListener("install", (e) => {
   // skipWaiting: sin esto, el service worker nuevo espera a que se cierren
