@@ -454,11 +454,14 @@ class TestPuerta(Base):
         import re
         # Lista CERRADA de puertas a las que habla la barra. Una nueva entra
         # aqui a mano, en su mismo commit -- no se cuela.
-        destinos = re.findall(r'fetch\("([^"]+)"', js)
+        destinos = re.findall(r'fetch\("([^"?]+)', js)
         self.assertEqual(len(destinos), js.count("fetch("), "un fetch sin destino literal")
-        self.assertLessEqual(set(destinos), {"/api/consola", "/api/decisor"})
-        # El unico POST es el del decisor, que no guarda nada.
-        self.assertEqual(js.count('method: "POST"'), 1)
+        self.assertLessEqual(set(destinos), {"/api/consola", "/api/decisor", "/api/canales"})
+        # Dos POST y solo dos: el del decisor (no guarda nada) y el de la
+        # persona escribiendo en un canal con la voz soberano.
+        posts = re.findall(r'fetch\("([^"?]+)"[^)]*method: "POST"', js)
+        self.assertEqual(sorted(posts), ["/api/canales", "/api/decisor"])
+        self.assertEqual(js.count('method: "POST"'), 2)
         self.assertIn('aria-disabled', js)
 
 

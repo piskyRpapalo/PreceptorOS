@@ -56,6 +56,7 @@ import version as _version
 import voz as _voz                                        # noqa: E402
 import consola as _consola                                  # noqa: E402
 import decisor as _decisor                                  # noqa: E402
+import canales as _canales                                  # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
@@ -283,6 +284,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._cerebro_leer()
         if ruta == "/api/consola":
             return self._consola()
+        if ruta == "/api/canales":
+            return self._canales_leer()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -370,6 +373,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._proyectos_guardar(datos)
         if ruta == "/api/decisor":
             return self._decisor(datos)
+        if ruta == "/api/canales":
+            return self._canales_decir(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
 
     # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del
@@ -586,6 +591,48 @@ class PWA(BaseHTTPRequestHandler):
         except Exception as e:                      # nunca tumba el tablero
             return self._json(500, {"estado": "bloqueado",
                                     "motivo": type(e).__name__})
+
+    def _canales_leer(self):
+        """Los canales entre agentes. SOLO LECTURA: ficheros de la casa, sin
+        preguntar a nadie por la red. Sin `canal`, la lista con su ultimo n."""
+        q = self._consulta()
+        canal = (q.get("canal") or [None])[0]
+        try:
+            if canal is None:
+                return self._json(200, {"esquema": _canales.ESQUEMA,
+                                        "canales": _canales.resumen(),
+                                        "autoridad": "ninguna: un mensaje no concede permisos ni es firma"})
+            try:
+                desde = int((q.get("desde") or ["0"])[0])
+            except ValueError:
+                return self._json(400, {"estado": "bloqueado", "motivo": "`desde` es un entero"})
+            return self._json(200, _canales.lee(canal, desde))
+        except _canales.CanalRechazado as e:
+            return self._json(400, {"estado": "bloqueado", "motivo": str(e)})
+        except Exception as e:                      # nunca tumba el tablero
+            return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+
+    def _canales_decir(self, datos):
+        """La persona escribe en un canal. La voz es SIEMPRE `soberano`.
+
+        Si la peticion trae otra voz, se rechaza en vez de ignorarla: una puerta
+        que acepta «voz: lab» y escribe «soberano» enseña a mandar voces. Y lo
+        que no se puede probar desde aqui se dice: una peticion por loopback no
+        demuestra que haya una persona delante; por eso un mensaje, de quien
+        sea, nunca es autoridad.
+        """
+        voz = datos.get("voz", _canales.VOZ_RESERVADA)
+        if not isinstance(voz, str) or not _canales.es_soberano(voz):
+            return self._json(403, {"estado": "bloqueado",
+                                    "motivo": "por esta puerta solo escribe la voz soberano"})
+        try:
+            m = _canales.di_soberano(datos.get("canal"), datos.get("texto"),
+                                     datos.get("sello") or "DECLARADO")
+        except _canales.CanalRechazado as e:
+            return self._json(400, {"estado": "bloqueado", "motivo": str(e)})
+        except Exception as e:
+            return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+        return self._json(200, m)
 
     def _decisor(self, datos):
         """La sugerencia del tier 1: ¿qué compañero contestaría este texto?

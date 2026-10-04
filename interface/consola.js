@@ -313,6 +313,83 @@
     });
   }
 
+  // --- canales -------------------------------------------------------------
+  // Dos capas por mensaje: la frase humana, visible; la capa maquina (sello,
+  // rol, maquina), plegada. Un canal no es autoridad: se dice en la cabecera.
+  function canales(c) {
+    c.appendChild(el("p", "consola-nota",
+      "Un canal no es autoridad: ningún mensaje concede permisos ni cuenta como firma."));
+    var lab = el("label", "consola-etq", "Canal");
+    lab.htmlFor = "consola-canal";
+    var sel = el("select", "consola-select");
+    sel.id = "consola-canal";
+    var lista = el("div", "consola-canal-lista");
+    lista.setAttribute("aria-live", "polite");
+    c.appendChild(lab); c.appendChild(sel); c.appendChild(lista);
+
+    var f = el("form", "consola-sugerir");
+    var lt = el("label", "consola-etq", "Escribir como soberano");
+    lt.htmlFor = "consola-canal-texto";
+    var inp = el("input", "consola-select");
+    inp.id = "consola-canal-texto"; inp.type = "text"; inp.maxLength = 8000;
+    inp.autocomplete = "off";
+    var b = el("button", "consola-boton consola-boton-vivo", "Decir");
+    b.type = "submit";
+    var estadoEnvio = el("p", "consola-nota");
+    estadoEnvio.setAttribute("role", "status");
+    f.appendChild(lt); f.appendChild(inp); f.appendChild(b);
+    c.appendChild(f); c.appendChild(estadoEnvio);
+
+    function pintaMensajes(r) {
+      lista.textContent = "";
+      if (esNoData(r)) { lista.appendChild(el("p", "consola-nd", valor(r))); return; }
+      if (r.corruptas) lista.appendChild(el("p", "consola-nd", r.corruptas + " línea(s) ilegibles en el canal; no se pintan."));
+      (r.mensajes || []).slice(-30).forEach(function (m) {
+        var art = el("article", "consola-mensaje");
+        art.appendChild(el("p", "consola-etq", "#" + m.n + " · " + m.voz + " · " + m.t));
+        art.appendChild(el("p", null, m.texto));
+        var d = el("details", "consola-detalle");
+        d.appendChild(el("summary", null, "Capa máquina"));
+        d.appendChild(fila("Sello", m.sello));
+        d.appendChild(fila("Rol", m.rol || "ninguno"));
+        d.appendChild(el("pre", "consola-pre", JSON.stringify(m.maquina || {}, null, 1)));
+        art.appendChild(d);
+        lista.appendChild(art);
+      });
+      if (!(r.mensajes || []).length) lista.appendChild(el("p", "consola-nd", ND + " · el canal aún no tiene mensajes"));
+    }
+
+    function carga() {
+      fetch("/api/canales?canal=" + encodeURIComponent(sel.value), { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("el servidor respondió " + r.status); return r.json(); })
+        .then(pintaMensajes)
+        .catch(function (e) { lista.textContent = ""; lista.appendChild(el("p", "consola-nd", ND + " · " + e.message)); });
+    }
+
+    fetch("/api/canales", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("el servidor respondió " + r.status); return r.json(); })
+      .then(function (r) {
+        (r.canales || []).forEach(function (x) {
+          var o = el("option", null, x.canal + " (" + x.ultimo + ")");
+          o.value = x.canal;
+          sel.appendChild(o);
+        });
+        sel.addEventListener("change", carga);
+        if (sel.options.length) carga();
+      })
+      .catch(function (e) { lista.appendChild(el("p", "consola-nd", ND + " · " + e.message)); });
+
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!inp.value.trim() || !sel.value) return;
+      fetch("/api/canales", { method: "POST", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ canal: sel.value, texto: inp.value }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.motivo || r.status); return j; }); })
+        .then(function (m) { inp.value = ""; estadoEnvio.textContent = "Escrito como #" + m.n + "."; carga(); })
+        .catch(function (e) { estadoEnvio.textContent = ND + " · " + e.message; });
+    });
+  }
+
   // --- arranque -------------------------------------------------------------
   function monta(v) {
     var nav = document.getElementById("consola");
@@ -323,6 +400,7 @@
     juego(cajon(nav, "TheGame", "thegame"), v);
     juez(cajon(nav, "Juez · media", "juez"), v);
     rack(cajon(nav, "Rack/Lab (solo lectura)", "rack"), v);
+    canales(cajon(nav, "Canales", "canales"));
     nav.hidden = false;
   }
 

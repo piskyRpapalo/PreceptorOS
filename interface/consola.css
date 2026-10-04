@@ -55,3 +55,6 @@
 .consola-sugerir .consola-select { flex: 1 1 12rem; width: auto; margin: 0; }
 .consola-boton-vivo { border-style: solid; color: var(--ink); cursor: pointer; }
 .consola-salida { margin-top: .3rem; }
+.consola-mensaje { border-top: 1px solid var(--line); padding: .3rem 0; }
+.consola-mensaje p { margin: .1rem 0; }
+.consola-pre { font-size: .7rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: .2rem 0; }

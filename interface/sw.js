@@ -21,7 +21,9 @@
 // que arrastra a los demas.
 // v94 (2026-10-03): la consola soberana toca dashboard.html y trae dos piezas
 // nuevas, consola.css y consola.js, que entran en la lista con su `?v=`.
-const Cache = "aurelius-armazon-v94";
+// v95 (2026-10-04): la consola suma la sugerencia del tier 1 y los canales;
+// consola.js y consola.css suben a ?v=2.
+const Cache = "aurelius-armazon-v95";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/app.html", "/app.css", "/app.js", "/manifest.json",
                  // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
@@ -31,7 +33,7 @@ const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
                  "/compass.css?v=39", "/compass.js?v=39", "/assets/compass.svg?v=39",
                  // La consola: sin estas dos, sin red el home pediria piezas
                  // que no estan y la barra no saldria.
-                 "/consola.css?v=1", "/consola.js?v=1"];
+                 "/consola.css?v=2", "/consola.js?v=2"];
 
 self.addEventListener("install", (e) => {
   // skipWaiting: sin esto, el service worker nuevo espera a que se cierren

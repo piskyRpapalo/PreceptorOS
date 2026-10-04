@@ -253,7 +253,13 @@ UNITTEST=(test_afinado test_captura test_descarga test_pwa test_restaurar test_e
           # o dice NO_DATA; un empate jamas se desempata por orden; reglas sin
           # sha256 no se usan; el personaje narra y no toca la decision; el
           # replay del golden frena la regla que empeora. Con su `--sabotaje`.
-          test_decisor)
+          test_decisor
+          # test_canales: canales entre agentes como ficheros de solo anadir
+          # (2026-10-04). Ninguna voz de agente es `soberano`; 8 escritores a
+          # la vez no repiten n ni parten lineas; nada llega al disco sin
+          # guardrails; «firmado» en un texto no cambia el estado. Con su
+          # `--sabotaje`.
+          test_canales)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
@@ -267,7 +273,7 @@ echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 
 if [ "$RAPIDO" = "0" ]; then
   echo
   echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
-  for s in idioma fuga consola decisor; do
+  for s in idioma fuga consola decisor canales; do
     salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
     linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
     det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"
