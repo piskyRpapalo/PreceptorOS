@@ -233,7 +233,10 @@ class TestPuerta(Base):
             x.start()
 
     def tearDown(self):
-        for x in self.p:
+        # En orden INVERSO: los dos parches son del mismo módulo (`casa`), y cerrarlos en
+        # el orden de apertura deja el primer mock puesto para el resto de la tanda
+        # (era el rojo intermitente de test_leitmotivs, 2026-10-04).
+        for x in reversed(self.p):
             x.stop()
         super().tearDown()
 
