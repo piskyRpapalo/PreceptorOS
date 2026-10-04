@@ -58,3 +58,6 @@
 .consola-mensaje { border-top: 1px solid var(--line); padding: .3rem 0; }
 .consola-mensaje p { margin: .1rem 0; }
 .consola-pre { font-size: .7rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: .2rem 0; }
+.consola-niebla { flex: 1 1 100%; padding: .5rem .7rem; border-radius: var(--radio, 16px);
+  border: 1px dashed var(--line); background: var(--paper); color: var(--ink); }
+.consola-niebla p { margin: .1rem 0 .35rem; }

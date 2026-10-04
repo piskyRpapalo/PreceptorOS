@@ -485,6 +485,113 @@ class TestPintura(unittest.TestCase):
         self.assertEqual(sal[6], "ninguno")
 
 
+# --- el cuerpo del nodo, los interruptores y la autoridad ---------------------
+class TestCuerpo(Base):
+
+    def _con_registro(self, generado, interruptores, **extra):
+        _rack(self.casa, generado, registro={"vigentes": interruptores, **extra})
+
+    def test_vigente_caducado_e_ilegible(self):
+        self._con_registro(AHORA.isoformat(), [
+            {"nombre": "voz-externa", "herramienta": "tts", "caduca": "2026-10-10T00:00:00+00:00"},
+            {"nombre": "viejo", "herramienta": "x", "caduca": "2026-10-01T00:00:00+00:00"},
+            {"nombre": "sin-zona", "herramienta": "y", "caduca": "2026-12-01T00:00:00"},
+            {"nombre": "sin-fecha", "herramienta": "z"}])
+        it = C.cuerpo(self.casa, ahora=AHORA)["interruptores"]
+        self.assertEqual([x["nombre"] for x in it["vigentes"]], ["voz-externa"])
+        self.assertEqual([x["nombre"] for x in it["caducados"]], ["viejo"])
+        self.assertEqual(sorted(x["nombre"] for x in it["ilegibles"]), ["sin-fecha", "sin-zona"])
+        self.assertIn("apagar voz-externa", it["vigentes"][0]["apagar"])
+        self.assertIs(it["solo_lectura"], True)
+
+    def test_justo_al_caducar_ya_no_rige(self):
+        self._con_registro(AHORA.isoformat(), [{"nombre": "x", "caduca": AHORA.isoformat()}])
+        self.assertEqual(C.cuerpo(self.casa, ahora=AHORA)["interruptores"]["vigentes"], [])
+
+    def test_rack_viejo_no_se_pinta_vivo(self):
+        self._con_registro((AHORA - dt.timedelta(minutes=20)).isoformat(),
+                           [{"nombre": "v", "caduca": "2027-01-01T00:00:00+00:00"}])
+        k = C.cuerpo(self.casa, ahora=AHORA)
+        self.assertEqual(k["rack"]["estado"], "NO_DATA")
+        self.assertEqual(k["interruptores"]["estado"], "NO_DATA")
+        self.assertNotIn("vigentes", k["interruptores"])
+
+    def test_sin_seccion_registro_es_no_data_con_esa_causa(self):
+        _rack(self.casa, AHORA.isoformat())
+        it = C.cuerpo(self.casa, ahora=AHORA)["interruptores"]
+        self.assertEqual(it["estado"], "NO_DATA")
+        self.assertIn("registro", it["causa"])
+
+    def test_nodo_sin_cedula_es_no_data(self):
+        k = C.cuerpo(self.casa, ahora=AHORA)
+        self.assertEqual(k["nodo"]["estado"], "NO_DATA")
+        self.assertIs(k["escritura_autoridad"], False)
+
+    def test_la_vista_no_toca_la_autoridad(self):
+        reg = self.casa / "registro"
+        reg.mkdir()
+        (reg / "autoridad.db").write_bytes(b"x" * 10)
+        antes = (reg / "autoridad.db").stat()
+        self.vista()
+        despues = (reg / "autoridad.db").stat()
+        self.assertEqual((antes.st_size, antes.st_mtime_ns, antes.st_atime_ns),
+                         (despues.st_size, despues.st_mtime_ns, despues.st_atime_ns))
+
+
+class TestSinCaminoALaAutoridad(unittest.TestCase):
+    """Ningun fichero del producto nombra autoridad.db ni abre sqlite desde
+    los modulos de la consola. Las pruebas pueden nombrarla: la buscan."""
+
+    def test_nadie_nombra_autoridad_db(self):
+        culpables = []
+        for base, dirs, ficheros in os.walk(AQUI):
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("__pycache__", "node_modules")]
+            for f in ficheros:
+                if f.startswith("test_") or not f.endswith((".py", ".js", ".mjs", ".html", ".json")) \
+                        and "." in f:
+                    continue
+                ruta = os.path.join(base, f)
+                try:
+                    if "autoridad.db" in open(ruta, encoding="utf-8", errors="ignore").read():
+                        culpables.append(os.path.relpath(ruta, AQUI))
+                except OSError:
+                    pass
+        if os.path.abspath(RUTA) != os.path.join(AQUI, "consola.py") and \
+                "autoridad.db" in FUENTE:
+            culpables.append("consola.py (bajo prueba)")
+        self.assertEqual(culpables, [])
+
+    def test_la_consola_no_abre_sqlite(self):
+        arbol = ast.parse(FUENTE)
+        mods = {a.name.split(".")[0] for n in ast.walk(arbol) if isinstance(n, ast.Import) for a in n.names}
+        mods |= {n.module.split(".")[0] for n in ast.walk(arbol) if isinstance(n, ast.ImportFrom) and n.module}
+        self.assertNotIn("sqlite3", mods)
+
+
+class TestPrimerPaso(unittest.TestCase):
+
+    def test_sin_cerebro_una_niebla_con_una_accion(self):
+        p = C.primer_paso({"opciones": [{"cual": "base", "disponible": False,
+                                         "causa": "la ruta declarada no existe en el disco"}]})
+        self.assertEqual(p["niebla"]["estado"], "NO_DATA")
+        # UNA accion: ni lista de tareas ni segundo boton.
+        self.assertEqual(set(p["niebla"]), {"estado", "causa", "frase", "accion"})
+        self.assertEqual(set(p["niebla"]["accion"]), {"texto", "copiar", "nota"})
+        self.assertIn("no existe", p["niebla"]["causa"])
+        self.assertEqual(p["pendientes"], ["tener cerebro", "escribir"])
+
+    def test_con_cerebro_solo_queda_escribir(self):
+        p = C.primer_paso({"opciones": [{"cual": "base", "disponible": True}]})
+        self.assertNotIn("niebla", p)
+        self.assertEqual(p["pendientes"], ["escribir"])
+
+    def test_el_recorrido_no_crece(self):
+        # Techo del recorrido arranque -> primera respuesta. Subirlo es una
+        # decision que se ve en el diff de esta prueba, no un descuido.
+        self.assertLessEqual(len(C.PASOS_PRIMERA_RESPUESTA), 3)
+        self.assertLessEqual(len(C.primer_paso(None)["pendientes"]), 2)
+
+
 # --- el sabotaje ---------------------------------------------------------------------
 SABOTAJES = (
     ("importa socket", "import json\n", "import json\nimport socket\n"),
@@ -502,6 +609,14 @@ SABOTAJES = (
     ("rancia como dato", "if edad > RACK_RANCIA_S:", "if False:"),
     ("ausente como dato", 'return {**nd(f"rack.json {causa}"), "fichero": donde}',
      'return {"estado": "MEDIDO", "nodos": [], "fichero": donde}'),
+    ("interruptor caducado como vigente", "        elif cad <= ahora:", "        elif False:"),
+    ("rack viejo vivo en el cuerpo", '    if inst.get("estado") != "MEDIDO":',
+     '    if inst.get("estado") not in ("MEDIDO", "NO_DATA"):'),
+    ("escribe en la autoridad", "def nd(causa):",
+     "def _autoridad(base):\n    import sqlite3\n"
+     "    sqlite3.connect(str(base / 'registro' / 'autoridad.db')).execute('select 1')\n\n\ndef nd(causa):"),
+    ("niebla sin causa ni accion unica", '"accion": {"texto": "Copiar el comando que lo instala",',
+     '"acciones": [], "accion": {"texto": "Copiar el comando que lo instala",'),
 )
 
 

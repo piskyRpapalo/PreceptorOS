@@ -404,12 +404,131 @@ def instantanea(raiz_casa, ahora=None, visible=ruta_visible):
     nivel = datos.get("nivel") if isinstance(datos.get("nivel"), dict) else None
     no_data = [{"campo": str(x.get("campo")), "causa": str(x.get("causa"))}
                for x in (datos.get("no_data") or []) if isinstance(x, dict)]
+    registro = interruptores_rack(datos.get("registro"), ahora or _ahora())
     return {"estado": "MEDIDO", "sello": "MEDIDO por el laboratorio; leído aquí",
             "fichero": donde, "edad_s": int(edad), "generado": datos.get("generado"),
             "fuente": datos.get("fuente"), "nodos": nodos,
             "ollama": {"residentes": residentes,
                        "backend": ol.get("backend") if ol.get("backend") in RACK_BACKENDS else None},
-            "nivel": nivel, "no_data": no_data}
+            "nivel": nivel, "no_data": no_data, "registro": registro}
+
+
+# --- interruptores, leídos del rack y nunca de la autoridad --------------------
+# La app NO abre el Registro Único: ni la base de autoridad ni la de eventos. Sabe
+# de los interruptores es lo que el orquestador copia en rack.json, y por eso
+# hereda su caducidad: instantánea rancia → interruptores NO_DATA.
+APAGAR_DEFECTO = "python3 registro.py apagar {nombre}"
+CAUSA_ESCRITURA = ("la app no tiene camino de escritura a la autoridad: encender "
+                   "exige la firma ed25519 del Soberano, apagar se hace fuera de la app")
+
+
+def _fecha(valor):
+    try:
+        f = _dt.datetime.fromisoformat(str(valor))
+    except ValueError:
+        return None
+    return f if f.tzinfo is not None else None
+
+
+def interruptores_rack(registro, ahora):
+    """Los interruptores tal como los declara rack.json, clasificados por fecha.
+
+    Un interruptor solo es VIGENTE si su `caduca` es una fecha con zona y aún no
+    ha pasado. Caducado, sin fecha o con fecha sin zona: no es vigente. Una
+    ausencia de dato jamás enciende nada.
+    """
+    if registro is None:
+        return nd("rack.json aún no trae la sección `registro`")
+    if not isinstance(registro, dict):
+        return nd("la sección `registro` de rack.json no es un objeto")
+    lista = registro.get("vigentes", registro.get("interruptores"))
+    if not isinstance(lista, list):
+        return nd("la sección `registro` no trae la lista de interruptores")
+    apagar = registro.get("apagar_con") if isinstance(registro.get("apagar_con"), str) \
+        and "{nombre}" in registro.get("apagar_con") else APAGAR_DEFECTO
+    vigentes, caducados, ilegibles = [], [], []
+    for i in lista:
+        if not isinstance(i, dict) or not isinstance(i.get("nombre"), str):
+            continue
+        ficha = {k: i.get(k) for k in ("nombre", "quien", "herramienta", "nodo",
+                                       "alcance", "caduca", "tope", "datos_que_cruzan")}
+        ficha["apagar"] = apagar.format(nombre=i["nombre"])
+        cad = _fecha(i.get("caduca"))
+        if cad is None:
+            ficha["estado"] = "NO_DATA"
+            ficha["causa"] = "`caduca` no es una fecha ISO-8601 con zona: no se da por vigente"
+            ilegibles.append(ficha)
+        elif cad <= ahora:
+            ficha["estado"] = "CADUCADO"
+            caducados.append(ficha)
+        else:
+            ficha["estado"] = "VIGENTE"
+            ficha["quedan_s"] = int((cad - ahora).total_seconds())
+            vigentes.append(ficha)
+    return {"estado": "DECLARADO", "sello": "copiado del Registro Único por el rack; "
+            "la app no lo verifica (no lee la firma)",
+            "vigentes": vigentes, "caducados": caducados, "ilegibles": ilegibles,
+            "solo_lectura": True, "causa_escritura": CAUSA_ESCRITURA}
+
+
+def cuerpo(raiz_casa, ahora=None, visible=ruta_visible):
+    """El cuerpo de este nodo: qué aparato es, qué sabe del rack y qué
+    interruptores rigen. Todo leído; nada se escribe."""
+    import platform
+    base = pathlib.Path(raiz_casa)
+    nodo, causa = _leer_json(base / "nodo.json")
+    if isinstance(nodo, dict) and isinstance(nodo.get("lectura"), dict):
+        lec = nodo["lectura"]
+        quien = {"estado": "DECLARADO", "nodo": lec.get("nodo"),
+                 "nivel": lec.get("es") or nd(lec.get("causa") or "sin nivel"),
+                 "autenticidad": lec.get("autenticidad")}
+    else:
+        quien = nd(f"nodo.json {causa or 'ilegible'}: este aparato no ha importado "
+                   "ninguna cédula del rack (nodo_app.py importar)")
+    inst = instantanea(base, ahora, visible)
+    if inst.get("estado") != "MEDIDO":
+        sabe = {**nd(inst.get("causa")), "fichero": inst.get("fichero")}
+        inter = nd("sin instantánea viva del rack no hay interruptores que enseñar: "
+                   + str(inst.get("causa")))
+    else:
+        sabe = {"estado": "MEDIDO", "edad_s": inst["edad_s"], "nodos": inst["nodos"],
+                "nivel": inst["nivel"], "residentes": inst["ollama"]["residentes"]}
+        inter = inst["registro"]
+    return {"nodo": quien,
+            "aparato": {"estado": "MEDIDO", "sistema": platform.system(),
+                        "maquina": platform.machine()},
+            "rack": sabe, "interruptores": inter,
+            "escritura_autoridad": False, "causa_escritura": CAUSA_ESCRITURA}
+
+
+# --- el primer arranque ---------------------------------------------------------
+# El recorrido desde abrir la app hasta la primera respuesta. Es un techo: si
+# alguien añade un paso, la prueba lo ve. Lo que falta sale como niebla amable
+# con UNA acción, nunca una lista de tareas.
+PASOS_PRIMERA_RESPUESTA = ("elegir idioma", "tener cerebro", "escribir")
+COMANDO_CEREBRO = "python3 preceptoros.py"
+
+
+def primer_paso(paquete):
+    base = None
+    if isinstance(paquete, dict):
+        base = next((o for o in paquete.get("opciones") or [] if o.get("cual") == "base"), None)
+    hay_cerebro = bool(base and base.get("disponible"))
+    pendientes = ["escribir"] if hay_cerebro else ["tener cerebro", "escribir"]
+    salida = {"pasos": list(PASOS_PRIMERA_RESPUESTA),
+              "pendientes": pendientes,
+              "nota": "elegir idioma lo pregunta la propia app la primera vez"}
+    if not hay_cerebro:
+        salida["niebla"] = {
+            "estado": "NO_DATA",
+            "causa": (base or {}).get("causa") or "no hay cerebro declarado",
+            "frase": ("Aún no hay cerebro en este aparato: puedo guardar y recordar "
+                      "lo que escribas, pero todavía no contestar."),
+            "accion": {"texto": "Copiar el comando que lo instala",
+                       "copiar": COMANDO_CEREBRO,
+                       "nota": "pregunta antes de descargar nada; nada se ejecuta desde aquí"},
+        }
+    return salida
 
 
 def rack(raiz_casa, ahora=None, visible=ruta_visible):
@@ -480,6 +599,8 @@ def vista(cerebro_paquete, raiz_casa, raiz_ollama=None, ahora=None,
         "thegame": lambda: thegame(raiz_repo),
         "juez_media": juez_media,
         "rack": lambda: rack(raiz_casa, ahora, visible),
+        "cuerpo": lambda: cuerpo(raiz_casa, ahora, visible),
+        "primer_paso": lambda: primer_paso(cerebro_paquete),
         "loras": lambda: loras(cerebro_paquete),
     }
     salida = {"esquema": ESQUEMA, "solo_lectura": True,

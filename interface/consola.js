@@ -313,6 +313,61 @@
     });
   }
 
+  // --- el primer arranque: niebla amable con una sola accion ------------------
+  function niebla(nav, p) {
+    var n = p && p.niebla;
+    if (!n) return;
+    var d = el("div", "consola-niebla");
+    d.setAttribute("role", "status");
+    d.appendChild(el("p", null, n.frase));
+    var b = el("button", "consola-boton consola-boton-vivo", n.accion.texto);
+    b.type = "button";
+    var eco = el("span", "consola-causa");
+    eco.setAttribute("aria-live", "polite");
+    b.addEventListener("click", function () {
+      // Copiar, no ejecutar: la app no lanza nada en el aparato.
+      var hecho = function () { eco.textContent = "Copiado: " + n.accion.copiar; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(n.accion.copiar).then(hecho, function () {
+          eco.textContent = "Escríbelo en una terminal: " + n.accion.copiar; });
+      } else { eco.textContent = "Escríbelo en una terminal: " + n.accion.copiar; }
+    });
+    d.appendChild(b); d.appendChild(eco);
+    d.appendChild(el("p", "consola-nota", n.accion.nota + " · " + ND + " · " + n.causa));
+    nav.appendChild(d);
+  }
+
+  // --- el cuerpo de este nodo ------------------------------------------------
+  function cuerpoNodo(c, v) {
+    var k = v.cuerpo || {};
+    if (esNoData(k)) { c.appendChild(el("p", "consola-nd", valor(k))); return; }
+    var n = k.nodo || {};
+    c.appendChild(fila("Nodo", esNoData(n) ? n : n.nodo + " · " + valor(n.nivel)));
+    c.appendChild(fila("Aparato", (k.aparato || {}).sistema + " · " + (k.aparato || {}).maquina));
+    var r = k.rack || {};
+    c.appendChild(fila("Rack", esNoData(r) ? r :
+      (r.nodos || []).length + " nodos · hace " + Math.round(r.edad_s / 60) + " min"));
+    c.appendChild(el("h3", "consola-sub", "Interruptores (solo lectura)"));
+    var it = k.interruptores || {};
+    if (esNoData(it)) { c.appendChild(el("p", "consola-nd", valor(it))); }
+    else {
+      var ul = el("ul", "consola-lista");
+      (it.vigentes || []).forEach(function (x) {
+        var li = el("li");
+        li.appendChild(el("b", null, x.nombre));
+        li.appendChild(el("span", null, " · " + (x.herramienta || "") + " · caduca " + x.caduca));
+        li.appendChild(el("code", "consola-pre", x.apagar));
+        ul.appendChild(li);
+      });
+      if (!ul.children.length) ul.appendChild(el("li", null, "Ninguno vigente."));
+      c.appendChild(ul);
+      (it.caducados || []).concat(it.ilegibles || []).forEach(function (x) {
+        c.appendChild(el("p", "consola-nd", x.nombre + " · no vigente" + (x.causa ? " · " + x.causa : " (caducó " + x.caduca + ")")));
+      });
+    }
+    c.appendChild(el("p", "consola-nota", k.causa_escritura));
+  }
+
   // --- canales -------------------------------------------------------------
   // Dos capas por mensaje: la frase humana, visible; la capa maquina (sello,
   // rol, maquina), plegada. Un canal no es autoridad: se dice en la cabecera.
@@ -395,10 +450,12 @@
     var nav = document.getElementById("consola");
     if (!nav) return;
     nav.textContent = "";
+    niebla(nav, v.primer_paso);
     conQuien(cajon(nav, "Con quién hablas", "quien"), v);
     modelos(cajon(nav, "Modelos", "modelos"), v);
     juego(cajon(nav, "TheGame", "thegame"), v);
     juez(cajon(nav, "Juez · media", "juez"), v);
+    cuerpoNodo(cajon(nav, "Este nodo", "cuerpo"), v);
     rack(cajon(nav, "Rack/Lab (solo lectura)", "rack"), v);
     canales(cajon(nav, "Canales", "canales"));
     nav.hidden = false;
