@@ -56,6 +56,10 @@ CAPACIDADES = {
     "sincronizacion": 2,
     # Nivel 3 · el ecosistema. Vive fuera del producto y se engancha; el nucleo
     # no sabe que existe.
+    # Nivel 2 · el juego (plan de ronda 2026-10-11, firma D6). Que el NODO proponga una jugada por la
+    # persona (A1, aiact_art14_node_decide.py). Nivel 2 y no 1: la jugada propuesta puede acabar
+    # viajando (conquista entre nodos), y ante la duda, el nivel mas alto.
+    "accion_de_juego": 2,
     "complementos": 3,
     "hardware_local": 3,
 }

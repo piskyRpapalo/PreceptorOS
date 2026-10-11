@@ -54,13 +54,31 @@ class DecidePorTuberia(unittest.TestCase):
                 self.assertTrue(r["causa"])
 
     def test_cli_por_tuberia_sin_puerto(self):
+        """Por la CLI manda el guardian: en una instalacion de nivel 0 el nodo NO propone, y lo dice."""
         import subprocess, sys
-        p = subprocess.run([sys.executable, str(AQUI / "aiact_art14_node_decide.py")], input=json.dumps(self._una()),
+        p = subprocess.run([sys.executable, str(AQUI / "aiact_art14_node_decide.py"), "--santuario"], input=json.dumps(self._una()),
                            capture_output=True, text=True, timeout=60)
-        self.assertEqual(json.loads(p.stdout)["estado"], "OK", p.stderr)
+        r = json.loads(p.stdout)
+        self.assertEqual(r["estado"], "NO_DATA", p.stderr)
+        self.assertIn("accion_de_juego", r["causa"])
         fuente = (AQUI / "aiact_art14_node_decide.py").read_text(encoding="utf-8")
         for puerto in ("socket", "http.server", "bind(", "listen("):
             self.assertNotIn(puerto, fuente, "D68: ni un puerto")
+
+    def test_politica_y_guardian_delante_de_la_decision(self):
+        """D6: con nivel 2 y politica valida, propone; nivel 1, politica rota o santuario: NO_DATA."""
+        import tempfile
+        import estado as E
+        with tempfile.TemporaryDirectory() as d:
+            E.fijar_nivel(2, Path(d))
+            self.assertEqual(D.propone(self._una(), base=Path(d))["estado"], "OK")
+            self.assertEqual(D.propone(self._una(), base=Path(d), argv=["--santuario"])["estado"], "NO_DATA")
+            mala = Path(d) / "p.json"; mala.write_text(json.dumps({"esquema": "preceptoros.politica-juego/1", "capacidad": "accion_de_juego",
+                                                                   "decide": {"reemplaza": True}, "st": {"max_bytes": 150}}))
+            r = D.propone(self._una(), base=Path(d), ruta_politica=mala)
+            self.assertEqual(r["estado"], "NO_DATA"); self.assertIn("politica", r["causa"])
+            E.fijar_nivel(1, Path(d))
+            self.assertEqual(D.propone(self._una(), base=Path(d))["estado"], "NO_DATA")
 
     def _una(self):
         mo = R.Motor()

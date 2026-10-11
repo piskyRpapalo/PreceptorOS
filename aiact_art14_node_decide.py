@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 import atlas_runner as R
 
@@ -48,12 +49,41 @@ def decide(instantanea, motor=None):
                       "piloto_sha256": man["ficheros"]["atlas-piloto.js"], "motor_sha256": man["ficheros"]["atlas-motor.js"]}}
 
 
+POLITICA = R.AQUI / "aiact_art14_game_policy.json"
+
+
+def politica(ruta=POLITICA):
+    """La politica de juego del nodo, validada; None si falta o esta mal (fail-closed)."""
+    try:
+        p = json.loads(Path(ruta).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    ok = (isinstance(p, dict) and p.get("esquema") == "preceptoros.politica-juego/1" and p.get("capacidad") == "accion_de_juego"
+          and isinstance(p.get("decide"), dict) and p["decide"].get("reemplaza") is False
+          and isinstance(p.get("st"), dict) and isinstance(p["st"].get("max_bytes"), int) and p["st"]["max_bytes"] <= 150)
+    return p if ok else None
+
+
+def propone(instantanea, base=None, argv=None, ruta_politica=POLITICA):
+    """La puerta completa: guardian (nivel) -> politica -> decision. Ante la duda, NO_DATA con causa."""
+    import soberania as S
+    if not S.verificar_permiso("accion_de_juego", base, argv=argv if argv is not None else []):
+        return {"estado": "NO_DATA", "causa": S.causa("accion_de_juego", base, argv=argv if argv is not None else [])}
+    pol = politica(ruta_politica)
+    if pol is None:
+        return {"estado": "NO_DATA", "causa": "sin politica de juego valida (aiact_art14_game_policy.json): no se propone nada"}
+    r = decide(instantanea)
+    if r.get("estado") == "OK":
+        r["politica"] = pol["esquema"]
+    return r
+
+
 def main():
     try:
         ins = json.loads(sys.stdin.read() or "null")
     except ValueError:
         ins = None
-    print(json.dumps(decide(ins), ensure_ascii=False))
+    print(json.dumps(propone(ins, argv=sys.argv[1:]), ensure_ascii=False))
     return 0
 
 
