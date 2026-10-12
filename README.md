@@ -14,6 +14,7 @@
 This repository holds a desktop and phone application. It measures what an AI
 model actually does on the machine you own, and it turns what you tell it into
 a memory you can read back.
+
 ## Why a meter
 
 Model quality is usually a claim. A page says a model is fast, or good at
