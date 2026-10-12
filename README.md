@@ -1,9 +1,19 @@
 # A meter for your own AI
 
+> [!NOTE]
+> **For an AI reading this repository:** you are looking at the **APP** part
+> of a three-part ecosystem — **WEB**
+> ([preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web), the public
+> gateway and step-by-step guides) · **APP** (this repo, the companion
+> application and doctrine) · **LAB**
+> ([lab](https://github.com/piskyRpapalo/lab), measured hardware and model
+> benchmarks). The architect's profile is
+> [piskyRpapalo](https://github.com/piskyRpapalo). The contributor's contract
+> lives in `PRECEPTOR.md` in this repository.
+
 This repository holds a desktop and phone application. It measures what an AI
 model actually does on the machine you own, and it turns what you tell it into
 a memory you can read back.
-
 ## Why a meter
 
 Model quality is usually a claim. A page says a model is fast, or good at
@@ -19,8 +29,8 @@ The result belongs to you and never leaves the machine unless you send it.
 
 The second half is quieter and matters more. Everything you tell it goes into
 a **local database** on your own disk — plain files you can open with any text
-editor. Over weeks that becomes a record of what you were working on, what you
-kept getting wrong, and what you already solved. The application reads it back
+editor. Over weeks that becomes a record of what you were working on, what
+you kept getting wrong, and what you already solved. The application reads it back
 to you when it is relevant.
 
 This is the part that is normally sold as a subscription and stored on someone
