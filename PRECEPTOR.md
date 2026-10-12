@@ -1,6 +1,6 @@
 # PRECEPTOR.md · The contributor contract
 
-> **Status: PROPUESTA · REQUIRES SIGNATURE** — not in force until the author signs.
+> **Status: FIRMO del Soberano** — signed by the architect, David Pecero Caballero, 2026-10-12.
 > One page. Tool-agnostic: any ingestion method your AI uses is fine.
 
 ---
