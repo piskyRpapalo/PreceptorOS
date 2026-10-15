@@ -45,6 +45,13 @@ model or agent, the app, a device or node, an automation, and an outside
 visitor or tester. A participant may be absent; show `NO DATA` and why instead
 of implying a live connection or capability.
 
+Keep one `PRECEPTOR.md` per device. Each copy identifies only that device's
+locally measured capabilities and current infrastructure development level;
+missing measurements remain `NO DATA`, and copies do not imply shared state.
+Authority over distributed hardware networks is delegated to the Sovereign
+and stays within the measured development level of the infrastructure. A
+device reports its measurements and acts only within that delegated scope.
+
 For each consequential interaction, make the source, requested action,
 available evidence, and next responsible actor clear. Models and automation
 may explain, measure, and prepare proposals; the person with the relevant
