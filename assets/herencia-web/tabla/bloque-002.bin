@@ -1,0 +1,22 @@
+ATA:   { flujo: 0,        pulso_hz: 0,    escala: 1.0,  feedback: 'silent-field' },
+    SIMULATED: { flujo: 0.0008,  pulso_hz: 3.00, escala: 0.98, feedback: 'sim' },
+    STALE:     { flujo: 0.0002,  pulso_hz: 0.50, escala: 0.90, feedback: 'fade' }
+  };
+
+  /* La tabla congelada, expuesta. Congelar de verdad: ni añadir ni borrar. */
+  function congelada() {
+    var t = {};
+    Object.keys(HUE).forEach(function (k) { t[k] = HUE[k]; });
+    return Object.freeze ? Object.freeze(t) : t;
+  }
+  var TABLA = congelada();
+
+  /* Puro: los bandas de color de un sello (mismos límites que la ronda toon). */
+  function bandas(h, s, l) {
+    function c(L) { return 'hsl(' + h + ' ' + s + '% ' + Math.max(4, Math.min(94, L)) + '%)'; }
+    return { h: h, brillo: c(l + 16), base: c(l), sombra: c(l - 20), contorno: c(l - 44) };
+  }
+  /* El paquete completo de un sello: color + derivados. Sello desconocido:
+     null — no se inventa NI color NI derivado (NO_DATA con causa en el lector). */
+  function de(sello) {
+    if (!HUE.has

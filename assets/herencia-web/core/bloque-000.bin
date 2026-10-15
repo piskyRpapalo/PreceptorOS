@@ -1,0 +1,21 @@
+/* preceptoros.org · theGame v1.5 · SINTESIS: el sonido sale de ondas, no de
+   ficheros.
+
+   CERO MP3. Cada sonido son dos OscillatorNode de tipo seno: una portadora y
+   una moduladora que le cambia la frecuencia (sintesis FM). La receta de cada
+   sonido es una funcion PURA (`receta`) que se prueba en node; el navegador
+   solo la toca.
+
+   APAGADO POR DEFECTO y solo tras un gesto de la persona: un juego que suena
+   sin pedirlo es un juego que se cierra, y el navegador ademas lo bloquea.
+
+   EL CALOR MODULA EL SONIDO. La directiva habla de `nodeTemperature`, la
+   temperatura del silicio; un navegador no la puede leer y eso es NO_DATA.
+   Lo que si hay, medido por el motor, es la PRESION del Nucleo:
+   calor = 1 - integridad / integridad_max. Cuanto mas sufre el Nucleo, mas
+   aspero suena (indice FM mayor y portadora mas grave). Se dice lo que es. */
+(function (raiz) {
+  'use strict';
+
+  /* Frecuencias en Hz, duraciones en segundos. `indice` es la profundidad de
+     la modulacion en Hz. Enteros y frac

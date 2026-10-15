@@ -1,0 +1,14 @@
+/* preceptoros.org · theGame · LA RADIO DEL ESTADO (J2 + J9, plan de ronda firmado 2026-10-11).
+
+   LA MELODIA ES EL ESTADO. Cinco notas sin semitonos (pentatonica mayor: 0, 2, 4, 7 y 9 semitonos
+   sobre 220 Hz): cualquier combinacion suena bien, asi que el estado puede sonar tal cual es. Cada nota
+   sale de una cifra de la instantanea (integridad, cobre, biomasa, luz, oxigeno, fase, nucleo, grieta):
+   misma partida, misma melodia, y su huella lo prueba. Suena por la MISMA sintesis FM de core.js
+   (`AtlasSintesis.suena` con una receta): ni un fichero de audio, ni una red.
+
+   EL LOCUTOR (J9) ES UN PERSONAJE: lee un boletin hecho SOLO con la instantanea (lo que lee la guia,
+   GUIA_CONTRATO.md), sin inventar: un dato que falta es NO_DATA. Narra; nunca decide ni propone. Habla
+   solo con voces LOCALES del sistema (`localService`); si no hay ninguna, lo dice y el boletin queda en
+   texto. Grave y despacio, como la radio de los anos 40, hecho con codigo.
+
+   EL AUDIO NUNCA ES IMPRESCINDIBLE: el boletin se

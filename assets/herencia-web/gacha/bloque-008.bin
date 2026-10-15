@@ -1,0 +1,27 @@
+) * t]);
+    }
+    return out;
+  }
+
+  /* Un punto de la figura en el angulo `u` (radianes). Unidades: las de los
+     armonicos (el ovalo del huevo mide 16 x 22). */
+  function punto(arm, u) {
+    var x = 0, y = 0;
+    arm.forEach(function (h) {
+      var f = h[0] * u + h[3] * Math.PI / 32;
+      x += h[1] * Math.cos(f); y += h[2] * Math.sin(f);
+    });
+    return [x, y];
+  }
+
+  /* La huella compacta de la tropa, para medir que cabe en 200 B. */
+  function compacta(tropa) {
+    return JSON.stringify([tropa.tc, tropa.rareza, tropa.prefijo, tropa.sufijo, tropa.armonicos]);
+  }
+
+  /* EL CARACTER DE UNA ONDA, leido de sus armonicos (que salen de la semilla firmada): color,
+     pulso y una tendencia. Es un SESGO que se dice, no un destino que se programa: la onda no
+     juega distinto por su caracter. Sin azar: misma tropa, mismo caracter en cada carga. */
+  function caracter(t) {
+    var a = (t && t.armonicos) || [], s = 0, amp = 0;
+    a.forEach(function (h) { s += Math.abs(h[0]); amp += Math.abs(h[1]) + Math.

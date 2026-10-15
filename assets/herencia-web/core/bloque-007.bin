@@ -1,0 +1,4 @@
+    contexto: contexto };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasSintesis; }
+  else { raiz.AtlasSintesis = AtlasSintesis; }
+})(this);

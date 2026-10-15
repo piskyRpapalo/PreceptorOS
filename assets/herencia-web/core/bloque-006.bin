@@ -1,0 +1,21 @@
+onectaba ninguna). */
+      var mod2 = ctx.createOscillator(), prof2 = ctx.createGain();
+      mod2.type = 'sine'; mod2.frequency.value = r.moduladora2; prof2.gain.value = r.indice2;
+      mod2.connect(prof2); prof2.connect(car.frequency);
+      mod2.start(t); mod2.stop(t + r.dur);
+    }
+    if (r.vibrato) {
+      var lfo = ctx.createOscillator(), vib = ctx.createGain();
+      lfo.type = 'sine'; lfo.frequency.value = r.vibrato.hz; vib.gain.value = r.vibrato.prof;
+      lfo.connect(vib); vib.connect(car.frequency);
+      lfo.start(t); lfo.stop(t + r.dur);
+    }
+    car.connect(sal); sal.connect(ctx.destination);
+    car.start(t); mod.start(t); car.stop(t + r.dur); mod.stop(t + r.dur);
+    return r;
+  }
+
+  /* El contexto abierto por el interruptor, para la voz exacta (`atlas-voz.js`); apagado, null. */
+  function contexto() { return activo ? ctx : null; }
+  var AtlasSintesis = { BASE: BASE, receta: receta, envolvente: envolvente, calorDe: calorDe, activa: activa, suena: suena, vozDe: vozDe,
+                    

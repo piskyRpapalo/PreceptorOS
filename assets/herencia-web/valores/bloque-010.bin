@@ -1,0 +1,18 @@
+a */
+      npc_chunk: true,
+      npc_escala: 0.25,
+      /* Estela (MOVIMIENTO 1-2): longitud maxima */
+      estela_max: 8,
+      /* Burbujas por calidad (MOVIMIENTO 4): mar respira */
+      burbujas_por_calidad: [0, 2, 5]
+    },
+    /* M17-bis 5 (firma F-A, 2026-10-10): LA TABLA DE DERIVADOS SEMANTICOS. Cada parametro visual y
+       sonoro con [formula, de que sale, clase, quien lo lee]. Clases: ESTADO (sale del estado del
+       juego), CALIDAD (proyeccion por el medidor de fps; jamas decide), CONSTANTE (declarada) y
+       SIN_LECTOR (declarado y nadie lo lee: deuda visible, no decoracion escondida). La prueba exige
+       una fila por cada clave de `fluidez` y de las recetas, y que el lector nombrado la lea de verdad. */
+    semantica: {
+      melt_alfa: ['cuadro previo * alfa', 'calidad', 'CALIDAD', 'wave_render.js'],
+      melt_zoom: ['escala del cuadro previo', 'calidad', 'CALIDAD', 'wave_render.js'],
+      melt_rotacion: ['giro del cuadro previo', 'calidad', 'CALIDAD', 'wave_render.js'],
+      vida

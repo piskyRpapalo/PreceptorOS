@@ -1,0 +1,22 @@
+.height); }
+    }
+    raiz.requestAnimationFrame(cuadro);
+  }
+  /* Lo que se ve ahora: el panel del cajon o la hoja abierta (id + su texto). */
+  function vistoAhora() {
+    var D = raiz.document, caja = D.getElementById('thegame-terminal'), v = null;
+    D.querySelectorAll('.thegame-hoja').forEach(function (h) { if (!h.hidden) { v = { id: h.id.replace('thegame-', ''), el: h }; } });
+    if (!v && caja && !caja.hidden) { Array.prototype.forEach.call(caja.children, function (d) { if (d.tagName === 'DETAILS' && !d.hidden) { v = { id: d.id, el: d }; } }); }
+    return v;
+  }
+  function transita() {
+    var v = vistoAhora(), id = v ? v.id : null;
+    if (id === visible) { return; }
+    var de = visible, D = raiz.document;
+    visible = id;
+    if (!id) { return; }
+    intentos[id] = (intentos[id] || 0) + 1;
+    var largo = (v.el.innerText || '').length, delta = largo - (de && textoDe[de] !== undefined ? textoDe[de] : 0);
+    textoDe[id] = largo;
+    var W = raiz.AtlasVentana;
+    if (W && W.pinta) { W.pinta(); } 

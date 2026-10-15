@@ -1,0 +1,15 @@
+moveTo(ex - 3 * dpr, ey); g.lineTo(ex + 3 * dpr, ey); g.stroke(); return; }
+      g.fillStyle = '#f2f4f8'; g.beginPath(); g.arc(ex, ey, 3.2 * dpr, 0, 2 * Math.PI); g.fill();
+      g.lineWidth = 1.2 * dpr; g.stroke();
+      g.fillStyle = B.contorno; g.beginPath(); g.arc(ex + 1 * dpr, ey + 0.4 * dpr, 1.4 * dpr, 0, 2 * Math.PI); g.fill();
+    });
+    g.globalAlpha = 1; g.setLineDash([]);
+    g.restore();
+    var d = o.dir < 0 ? -1 : 1;
+    return { radio: rr, caparazon: [x, cy - rr * 0.35], pinzas: [x + d * rr * 0.95, cy - rr * 0.1],
+             patas: [x - d * rr * 0.5, suelo - rr * 0.55 + vaiven + largo], ojos: [x + d * rr * 0.45, cy - alto * rr] };
+  }
+  /* La ficha del render (el inspector y el lab leen lo mismo que se ve). */
+  function ficha(clase) { var h = clase === 'coral' ? 12 : 196; return 'toon · light from upper-left · bands from class hue ' + h + ' · morph ' + MORF_MS / 1000 + ' s'; }
+
+  var AtlasToon = { SELLOS: SELLOS, LUZ: LUZ, MORF_MS: MORF_MS, bandas: bandas, deSello: deSello, morf: morf, 

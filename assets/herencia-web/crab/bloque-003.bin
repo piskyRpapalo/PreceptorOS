@@ -1,0 +1,21 @@
+ista(id, destino, t, quieto) {
+    var m = morfos[id], j = JSON.stringify(destino);
+    if (!m) { morfos[id] = { de: destino, a: destino, j: j, t0: t }; return destino; }
+    if (m.j !== j) {
+      var vista = ondaVista(id, m.a, t, quieto);
+      morfos[id] = { de: vista, a: destino, j: j, t0: t };
+      if (id === 'yo' && !quieto) { narra('shape changes (harmonic morph, 2 s)'); }
+    }
+    m = morfos[id];
+    if (quieto || !t) { return m.a; }
+    var p = Math.max(0, Math.min(1, (t - m.t0) / MORF_MS));
+    return p >= 1 ? m.a : morf(m.de, m.a, p * p * (3 - 2 * p));
+  }
+  function narra(texto) {
+    var R = raiz.AtlasRadioChat;
+    if (R && R.dice && narrado.ultimo !== texto) { narrado.ultimo = texto; R.dice({ quien: 'Your crab', fuente: 'toon', texto: texto, sello: 'LIVE' }); }
+  }
+  /* Parpadeo determinista: uno de cada 4 ciclos, 150 ms al empezar el segundo de pantalla. */
+  function parpadea(ciclo, t, quieto) { return !quieto && ciclo != null && ciclo % 4 === 0 && (t % 1000) < 150; }
+
+  function cangrejo(g

@@ -1,0 +1,17 @@
+OwnProperty(sello)) { return null; }
+    var d = DERIVADOS[sello];
+    return Object.freeze ? Object.freeze({
+      sello: sello, hue: HUE[sello], bandas: bandas(HUE[sello], SAT, LUZ_BASE),
+      flujo: d.flujo, pulso_hz: d.pulso_hz, escala: d.escala, feedback: d.feedback
+    }) : { sello: sello, hue: HUE[sello], bandas: bandas(HUE[sello], SAT, LUZ_BASE),
+      flujo: d.flujo, pulso_hz: d.pulso_hz, escala: d.escala, feedback: d.feedback };
+  }
+  /* Compatibilidad de la consolidación: hueDe como lo leían
+     terminal_window_frame.js y worm_transition.js (una sola fuente física). */
+  function hueDe(sello) { return HUE.hasOwnProperty(sello) ? HUE[sello] : null; }
+
+  var AtlasSemantica = { TABLA: TABLA, SELLOS: TABLA, de: de, hueDe: hueDe,
+                          bandas: bandas, SAT: SAT, LUZ: LUZ_BASE };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasSemantica; }
+  else { raiz.AtlasSemantica = AtlasSemantica; }
+})(typeof module === 'object' && module.exports ? this : (this || 

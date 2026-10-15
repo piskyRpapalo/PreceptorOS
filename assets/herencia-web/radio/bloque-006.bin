@@ -1,0 +1,9 @@
+ });
+    [txt, b, nota1].forEach(function (n) { d.appendChild(n); });
+    panel.appendChild(d);
+  }
+
+  var AtlasRadio = { BASE_HZ: BASE_HZ, PENTA: PENTA, nota: nota, tocaNota: tocaNota, guion: guion, boletin: boletin, huella: huella, toca: toca, locutor: locutor, monta: monta };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasRadio; }
+  else { raiz.AtlasRadio = AtlasRadio; }
+})(this);

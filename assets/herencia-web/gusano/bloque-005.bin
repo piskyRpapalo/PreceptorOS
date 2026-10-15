@@ -1,0 +1,15 @@
+  /* el cabecero primero: el sello del destino, no el del panel anterior */
+    var f = W && W.ficha ? W.ficha() : null;
+    var S = { ciclo: cicloActual(), de: de, a: id, delta: delta, intentos: intentos[id], sello: f && f.id === id ? f.sello : 'NO_DATA' };
+    var A = centro(D.getElementById('menu-' + (de || id))) || [0, 0], B = centro(D.getElementById('menu-' + id)) || A, gu = gusano(S, A, B);
+    ultimo = { S: S, segmentos: gu.segmentos, ms: gu.ms, hue: gu.hue };
+    var R = raiz.AtlasRadioChat;
+    if (R && R.dice) { R.dice({ quien: 'Terminal', fuente: 'gusano', sello: S.sello, texto: (de || 'map') + ' → ' + id + ' · Δ text ' + (delta >= 0 ? '+' : '') + delta + ' · opened ×' + S.intentos }); }
+    if (!quieto()) { anima(gu); }
+  }
+  function monta() {
+    var D = raiz.document, caja = D && D.getElementById('thegame-terminal');
+    if (!caja || monta.hecho) { return; }
+    monta.hecho = true;
+    var piso = caja.parentNode || D.body;
+    new MutationObserver(transita).observe(piso, { subtree: true, 

@@ -1,0 +1,16 @@
+ABLES (FIRMO 2026-10-12, C): primero el INVENTARIO de ondas (cada tropa con su ficha), luego el Taller.
+       El Army lo pinta ui.js en su seccion; aqui se MUEVE su lista a esta hoja (ui.js sigue pintando en el mismo nodo). */
+    var ond = hoja('ondas', T('army_h'));
+    function mueveArmy() {
+      var ul = capa.querySelector('.atlas-army');
+      if (!ul || ond.contains(ul)) { return; }
+      var h = ul.previousElementSibling;
+      if (h && h.tagName === 'H5') { ond.appendChild(h); }
+      ond.appendChild(ul);
+    }
+    S.ARMYZ = el('div', 'casa-army'); ond.appendChild(S.ARMYZ);  /* RONDA 1 (13-oct): la invocacion vive en el ARMY; el Taller queda para el tuneo */
+    /* FIRMO 13-oct (unificacion): Army y Taller en UNA hoja; el Taller va DEBAJO del Army. */
+    var tal = el('div', 'taller-unido'); tal.appendChild(S.PANEL.taller); ond.appendChild(tal); S.PANEL.taller = tal;
+    S.ZB = hoja('batalla', T('hoja_batalla'));
+
+    var menu = el('nav', 'thegame-menu'); menu.id = 'thegame-menu'; menu.setAttribute(

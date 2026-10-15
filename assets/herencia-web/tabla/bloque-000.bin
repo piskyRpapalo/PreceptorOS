@@ -1,0 +1,14 @@
+/* preceptoros.org · theGame · OLA 1 PIEZA 1 (FIRMO del Soberano, letra abhu
+   asignada por la Mesa) · TABLA DE DERIVADOS SEMÁNTICOS — LA FUENTE ÚNICA.
+   Spec del canon medido (MOCKUP_MVP + F304): cada sello deriva
+   hue/saturación/luz/rotación/escala/feedback/pulso. Es la traducción visual
+   del estado que UNIFICA todo el chrome (F304: la UI son tubos del mismo
+   arrecife; cero colores de UI que no existan en el mar).
+   LA TABLA ESTÁ CONGELADA en sus 7 sellos medidos. Sellos nuevos = FIRMO
+   del Soberano aparte, jamás se inventan (aquí ni en ninguna parte).
+   CONSOLIDACIÓN (F305: si hay dos vías, se consolidan en UNA): esta pieza
+   es la única fuente FÍSICA de la tabla; crab_render_hd.js (y quien siga)
+   lee de aquí. «TABLA_SEMANTICA: la ÚNICA fuente de color de sello» sigue
+   siendo verdad — ahora con una sola fuente física.
+   W2: el derivado visual NUNCA es el único canal — el color lleva su
+   etiqueta de texto; el contraste lo verifica test_web.py en los 9 idiomas.

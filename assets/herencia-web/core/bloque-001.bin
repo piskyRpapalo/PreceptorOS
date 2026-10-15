@@ -1,0 +1,25 @@
+ciones fijas: misma entrada, misma
+     receta. */
+  var V = (typeof module === 'object' && module.exports) ? require('./valores.js') : raiz.AtlasValores;
+  var BASE = V.sonidos;
+
+  function receta(tipo, calor) {
+    var b = BASE[tipo];
+    if (!b) { return null; }
+    var c = Math.max(0, Math.min(1, Number(calor) || 0));
+    var r = {
+      tipo: tipo,
+      portadora: Math.round(b.f * (1 - 0.25 * c)),
+      moduladora: Math.round(b.f * b.m * (1 - 0.25 * c)),
+      indice: Math.round(b.indice * (1 + 2 * c)),
+      dur: b.dur, gan: b.gan
+    }, I = V.sintesis;
+    /* M17-bis 3: en modo 'fm3_adsr' la receta lleva su envolvente y una SEGUNDA moduladora. */
+    if (I && I.modo === 'fm3_adsr') {
+      r.adsr = I.adsr.slice();
+      r.moduladora2 = Math.round(r.portadora * I.m2);
+      r.indice2 = Math.round(r.indice * I.indice2);
+    }
+    /* M17-bis 4: la urgencia sale del SELLO del evento, no de un capricho del sonido. */
+    var u = I && I.sello && I.urgencia ? (I.urgencia[I.sello[tipo]] || 0) : 0;
+    if (u >

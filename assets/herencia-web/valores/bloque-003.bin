@@ -1,0 +1,17 @@
+tan). */
+    rareza_aristas: { normal: 4, magico: 8, raro: 12 },
+    /* La forma de la onda (no es equilibrio, es dibujo): la amplitud del armonico que pone las aristas
+       sale de `a1`; los demas, de a1 / (div * j^2), con su fase ALINEADA a la del primero (todos tienen su
+       cresta en el mismo angulo: por la desigualdad de Fejer-Jackson eso deja UN maximo por periodo).
+       Medido el 2026-10-11 sobre 7 000 ondas de 3 a 16 aristas: div = 1 da 0 lobulos de mas (con div =
+       0,75 fallan 532); con fases al azar hacia falta div = 3 y los armonicos altos salian casi todos a 0. */
+    forma: { a1: [6, 16], div: 1 },
+    prefijos: {
+      atlante: { vida: [4, 9] }, cuprico: { armadura: [3, 7] },
+      termico: { inercia: [3, 8] }, solar: { vida: [2, 4], armadura: [1, 3] }
+    },
+    sufijos: {
+      abismo: { profundidad: [2, 6] }, sigilo: { sigilo: [3, 8] },
+      velocidad: { velocidad: [3, 7] }, algoritmo: { aura: [2, 5] }
+    },
+    /* Base de una tropa por nivel de TC: vida = vida[0]*nivel + [0..vi

@@ -1,0 +1,10 @@
+/* preceptoros.org · theGame · LAS TRANSICIONES DE GUSANO (PR-2, FIRMO 2026-10-12; ideas6oct §5 :1158-1160, :904, :802, :799).
+
+   Cuando un panel o una hoja cede su sitio a otro, no «cambia de pagina»: un GUSANO migra de una entrada del menu a la
+   otra, y su TRAYECTORIA ES EL DATO (:802). Todo sale de S_t, el estado de esa transicion, y de nada mas:
+     S_t = { ciclo, de, a, delta (cambio de longitud del texto visible), intentos (veces abierto en esta pestana), sello }
+   - curva: el desvio del arco crece con |delta| (cuanto cambio lo que lees); el lado lo pone la paridad del ciclo.
+   - cuerpo: tantos segmentos como intentos (tope 9): lo que mas abres deja un gusano mas largo.
+   - velocidad: duracion 360 ms + 20 ms por segmento. Color: el hue del sello de destino (TABLA_SEMANTICA, unica fuente).
+   EL GRAFICO REVELA, NO DECIDE (:799): el gusano no abre, no cierra, no navega; solo proyecta lo que ya paso. Mismo S_t,
+   mismo gusano (determinista: sin azar, sin reloj de pared; la pantalla solo anima)

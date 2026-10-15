@@ -1,0 +1,17 @@
+-10-11). Primero se tira
+   cuantas aristas tiene la onda (`valores.aristas`, por mil); la rareza sale
+   de ahi. El armonico que pone las aristas es k = 1 - n: con la base k = 1, el
+   radio |24 + a1 e^(-i n u)| tiene EXACTAMENTE n maximos (n lobulos). Los demas
+   van en multiplos de n (k = 1 +/- n j), con amplitud a1 / (div j^2) y la fase
+   ALINEADA con la del primero, asi que no inventan lobulos: `aristas(t)` lo
+   MIDE y la prueba lo exige. */
+(function (raiz) {
+  'use strict';
+
+  /* LOS VALORES VIVEN EN `valores.js` (estado PROVISIONAL): aqui solo la logica.
+     En node se piden con require; en la pestana los carga la puerta antes. */
+  var V = (typeof module === 'object' && module.exports) ? require('./valores.js') : raiz.AtlasValores;
+  var TCS = V.tcs, PREFIJOS = V.prefijos, SUFIJOS = V.sufijos;
+  var RAREZAS = ['normal', 'magico', 'raro', 'unico'];
+  var STATS = ['vida', 'armadura', 'velocidad', 'sigilo', 'inercia', 'profundidad', 'aura'];
+  var TERMINOS = V.terminos, ARISTAS = V.aristas, RA = V.r

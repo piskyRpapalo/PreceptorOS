@@ -1,0 +1,19 @@
+und(f * 2), indice: 35, dur: 0.28, gan: 0.07 }); }, k * PASO_MS);
+    });
+    return g;
+  }
+  /* El locutor: solo voces locales; sin ninguna, NO_DATA con su causa y el boletin queda en texto. */
+  function locutor(texto) {
+    var sy = raiz.speechSynthesis;
+    if (!sy || !raiz.SpeechSynthesisUtterance) { return 'NO_DATA: this browser has no speech synthesis'; }
+    var locales = (sy.getVoices() || []).filter(function (v) { return v.localService && /^en/i.test(v.lang); });
+    if (!locales.length) { return 'NO_DATA: no local English voice on this device; the bulletin stays as text'; }
+    var u = new raiz.SpeechSynthesisUtterance(texto);
+    u.voice = locales[0]; u.pitch = 0.8; u.rate = 0.88;
+    sy.cancel(); sy.speak(u);
+    /* SIMULADO (rectificacion firmada 2026-10-12): es la voz del NAVEGADOR, no los vectores de voz del rack (camino
+       canonico, EN_CURSO). Jamas LIVE falso. */
+    return 'SIMULATED voice: ' + locales[0].name + ' (this device, not the rack\'s voice)';
+  }
+
+  function el(tag, clase, tex

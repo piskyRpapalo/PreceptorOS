@@ -1,0 +1,18 @@
+otaje estrella cambia uno y se pone rojo). */
+  function bandas(h, s, l) {
+    function c(L) { return 'hsl(' + h + ' ' + s + '% ' + Math.max(4, Math.min(94, L)) + '%)'; }
+    return { h: h, brillo: c(l + 16), base: c(l), sombra: c(l - 20), contorno: c(l - 44) };
+  }
+  /* Puro: las bandas de un sello, de la tabla. Sello desconocido: null (no se inventa color). */
+  function deSello(sello) { return SELLOS.hasOwnProperty(sello) ? bandas(SELLOS[sello], 70, 55) : null; }
+  /* Puro: interpolar dos series [k, ax, ay, fase] termino a termino (interpolateFourierTerms del constructor). */
+  function morf(a, b, p) {
+    var n = Math.max(a.length, b.length), r = [];
+    for (var i = 0; i < n; i++) {
+      var x = a[i] || [b[i][0], 0, 0, b[i][3]], y = b[i] || [a[i][0], 0, 0, a[i][3]];
+      r.push([y[0], x[1] + (y[1] - x[1]) * p, x[2] + (y[2] - x[2]) * p, x[3] + (y[3] - x[3]) * p]);
+    }
+    return r;
+  }
+  /* La onda que se ve en el instante t: si la de destino cambio, se morfea desde la que se veia. */
+  function ondaV

@@ -1,0 +1,14 @@
+chMedia('(prefers-reduced-motion: reduce)').matches;
+      function cambia() {
+        if (turno !== transicion) { return; }
+        abierto = siguiente; cajon.hidden = !abierto;
+        cada(cajon.children, function (n) { if (n.tagName === 'DETAILS') { n.hidden = !abierto || GRUPOS[abierto].indexOf(n.id) < 0; if (!n.hidden) { n.open = true; } } });
+        Object.keys(R.items).forEach(function (k) { R.items[k].setAttribute('aria-expanded', String(k === abierto)); });
+        document.documentElement.classList.toggle('con-cajon', !!abierto);
+        if (abierto && foco !== false) { var s = cajon.querySelector('#' + GRUPOS[abierto][0] + ' > summary'); if (s) { s.focus(); } }
+      }
+      if (document.startViewTransition && !rm && capa.isConnected) { document.startViewTransition(cambia); } else { cambia(); }
+    }
+    function entrada(id, icono, rotulo, accion) {
+      var li = el('li'), b = el('button', 'thegame-menu-item'); b.type = 'button'; b.id = 'menu-' + id; b.dataset.panel = id;
+      var i = el('span'

@@ -1,0 +1,15 @@
+var lx = o.dir < 0 ? -LUZ.x : LUZ.x;   // la luz NO se espeja con el cangrejo: es del mundo
+    /* patas articuladas (cadera -> rodilla -> pie), fase por pata; su largo es el Bosque */
+    niebla('patas');
+    var largo = rr * 0.5 * (0.6 + 0.8 * (cu.patas || 0));
+    for (var l = 0; l < 6; l++) {
+      var px = (l - 2.5) / 2.5 * rr * 0.85, ph = t * 0.02 + l * 1.7, alza = q ? 0 : Math.sin(ph) * rr * 0.08;
+      var rod = [px * 1.05, largo * 0.45 - Math.abs(alza)], pie = [px * 1.15, largo + alza * 0.5];
+      [[B.contorno, 3.4], [B.base, 1.6]].forEach(function (s) {
+        g.strokeStyle = s[0]; g.lineWidth = s[1] * dpr; g.beginPath(); g.moveTo(px * 0.8, 0); g.lineTo(rod[0], rod[1]); g.lineTo(pie[0], pie[1]); g.stroke();
+      });
+    }
+    /* el latido: un halo en BANDA del ancho del latido (antes, un desenfoque) */
+    niebla('caparazon');
+    if (fo.brillo) { concha(0, 0, 1); g.strokeStyle = B.brillo; g.globalAlpha = 0.45; g.lineWidth = (4 + 8 * fo.brillo) * dpr; g.stroke(); niebla('caparazon'); }
+    /* cap

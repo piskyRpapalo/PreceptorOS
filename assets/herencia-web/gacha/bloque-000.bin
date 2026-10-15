@@ -1,0 +1,17 @@
+/* preceptoros.org · theGame v1.5 · el GACHA ARMONICO: Treasure Classes,
+   afijos al estilo Diablo I/II y tropas hechas de ondas.
+
+   PURO como el motor: ni DOM, ni red, ni reloj, ni azar del sistema. Todo lo
+   que cae sale de una SEMILLA (64 hex). En la pestana la semilla es el
+   sha256 de la firma Ed25519 de la invocacion; aqui solo se recibe ya hecha.
+
+   NO ES UN VRF, y se dice. Ed25519 firma igual el mismo mensaje con la misma
+   clave cuando firma la pestana, pero un firmante que maneje su clave fuera
+   del navegador puede fabricar otras firmas validas y quedarse con la tirada
+   que le guste. Vale para tu partida; para competir entre personas hace falta
+   un VRF de verdad (ECVRF), y eso es NO_DATA hasta que se firme.
+
+   UNA TROPA SON SUS ARMONICOS: [k, ax, ay, fase] enteros pequenos. La figura
+   es x(t) = sum ax*cos(k t + f), y(t) = sum ay*sin(k t + f): circulos que giran
+   dentro de circulos (Fourier). Cabe en menos de 200 B y no hay imagen.
+   LAS ARISTAS PONEN LA FORMA (M18-B, firmado 2026

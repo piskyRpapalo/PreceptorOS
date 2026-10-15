@@ -1,0 +1,23 @@
+rotacion: 0.0001,
+      /* Color = Vida (MOVIMIENTO 2): Hue deriva a cobre, Lightness = escudo */
+      vida_hue_base: 270,
+      vida_hue_cobre: 30,
+      escudo_lightness_base: 72,
+      /* M17-bis 2: L va de min (sin escudo) a base (escudo_ref); escudo_ref = armadura maxima medida. */
+      escudo_lightness_min: 40,
+      escudo_ref: 24,
+      /* Respira al beat (MOVIMIENTO 3): pulso de brillo/grosor */
+      pulso_brillo_max: 0.3,
+      pulso_grosor_max: 1.5,
+      /* Buffer PS1 (MOVIMIENTO 6): resoluciones por nivel */
+      buffer_escala: [1.0, 0.5, 0.25],
+      buffer_ancho_max: 320,
+      /* Dither PS1 (MOVIMIENTO 6): patron 4x4 ordenado */
+      dither_on: true,
+      dither_patron: [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 13, 5, 15, 7],
+      /* Wobble PS1 (MOVIMIENTO 6): grid para temblor de vertices */
+      paso_grid: [1.0, 2.0, 4.0],
+      /* Niebla de Omen (MOVIMIENTO 7): vignette y niebla */
+      niebla_alfa: 0.4,
+      vignette_alfa: 0.3,
+      /* Sprites chunky (MOVIMIENTO 8): NPCs a 1/4 escal

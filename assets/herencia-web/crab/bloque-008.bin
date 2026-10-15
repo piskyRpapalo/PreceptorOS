@@ -1,0 +1,3 @@
+ondaVista: ondaVista, parpadea: parpadea, cangrejo: cangrejo, ficha: ficha };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasToon; } else { raiz.AtlasToon = AtlasToon; }
+})(this);

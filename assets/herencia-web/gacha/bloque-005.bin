@@ -1,0 +1,20 @@
+; });
+    var B = V.base;
+    stats.vida = B.vida[0] * nivel + g.entre([0, B.vida[1]]);
+    stats.armadura = B.armadura[0] * nivel + g.entre([0, B.armadura[1]]);
+    stats.velocidad = B.velocidad[0] + g.entre([0, B.velocidad[1]]);
+    var pre = null, suf = null;
+    if (rareza === 'unico') { pre = 'atlante'; suf = 'abismo'; }
+    else if (rareza === 'raro') { pre = g.uno(Object.keys(PREFIJOS)); suf = g.uno(Object.keys(SUFIJOS)); }
+    else if (rareza === 'magico') {
+      var cual = g.entre([0, 2]);
+      if (cual !== 1) { pre = g.uno(Object.keys(PREFIJOS)); }
+      if (cual !== 0) { suf = g.uno(Object.keys(SUFIJOS)); }
+    }
+    if (pre) { suma(stats, PREFIJOS[pre], g); }
+    if (suf) { suma(stats, SUFIJOS[suf], g); }
+    if (rareza === 'raro' || rareza === 'unico') { suma(stats, PREFIJOS[g.uno(Object.keys(PREFIJOS))], g); }
+    if (rareza === 'unico') { STATS.forEach(function (k) { stats[k] += nivel; }); }
+    return {
+      esquema: 'atlas.tropa/1', tc: tc, base: T.base, rareza: rareza,
+      prefijo: pre,

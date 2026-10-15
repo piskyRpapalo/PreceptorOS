@@ -1,0 +1,15 @@
+arazon en tres bandas, recortadas a su propia onda */
+    concha(0, 0, 1); g.save(); g.clip();
+    g.fillStyle = B.sombra; g.fill();
+    concha(lx * rr * 0.16, LUZ.y * rr * 0.16, 1); g.fillStyle = B.base; g.fill();
+    concha(lx * rr * 0.32, LUZ.y * rr * 0.22, 0.42); g.fillStyle = B.brillo; g.fill();
+    concha(lx * 1.5 * dpr, LUZ.y * 1.5 * dpr, 1); g.strokeStyle = B.brillo; g.lineWidth = 1.4 * dpr; g.stroke();   // rim light
+    g.restore();
+    concha(0, 0, 1); g.strokeStyle = B.contorno; g.lineWidth = 3.2 * dpr; g.stroke();   // contorno grueso
+    /* ojos en antenas: blanco, contorno y pupila; parpadeo del ciclo */
+    niebla('ojos');
+    var alto = 0.75 + 0.45 * (cu.ojos || 0), cerrado = parpadea(o.ciclo, t, q);
+    [[0.32, alto], [0.58, alto - 0.07]].forEach(function (e) {
+      var ex = e[0] * rr, ey = -e[1] * rr;
+      g.strokeStyle = B.contorno; g.lineWidth = 2.2 * dpr; g.beginPath(); g.moveTo(ex, -0.55 * rr); g.lineTo(ex, ey); g.stroke();
+      if (cerrado) { g.lineWidth = 2 * dpr; g.beginPath(); g.

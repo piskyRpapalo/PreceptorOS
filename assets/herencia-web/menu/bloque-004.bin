@@ -1,0 +1,21 @@
+    }
+    function pliego(titulo, id, abre, hijos) {
+      var d = el('details', 'thegame-pliego'); d.id = id; d.open = !!abre;
+      d.appendChild(el('summary', null, titulo)); hijos.forEach(function (n) { d.appendChild(n); });
+      return d;
+    }
+
+    function cierraCajon() {
+      abierto = null; cajon.hidden = true;
+      cada(cajon.children, function (n) { if (n.tagName === 'DETAILS') { n.hidden = true; } });
+      Object.keys(R.items).forEach(function (k) { if (k !== 'taller') { R.items[k].setAttribute('aria-expanded', 'false'); } });
+      document.documentElement.classList.remove('con-cajon');
+    }
+    function cierraHoja() {
+      if (!actual && !destino) { return; }
+      transicion++; muestraYa(null, false);
+    }
+
+    /* --- el cajon (los paneles) y el menu que los abre ------------------------------------------------------- */
+    x.PESTANAS.forEach(function (p) {
+      var d = el('section'); p[2].split('|').forEach(function (q) { if (q) { cada(capa.querySelectorAll(q), function (n) { d.append

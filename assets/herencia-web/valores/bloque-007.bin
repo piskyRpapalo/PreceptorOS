@@ -1,0 +1,16 @@
+la portadora) son
+         PROVISIONALES: se fijan en la misma escucha que el movimiento 3. */
+      sello: { eclosion: 'PROPUESTA_PENDIENTE_FIRMA', adopcion: 'FIRMADO' },
+      urgencia: { PROPUESTA_PENDIENTE_FIRMA: 1, FIRMADO: 0 },
+      vibrato_hz: 6, vibrato_prof: 0.02 },
+    army_tope: 60,
+    /* Combate entre personas y patrullas (`arena.js`): rondas ENTERAS y todo PROVISIONAL. `ataque`
+       pondera los stats de la tropa; `esquiva` va por mil por punto de sigilo, con tope; la armadura
+       resta su mitad (`armadura_div`). El rating es un Elo entero LOCAL (no hay clasificacion
+       central): `k` y `k_provisional` para las primeras `provisional_hasta` partidas. */
+    combate: {
+      rondas: 40, tropas_max: 10, armadura_div: 2,
+      ataque: { base: 3, aura: 2, inercia: 1, profundidad: 1 },
+      esquiva: { por_sigilo: 12, tope: 300 },
+      rating_inicial: 1000, k: 32, k_provisional: 48, provisional_hasta: 10,
+      /* Regla de ABANDONO (firmada por el Soberano, 2026-09-28): quien se compromete y 

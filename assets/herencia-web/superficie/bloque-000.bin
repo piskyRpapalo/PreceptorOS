@@ -1,0 +1,12 @@
+/* preceptoros.org · LA PORTADA ES EL JUEGO: cabezal + UN panel a la maxima anchura util (canon de UI,
+   ideas6oct:1711: los edificios son zonas de esta pantalla, no paginas). Las variables vienen de
+   soberano.css; aqui solo el marco. */
+html,body{margin:0;min-height:100%;background:var(--bg-primary);color:var(--text-main)}
+.cab-juego{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem 1rem;
+  padding:.5rem clamp(.75rem,2vw,1.5rem);background:var(--bg-primary);border-bottom:1px solid var(--edge-sov)}
+.cab-marca{margin-inline-end:auto;font:700 1rem/1 var(--mono);letter-spacing:.08em;color:var(--accent-copper-claro);text-decoration:none;position:relative}
+/* Área táctil de 44 px sin cambiar el dibujo ni el alto de la cabecera (medido: 116 px → 217 px si se subía el alto real). */
+.cab-marca::before{content:"";position:absolute;inset:-14px 0}
+.cab-marca b{color:var(--text-main);font-weight:700}
+.cab-lenguas{display:flex;flex-wrap:wrap;gap:.1rem}
+.cab-lenguas a{paddi

@@ -1,0 +1,18 @@
+abs(h[2]); });
+    return { color: s % 4, pulso: a.length > 3 ? 1 : 0, tendencia: (s + amp) % 4 };
+  }
+
+  /* LAS ODDS QUE SE ENSENAN SON LAS QUE SE TIRAN (addendum de la cria: sin odds ocultas). Por mil y en
+     el orden de `RAREZAS` (normal, magico, raro, unico), sumadas de la MISMA tabla de aristas que usa
+     `tirada`; `oddsAristas` da la tabla entera. El sorteo por mil (`sig() % 1000`) lleva un sesgo de
+     modulo medido de 296/2^32 por resultado, unos 7e-8: se dice aqui. */
+  function odds(tc) {
+    var o = [0, 0, 0, 0];
+    ARISTAS[tc].forEach(function (x) { o[RAREZAS.indexOf(rarezaDe(x[0]))] += x[1]; });
+    return o;
+  }
+  function oddsAristas(tc) { return ARISTAS[tc].map(function (x) { return x.slice(); }); }
+
+  var AtlasGacha = {
+    ESTADO: V.estado, VERSION_VALORES: V.version, TCS: TCS, RAREZAS: RAREZAS, PREFIJOS: PREFIJOS, SUFIJOS: SUFIJOS, STATS: STATS, HUEVO: HUEVO,
+    ORIGENES: ORIGENES, generador: generador, tirada: tirada, espectro: espectro, lod: lod, aristas: aristas, rarezaDe: rarezaD

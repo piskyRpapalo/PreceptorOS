@@ -1,0 +1,20 @@
+}
+
+  /* La onda de n aristas: base, el armonico de las aristas y los de detalle en multiplos de n, con su
+     fase alineada (la cresta de todos en el mismo angulo: la del primero). */
+  function armonicos(n, rareza, g) {
+    var a1 = g.entre(FORMA.a1), f1 = g.entre([0, 63]), out = [[1, 24, 24, 0], [1 - n, a1, a1, f1]];
+    for (var j = 2; j < TERMINOS[rareza]; j++) {
+      var s = j % 2 ? -1 : 1, amp = Math.floor(a1 / (FORMA.div * j * j));
+      out.push([1 + s * n * j, amp, amp, ((-s * j * f1) % 64 + 64) % 64]);
+    }
+    return out;
+  }
+  /* Cuantas aristas salen de un sorteo por mil `q` en una TC (la tabla, en orden). */
+  function aristasDe(q, tc) {
+    var t = ARISTAS[tc], acc = 0;
+    for (var i = 0; i < t.length; i++) { acc += t[i][1]; if (q < acc) { return t[i][0]; } }
+    return t[t.length - 1][0];
+  }
+  function rarezaDe(n) { return n <= RA.normal ? 'normal' : n <= RA.magico ? 'magico' : n <= RA.raro ? 'raro' : 'unico'; }
+  /* LAS ARISTAS MEDIDAS: los maximos locales del radio de la figura, sobre 7
