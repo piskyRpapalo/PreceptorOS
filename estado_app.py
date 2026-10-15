@@ -88,9 +88,13 @@ def validar(estado):
         if tick is None or causa is not None:
             raise ValueError("STALE requiere tick vigente y causa vacía")
     else:
-        if edad is not None:
-            raise ValueError("NO_DATA no conserva una edad que sugiera frescura")
         _texto(causa, 120, "causa NO_DATA")
+        if causa == "expired":
+            _entero(edad, 1, _U64_MAX, "edad del dato caducado")
+            if tick is None:
+                raise ValueError("caducidad requiere Proof of Tick")
+        elif edad is not None:
+            raise ValueError("sin dato no caducado, la edad debe ser NO_DATA")
 
     guion = estado["guion"]
     _claves(guion, {"titulo", "orden", "edad_tics"}, "guion")

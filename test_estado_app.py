@@ -88,8 +88,8 @@ class ContratoSuperficie(unittest.TestCase):
         estado["frescura"] = {"estado": "STALE", "edad_tics": 99, "causa": "expired"}
         with self.assertRaises(ValueError):
             serializar(estado)
-        estado["frescura"] = {"estado": "NO_DATA", "edad_tics": None, "causa": "expired"}
-        estado["guion"]["edad_tics"] = None
+        estado["frescura"] = {"estado": "NO_DATA", "edad_tics": 99, "causa": "expired"}
+        estado["guion"]["edad_tics"] = 99
         estado["semantica"].update(hue=None, saturacion=None, luminosidad=None,
                                    niebla=True, halo="normal")
         self.assertTrue(validar(estado))
