@@ -1,0 +1,18 @@
+. Movimiento reducido: sin gusano,
+   pero la Radio lo narra igual y el inspector y el vector lo leen. Plug&play: observa el cajon y las hojas. */
+(function (raiz) {
+  'use strict';
+  var TOPE_SEG = 9, BASE_MS = 360, POR_SEG = 20;
+  var intentos = {}, visible = null, textoDe = {}, ultimo = null, lienzo = null;
+
+  function hueDe(sello) { var T = raiz.AtlasSemantica || raiz.AtlasToon; return T && T.SELLOS && T.SELLOS.hasOwnProperty(sello) ? T.SELLOS[sello] : null; }
+  function cicloValido(c) { return Number.isSafeInteger(c) && c >= 0 && c <= 1000000000; }
+  function cicloActual() {
+    try {
+      var J = raiz.AtlasJuego, i = J && J.instantanea ? J.instantanea() : null, c = i && i.ciclo;
+      return cicloValido(c) ? c : null;
+    } catch (_) { return null; }
+  }
+  /* Puro: el gusano de un S_t entre dos puntos de pantalla. Devuelve { puntos, segmentos, ms, hue }. */
+  function gusano(S, A, B) {
+    var segs = Math.max(1, Math.min(TOPE_SEG, S.intentos || 1)), curva = Math.min(140, 16 + Math.abs(S.delta || 0) / 1

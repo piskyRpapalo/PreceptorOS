@@ -1,0 +1,16 @@
+NO_DATA';
+    return 'Radio Atlantis, cycle ' + d(i.ciclo) + '. Core integrity ' + pct + ', phase ' + d(i.fase) + ', depth ' + d(i.profundidad) + ' meters. ' +
+      'Copper ' + d(r.cobre) + ', light ' + d(r.luz) + ', biomass ' + d(r.biomasa) + ', oxygen ' + d(r.oxigeno) + '. ' +
+      (i.grieta ? (i.grieta.abierta ? 'The rift is open. Resource gain: base (1x); sealed rate: doubled (2x).' :
+        'The rift is sealed. Resource gain: doubled (2x); open rate: base (1x).') :
+        'Rift: NO_DATA. Resource gain: NO_DATA (rift state not measured).');
+  }
+  function huella(i) { var g = guion(i); return g ? K.sha(JSON.stringify({ g: g, b: boletin(i) })) : null; }
+
+  /* Tocar: el interruptor de siempre (S.activa) y una nota cada PASO_MS por la sintesis FM de core.js. */
+  function toca(i) {
+    var S = raiz.AtlasSintesis, g = guion(i);
+    if (!S || !g) { return null; }
+    S.activa(true);
+    g.forEach(function (f, k) {
+      raiz.setTimeout(function () { S.suena({ tipo: 'radio', portadora: f, moduladora: Math.ro

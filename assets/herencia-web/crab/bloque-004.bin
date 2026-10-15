@@ -1,0 +1,16 @@
+, x, suelo, r, o) {
+    var CJ = raiz.AtlasCangrejo, G = raiz.AtlasGacha;
+    if (!CJ || !G || !G.punto) { return null; }
+    var cu = o.cuerpo || {}, fo = o.forma, rr = Math.max(6, r * fo.escala), dpr = o.dpr || 1, q = !!o.quieto, t = o.t || 0;
+    var arm = ondaVista(o.id || 'yo', CJ.onda(fo.escala, cu, o.estilo), t, q), n = 72, lim = 0, c = fo.tono, B = bandas(c[0], c[1], c[2] - 6);
+    arm.forEach(function (h) { lim += Math.max(Math.abs(h[1]), Math.abs(h[2])); });
+    var k = rr / lim, vaiven = q ? 0 : Math.sin(t * 0.012) * rr * 0.05, cy = suelo - rr * 0.55 + vaiven;
+    function niebla(p) { g.globalAlpha = cu[p] === null ? 0.35 : 1; g.setLineDash(cu[p] === null ? [3 * dpr, 3 * dpr] : []); }
+    function concha(dx, dy, e) {
+      g.beginPath();
+      for (var i = 0; i <= n; i++) { var p = G.punto(arm, i / n * Math.PI); g[i ? 'lineTo' : 'moveTo'](p[0] * k * e + dx, -Math.abs(p[1]) * k * 0.9 * e + dy); }
+      g.closePath();
+    }
+    g.save(); g.translate(x, cy);
+    if (o.dir < 0) { g.scale(-1, 1); }
+    

@@ -1,0 +1,18 @@
+   Puro: sin DOM, sin red, sin azar, sin reloj. Misma semilla e input =
+   mismos derivados (el gate maestro los compara en calidad 0 y 2). */
+(function (raiz) {
+  'use strict';
+  var HUE = { LIVE: 120, PROPUESTA: 45, FIRMADO: 270, ERROR: 0, NO_DATA: 240, SIMULATED: 30, STALE: 60 };
+  var SAT = 70, LUZ_BASE = 55;
+
+  /* Los derivados del spec, por sello (medidos contra MOCKUP_MVP/F304):
+     flujo (rotación/marchitamiento del contorno), pulso (ritmo en Hz,
+     M17 respira al beat: 660 bajado por octavas — 5,16 Hz de referencia),
+     escala (expansión o repliegue), feedback (qué avisa el chrome), y
+     silencio visual para lo no medido. */
+  var DERIVADOS = {
+    LIVE:      { flujo: 0.0006,  pulso_hz: 5.16, escala: 1.0,  feedback: 'flow' },
+    PROPUESTA: { flujo: 0.0012,  pulso_hz: 2.00, escala: 0.96, feedback: 'pulse-sync' },
+    FIRMADO:   { flujo: 0.0004,  pulso_hz: 1.00, escala: 1.08, feedback: 'bloom' },
+    ERROR:     { flujo: 0.0030,  pulso_hz: 8.00, escala: 0.92, feedback: 'distort' },
+    NO_D

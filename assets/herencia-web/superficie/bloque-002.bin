@@ -1,0 +1,8 @@
+ reducido: ni se pide la transicion (thegame.js). */
+.cab-juego{view-transition-name:cabezal-juego}
+.juego-panel .thegame-pestanas{view-transition-name:pestanas-juego}
+::view-transition-old(root){animation:.22s ease-in both salida-zona}
+::view-transition-new(root){animation:.42s cubic-bezier(.34,1.56,.64,1) both entrada-zona}
+@keyframes salida-zona{to{opacity:0;transform:translateX(-6%) scale(.98)}}
+@keyframes entrada-zona{from{opacity:0;transform:translateX(8%) scale(.98)}}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}

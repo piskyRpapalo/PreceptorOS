@@ -1,0 +1,6 @@
+e,
+    mezcla: mezcla, punto: punto, compacta: compacta, caracter: caracter, odds: odds, oddsAristas: oddsAristas
+  };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasGacha; }
+  else { raiz.AtlasGacha = AtlasGacha; }
+})(this);

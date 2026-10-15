@@ -1,0 +1,9 @@
+attributes: true, attributeFilter: ['hidden'] });
+  }
+  if (raiz.setInterval && raiz.document) { raiz.setInterval(monta, 1000); }
+  /* El inspector y el vector leen la ultima transicion: su S_t y lo que se dibujo de el. */
+  function ficha() { return ultimo ? JSON.parse(JSON.stringify(ultimo)) : null; }
+
+  var AtlasWorm = { gusano: gusano, ficha: ficha, TOPE_SEG: TOPE_SEG };
+  if (typeof module === 'object' && module.exports) { module.exports = AtlasWorm; } else { raiz.AtlasWorm = AtlasWorm; }
+})(this);

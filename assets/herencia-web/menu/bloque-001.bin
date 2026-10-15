@@ -1,0 +1,15 @@
+ de `thegame.js`, que estaba por encima de 16 KiB).
+
+   `monta(x)`: x = { capa, T, el, cada, tecnico, PESTANAS, alTaller() }. Devuelve S = { PANEL, HOJA, ZM, ZB, PARTIDA, MAPA,
+   ARMYZ, muestra(id, foco), pliego(titulo, id, abierto, hijos), actual() }. Sin red, sin azar, sin reloj. */
+(function (raiz) {
+  'use strict';
+  /* Cinco destinos estables; los paneles dinamicos se agrupan dentro de ellos. */
+  var GRUPOS = { history: ['pliego-estado', 'pliego-lapidas'], buildings: ['pliego-lugares', 'pliego-ficha'],
+    nodes: ['pliego-nodos', 'terminal-cangrejo', 'radio-estado', 'pliego-skills', 'pliego-opinar'], start: ['pliego-entrada', 'pliego-tutorial'] };
+
+  function monta(x) {
+    var capa = x.capa, T = x.T, el = x.el, cada = x.cada;
+    function texto(k, d) { var t = T(k); return t && t !== k ? t : d; }
+    var S = { PANEL: {}, HOJA: {} }, actual = null, destino = null, abierto = null, transicion = 0, R = { items: {} };
+    var piso = capa.querySelector('#atlas-piso'), barra = capa.querySelector('.thegame-ba

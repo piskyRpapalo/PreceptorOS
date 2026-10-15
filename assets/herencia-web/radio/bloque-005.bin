@@ -1,0 +1,14 @@
+to) { var n = raiz.document.createElement(tag); if (clase) { n.className = clase; } if (texto != null) { n.textContent = texto; } return n; }
+  function monta(panel) {
+    if (!panel || panel.querySelector('.radio-estado')) { return; }
+    var d = el('details', 'radio-estado thegame-pliego');
+    d.appendChild(el('summary', null, 'Radio Atlantis · the state, as sound'));
+    var txt = el('p', 'radio-boletin'), nota1 = el('p', 'atlas-nota'), b = el('button', 'boton', 'Play the state'); b.type = 'button';
+    txt.setAttribute('aria-live', 'polite');
+    function ins() { return raiz.AtlasJuego && raiz.AtlasJuego.instantanea ? raiz.AtlasJuego.instantanea() : null; }
+    d.addEventListener('toggle', function () { if (d.open) { txt.textContent = boletin(ins()); } });
+    b.addEventListener('click', function () {
+      var i = ins(), g = toca(i);
+      txt.textContent = boletin(i);
+      nota1.textContent = (g ? 'Notes (Hz): ' + g.join(' · ') + '. ' : 'NO_DATA: no game yet. ') + locutor(txt.textContent) + '.';
+   

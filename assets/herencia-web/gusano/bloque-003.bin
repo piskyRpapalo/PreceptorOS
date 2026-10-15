@@ -1,0 +1,15 @@
+.createElement('canvas'); lienzo.className = 'gusano-lienzo'; lienzo.setAttribute('aria-hidden', 'true'); D.body.appendChild(lienzo); }
+    var dpr = Math.min(2, raiz.devicePixelRatio || 1), g = lienzo.getContext('2d'), t0 = null;
+    lienzo.width = Math.round(raiz.innerWidth * dpr); lienzo.height = Math.round(raiz.innerHeight * dpr);
+    var color = gu.hue === null ? 'rgba(150,160,180,.8)' : 'hsl(' + gu.hue + ' 70% 60%)';
+    function cuadro(ts) {
+      if (t0 === null) { t0 = ts; }
+      var p = Math.min(1, (ts - t0) / gu.ms), cab = Math.round(p * 24);
+      g.clearRect(0, 0, lienzo.width, lienzo.height);
+      for (var s = 0; s < gu.segmentos; s++) {
+        var q = gu.puntos[Math.max(0, cab - s * 2)];
+        g.beginPath(); g.arc(q[0] * dpr, q[1] * dpr, (6 - s * 0.4) * dpr, 0, 2 * Math.PI);
+        g.fillStyle = color; g.globalAlpha = 1 - s / (gu.segmentos + 1); g.fill();
+      }
+      g.globalAlpha = 1;
+      if (p < 1) { raiz.requestAnimationFrame(cuadro); } else { g.clearRect(0, 0, lienzo.width, lienzo

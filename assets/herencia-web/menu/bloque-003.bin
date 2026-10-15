@@ -1,0 +1,13 @@
+e('aria-expanded', String(actual === 'ondas')); }
+      document.documentElement.classList.toggle('con-hoja', !!actual);
+      if (actual === 'ondas') { Promise.resolve(x.alTaller()).then(mueveArmy); }
+      if (actual && foco !== false) { var c = S.HOJA[actual].querySelector('.thegame-hoja-cierra'); if (c) { c.focus(); } }
+      else if (foco && R.items.taller) { R.items.taller.focus(); }
+    }
+    function hoja(id, titulo) {
+      var d = el('section', 'thegame-hoja'), cab = el('div', 'thegame-hoja-cab'), cu = el('div', 'thegame-hoja-cuerpo');
+      d.id = 'thegame-' + id; d.hidden = true; d.setAttribute('role', 'region'); d.setAttribute('aria-label', titulo);
+      var c = el('button', 'boton-sec thegame-hoja-cierra', '← ' + T('hoja_mapa')); c.type = 'button'; c.id = 'thegame-' + id + '-cierra';
+      c.addEventListener('click', function () { muestra(null, true); });
+      cab.appendChild(c); cab.appendChild(el('h3', null, titulo)); d.appendChild(cab); d.appendChild(cu); S.HOJA[id] = d;
+      return cu;

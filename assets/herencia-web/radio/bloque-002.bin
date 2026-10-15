@@ -1,0 +1,14 @@
+, indice: 35, dur: 0.28, gan: 0.07 });
+  }
+  /* El guion sonoro de una instantanea: ocho notas, cada una de una cifra. Puro. */
+  function guion(i) {
+    if (!i || i.esquema !== 'atlas.instantanea/1' || !i.recursos) { return null; }
+    var r = i.recursos, pct = i.integridad_max ? Math.round(i.integridad * 100 / i.integridad_max) : 0;
+    var cifras = [pct, r.cobre, r.biomasa, r.luz, r.oxigeno, i.fase, i.nivel_nucleo, i.grieta && i.grieta.abierta ? 1 : 0];
+    return cifras.map(function (v, k) { var n = Math.abs(Math.floor(Number(v) || 0)); return nota(n + k, Math.floor(n / 50) % 3); });
+  }
+  /* El boletin: solo lo que dice la instantanea. Lo que falta, NO_DATA. Puro. */
+  function boletin(i) {
+    if (!i || i.esquema !== 'atlas.instantanea/1') { return 'Radio Atlantis. NO_DATA: no game is running yet.'; }
+    var r = i.recursos || {}, d = function (v) { return v === undefined || v === null ? 'NO_DATA' : v; };
+    var pct = i.integridad_max ? Math.round(i.integridad * 100 / i.integridad_max) + ' percent' : '

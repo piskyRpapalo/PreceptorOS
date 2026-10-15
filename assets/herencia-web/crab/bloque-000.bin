@@ -1,0 +1,12 @@
+/* preceptoros.org · theGame · REALISMO ANIME HONESTO (R1, FIRMO 2026-10-12): el cangrejo en CEL SHADING.
+
+   Misma ecuacion, mismo vector: la onda del cangrejo (`AtlasCangrejo.onda`, k=1/6/2) dibujada en estilo toon, sin un
+   parametro visual nuevo. Cero raster, cero assets, cero azar: todo sale de la onda, de su clase y de la luz declarada.
+   LEY DE LA RONDA:
+   1. CEL CUANTIZADO: LUZ declarada (arriba-izquierda, fija). Tres BANDAS de tono duro (brillo / base / sombra) del MISMO
+      hue que su clase (mar 196 · coral 12) o que su sello (TABLA_SEMANTICA, abajo: la UNICA fuente de color de sello).
+      Nada de degradados: la sombra es la media luna opuesta a la luz; el brillo, la onda menguada hacia la luz.
+   2. CONTORNO GRUESO: el borde es la misma serie de Fourier, con trazo engordado (el de la gacha).
+   3. MORF ARMONICO: si la onda cambia (army, pinzas), sus terminos [k, ax, ay, fase] se interpolan en MORF_MS (2 s);
+      jamas un salto. Movimiento reducido: sin morf, sin parpadeo, sin vaiven.
+   

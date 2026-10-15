@@ -1,0 +1,21 @@
+ 0) { r.vibrato = { hz: I.vibrato_hz, prof: Math.round(r.portadora * I.vibrato_prof * u) }; }
+    return r;
+  }
+
+  /* LA ENVOLVENTE, pura: la ganancia del sonido en el segundo t. La usa `suena` para programar el
+     volumen y la usa el pulso del golpe (wave_render) para dibujarse: una curva, dos sentidos.
+     Sin adsr es la rampa de siempre (gan -> 0,0001 en dur); con adsr, ataque-caida-sostenido-relajacion. */
+  function envolvente(r, t) {
+    if (!r || t < 0 || t >= r.dur) { return 0; }
+    if (!r.adsr) { return r.gan * Math.pow(0.0001 / r.gan, t / r.dur); }
+    var a = r.adsr[0], d = r.adsr[1], s = r.adsr[2], rel = r.adsr[3], fin = r.dur - rel;
+    if (t < a) { return r.gan * t / a; }
+    if (t < a + d) { return r.gan * (1 - (1 - s) * (t - a) / d); }
+    if (t < fin) { return r.gan * s; }
+    return r.gan * s * (1 - (t - fin) / rel);
+  }
+
+  /* El calor que si se puede medir: la presion del Nucleo en la instantanea. */
+  function calorDe(ins) {
+    if (!ins || !ins.integridad_max) { return 0; }
+    return

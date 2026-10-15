@@ -1,0 +1,16 @@
+, 'thegame-menu-ico', icono); i.setAttribute('aria-hidden', 'true');
+      b.appendChild(i); b.appendChild(el('span', 'thegame-menu-rotulo', rotulo)); b.setAttribute('aria-label', rotulo); b.title = rotulo;
+      b.setAttribute('aria-expanded', 'false'); b.addEventListener('click', accion);
+      li.appendChild(b); ul.appendChild(li); R.items[id] = b;
+      return b;
+    }
+    /* Un panel nuevo debe pertenecer a uno de los cinco grupos o queda oculto, nunca suelto en el menu. */
+    function sincroniza() {
+      cada(cajon.children, function (d) {
+        if (d.tagName !== 'DETAILS') { return; }
+        if (!d.id) { d.id = (d.className.split(' ').filter(function (c) { return c !== 'thegame-pliego'; })[0] || 'panel') ; }
+        var grupo = Object.keys(GRUPOS).filter(function (k) { return GRUPOS[k].indexOf(d.id) >= 0; })[0];
+        d.hidden = !grupo || grupo !== abierto;
+      });
+    }
+    entrada('history', '◷', texto('nav_history', 'History mode'), function () { abre('history'); }).setAttribute('aria-con

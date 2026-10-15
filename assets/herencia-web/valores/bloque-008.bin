@@ -1,0 +1,19 @@
+no revela en
+         estos ciclos de juego de quien espera, pierde el duelo por abandono y queda como deuda. */
+      abandono_ciclos: 900
+    },
+    /* Los LUGARES NPC de la Arena: patrullas que salen de la semilla de su lugar, iguales en todos los
+       aparatos, para probar el combate sin red. Mas hondo, mas duro. PROVISIONAL. */
+    patrullas: [
+      { id: 'arrecife', tc: 'tc1', n: 2 }, { id: 'algas', tc: 'tc1', n: 3 }, { id: 'ruinas', tc: 'tc2', n: 3 },
+      { id: 'limo', tc: 'tc3', n: 3 }, { id: 'abismo', tc: 'tc4', n: 4 }, { id: 'nucleo', tc: 'tc4', n: 6 }
+    ],
+    /* MOVIMIENTO 5 - M17: FLUIDEZ PS1 - Tunables como datos (corpus ideas6oct-2:785)
+       Todos los parametros de la capa PS1 en un solo objeto declarativo.
+       Nivel 0 = calidad minima (PS1 puro), 1 = media, 2 = maxima (fluida).
+       PROVISIONAL - ajustar segun bench en el Beelink. */
+    fluidez: {
+      /* Melt de batalla (MOVIMIENTO 1): persistencia canvas offscreen */
+      melt_alfa: 0.93,
+      melt_zoom: 1.0005,
+      melt_

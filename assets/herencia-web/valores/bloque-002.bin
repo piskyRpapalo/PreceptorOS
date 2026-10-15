@@ -1,0 +1,11 @@
+ TC altas solo
+       engordan la cola. Con margen de ~3 sigmas (n = 4 000): 3-4 >= 62,5 % y > 12 <= 3,5 %, para que la
+       meta se cumpla tambien en lo TIRADO, no solo en la tabla (medido: con 60,0 % exacto, tc2 daba 59,3 %). PROPUESTA de Claude: la tabla exacta la fija el Soberano. Estas son las ODDS que
+       se publican: las mismas que se tiran. */
+    aristas: {
+      tc1: [[3, 340], [4, 300], [5, 110], [6, 85], [7, 50], [8, 35], [9, 25], [10, 15], [11, 15], [12, 10], [13, 10], [14, 5]],
+      tc2: [[3, 330], [4, 300], [5, 105], [6, 80], [7, 55], [8, 35], [9, 25], [10, 20], [11, 15], [12, 10], [13, 10], [14, 10], [15, 5]],
+      tc3: [[3, 325], [4, 300], [5, 100], [6, 75], [7, 55], [8, 35], [9, 30], [10, 20], [11, 15], [12, 15], [13, 15], [14, 10], [15, 5]],
+      tc4: [[3, 325], [4, 300], [5, 95], [6, 70], [7, 50], [8, 35], [9, 30], [10, 25], [11, 20], [12, 15], [13, 15], [14, 10], [15, 5], [16, 5]]
+    },
+    /* La rareza por aristas: hasta 4 normal, hasta 8 magico, hasta 12 raro; mas, unico (Levia

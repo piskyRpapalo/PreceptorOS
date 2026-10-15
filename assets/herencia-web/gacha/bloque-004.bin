@@ -1,0 +1,19 @@
+20 puntos de `punto`. Pura;
+     es la misma medida de la propuesta M18. La tirada promete n y esto comprueba que se dibuja n. */
+  function aristas(t) {
+    var a = (t && t.armonicos) || t, N = 720, r = [], c = 0;
+    for (var i = 0; i < N; i++) { var p = punto(a, i / N * 2 * Math.PI); r.push(Math.sqrt(p[0] * p[0] + p[1] * p[1])); }
+    for (var k = 0; k < N; k++) { var b = r[k]; if (b > r[(k + N - 1) % N] && b >= r[(k + 1) % N]) { c++; } }
+    return c;
+  }
+
+  /* LA TIRADA: TC + semilla -> tropa. Primero las ARISTAS (por mil, de su TC) y de ahi la rareza; magico
+     lleva prefijo O sufijo (a veces los dos), raro los dos y una tirada mas, unico (el Leviatan, mas de 12
+     aristas) es el Atlante Legendario con los dos afijos fijos. */
+  function tirada(semilla, tc) {
+    var T = TCS[tc];
+    if (!T) { throw new Error('tc'); }
+    var g = generador(semilla), n = aristasDe(g.mil(), tc), rareza = rarezaDe(n);
+    var nivel = Number(tc.slice(2));
+    var stats = {};
+    STATS.forEach(function (k) { stats[k] = 0

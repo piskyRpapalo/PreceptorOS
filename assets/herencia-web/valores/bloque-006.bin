@@ -1,0 +1,13 @@
+e: 30, dur: 0.5, gan: 0.12 },
+      eclosion: { f: 440, m: 3, indice: 260, dur: 0.6, gan: 0.2 },
+      adopcion: { f: 523, m: 1.5, indice: 80, dur: 0.45, gan: 0.18 }
+    },
+    /* M17-bis 3 (firma F-A, EN_CURSO_hasta_escucha del Soberano): ADSR + FM de tres senos (portadora y
+       DOS moduladoras, ambas conectadas: la joya del mockup no las conectaba). `modo` decide; 'fm2' es el
+       sonido de siempre y sigue por defecto hasta la escucha A/B. adsr = [ataque s, caida s, sostenido
+       0-1, relajacion s]; m2 = moduladora2 / portadora; indice2 = fraccion del indice. PROVISIONALES:
+       los fija el oido del Soberano, que es la medida que falta. */
+    sintesis: { modo: 'fm2', adsr: [0.005, 0.03, 0.55, 0.06], m2: 0.5, indice2: 0.5,
+      /* M17-bis 4 (firma F-A): VIBRATO POR URGENCIA DEL SELLO. Lo que espera firma vibra; lo firmado
+         suena quieto. eclosion = la tropa nacida espera tu firma para adoptarla (ui.js:175);
+         adopcion = ya firmada (ui.js:191). vibrato_hz y vibrato_prof (fraccion de 

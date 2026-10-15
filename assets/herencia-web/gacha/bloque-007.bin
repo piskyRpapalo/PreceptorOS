@@ -1,0 +1,17 @@
+ (punto 5 del plan «el refresco»): la tropa guarda SIEMPRE su espectro; en
+     COMBATE se dibuja la cara sencilla (la base y el armonico de las aristas: los mismos n lobulos, legible
+     a escala) y en el TALLER la cara total. Es un LOD de los MISMOS datos: la de combate es un prefijo. */
+  function lod(t, cara) { var e = espectro(t); return cara === 'taller' ? e : e.slice(0, 2); }
+
+  /* El huevo tambien es una onda: un ovalo con un latido. */
+  var HUEVO = [[1, 16, 22, 0], [2, 0, 3, 16]];
+
+  /* MORFISMO: mezcla lineal de dos figuras, termino a termino. Las listas se
+     igualan con terminos de amplitud cero, asi que el huevo se abre en la
+     tropa sin saltos. `t` va de 0 a 1. */
+  function mezcla(a, b, t) {
+    var n = Math.max(a.length, b.length), out = [];
+    for (var i = 0; i < n; i++) {
+      var x = a[i] || [b[i][0], 0, 0, b[i][3]], y = b[i] || [a[i][0], 0, 0, a[i][3]];
+      var k = t < 0.5 ? x[0] : y[0];
+      out.push([k, x[1] + (y[1] - x[1]) * t, x[2] + (y[2] - x[2]) * t, x[3] + (y[3] - x[3]

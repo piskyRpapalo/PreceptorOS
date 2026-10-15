@@ -1,0 +1,18 @@
+ lee siempre en texto, y nada suena hasta el gesto de
+   la persona (el interruptor de siempre). AI Act art. 50 en el nombre: transparencia, el estado dicho
+   tal cual. Sin red, sin almacen, sin azar; el reloj solo separa las notas. */
+(function (raiz) {
+  'use strict';
+  var K = (typeof module === 'object' && module.exports) ? require('./canon.js') : raiz.AtlasCanon;
+  var BASE_HZ = 220, PENTA = [0, 2, 4, 7, 9], PASO_MS = 300;
+
+  function nota(grado, octava) {
+    var g = ((grado % 5) + 5) % 5, o = Math.max(0, Math.min(2, octava));
+    return Math.round(BASE_HZ * Math.pow(2, o + PENTA[g] / 12) * 100) / 100;
+  }
+  /* Una nota discreta para feedback opt-in; usa la misma receta local que la Radio. */
+  function tocaNota(grado, octava) {
+    if (!Number.isInteger(grado) || !Number.isInteger(octava)) { return null; }
+    var f = nota(grado, octava), S = raiz.AtlasSintesis;
+    if (!S || typeof S.suena !== 'function') { return null; }
+    return S.suena({ tipo: 'radio', portadora: f, moduladora: Math.round(f * 2)

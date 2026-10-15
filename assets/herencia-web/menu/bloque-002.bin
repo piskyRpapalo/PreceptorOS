@@ -1,0 +1,17 @@
+rra');
+    if (!piso || !barra || capa.querySelector('#thegame-menu')) { return null; }
+
+    /* --- las hojas: una funcion las abre y la misma las cierra ----------------------------------------------- */
+    function muestra(id, foco) {
+      if (S.HOJA[id] ? id === destino : destino === null) { return; }  /* ya pedida: una segunda transicion abortaria la primera */
+      var turno = ++transicion;
+      destino = S.HOJA[id] ? id : null;
+      var d = document, rm = raiz.matchMedia && raiz.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (id !== actual && d.startViewTransition && !rm && capa.isConnected) { d.startViewTransition(function () { if (turno === transicion) { muestraYa(id, foco); } }); }
+      else { muestraYa(id, foco); }
+    }
+    function muestraYa(id, foco) {
+      actual = destino = S.HOJA[id] ? id : null;
+      Object.keys(S.HOJA).forEach(function (k) { S.HOJA[k].hidden = k !== actual; });
+      if (actual) { cierraCajon(); }
+      if (R.items.waves) { R.items.waves.setAttribut

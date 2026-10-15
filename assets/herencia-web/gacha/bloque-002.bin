@@ -1,0 +1,25 @@
+areza_aristas, FORMA = V.forma;
+
+  /* Una variante de sfc32 sembrada con los 128 primeros bits de la semilla. Enteros de 32
+     bits y nada mas: da lo mismo en cualquier navegador y en node. */
+  function generador(semilla) {
+    if (!/^[0-9a-f]{64}$/.test(semilla || '')) { throw new Error('semilla'); }
+    var s = [0, 8, 16, 24].map(function (i) { return parseInt(semilla.slice(i, i + 8), 16) >>> 0; });
+    var a = s[0], b = s[1], c = s[2], d = s[3];
+    function sig() {
+      var t = (a + b >>> 0) + d >>> 0;
+      d = d + 1 >>> 0; a = b ^ b >>> 9; b = c + (c << 3) >>> 0;
+      c = (c << 21 | c >>> 11); c = c + t >>> 0;
+      return t;
+    }
+    for (var i = 0; i < 12; i++) { sig(); }
+    return {
+      mil: function () { return sig() % 1000; },
+      entre: function (r) { return r[0] + sig() % (r[1] - r[0] + 1); },
+      uno: function (lista) { return lista[sig() % lista.length]; }
+    };
+  }
+
+  function suma(stats, mods, g) {
+    Object.keys(mods).forEach(function (k) { stats[k] += g.entre(mods[k]); });
+  

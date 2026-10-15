@@ -1,0 +1,16 @@
+as no se
+       resuelve (`arena.packSha`). */
+    version: 'provisional-2026-10-11.aristas',
+    /* Treasure Classes. Coste en Cobre y Luz: medido con el piloto base, la
+       Biomasa nunca pasa de 2. `incuba` en ciclos de juego. La rareza ya no se
+       tira aparte: sale de las ARISTAS (abajo). */
+    tcs: {
+      tc1: { coste: { cobre: 50, luz: 0 }, incuba: 20, base: 'pez' },
+      tc2: { coste: { cobre: 200, luz: 100 }, incuba: 40, base: 'centinela' },
+      tc3: { coste: { cobre: 600, luz: 300 }, incuba: 60, base: 'leviatan' },
+      tc4: { coste: { cobre: 1500, luz: 500 }, incuba: 90, base: 'heraldo' }
+    },
+    /* EL SONAR DE ARISTAS (M18-B; corpus: «6 planes.txt»:134-142, ideas6oct:1724 «rareza por aristas»).
+       La rareza es COMPLEJIDAD GEOMETRICA: cada tirada saca primero cuantas aristas (lobulos) tiene su
+       onda, de esta tabla ENTERA por mil y por TC: [aristas, por mil]. Meta firmada: >= 60 % con 3-4
+       aristas y <= 5 % con mas de 12 (LEVIATANES, el jackpot), en TODAS las TC; las

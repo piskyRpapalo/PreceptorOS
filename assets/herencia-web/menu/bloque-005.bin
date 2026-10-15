@@ -1,0 +1,16 @@
+Child(n); }); } });
+      x.tecnico(d); S.PANEL[p[0]] = d;
+    });
+    var cajon = el('aside', 'thegame-terminal'); cajon.id = 'thegame-terminal'; cajon.setAttribute('aria-label', T('terminal_aria')); cajon.hidden = true;
+    var est = S.PANEL.casa; est.className = 'thegame-estado'; est.id = 'thegame-estado';
+    S.ZM = el('div', 'thegame-mundo'); S.PARTIDA = el('div', 'thegame-partida');
+    cada([].slice.call(S.PANEL.mapa.children), function (n) { S.PARTIDA.appendChild(n); });
+    var ay = el('ol', 'thegame-ayuda');
+    for (var nq = 1; nq < 8; nq++) { ay.appendChild(el('li', null, T('ayuda_' + nq))); }
+    S.PARTIDA.insertBefore(ay, S.PARTIDA.firstChild);
+    cajon.appendChild(pliego(T('pl_estado'), 'pliego-estado', true, [est]));
+    cajon.appendChild(pliego(T('pl_lugares'), 'pliego-lugares', true, [S.ZM]));
+    S.PANEL.casa = cajon; S.PANEL.mapa = cajon;
+    /* El MAPA: su lienzo vive en su capa fija, detras de todo. */
+    S.MAPA = el('div', 'thegame-mapa'); S.MAPA.id = 'thegame-mapa';
+    /* PANELES AM

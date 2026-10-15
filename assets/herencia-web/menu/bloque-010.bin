@@ -1,0 +1,9 @@
+trols', 'thegame-terminal');
+    entrada('waves', '\u223F', texto('nav_waves', 'Waves Army'), function () { muestra(actual === 'ondas' ? null : 'ondas'); }).setAttribute('aria-controls', 'thegame-ondas');
+    entrada('buildings', '⌂', texto('nav_buildings', 'Buildings'), function () { abre('buildings'); }).setAttribute('aria-controls', 'thegame-terminal');
+    entrada('nodes', '⌘', texto('nav_nodes', 'Nodes & Events'), function () { abre('nodes'); }).setAttribute('aria-controls', 'thegame-terminal');
+    entrada('start', '?', texto('nav_start', 'How to start?'), function () { abre('start'); }).setAttribute('aria-controls', 'thegame-terminal');
+    /* El feedback de pagina sigue accesible dentro de Nodes & Events, no como sexto destino. */
+    if (raiz.PageComment && raiz.PageComment.abre) {
+      var pf = pliego(texto('menu_opinar', 'Feedback on this page'), 'pliego-opinar', false, []), fb = el('button', 'boton-sec', texto('menu_opinar', 'Feedback on this page'));
+      fb.type = 'button'; fb.addEventList

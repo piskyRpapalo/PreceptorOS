@@ -1,0 +1,11 @@
+/* preceptoros.org · theGame · LA TERMINAL: la interfaz no-mapa como un chatbot estandar (FIRMO del Soberano, 2026-10-12).
+
+   La regla 5 de la LEY DEL SUELO concretada: la interfaz vive en los BORDES y el centro queda limpio para el mundo.
+   - MENU A LA IZQUIERDA, colapsable: solo iconos en el telefono (64 px), expandido en escritorio (220 px); Alt+M lo
+     abre y cierra. Es el UNICO HOGAR de cada panel: Tu cangrejo, Lugares, Donde juegas, Terminal J7, la Radio... y el
+     Taller (que deja la barra de arriba). Las entradas salen de los paneles que EXISTEN (no hay botones muertos).
+   - CADA ENTRADA abre SU panel en un cajon junto al menu, de uno en uno; pulsar otra vez lo cierra. Panel vacio = panel
+     cerrado: sin panel elegido, el mapa queda limpio. Escape cierra.
+   - EL CHAT DE LA RADIO va abajo (`radio_message_log.js`), colapsado en el telefono.
+   - Las HOJAS (Taller, Batalla) siguen como estaban: sobre el mapa, con su «← Map»; una funcion las abre y la misma las
+     cierra (sacado tal cual

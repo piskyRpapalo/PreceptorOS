@@ -1,0 +1,15 @@
+r: ['class'] });
+      marca();
+    }
+    /* La Radio escrita, abajo; su primer mensaje es el aviso de lengua, si lo hay (antes lo garantizaba el Estado abierto). */
+    if (raiz.AtlasRadioChat) {
+      raiz.AtlasRadioChat.monta(capa, { T: T });
+      var aviso = capa.querySelector('#atlas-juego > .no-data:first-child, .thegame-estado > .no-data:first-child');
+      if (aviso) { raiz.AtlasRadioChat.dice({ quien: 'Radio', fuente: 'lengua', texto: aviso.textContent, sello: 'NO_DATA' }); }
+    }
+    muestraYa(null);
+    S.muestra = muestra; S.pliego = pliego; S.abre = abre; S.actual = function () { return actual; };
+    return S;
+  }
+  raiz.AtlasChatTerminal = { monta: monta };
+})(this);

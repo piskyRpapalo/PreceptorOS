@@ -1,0 +1,19 @@
+/* preceptoros.org · theGame · los VALORES, separados de la logica.
+
+   ESTADO: PROVISIONAL. Todo numero de aqui es provisional y se dice en pantalla
+   (Soberano, 2026-09-27: «no te preocupes por recursos, habilidades ni
+   niveles; haz la estructura; los valores y los LoRAs los adherimos
+   despues»). La logica (`gacha.js`, `core.js`) no lleva ni una cifra de
+   equilibrio: las lee de aqui. Cambiar el juego es cambiar ESTE fichero, y
+   el dia que haya valores de verdad se cambia `estado` y se versiona.
+
+   SOLO DATOS. Ni funciones ni efectos: un paquete de valores es JSON
+   declarativo, nunca codigo (doctrina de workflows de terceros). Por eso el
+   dia de los mods de la comunidad, un mod sera un objeto con esta forma. */
+(function (raiz) {
+  'use strict';
+
+  var VALORES = {
+    estado: 'provisional',
+    /* M18-B (opcion B firmada por el Soberano, 2026-10-11): la version sube porque la tirada cambia. Las
+       tropas de antes (sin `aristas`) se dicen de otra version; un duelo entre versiones distint

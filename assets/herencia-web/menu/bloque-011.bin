@@ -1,0 +1,14 @@
+ener('click', function () { cierraHoja(); raiz.PageComment.abre(); }); pf.appendChild(fb); cajon.appendChild(pf);
+    }
+    sincroniza();
+    new MutationObserver(sincroniza).observe(cajon, { childList: true });
+
+    [S.MAPA, menu, cajon, S.HOJA.ondas, S.HOJA.batalla].forEach(function (n) { piso.appendChild(n); });
+    cada(piso.querySelectorAll(':scope > .atlas-rejilla'), function (n) { n.remove(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.altKey && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); expande(); ancho.focus(); return; }
+      if (e.key !== 'Escape' || document.querySelector('.atlas-dlg-capa,dialog[open]')) { return; }
+      if (actual) { muestra(null, true); } else if (abierto) { var b = R.items[abierto]; abre(abierto); if (b) { b.focus(); } }
+    });
+    /* FUERA-CLIC CIERRA (comunicado 13-oct, punto 2): cualquier toque fuera de la ventana cierra lo abierto. Un solo
+       handler para todo el cajon y las hojas. Cerrar solo esconde: lo ganado (el Army, sus f

@@ -1,0 +1,22 @@
+ r = typeof tipo === 'object' ? tipo : receta(tipo, calor);
+    if (!activo || !ctx || !r) { return null; }
+    var t = ctx.currentTime;
+    var car = ctx.createOscillator(), mod = ctx.createOscillator();
+    var prof = ctx.createGain(), sal = ctx.createGain();
+    car.type = 'sine'; mod.type = 'sine';
+    car.frequency.value = r.portadora; mod.frequency.value = r.moduladora;
+    prof.gain.value = r.indice;
+    if (r.adsr) {
+      var A = r.adsr, fin = t + r.dur - A[3];
+      sal.gain.setValueAtTime(0, t);
+      sal.gain.linearRampToValueAtTime(r.gan, t + A[0]);
+      sal.gain.linearRampToValueAtTime(r.gan * A[2], t + A[0] + A[1]);
+      sal.gain.setValueAtTime(r.gan * A[2], fin);
+      sal.gain.linearRampToValueAtTime(0, t + r.dur);
+    } else {
+      sal.gain.setValueAtTime(r.gan, t);
+      sal.gain.exponentialRampToValueAtTime(0.0001, t + r.dur);
+    }
+    mod.connect(prof); prof.connect(car.frequency);
+    if (r.moduladora2) {
+      /* La segunda moduladora, CONECTADA (la joya del mockup creaba dos y no c

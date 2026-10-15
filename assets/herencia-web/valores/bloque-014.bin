@@ -1,0 +1,11 @@
+[1]) + affixMods + (unique ? tcLevel : 0) + Workshop sanding', 'signed seed, TC, edge-derived rarity, verified Workshop receipt', 'ESTADO', 'ui-taller.js'],
+      sigilo: ['affixMods + (unique ? tcLevel : 0) + Workshop sanding', 'edge-derived rarity, verified Workshop receipt', 'ESTADO', 'ui-taller.js'],
+      inercia: ['affixMods + (unique ? tcLevel : 0)', 'edge-derived rarity; Workshop sanding is ineligible', 'ESTADO', 'ui-taller.js'],
+      profundidad: ['affixMods + (unique ? tcLevel : 0)', 'edge-derived rarity; Workshop sanding is ineligible', 'ESTADO', 'ui-taller.js'],
+      aura: ['affixMods + (unique ? tcLevel : 0)', 'edge-derived rarity; Workshop sanding is ineligible', 'ESTADO', 'ui-taller.js']
+    }
+  };
+
+  if (typeof module === 'object' && module.exports) { module.exports = VALORES; }
+  else { raiz.AtlasValores = VALORES; }
+})(this);

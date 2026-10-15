@@ -1,0 +1,14 @@
+ichas) no se toca. Los
+       toques en el menu, en el cajon o en una hoja los atiende cada uno. */
+    document.addEventListener('pointerdown', function (e) {
+      if (!(actual || abierto) || document.querySelector('.atlas-dlg-capa,dialog[open]')) { return; }
+      var t = e.target;
+      if (t.closest && t.closest('#thegame-terminal,.thegame-hoja,#thegame-menu,#identity-menu,.thegame-menu-item')) { return; }
+      if (actual) { muestra(null, false); }
+      if (abierto) { abre(abierto, false); }
+    });
+    /* Con la grieta abierta, «Tu cangrejo» lleva un punto: el aviso llega aunque el cajon este cerrado. */
+    var a = est.querySelector('.atlas-alerta');
+    if (a) {
+      var marca = function () { var b = R.items.history; if (b) { b.classList.toggle('con-aviso', !a.classList.contains('sellada')); b.setAttribute('aria-label', texto('nav_history', 'History mode') + (!a.classList.contains('sellada') ? ' · alert' : '')); } };
+      new MutationObserver(marca).observe(a, { attributes: true, attributeFilte

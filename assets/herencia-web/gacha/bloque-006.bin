@@ -1,0 +1,20 @@
+ sufijo: suf, stats: stats, aristas: n, armonicos: armonicos(n, rareza, g), semilla: semilla, campo_origen: 'medido'
+    };
+  }
+
+  /* CAMPO_ORIGEN (M18-bis): de donde salio el espectro que se pinta. 'medido' = lo tiro el motor con
+     su semilla, se dibuja entero. 'emulado' = prestado o regenerado sin motor: se dibujan enteros solo
+     los dos primeros terminos y los altos se desvanecen (cada uno a la mitad del anterior), que es la
+     niebla honesta: se ve que esa onda no tiene detalle medido. Una tropa sin el campo es de antes de
+     M18 y salio de `tirada`, asi que es medida. Un valor que no esta aqui no se adivina: lanza. */
+  var ORIGENES = ['medido', 'emulado'];
+  function espectro(t) {
+    var o = t.campo_origen || 'medido';
+    if (ORIGENES.indexOf(o) < 0) { throw new Error('campo_origen'); }
+    if (o === 'medido') { return t.armonicos; }
+    return t.armonicos.map(function (h, i) {
+      return i < 2 ? h : [h[0], h[1] >> (i - 1), h[2] >> (i - 1), h[3]];
+    });
+  }
+
+  /* LAS DOS CARAS DE LA ONDA

@@ -1,0 +1,16 @@
+'aria-label', T('menu_aria'));
+    var ancho = el('button', 'thegame-menu-ancho', '☰'); ancho.type = 'button'; ancho.id = 'thegame-menu-ancho';
+    ancho.setAttribute('aria-label', T('menu_ancho')); ancho.setAttribute('aria-expanded', 'false');
+    var ul = el('ul', 'thegame-menu-lista'); menu.appendChild(ancho); menu.appendChild(ul);
+    function expande(si) {
+      var a = si == null ? !menu.classList.contains('expandido') : si;
+      menu.classList.toggle('expandido', a); ancho.setAttribute('aria-expanded', String(a));
+    }
+    ancho.addEventListener('click', function () { cierraHoja(); expande(); });
+    if (raiz.matchMedia && raiz.matchMedia('(min-width: 64rem)').matches) { expande(true); }
+
+    /* Abrir un panel: el cajon se ve con ESE panel; pulsarlo otra vez lo cierra (panel vacio = cerrado). */
+    function abre(id, foco) {
+      var siguiente = abierto === id ? null : id;
+      if (siguiente && (actual || destino)) { cierraHoja(); }
+      var turno = ++transicion, rm = raiz.matchMedia && raiz.mat
