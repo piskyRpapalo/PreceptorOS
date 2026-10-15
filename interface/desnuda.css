@@ -1,0 +1,69 @@
+/* desnuda.css · la app en estructura mínima (2026-10-05, orden del Soberano:
+   «desnúdala para que pongamos primero las funciones recopiladas»).
+
+   Reglas de esta hoja, y las comprueba test_desnuda.py:
+   * tipografía del sistema, una sola columna, flujo normal del documento: nada
+     flota encima de nada, así que el panel de funciones y el chat no se pueden
+     pisar en ningún ancho;
+   * colores del sistema (Canvas / CanvasText): el contraste lo pone el aparato;
+   * ninguna imagen, ningún url(), ninguna animación. La capa visual de antes
+     está entera en interface/legacy/ y no se carga.
+   Lo que queda aquí es funcional: ocultar lo que el guion oculta, el texto
+   solo para lectores de pantalla y los cajones como paneles legibles. */
+:root { color-scheme: light dark; }
+:root[data-tema="oscuro"] { color-scheme: dark; }
+:root[data-tema="claro"] { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: Canvas; color: CanvasText; }
+body {
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  max-width: 48rem; margin: 0 auto; padding: .5rem 16px 2rem;
+  overflow-wrap: anywhere;
+}
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap; }
+svg { width: 1.2em; height: 1.2em; vertical-align: middle; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { padding: .35rem .7rem; border: 1px solid GrayText; border-radius: 6px;
+         background: Canvas; cursor: pointer; min-height: 2.2rem; }
+input, textarea, select { background: Canvas; border: 1px solid GrayText;
+                          border-radius: 6px; padding: .35rem .5rem; }
+:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+
+/* Lo decorativo, fuera: el telón de apertura y el busto no se pintan. */
+.telon, .presentacion, .velo, .asa { display: none; }
+
+/* Cabezal: una fila de botones con su nombre. */
+.cabezal { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+           padding: .3rem 0; border-bottom: 1px solid GrayText; }
+.cabezal .marca { font-size: 1.1rem; margin: 0 0 0 auto; }
+.lateral-zona { position: relative; }
+.lateral { position: absolute; z-index: 3; top: 100%; left: 0; min-width: 14rem;
+           display: flex; flex-direction: column; gap: .3rem; padding: .5rem;
+           background: Canvas; border: 1px solid GrayText; border-radius: 6px; }
+
+/* La elección de idioma, como lista de botones. */
+.eleccion-cajas { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+/* El chat del Preceptor: una caja con borde fino, sin marco de bronce. */
+.dice { border: 1px solid GrayText; border-radius: 6px; padding: .6rem;
+        min-height: 6rem; max-height: 60vh; overflow-y: auto;
+        display: flex; flex-direction: column; gap: .5rem; margin: .6rem 0; }
+.dice p { margin: 0; white-space: pre-wrap; }
+.dice p.mio { align-self: flex-end; max-width: 85%; padding: .3rem .5rem;
+              border: 1px solid GrayText; border-radius: 6px; }
+.dice p.malo { font-weight: 600; }
+.escribir { display: flex; flex-wrap: wrap; gap: .4rem; }
+.escribir input { flex: 1 1 12rem; min-width: 0; }
+.atajos { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+.fusion { font-style: italic; }
+
+/* Los cajones (memoria, medición, frontera, camino, perfil, proyectos): un
+   panel fijo abajo, legible y con su botón de volver. */
+.cajon { position: fixed; z-index: 4; left: 0; right: 0; bottom: 0;
+         max-height: 75vh; overflow-y: auto; padding: .8rem 16px 1.2rem;
+         background: Canvas; border-top: 2px solid CanvasText; }
+.cajon > * { max-width: 48rem; margin-left: auto; margin-right: auto; }
+.dato { display: flex; justify-content: space-between; gap: .5rem; }
+.nota { font-size: .85rem; }

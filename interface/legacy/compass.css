@@ -1,3 +1,9 @@
+/* Apartado (legacy) el 2026-10-05 por orden del Soberano: «la app tiene el CSS
+   antiguo. Desnúdala para que pongamos primero las funciones recopiladas.»
+   No se carga: dashboard.html enlaza desnuda.css y consola.css (mínimos). Se
+   guarda entero, sin borrar nada, para recuperarlo cuando toque la capa visual
+   (marmol, marco de bronce, ondas, busto animado). Motivo técnico del día: el
+   panel de la consola flotaba en absoluto encima del chat y se solapaban. */
 /* compass.css · la rosa de los vientos.
  *
  * Hereda los tokens de app.css en vez de traer su propia paleta: asi el modo
