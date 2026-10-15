@@ -9,27 +9,33 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=2">
+<link rel="stylesheet" href="/app.css?v=3">
 </head>
 <body>
 
 <header class="barra">
-  <a class="inicio" href="/" id="ir-inicio" data-i18n-aria="aria_inicio"
-     aria-label="Ir a la portada" title="Ir a la portada">⌂</a>
+  <button class="inicio" type="button" id="ir-inicio" data-i18n-aria="aria_inicio"
+          aria-label="Ir a la portada" title="Ir a la portada">⌂</button>
   <h1>PreceptorOS</h1>
   <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
 </header>
 
-<nav class="pestanas" role="tablist">
-  <button role="tab" aria-selected="true"  data-panel="chat" data-i18n="tab_chat">Hablar</button>
-  <button role="tab" aria-selected="false" data-panel="frontera" data-i18n="tab_frontera">Frontera</button>
-  <button role="tab" aria-selected="false" data-panel="captura" data-i18n="tab_cuaderno">Cuaderno</button>
+<nav class="pestanas" id="pestanas" role="tablist" aria-orientation="horizontal" aria-label="Zonas">
+  <button id="tab-mando" role="tab" aria-controls="panel-mando" aria-selected="true" tabindex="0" data-panel="mando" data-i18n="tab_mando">Mando</button>
+  <button id="tab-conversacion" role="tab" aria-controls="panel-conversacion" aria-selected="false" tabindex="-1" data-panel="conversacion" data-i18n="tab_chat">Hablar</button>
+  <button id="tab-gobierno" role="tab" aria-controls="panel-gobierno" aria-selected="false" tabindex="-1" data-panel="gobierno" data-i18n="tab_frontera">Frontera</button>
+  <button id="tab-cuaderno" role="tab" aria-controls="panel-cuaderno" aria-selected="false" tabindex="-1" data-panel="cuaderno" data-i18n="tab_cuaderno">Cuaderno</button>
+  <button id="tab-lab" role="tab" aria-controls="panel-lab" aria-selected="false" tabindex="-1" data-panel="lab" data-i18n="tab_lab">Lab</button>
+  <button id="tab-harness" role="tab" aria-controls="panel-harness" aria-selected="false" tabindex="-1" data-panel="harness" data-i18n="tab_harness">Harness</button>
+  <button id="tab-puerta" role="tab" aria-controls="panel-puerta" aria-selected="false" tabindex="-1" data-panel="puerta" data-i18n="tab_puerta">Puerta</button>
+  <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_modelos">Modelos</button>
+  <button id="tab-ajustes" role="tab" aria-controls="panel-ajustes" aria-selected="false" tabindex="-1" data-panel="ajustes" data-i18n="tab_ajustes">Ajustes</button>
 </nav>
 
 <main id="carril" class="carril">
 
   <!-- la brujula · sensor de tu memoria, nunca actuador -->
-  <section class="panel" id="panel-compass" aria-label="Brújula de aprendizaje">
+  <section class="panel" id="panel-mando" role="tabpanel" aria-labelledby="tab-mando" tabindex="0" aria-label="Mando personal">
     <div id="compass-container">
       <div id="compass-svg-hueco"></div>
       <p id="compass-rango"></p>
@@ -42,7 +48,7 @@
   </section>
 
   <!-- hablar -->
-  <section class="panel" id="panel-chat" aria-label="Hablar">
+  <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar" hidden>
     <ol class="hilo" id="hilo" aria-live="polite"></ol>
     <form class="redactar" id="form-chat">
       <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
@@ -55,7 +61,7 @@
   </section>
 
   <!-- frontera -->
-  <section class="panel" id="panel-frontera" aria-label="Frontera" hidden>
+  <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" aria-label="Gobierno del nodo" hidden>
     <div class="tarjeta" id="tarjeta-frontera">
       <div class="fila-switch">
         <button class="switch is-on" id="switch" role="switch"
@@ -98,15 +104,33 @@
   </section>
 
   <!-- cuaderno -->
-  <section class="panel" id="panel-captura" aria-label="Cuaderno" hidden>
+  <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Cuaderno" hidden>
     <p class="pie" id="recuento">…</p>
     <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
     <ul class="turnos" id="turnos"></ul>
   </section>
 
+  <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
+    <h2>Lab</h2><p class="pie" data-i18n="zona_no_data">NO_DATA · contenido de esta zona aún no declarado.</p>
+  </section>
+  <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
+    <h2>Harness</h2><p class="pie" data-i18n="zona_no_data">NO_DATA · contenido de esta zona aún no declarado.</p>
+  </section>
+  <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="Puerta pública" hidden>
+    <h2>Puerta pública</h2><p class="pie" data-i18n="zona_no_data">NO_DATA · contenido de esta zona aún no declarado.</p>
+  </section>
+  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="Modelos locales" hidden>
+    <h2>Modelos</h2><p class="pie" data-i18n="zona_no_data">NO_DATA · contenido de esta zona aún no declarado.</p>
+  </section>
+  <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
+    <h2>Ajustes</h2><p class="pie" data-i18n="zona_no_data">NO_DATA · contenido de esta zona aún no declarado.</p>
+  </section>
+
 </main>
 
-<script src="/app.js?v=2"></script>
+<p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Zona activa: Mando.</p>
+<script src="/zonas.js?v=1"></script>
+<script src="/app.js?v=3"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>

@@ -57,9 +57,11 @@ body {
 .pestanas {
   display: flex; gap: .35rem; padding: .5rem 1rem .6rem;
   border-bottom: 1px solid var(--line);
+  overflow-x: auto; overscroll-behavior-inline: contain;
 }
 .pestanas button {
-  flex: 1; padding: .55rem .4rem; font: inherit; font-size: .88rem;
+  flex: 0 0 auto; min-width: 5.5rem; white-space: nowrap;
+  padding: .55rem .4rem; font: inherit; font-size: .88rem;
   color: var(--ink-soft); background: transparent;
   border: 1px solid transparent; border-radius: var(--radio); cursor: pointer;
   /* 44px de alto minimo: un objetivo tactil mas pequeno se falla con el pulgar */
@@ -184,7 +186,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 44px; min-height: 44px;
   margin-right: .4rem;
-  font-size: 1.35rem; line-height: 1;
+  padding: 0; font: inherit; font-size: 1.35rem; line-height: 1;
   text-decoration: none;
   color: var(--acento);
   border: 1px solid var(--line);

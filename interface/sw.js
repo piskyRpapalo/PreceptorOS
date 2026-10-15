@@ -25,10 +25,10 @@
 // consola.js y consola.css suben a ?v=2.
 // v96 (2026-10-04): niebla del primer arranque y el cuerpo del nodo;
 // consola.js y consola.css suben a ?v=3.
-// v97 (2026-10-04): el Lab hablando y los tres modelos; consola ?v=4.
-const Cache = "aurelius-armazon-v98";
+// v99 (2026-10-16): la app conserva sus zonas en una pestaña y precachea el catálogo.
+const Cache = "aurelius-armazon-v99";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
-                 "/app.html", "/app.css?v=2", "/app.js?v=2", "/manifest.json",
+                 "/app.html", "/app.css?v=3", "/app.js?v=3", "/zonas.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
                  "/compass.js?v=39", "/assets/compass.svg?v=39",
