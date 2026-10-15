@@ -38,6 +38,28 @@ carries an opinion. Before your first PR, read `CONTRIBUTING.md` (language
 policy, sabotage-tested suite, how to run it) and `SECURITY.md`. A missing
 datum is reported as `NO DATA` with its cause — never invented, never padded.
 
+## Interaction contract · FIRMO addendum · 2026-10-15
+
+Treat every participant as an interactor: the person using the system, an AI
+model or agent, the app, a device or node, an automation, and an outside
+visitor or tester. A participant may be absent; show `NO DATA` and why instead
+of implying a live connection or capability.
+
+For each consequential interaction, make the source, requested action,
+available evidence, and next responsible actor clear. Models and automation
+may explain, measure, and prepare proposals; the person with the relevant
+authority approves consequential actions, and the local app reports whether
+the action actually ran. A device or node reports only what it measured
+locally. Never infer a shared state, delivery, or agreement from a listed
+identity or an attempted message.
+
+Keep interaction usable across touch, keyboard, assistive technology, and
+machine-readable interfaces where the feature supports them. Expose the same
+state and reason through each supported channel; do not make one interactor's
+view silently authoritative over another's. Preserve local data boundaries,
+and do not add network traffic or telemetry to make an interaction appear
+live.
+
 ## What you get
 
 A working local-AI companion you can read end to end: plain-file local
