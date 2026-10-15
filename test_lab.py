@@ -259,6 +259,9 @@ class TestPuerta(Base):
 
 
 SABOTAJES = (
+    ("frase cruda en pantalla", '"texto": _texto(frase(tipo, c), casa)',
+     '"texto": _texto(json.dumps(c, ensure_ascii=False), casa)'),
+    ("cuerpo descartado", '"cuerpo": c', '"cuerpo": {}'),
     ("el orquestador contesta como soberano", '_canales.di("orquesta", "orquestador",',
      '_canales._escribir("orquesta", "soberano",'),
     ("voz desconocida disfrazada", 'else "otra:" + re.sub(', 'else "orquestador" or re.sub('),
@@ -281,7 +284,7 @@ def sabotaje():
         ruta = os.path.join(tmp, "lab.py")
         with open(ruta, "w", encoding="utf-8") as fh:
             fh.write(texto)
-        return subprocess.run([sys.executable, "-m", "unittest", "test_lab"], cwd=AQUI,
+        return subprocess.run([sys.executable, "-m", "unittest", "test_lab", "test_lab_frase"], cwd=AQUI,
                               env=dict(os.environ, LAB_RUTA=ruta), capture_output=True,
                               text=True, timeout=600).returncode
 

@@ -87,6 +87,41 @@ def _fecha(s):
 
 
 # --- el canal del registro, en lectura -----------------------------------------
+def _txt(v):
+    if isinstance(v, (list, tuple)):
+        return "; ".join(_txt(x) for x in v)
+    if isinstance(v, dict):
+        return v.get("id") or v.get("nombre") or ", ".join(sorted(v))
+    return str(v)
+
+
+def frase(tipo, c):
+    """Qué dice un evento, como frase. El JSON entero NUNCA es la frase: va a la
+    capa máquina. Determinista: los mismos campos dan la misma frase."""
+    if not isinstance(c, dict) or not c:
+        return f"{tipo} sin cuerpo legible (el detalle, en Capa máquina)"
+    g = lambda k: _txt(c[k]) if c.get(k) not in (None, "", [], {}) else None  # noqa: E731
+    if g("pregunta") and "hechos" in c:
+        return (f"buscó «{g('pregunta')}»: {g('hechos')} hecho(s) con cita"
+                + (f", {g('descartados')} descartado(s)" if "descartados" in c else ""))
+    for k in ("texto", "pregunta", "duda", "pide", "resumen", "para"):
+        if g(k):
+            return g(k)
+    if g("tarea") and g("estado"):
+        return (f"tarea {g('tarea')}" + (f" ({g('tipo')})" if g("tipo") else "")
+                + f": {g('estado')}" + (f" · runner {g('runner')}" if g("runner") else ""))
+    if g("ciclo") and g("fase"):
+        caso = c.get("caso")
+        caso = caso.get("id") if isinstance(caso, dict) else caso
+        return (f"ciclo {g('ciclo')}, fase {g('fase')}" + (f": {g('estado')}" if g("estado") else "")
+                + (f" · {caso}" if caso else ""))
+    if g("veredicto"):
+        return f"veredicto {g('veredicto')}" + (f" ({g('esquema')})" if g("esquema") else "")
+    if g("nodo") and g("rol"):
+        return f"nodo {g('nodo')}: {g('rol')}"
+    return f"{tipo} con {', '.join(sorted(c)[:6])} (el detalle, en Capa máquina)"
+
+
 def eventos(base, tope=100):
     ruta = pathlib.Path(base) / "registro" / "eventos.db"
     if not ruta.is_file():
@@ -109,11 +144,10 @@ def eventos(base, tope=100):
             c = json.loads(cuerpo)
         except ValueError:
             c = {}
-        frase = (c.get("texto") or c.get("pregunta") or c.get("duda") or c.get("pide")
-                 or c.get("resumen")) if isinstance(c, dict) else None
         salida.append({"origen": "registro", "n": n, "t": ts, "tipo": tipo,
-                       "quien": quien(actor), "texto": _texto(frase or json.dumps(c, ensure_ascii=False), casa),
-                       "sello": "DECLARADO", "maquina": {"tipo": tipo, "actor": str(actor)}})
+                       "quien": quien(actor), "texto": _texto(frase(tipo, c), casa),
+                       "sello": "DECLARADO",
+                       "maquina": {"tipo": tipo, "actor": str(actor), "cuerpo": c}})
     return {"estado": "MEDIDO", "leidos": len(salida), "modo": "solo lectura"}, salida
 
 
