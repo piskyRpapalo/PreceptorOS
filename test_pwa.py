@@ -675,7 +675,7 @@ class TestElDespertarOcurreUnaVez(unittest.TestCase):
     """
 
     def _css(self):
-        return open(os.path.join(AQUI, "interface", "dashboard.css"),
+        return open(os.path.join(AQUI, "interface", "legacy", "dashboard.css"),
                     encoding="utf-8").read()
 
     def test_30_hay_un_estado_de_reposo_sin_despertar(self):
@@ -738,7 +738,7 @@ class TestElTemaOscuroSeDeclaraDosVeces(unittest.TestCase):
 
     def test_los_dos_bloques_oscuros_mapean_las_mismas_variables(self):
         import re
-        css = open(os.path.join(AQUI, "interface", "dashboard.css"),
+        css = open(os.path.join(AQUI, "interface", "legacy", "dashboard.css"),
                    encoding="utf-8").read()
 
         def variables(patron):
@@ -762,6 +762,68 @@ class TestElTemaOscuroSeDeclaraDosVeces(unittest.TestCase):
             solo_atributo,
             f"estas variables solo cambian con el interruptor, no cuando el "
             f"sistema pide oscuro: {sorted(solo_atributo)}")
+
+
+class TestModoDesnudo(unittest.TestCase):
+    """El CSS activo implementa la carcasa mínima y mantiene apagado lo decorativo."""
+
+    def _css(self):
+        ruta = PWA.ESTATICOS["/dashboard.css"][0]
+        return pathlib.Path(AQUI, "interface", ruta).read_text(encoding="utf-8")
+
+    def test_30_la_carcasa_no_pinta_ni_anima_el_busto(self):
+        css = self._css()
+        self.assertIn(".telon, .presentacion, .velo, .asa { display: none; }", css)
+
+    def test_31_no_hay_animacion_que_omita_movimiento_reducido(self):
+        self.assertNotRegex(self._css(), r"\banimation\s*:|@keyframes")
+
+
+class TestElTemaExplicito(unittest.TestCase):
+    """La hoja mínima respeta el tema que el documento declara."""
+
+    def test_tema_minimo_sigue_el_atributo_declarado(self):
+        ruta = PWA.ESTATICOS["/dashboard.css"][0]
+        css = pathlib.Path(AQUI, "interface", ruta).read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "dashboard.html").read_text(encoding="utf-8")
+        self.assertIn('<html lang="es" data-tema="oscuro">', html)
+        self.assertIn(':root[data-tema="oscuro"] { color-scheme: dark; }', css)
+        self.assertIn(':root[data-tema="claro"] { color-scheme: light; }', css)
+
+
+class TestHojasActivas(unittest.TestCase):
+    def test_todas_las_hojas_enlazadas_resuelven_a_ficheros_servidos(self):
+        import re
+        from urllib.parse import urlsplit
+
+        interfaz = os.path.join(AQUI, "interface")
+        for nombre in ("dashboard.html", "app.html"):
+            html = pathlib.Path(interfaz, nombre).read_text(encoding="utf-8")
+            for href in re.findall(r'<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"', html):
+                ruta = urlsplit(href).path
+                with self.subTest(pagina=nombre, ruta=ruta):
+                    self.assertIn(ruta, PWA.ESTATICOS, "la ruta CSS no tiene handler")
+                    fichero = PWA.ESTATICOS[ruta][0]
+                    self.assertTrue(os.path.isfile(os.path.join(interfaz, fichero)),
+                                    f"el handler enlaza a un CSS ausente: {fichero}")
+
+        sw = pathlib.Path(interfaz, "sw.js").read_text(encoding="utf-8")
+        self.assertIn('"/dashboard.css?v=58"', sw, "la cache debe usar la URL exacta de la hoja")
+        self.assertNotIn("compass.css", sw, "la hoja ornamental apartada no debe seguir en la cache")
+
+    def test_handler_de_dashboard_css_entrega_la_hoja_minima(self):
+        import io
+
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/dashboard.css?v=58"
+        handler.send_response = mock.Mock()
+        handler.send_header = mock.Mock()
+        handler.end_headers = mock.Mock()
+        handler.wfile = io.BytesIO()
+        PWA.PWA.do_GET(handler)
+        handler.send_response.assert_called_once_with(200)
+        esperado = pathlib.Path(AQUI, "interface", "desnuda.css").read_bytes()
+        self.assertEqual(handler.wfile.getvalue(), esperado)
 
 
 class TestLaCaraNoSeApaga(unittest.TestCase):

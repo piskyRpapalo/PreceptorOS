@@ -26,14 +26,12 @@
 // v96 (2026-10-04): niebla del primer arranque y el cuerpo del nodo;
 // consola.js y consola.css suben a ?v=3.
 // v97 (2026-10-04): el Lab hablando y los tres modelos; consola ?v=4.
-const Cache = "aurelius-armazon-v97";
-const Armazon = ["/", "/dashboard.html", "/dashboard.css", "/dashboard.js",
-                 "/app.html", "/app.css", "/app.js", "/manifest.json",
-                 // La brujula entera, SVG incluido. Sin el .svg cacheado, sin
-                 // red no se dibuja ninguna rosa y el `catch` de compass.js se
-                 // lo traga en silencio: la brujula desapareceria justo cuando
-                 // el producto promete funcionar sin conexion.
-                 "/compass.css?v=39", "/compass.js?v=39", "/assets/compass.svg?v=39",
+const Cache = "aurelius-armazon-v98";
+const Armazon = ["/", "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
+                 "/app.html", "/app.css?v=2", "/app.js?v=2", "/manifest.json",
+                 // La brújula conserva su módulo y SVG. La hoja ornamental
+                 // quedó en legacy; la estructura mínima no carga ese CSS.
+                 "/compass.js?v=39", "/assets/compass.svg?v=39",
                  // La consola: sin estas dos, sin red el home pediria piezas
                  // que no estan y la barra no saldria.
                  "/consola.css?v=4", "/consola.js?v=4"];

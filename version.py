@@ -30,9 +30,9 @@ AUSENTE = "NO_DATA"
 # viejo. Si algún día `sw.js` cachea otra cosa, esta lista se queda corta y hay
 # que ampliarla — por eso `sw.js` está dentro: al tocarlo, la huella cambia.
 ARMAZON = (
-    "interface/dashboard.html", "interface/dashboard.css", "interface/dashboard.js",
+    "interface/dashboard.html", "interface/desnuda.css", "interface/dashboard.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
-    "interface/compass.css", "interface/compass.js", "interface/sw.js",
+    "interface/compass.js", "interface/sw.js",
     "interface/manifest.json", "assets/compass.svg",
     "interface/consola.css", "interface/consola.js",
 )

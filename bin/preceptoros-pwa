@@ -218,12 +218,13 @@ ESTATICOS = {
     # -- es el panel de detalle, no la portada.
     "/": ("dashboard.html", "text/html; charset=utf-8"),
     "/dashboard.html": ("dashboard.html", "text/html; charset=utf-8"),
-    "/dashboard.css": ("dashboard.css", "text/css; charset=utf-8"),
+    # Ruta histórica que conserva dashboard.html y clientes ya cacheados;
+    # sirve la hoja mínima activa, no el CSS ornamental archivado en legacy/.
+    "/dashboard.css": ("desnuda.css", "text/css; charset=utf-8"),
     "/dashboard.js": ("dashboard.js", "application/javascript; charset=utf-8"),
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
-    "/compass.css": ("compass.css", "text/css; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     # La consola soberana: una barra de solo lectura encima del chat. Fichero
     # propio y no dentro de dashboard.js, que ya pasa de 140 KB.
