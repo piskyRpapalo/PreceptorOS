@@ -1047,3 +1047,19 @@ class TestZonaHarness(unittest.TestCase):
         self.assertEqual(handler.codigo, 200)
         self.assertEqual(handler.cuerpo["causa"], "TimeoutError")
         self.assertIsNone(handler.cuerpo["medido"])
+
+class TestZonaModelos(unittest.TestCase):
+    def test_zona_modelos_refleja_las_tres_fichas_y_sus_causas_del_lab(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        self.assertIn('paneles[panelActual].id === "modelos"', app)
+        self.assertIn('fetch("/api/lab"', app)
+        self.assertIn("modelos.mini", app)
+        self.assertIn("modelos.grande", app)
+        self.assertIn("modelos.eleccion", app)
+        self.assertIn("eleccion.tier1", app)
+        self.assertIn("eleccion.tier2", app)
+        self.assertIn("modelos_causa", app)
+        self.assertIn('id="modelos-lista"', html)
+        self.assertNotIn("modelos-lista.length", app)
+        self.assertNotIn("fichas.length", app)
