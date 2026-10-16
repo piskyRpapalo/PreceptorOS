@@ -1,14 +1,15 @@
 """Contrato compacto de la superficie de la app; no serializa el vector S_t."""
 import json
+from types import MappingProxyType
 
 
 ESQUEMA = "preceptoros.app.estado/1"
 MAX_BYTES = 1024
-FUENTE_SEMANTICA = {
+FUENTE_SEMANTICA = MappingProxyType({
     "manifiesto": "assets/herencia-web/indice.json",
     "pin": "config/herencia-web.sha256",
     "semilla": "tabla",
-}
+})
 ZONAS = frozenset({
     "mando", "conversacion", "gobierno", "cuaderno", "lab",
     "harness", "puerta", "modelos", "ajustes",
