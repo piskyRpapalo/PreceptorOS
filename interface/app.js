@@ -59,7 +59,8 @@ const textos = {
     harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
     harness_frescura_live: (age) => `Actualizado hace ${age} · en directo`,
     harness_frescura_stale: (age) => `Dato antiguo · hace ${age}`,
-    harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario'
+    harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario',
+    modelos_cargando: 'Consultando los modelos locales…', modelos_error: 'No se pudieron leer los modelos locales.', modelos_live: 'Disponible ahora', modelos_stale: 'Dato antiguo', modelos_ausente: 'No disponible', modelos_causa: 'Causa', modelos_causa_vacia: 'Sin causa declarada', modelos_tier1: 'Tier uno', modelos_tier2: 'Tier dos', modelos_adaptador: 'Adaptador',
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
@@ -100,7 +101,8 @@ const textos = {
     harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
     harness_frescura_live: (age) => `Updated ${age} ago · live`,
     harness_frescura_stale: (age) => `Stale · ${age} ago`,
-    harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule'
+    harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule',
+    modelos_cargando: 'Checking local models…', modelos_error: 'Could not read local models.', modelos_live: 'Available now', modelos_stale: 'Stale data', modelos_ausente: 'Unavailable', modelos_causa: 'Cause', modelos_causa_vacia: 'No cause declared', modelos_tier1: 'Tier one', modelos_tier2: 'Tier two', modelos_adaptador: 'Adapter',
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -144,7 +146,8 @@ const textos = {
     harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
     harness_frescura_live: (age) => `Actualisé il y a ${age} · en direct`,
     harness_frescura_stale: (age) => `Donnée ancienne · il y a ${age}`,
-    harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire'
+    harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire',
+    modelos_cargando: 'Lecture des modèles locaux…', modelos_error: 'Impossible de lire les modèles locaux.', modelos_live: 'Disponible maintenant', modelos_stale: 'Donnée ancienne', modelos_ausente: 'Indisponible', modelos_causa: 'Cause', modelos_causa_vacia: 'Aucune cause déclarée', modelos_tier1: 'Niveau un', modelos_tier2: 'Niveau deux', modelos_adaptador: 'Adaptateur',
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
@@ -185,7 +188,8 @@ const textos = {
     harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
     harness_frescura_live: (age) => `Atualizado há ${age} · ao vivo`,
     harness_frescura_stale: (age) => `Dado antigo · há ${age}`,
-    harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário'
+    harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário',
+    modelos_cargando: 'A consultar os modelos locais…', modelos_error: 'Não foi possível ler os modelos locais.', modelos_live: 'Disponível agora', modelos_stale: 'Dado antigo', modelos_ausente: 'Indisponível', modelos_causa: 'Causa', modelos_causa_vacia: 'Sem causa declarada', modelos_tier1: 'Nível um', modelos_tier2: 'Nível dois', modelos_adaptador: 'Adaptador',
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
@@ -226,7 +230,8 @@ const textos = {
     harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
     harness_frescura_live: (age) => `Aggiornato ${age} fa · in diretta`,
     harness_frescura_stale: (age) => `Dato vecchio · ${age} fa`,
-    harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario'
+    harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario',
+    modelos_cargando: 'Lettura dei modelli locali…', modelos_error: 'Impossibile leggere i modelli locali.', modelos_live: 'Disponibile ora', modelos_stale: 'Dato vecchio', modelos_ausente: 'Non disponibile', modelos_causa: 'Causa', modelos_causa_vacia: 'Nessuna causa dichiarata', modelos_tier1: 'Livello uno', modelos_tier2: 'Livello due', modelos_adaptador: 'Adattatore',
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
@@ -267,7 +272,8 @@ const textos = {
     harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
     harness_frescura_live: (age) => `Vor ${age} aktualisiert · live`,
     harness_frescura_stale: (age) => `Veraltete Daten · vor ${age}`,
-    harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert'
+    harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert',
+    modelos_cargando: 'Lokale Modelle werden gelesen…', modelos_error: 'Lokale Modelle konnten nicht gelesen werden.', modelos_live: 'Jetzt verfügbar', modelos_stale: 'Veraltete Daten', modelos_ausente: 'Nicht verfügbar', modelos_causa: 'Ursache', modelos_causa_vacia: 'Keine Ursache angegeben', modelos_tier1: 'Stufe eins', modelos_tier2: 'Stufe zwei', modelos_adaptador: 'Adapter',
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
@@ -308,7 +314,8 @@ const textos = {
     harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
     harness_frescura_live: (age) => `Обновлено ${age} назад · сейчас`,
     harness_frescura_stale: (age) => `Устарело · ${age} назад`,
-    harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание'
+    harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание',
+    modelos_cargando: 'Читаю локальные модели…', modelos_error: 'Не удалось прочитать локальные модели.', modelos_live: 'Доступна сейчас', modelos_stale: 'Устаревшие данные', modelos_ausente: 'Недоступна', modelos_causa: 'Причина', modelos_causa_vacia: 'Причина не указана', modelos_tier1: 'Уровень один', modelos_tier2: 'Уровень два', modelos_adaptador: 'Адаптер',
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
@@ -349,7 +356,8 @@ const textos = {
     harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
     harness_frescura_live: (age) => `Ενημερώθηκε πριν από ${age} · ζωντανά`,
     harness_frescura_stale: (age) => `Παλιό δεδομένο · πριν από ${age}`,
-    harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα'
+    harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα',
+    modelos_cargando: 'Ανάγνωση τοπικών μοντέλων…', modelos_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών μοντέλων.', modelos_live: 'Διαθέσιμο τώρα', modelos_stale: 'Παλιό δεδομένο', modelos_ausente: 'Μη διαθέσιμο', modelos_causa: 'Αιτία', modelos_causa_vacia: 'Δεν δηλώθηκε αιτία', modelos_tier1: 'Επίπεδο ένα', modelos_tier2: 'Επίπεδο δύο', modelos_adaptador: 'Προσαρμογέας',
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
@@ -390,7 +398,8 @@ const textos = {
     harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
     harness_frescura_live: (age) => `حُدّث منذ ${age} · مباشر`,
     harness_frescura_stale: (age) => `بيانات قديمة · منذ ${age}`,
-    harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول'
+    harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول',
+    modelos_cargando: 'جارٍ فحص النماذج المحلية…', modelos_error: 'تعذرت قراءة النماذج المحلية.', modelos_live: 'متاح الآن', modelos_stale: 'بيانات قديمة', modelos_ausente: 'غير متاح', modelos_causa: 'السبب', modelos_causa_vacia: 'لم يُذكر سبب', modelos_tier1: 'المستوى الأول', modelos_tier2: 'المستوى الثاني', modelos_adaptador: 'المحوّل',
   },
 };
 let t = textos.es;
@@ -446,6 +455,7 @@ function mostrar(i, opciones = {}) {
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") cargarLab();
   if (paneles[panelActual].id === "harness") cargarHarness();
+  if (paneles[panelActual].id === "modelos") cargarModelos();
 }
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
@@ -521,6 +531,56 @@ async function cargarLab() {
     $("lab-estado").textContent = t.lab_actualizado;
   } catch {
     $("lab-estado").textContent = t.lab_error;
+  }
+}
+
+/* --- Modelos · tres fichas servidas por el Lab -------------------------- */
+async function cargarModelos() {
+  const lista = $("modelos-lista");
+  const estadoVista = $("modelos-estado");
+  lista.replaceChildren();
+  estadoVista.textContent = t.modelos_cargando;
+  const nd = String.fromCharCode(78, 79, 95, 68, 65, 84, 65);
+  const medido = String.fromCharCode(77, 69, 68, 73, 68, 79);
+  const stale = String.fromCharCode(83, 84, 65, 76, 69);
+  const pintarFicha = (nombre, ficha) => {
+    const li = document.createElement("li");
+    const titulo = document.createElement("strong");
+    const tag = ficha && typeof ficha.tag === "string" ? ` · ${ficha.tag}` : "";
+    titulo.textContent = `${nombre}${tag}`;
+    li.appendChild(titulo);
+    const situacion = ficha && (ficha.frescura || ficha.estado);
+    const disponible = ficha && ficha.disponible === true;
+    const etiqueta = disponible || situacion === medido ? t.modelos_live
+      : situacion === stale ? t.modelos_stale : t.modelos_ausente;
+    const estadoTexto = document.createElement("p");
+    estadoTexto.textContent = etiqueta;
+    li.appendChild(estadoTexto);
+    const causa = ficha && typeof ficha.causa === "string" && ficha.causa
+      ? ficha.causa : ficha && ficha.adaptador && typeof ficha.adaptador.causa === "string"
+        ? ficha.adaptador.causa : t.modelos_causa_vacia;
+    if (causa) {
+      const razon = document.createElement("p");
+      razon.textContent = `${t.modelos_causa}: ${causa}`;
+      li.appendChild(razon);
+    }
+    lista.appendChild(li);
+  };
+  try {
+    const r = await fetch("/api/lab", { cache: "no-store" });
+    const d = await r.json();
+    const modelos = d && d.modelos;
+    if (!r.ok || !modelos || typeof modelos !== "object") throw new Error("respuesta ausente");
+    pintarFicha(t.lab_mini, modelos.mini);
+    pintarFicha(t.lab_grande, modelos.grande);
+    pintarFicha(t.lab_eleccion, modelos.eleccion);
+    const eleccion = modelos.eleccion;
+    if (eleccion && eleccion.tier1) pintarFicha(t.modelos_tier1, eleccion.tier1);
+    if (eleccion && eleccion.tier2) pintarFicha(t.modelos_tier2, eleccion.tier2);
+    if (eleccion && eleccion.adaptador) pintarFicha(t.modelos_adaptador, eleccion.adaptador);
+    estadoVista.textContent = t.lab_actualizado;
+  } catch {
+    estadoVista.textContent = t.modelos_error;
   }
 }
 
