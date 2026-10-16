@@ -114,6 +114,10 @@ class MoldeST(unittest.TestCase):
         with self.assertRaises(ValueError):
             codificar(estado)
 
+    def test_vocabularios_fijos_no_se_pueden_mutar_en_runtime(self):
+        with self.assertRaises(TypeError):
+            ZONAS["red"] = 10
+
 
 if __name__ == "__main__":
     unittest.main()

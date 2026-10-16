@@ -13,13 +13,14 @@ bit 3 propuesta pendiente de firma humana; bits 4..7 deben ser cero.
 Hue/Saturación/Luminosidad y carga/confianza/escudo no son colores ni
 autoridad: viajan como datos. Este molde no contiene hashes ni claves.
 """
+from types import MappingProxyType
 
-ZONAS = {
+ZONAS = MappingProxyType({
     "mando": 1, "conversacion": 2, "gobierno": 3, "cuaderno": 4,
     "lab": 5, "harness": 6, "puerta": 7, "modelos": 8, "ajustes": 9,
-}
-FRESCURA = {"NO_DATA": 0, "LIVE": 1, "STALE": 2}
-CAUSAS = {"sin_tick": 1, "expired": 2, "fuente_no_disponible": 3, "paquete_invalido": 4}
+})
+FRESCURA = MappingProxyType({"NO_DATA": 0, "LIVE": 1, "STALE": 2})
+CAUSAS = MappingProxyType({"sin_tick": 1, "expired": 2, "fuente_no_disponible": 3, "paquete_invalido": 4})
 LONGITUD = 150
 U32_MAX = (1 << 32) - 1
 U64_MAX = (1 << 64) - 1
