@@ -60,6 +60,8 @@ class ContratoSuperficie(unittest.TestCase):
         self.assertIn(FUENTE_SEMANTICA["semilla"], manifiesto["semillas"])
         self.assertEqual(descriptor["origen"], "public/game/tabla_semantica.js")
         self.assertEqual(verificar_herencia(manifiesto_path.parent, pin)["estado"], "MEDIDO")
+        with self.assertRaises(TypeError):
+            FUENTE_SEMANTICA["semilla"] = "gacha"
         estado = estado_base()
         estado["transicion"]["destino"] = "lab"
         with self.assertRaises(ValueError):
