@@ -960,3 +960,13 @@ class TestLasImagenesQuePideLaCaraSeSirven(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+class TestHablarConLab(unittest.TestCase):
+    def test_formulario_hablar_publica_al_lab_y_traduce_la_ausencia(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        formulario = app.split('$("form-chat").addEventListener', 1)[1].split('/* --- frontera', 1)[0]
+        self.assertIn('fetch("/api/lab"', formulario)
+        self.assertNotIn('fetch("/api/charla"', formulario)
+        self.assertIn('respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65)', formulario)
+        self.assertIn("chat_sin_respuesta", formulario)
+        self.assertNotIn("if (filtroCaido) return", formulario)

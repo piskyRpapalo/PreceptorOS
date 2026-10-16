@@ -52,6 +52,7 @@ const textos = {
     anidado: "Anidado. Vive en tu memoria, en esta máquina.",
     anidar_no: "no se pudo anidar",
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
+    chat_sin_respuesta: (edad) => "El orquestador local no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_listo: "Orquestador local preparado.",
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Governance",
@@ -85,6 +86,7 @@ const textos = {
     anidado: "Nested. It lives in your memory, on this machine.",
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
+    chat_sin_respuesta: (edad) => "The local orchestrator did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_listo: "Local orchestrator ready.",
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -121,6 +123,7 @@ const textos = {
     anidado: "Niché. Ça vit dans ta mémoire, sur cette machine.",
     anidar_no: "impossible de nicher",
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
+    chat_sin_respuesta: (edad) => "L’orchestrateur local n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_listo: "Orchestrateur local prêt.",
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Governação",
@@ -154,6 +157,7 @@ const textos = {
     anidado: "Aninhado. Vive na tua memória, nesta máquina.",
     anidar_no: "não consegui aninhar",
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
+    chat_sin_respuesta: (edad) => "O orquestrador local não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_listo: "Orquestrador local pronto.",
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Governo",
@@ -187,6 +191,7 @@ const textos = {
     anidado: "Annidato. Vive nella tua memoria, su questa macchina.",
     anidar_no: "impossibile annidare",
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
+    chat_sin_respuesta: (edad) => "L’orchestratore locale non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_listo: "Orchestratore locale pronto.",
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Regierung",
@@ -220,6 +225,7 @@ const textos = {
     anidado: "Abgelegt. Es lebt in deinem Gedächtnis, auf dieser Maschine.",
     anidar_no: "konnte nicht ablegen",
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
+    chat_sin_respuesta: (edad) => "Der lokale Orchestrator hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_listo: "Lokaler Orchestrator bereit.",
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Управление",
@@ -253,6 +259,7 @@ const textos = {
     anidado: "Сохранено. Это живёт в твоей памяти, на этой машине.",
     anidar_no: "не удалось сохранить",
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
+    chat_sin_respuesta: (edad) => "Локальный оркестратор не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_listo: "Локальный оркестратор готов.",
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Διακυβέρνηση",
@@ -286,6 +293,7 @@ const textos = {
     anidado: "Φωλιάστηκε. Ζει στη μνήμη σου, σε αυτό το μηχάνημα.",
     anidar_no: "δεν ήταν δυνατό το φώλιασμα",
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
+    chat_sin_respuesta: (edad) => "Ο τοπικός ενορχηστρωτής δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_listo: "Ο τοπικός ενορχηστρωτής είναι έτοιμος.",
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحوكمة",
@@ -319,6 +327,7 @@ const textos = {
     anidado: "حُفظ. يعيش في ذاكرتك، على هذا الجهاز.",
     anidar_no: "تعذّر الحفظ",
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
+    chat_sin_respuesta: (edad) => "لم يستجب المنسق المحلي. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_listo: "المنسق المحلي جاهز.",
   },
 };
 let t = textos.es;
@@ -415,10 +424,8 @@ async function estado() {
     $("estado").textContent = d.motor
       ? t.memoria(d.turnos.turnos, d.turnos.consentidos)
       : t.sin_cerebro;
-    $("enviar").disabled = !d.motor;
   } catch {
     $("estado").textContent = t.sin_servidor;
-    $("enviar").disabled = true;
   }
 }
 
@@ -434,7 +441,6 @@ function burbuja(texto, clase) {
 
 $("form-chat").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (filtroCaido) return;                       // estado 4: nada sale
   const texto = $("dicho").value.trim();
   if (!texto) return;
   $("dicho").value = "";
@@ -442,28 +448,42 @@ $("form-chat").addEventListener("submit", async (e) => {
   $("enviar").disabled = true;
   const esperando = burbuja("pensando… en un teléfono esto son minutos", "espera");
   try {
-    const r = await fetch("/api/charla", {
-      method: "Post", headers: { "Content-Type": "application/json" },
+    const r = await fetch("/api/lab", {
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texto }),
     });
     const d = await r.json();
     esperando.remove();
-    if (r.ok) {
-      burbuja(d.texto);
+    const respuesta = d.respuesta;
+    if (r.ok && respuesta && respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65) && respuesta.texto) {
+      burbuja(respuesta.texto);
+      $("estado-chat-lab").textContent = t.chat_listo;
     } else {
-      // Un motor que tardó y uno que falló se dicen distinto: se arreglan
-      // distinto, y decirlos igual manda a mirar donde no es.
-      burbuja(d.estado === "tarde"
-        ? t.tardo(d.motivo)
-        : t.no_pude(d.motivo || r.status), "malo");
+      const edad = await edadUltimaRespuestaLab();
+      $("estado-chat-lab").textContent = t.chat_sin_respuesta(edad);
     }
-  } catch (err) {
+  } catch {
     esperando.remove();
-    burbuja("no alcancé al servidor", "malo");
+    $("estado-chat-lab").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
   }
   $("enviar").disabled = false;
-  estado();
 });
+
+async function edadUltimaRespuestaLab() {
+  try {
+    const r = await fetch("/api/lab", { cache: "no-store" });
+    const d = await r.json();
+    const mensajes = d.conversacion && Array.isArray(d.conversacion.mensajes)
+      ? d.conversacion.mensajes : [];
+    const ultima = [...mensajes].reverse().find((m) => m.quien === "orquestador" && m.t);
+    const marca = ultima ? Date.parse(ultima.t) : NaN;
+    if (!Number.isFinite(marca)) return t.chat_edad_nd;
+    const segundos = Math.max(0, Math.floor((Date.now() - marca) / 1000));
+    return `${segundos} s`;
+  } catch {
+    return t.chat_edad_nd;
+  }
+}
 
 /* --- frontera ---------------------------------------------------------- */
 const sw = $("switch");
