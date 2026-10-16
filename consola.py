@@ -36,6 +36,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 
 import decisor as _decisor
 import estado as _estado
@@ -154,6 +155,47 @@ def _blob(raiz, digest):
     if not isinstance(digest, str) or not digest.startswith("sha256:"):
         return None
     return raiz / "blobs" / digest.replace(":", "-", 1)
+
+
+_SHA256_BLOB_CACHE = {}
+
+
+def verificar_blob(sha256, raiz=None):
+    """Verifica el contenido de un blob fijado y legible por este proceso.
+
+    La ruta se resuelve desde el almacén de Ollama de este proceso, no desde
+    un tag ni desde el daemon. El hash medido se conserva mientras la identidad
+    del fichero (dispositivo, inode, tamaño, mtime y ctime) no cambie.
+    """
+    if not isinstance(sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", sha256):
+        return {"estado": "NO_DATA", "causa": "ficha sin SHA-256 válido"}
+    raiz = pathlib.Path(raiz) if raiz is not None else raiz_ollama()
+    blob = _blob(raiz, "sha256:" + sha256)
+    visible = ruta_visible(str(blob))
+    try:
+        stat = blob.stat()
+        if not blob.is_file():
+            return {"estado": "NO_DATA", "causa": "el blob no es un fichero", "ruta": visible}
+        clave = (str(blob), stat.st_dev, stat.st_ino, stat.st_size,
+                 stat.st_mtime_ns, stat.st_ctime_ns)
+        medido = _SHA256_BLOB_CACHE.get(clave)
+        if medido is None:
+            h = hashlib.sha256()
+            with blob.open("rb") as fh:
+                for trozo in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(trozo)
+            medido = h.hexdigest()
+            _SHA256_BLOB_CACHE.clear()
+            _SHA256_BLOB_CACHE[clave] = medido
+    except FileNotFoundError:
+        return {"estado": "NO_DATA", "causa": "el blob fijado no existe en el almacén visible", "ruta": visible}
+    except OSError as e:
+        return {"estado": "NO_DATA", "causa": f"el proceso no puede leer el blob ({type(e).__name__})",
+                "ruta": visible}
+    if medido != sha256:
+        return {"estado": "ERROR", "sha256": medido, "bytes": stat.st_size, "ruta": visible,
+                "causa": "el contenido del blob no coincide con el SHA-256 fijado"}
+    return {"estado": "MEDIDO", "sha256": medido, "bytes": stat.st_size, "ruta": visible}
 
 
 def modelos_pc(raiz=None, visible=ruta_visible):
