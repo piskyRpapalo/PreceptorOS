@@ -994,3 +994,15 @@ class TestZonaFrontera(unittest.TestCase):
         self.assertIn('h.count', app)
         self.assertNotIn('hallazgos.length', app)
         self.assertIn('data-i18n-aria="aria_frontera"', html)
+
+class TestRecibosCuaderno(unittest.TestCase):
+    def test_gesto_individual_espera_recibo_y_lo_muestra_traducido(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        cuaderno = app.split("async function marcar(", 1)[1].split("/* --- arranque", 1)[0]
+        self.assertIn('fetch("/api/captura"', cuaderno)
+        self.assertIn('JSON.stringify({ id, consent })', cuaderno)
+        self.assertIn('await r.json()', cuaderno)
+        self.assertIn('cuaderno_recibo_ok', app)
+        self.assertIn('cuaderno_recibo_error', app)
+        self.assertIn('setAttribute("aria-live", "polite")', app)
