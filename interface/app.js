@@ -444,6 +444,8 @@ async function fijarIdioma() {
 }
 let panelActual = 0;
 let filtroCaido = false;
+let cancelarGusano = null;
+let transicionVista = { origen: null, destino: "mando", tau: 1000000 };
 
 /* --- reorganización · zonas en una sola pestaña ----------------------- */
 function actualizarGuionZona() {
@@ -452,6 +454,8 @@ function actualizarGuionZona() {
   $("guion-zona").textContent = `${t.zona_activa} ${boton.textContent.trim()}.`;
 }
 function mostrar(i, opciones = {}) {
+  const indiceAnterior = panelActual;
+  const zonaAnterior = paneles[indiceAnterior];
   panelActual = Math.max(0, Math.min(paneles.length - 1, i));
   paneles.forEach((zona, n) => {
     const boton = document.querySelector(`[data-panel="${zona.id}"]`);
@@ -460,6 +464,21 @@ function mostrar(i, opciones = {}) {
     boton.tabIndex = n === panelActual ? 0 : -1;
   });
   actualizarGuionZona();
+  if (indiceAnterior !== panelActual && window.PreceptorTransicion) {
+    if (cancelarGusano) cancelarGusano();
+    const zonaDestino = paneles[panelActual];
+    transicionVista = { origen: zonaAnterior.id, destino: zonaDestino.id, tau: 0 };
+    cancelarGusano = window.PreceptorTransicion.pintar(
+      document.querySelector(`[data-panel="${zonaAnterior.id}"]`),
+      document.querySelector(`[data-panel="${zonaDestino.id}"]`),
+      {
+        espejo: indiceAnterior > panelActual,
+        onTau: (tau) => { transicionVista.tau = tau; },
+      },
+    );
+  } else if (indiceAnterior === panelActual) {
+    transicionVista = { origen: paneles[panelActual].id, destino: paneles[panelActual].id, tau: 1000000 };
+  }
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") cargarLab();
