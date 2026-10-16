@@ -25,3 +25,17 @@ test('mismo vector y tau serializan los mismos bytes; tau fuera de rango rechaza
   assert.equal(T.bytes(T.interpolar(v, v, 0.375)), T.bytes(T.interpolar(v, v, 0.375)));
   assert.throws(() => T.interpolar(v, v, 1.01), RangeError);
 });
+
+test('reduced motion completes state without creating a visual layer', () => {
+  let created = 0;
+  const tau = [];
+  const destination = {
+    ownerDocument: {
+      defaultView: { matchMedia: () => ({ matches: true }) },
+      createElement: () => { created++; throw new Error('unexpected visual layer'); },
+    },
+  };
+  T.pintar({}, destination, { onTau: (value) => tau.push(value) });
+  assert.equal(created, 0);
+  assert.deepEqual(tau, [1_000_000]);
+});

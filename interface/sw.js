@@ -29,10 +29,11 @@
 // v100 (2026-10-16): la puerta y el documento servido requieren caché renovada.
 // v101 (2026-10-16): elimina el identificador privado anterior y renueva el caché.
 // v102 (2026-10-16): la pestaña única precachea su proyector de transición.
-const Cache = "preceptoros-armazon-v102";
+// v103 (2026-10-16): reduced-motion transitions complete their logical state.
+const Cache = "preceptoros-armazon-v103";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
                  "/app.html", "/app.css?v=3", "/app.js?v=4", "/zonas.js?v=1",
-                 "/transicion.js?v=1", "/manifest.json",
+                 "/transicion.js?v=2", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
                  "/compass.js?v=39", "/assets/compass.svg?v=39",

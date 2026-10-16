@@ -72,7 +72,10 @@
     const win = doc.defaultView;
     const reducido = opciones.reducido === true ||
       !!(win.matchMedia && win.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if (reducido) return () => {};
+    if (reducido) {
+      if (typeof opciones.onTau === "function") opciones.onTau(maxTau);
+      return () => {};
+    }
 
     const ancho = win.innerWidth || 1;
     const alto = win.innerHeight || 1;
@@ -91,7 +94,11 @@
     canvas.height = Math.round(alto * Math.min(2, win.devicePixelRatio || 1));
     doc.body.appendChild(canvas);
     const ctx = canvas.getContext("2d");
-    if (!ctx) { canvas.remove(); return () => {}; }
+    if (!ctx) {
+      canvas.remove();
+      if (typeof opciones.onTau === "function") opciones.onTau(maxTau);
+      return () => {};
+    }
     const dpr = Math.min(2, win.devicePixelRatio || 1);
     const distancia = Math.hypot(B[0] - A[0], B[1] - A[1]);
     const desvio = Math.min(56, distancia * 0.12);

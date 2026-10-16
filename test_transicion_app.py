@@ -25,9 +25,21 @@ class IntegracionTransicion(unittest.TestCase):
         self.assertIn('setAttribute("aria-hidden", "true")', js)
         self.assertIn('matchMedia("(prefers-reduced-motion: reduce)")', js)
         self.assertIn('pointer-events: none', css)
-        self.assertIn('<script src="/transicion.js?v=1"></script>', html)
+        self.assertIn('<script src="/transicion.js?v=2"></script>', html)
         self.assertIn('"/transicion.js": ("transicion.js",', pwa)
-        self.assertIn('"/transicion.js?v=1"', sw)
+        self.assertIn('"/transicion.js?v=2"', sw)
+        self.assertIn('preceptoros-armazon-v103', sw)
+        version = (ROOT / "version.py").read_text(encoding="utf-8")
+        self.assertIn('"interface/transicion.js"', version)
+
+    def test_reduced_motion_keeps_the_zone_announcement(self):
+        js = (ROOT / "interface/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
+        transition = (ROOT / "interface/transicion.js").read_text(encoding="utf-8")
+        show = js[js.index("function mostrar("):js.index('document.querySelectorAll(".pestanas')]
+        self.assertLess(show.index("actualizarGuionZona();"), show.index("PreceptorTransicion.pintar"))
+        self.assertIn('id="guion-zona" role="status" aria-live="polite"', html)
+        self.assertIn('opciones.onTau(maxTau)', transition)
 
 
 if __name__ == "__main__":
