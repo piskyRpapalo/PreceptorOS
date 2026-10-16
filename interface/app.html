@@ -120,7 +120,10 @@
     <ul class="turnos" id="lab-modelos"></ul>
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
-    <h2 data-i18n="tab_harness">Harness</h2><p class="pie" data-i18n="zona_no_data">Sin datos: contenido de esta zona aún no declarado.</p>
+    <p class="pie" id="harness-frescura" role="status" aria-live="polite" data-i18n="harness_cargando">Consultando los ciclos locales…</p>
+    <h2 data-i18n="tab_harness">Harness</h2>
+    <p class="pie" id="harness-causa" hidden></p>
+    <ul class="turnos" id="harness-bucles"></ul>
   </section>
   <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="Puerta pública" hidden>
     <h2 data-i18n="tab_puerta">Puerta pública</h2><p class="pie" data-i18n="zona_no_data">Sin datos: contenido de esta zona aún no declarado.</p>

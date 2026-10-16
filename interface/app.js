@@ -56,6 +56,10 @@ const textos = {
     lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
     aria_frontera: "Frontera del nodo",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sin consentir", cuaderno_recibo_pendiente: "Sin cambios recientes", cuaderno_recibo_ok: "Recibo recibido: turno {id}, {estado}.", cuaderno_recibo_error: "No se pudo cambiar este turno.", cuaderno_recibo_red: "No llegó el recibo; no hay cambios confirmados.", cuaderno_sin_texto: "Texto de turno no disponible", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corregidos",
+    harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
+    harness_frescura_live: (age) => `Actualizado hace ${age} · en directo`,
+    harness_frescura_stale: (age) => `Dato antiguo · hace ${age}`,
+    harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario'
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
@@ -93,6 +97,10 @@ const textos = {
     lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
+    harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
+    harness_frescura_live: (age) => `Updated ${age} ago · live`,
+    harness_frescura_stale: (age) => `Stale · ${age} ago`,
+    harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule'
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -133,6 +141,10 @@ const textos = {
     lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
     aria_frontera: "Frontière du nœud",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirer", cuaderno_consentido: "Consentement donné", cuaderno_sin_consentir: "Sans consentement", cuaderno_recibo_pendiente: "Aucun changement récent", cuaderno_recibo_ok: "Reçu reçu : tour {id}, {estado}.", cuaderno_recibo_error: "Impossible de modifier ce tour.", cuaderno_recibo_red: "Aucun reçu reçu ; aucun changement confirmé.", cuaderno_sin_texto: "Texte du tour indisponible", cuaderno_recuento: "{t} tours · {c} consentis · {r} corrigés",
+    harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
+    harness_frescura_live: (age) => `Actualisé il y a ${age} · en direct`,
+    harness_frescura_stale: (age) => `Donnée ancienne · il y a ${age}`,
+    harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire'
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
@@ -170,6 +182,10 @@ const textos = {
     lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
     aria_frontera: "Fronteira do nó",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sem consentimento", cuaderno_recibo_pendiente: "Sem alterações recentes", cuaderno_recibo_ok: "Recibo recebido: turno {id}, {estado}.", cuaderno_recibo_error: "Não foi possível alterar este turno.", cuaderno_recibo_red: "O recibo não chegou; não há alterações confirmadas.", cuaderno_sin_texto: "Texto do turno indisponível", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corrigidos",
+    harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
+    harness_frescura_live: (age) => `Atualizado há ${age} · ao vivo`,
+    harness_frescura_stale: (age) => `Dado antigo · há ${age}`,
+    harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário'
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
@@ -207,6 +223,10 @@ const textos = {
     lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
     aria_frontera: "Frontiera del nodo",
     cuaderno_consentir: "Consenti", cuaderno_retirar: "Ritira", cuaderno_consentido: "Consenziente", cuaderno_sin_consentir: "Senza consenso", cuaderno_recibo_pendiente: "Nessuna modifica recente", cuaderno_recibo_ok: "Ricevuta ricevuta: turno {id}, {estado}.", cuaderno_recibo_error: "Impossibile modificare questo turno.", cuaderno_recibo_red: "Ricevuta non arrivata; nessuna modifica confermata.", cuaderno_sin_texto: "Testo del turno non disponibile", cuaderno_recuento: "{t} turni · {c} consentiti · {r} corretti",
+    harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
+    harness_frescura_live: (age) => `Aggiornato ${age} fa · in diretta`,
+    harness_frescura_stale: (age) => `Dato vecchio · ${age} fa`,
+    harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario'
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
@@ -244,6 +264,10 @@ const textos = {
     lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
     aria_frontera: "Knotengrenze",
     cuaderno_consentir: "Einwilligen", cuaderno_retirar: "Zurückziehen", cuaderno_consentido: "Einwilligung erteilt", cuaderno_sin_consentir: "Keine Einwilligung", cuaderno_recibo_pendiente: "Keine neuen Änderungen", cuaderno_recibo_ok: "Beleg erhalten: Runde {id}, {estado}.", cuaderno_recibo_error: "Diese Runde konnte nicht geändert werden.", cuaderno_recibo_red: "Kein Beleg erhalten; keine Änderung bestätigt.", cuaderno_sin_texto: "Rundentext nicht verfügbar", cuaderno_recuento: "{t} Runden · {c} eingewilligt · {r} korrigiert",
+    harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
+    harness_frescura_live: (age) => `Vor ${age} aktualisiert · live`,
+    harness_frescura_stale: (age) => `Veraltete Daten · vor ${age}`,
+    harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert'
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
@@ -281,6 +305,10 @@ const textos = {
     lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
     aria_frontera: "Граница узла",
     cuaderno_consentir: "Согласиться", cuaderno_retirar: "Отозвать", cuaderno_consentido: "Согласие дано", cuaderno_sin_consentir: "Без согласия", cuaderno_recibo_pendiente: "Недавних изменений нет", cuaderno_recibo_ok: "Получена квитанция: ход {id}, {estado}.", cuaderno_recibo_error: "Не удалось изменить этот ход.", cuaderno_recibo_red: "Квитанция не получена; изменения не подтверждены.", cuaderno_sin_texto: "Текст хода недоступен", cuaderno_recuento: "{t} ходов · согласие: {c} · исправлено: {r}",
+    harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
+    harness_frescura_live: (age) => `Обновлено ${age} назад · сейчас`,
+    harness_frescura_stale: (age) => `Устарело · ${age} назад`,
+    harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание'
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
@@ -318,6 +346,10 @@ const textos = {
     lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
     aria_frontera: "Όριο κόμβου",
     cuaderno_consentir: "Συγκατάθεση", cuaderno_retirar: "Ανάκληση", cuaderno_consentido: "Με συγκατάθεση", cuaderno_sin_consentir: "Χωρίς συγκατάθεση", cuaderno_recibo_pendiente: "Δεν υπάρχουν πρόσφατες αλλαγές", cuaderno_recibo_ok: "Λήφθηκε απόδειξη: γύρος {id}, {estado}.", cuaderno_recibo_error: "Δεν ήταν δυνατή η αλλαγή αυτού του γύρου.", cuaderno_recibo_red: "Δεν ήρθε απόδειξη· δεν επιβεβαιώνεται αλλαγή.", cuaderno_sin_texto: "Το κείμενο του γύρου δεν είναι διαθέσιμο", cuaderno_recuento: "{t} γύροι · {c} με συγκατάθεση · {r} διορθωμένοι",
+    harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
+    harness_frescura_live: (age) => `Ενημερώθηκε πριν από ${age} · ζωντανά`,
+    harness_frescura_stale: (age) => `Παλιό δεδομένο · πριν από ${age}`,
+    harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα'
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
@@ -355,6 +387,10 @@ const textos = {
     lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
     aria_frontera: "حدود العقدة",
     cuaderno_consentir: "موافقة", cuaderno_retirar: "سحب", cuaderno_consentido: "تمت الموافقة", cuaderno_sin_consentir: "بلا موافقة", cuaderno_recibo_pendiente: "لا تغييرات حديثة", cuaderno_recibo_ok: "وصل الإيصال: الدور {id}، {estado}.", cuaderno_recibo_error: "تعذر تغيير هذا الدور.", cuaderno_recibo_red: "لم يصل الإيصال؛ لا يوجد تغيير مؤكد.", cuaderno_sin_texto: "نص الدور غير متاح", cuaderno_recuento: "{t} أدوار · {c} بموافقة · {r} مصححة",
+    harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
+    harness_frescura_live: (age) => `حُدّث منذ ${age} · مباشر`,
+    harness_frescura_stale: (age) => `بيانات قديمة · منذ ${age}`,
+    harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول'
   },
 };
 let t = textos.es;
@@ -409,6 +445,7 @@ function mostrar(i, opciones = {}) {
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") cargarLab();
+  if (paneles[panelActual].id === "harness") cargarHarness();
 }
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
@@ -484,6 +521,58 @@ async function cargarLab() {
     $("lab-estado").textContent = t.lab_actualizado;
   } catch {
     $("lab-estado").textContent = t.lab_error;
+  }
+}
+
+/* --- Harness · timers servidos por el sensor local del Nexo ------------- */
+async function cargarHarness() {
+  const frescura = $("harness-frescura");
+  const causa = $("harness-causa");
+  const lista = $("harness-bucles");
+  frescura.textContent = t.harness_cargando;
+  causa.hidden = true;
+  lista.replaceChildren();
+  try {
+    const r = await fetch("/api/harness", { cache: "no-store" });
+    const d = await r.json();
+    const fecha = typeof d.medido === "string" ? Date.parse(d.medido) : NaN;
+    if (!r.ok || !Number.isFinite(fecha) || fecha > Date.now() || !Array.isArray(d.bucles)) {
+      throw new Error("medición ausente");
+    }
+    const edad = Math.floor((Date.now() - fecha) / 1000);
+    const delta = edad < 60 ? `${edad} s` : `${Math.floor(edad / 60)} min`;
+    const nd = String.fromCharCode(78, 79, 95, 68, 65, 84, 65);
+    frescura.textContent = d.estado === nd || edad > 300
+      ? t.harness_frescura_stale(delta) : t.harness_frescura_live(delta);
+    if (d.estado === nd && typeof d.causa === "string") {
+      causa.hidden = false;
+      causa.textContent = `${t.harness_causa}: ${d.causa}`;
+      return;
+    }
+    if (d.bucles.length === 0) {
+      causa.hidden = false;
+      causa.textContent = t.harness_vacio;
+      return;
+    }
+    for (const bucle of d.bucles) {
+      const li = document.createElement("li");
+      const titulo = document.createElement("strong");
+      titulo.textContent = typeof bucle.unidad === "string" ? bucle.unidad : t.harness_vacio;
+      li.appendChild(titulo);
+      const detalle = document.createElement("p");
+      const ultima = typeof bucle.ultima === "string" && bucle.ultima !== nd ? bucle.ultima : t.harness_hora_ausente;
+      const proxima = typeof bucle.proxima === "string" && bucle.proxima !== nd ? bucle.proxima : t.harness_hora_ausente;
+      detalle.textContent = `${t.harness_ultima}: ${ultima} · ${t.harness_proxima}: ${proxima}`;
+      li.appendChild(detalle);
+      if (typeof bucle.causa === "string" && bucle.causa) {
+        const razon = document.createElement("p");
+        razon.textContent = `${t.harness_causa}: ${bucle.causa}`;
+        li.appendChild(razon);
+      }
+      lista.appendChild(li);
+    }
+  } catch {
+    frescura.textContent = t.harness_error;
   }
 }
 

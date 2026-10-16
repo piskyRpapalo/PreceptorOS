@@ -1006,3 +1006,44 @@ class TestRecibosCuaderno(unittest.TestCase):
         self.assertIn('cuaderno_recibo_ok', app)
         self.assertIn('cuaderno_recibo_error', app)
         self.assertIn('setAttribute("aria-live", "polite")', app)
+
+class TestZonaHarness(unittest.TestCase):
+    def test_harness_lee_solo_nexo_y_muestra_frescura_antes_de_las_filas(self):
+        servidor = pathlib.Path(AQUI, "bin", "preceptoros-pwa").read_text(encoding="utf-8")
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        self.assertIn('ruta == "/api/harness"', servidor)
+        self.assertIn("127.0.0.1:8765/api/timers", servidor)
+        self.assertIn('fetch("/api/harness"', app)
+        self.assertIn('id="harness-frescura"', html)
+        self.assertLess(html.index('id="harness-frescura"'), html.index('id="harness-bucles"'))
+        self.assertIn("harness_frescura_live", app)
+        self.assertIn("harness_frescura_stale", app)
+        self.assertIn("harness_hora_ausente", app)
+        self.assertNotIn("filas.length", app)
+
+    def test_endpoint_de_harness_reenvia_solo_filas_del_sensor_loopback(self):
+        from contextlib import nullcontext
+        respuesta = {"estado": "ok", "medido": "2026-10-16T01:00:00+01:00",
+                     "propios": [{"unidad": "uno.timer", "ultima": "hoy",
+                                  "proxima": "mañana", "extra": "no viaja"}],
+                     "ajenos": [{"unidad": "sistema.timer"}]}
+        handler = Fingida(":memory:")
+        with mock.patch.object(PWA.urllib.request, "urlopen",
+                               return_value=mock.Mock(__enter__=lambda _: mock.Mock(
+                                   read=lambda: json.dumps(respuesta).encode()),
+                                   __exit__=lambda *_: None)) as abrir:
+            PWA.PWA._harness_leer(handler)
+        abrir.assert_called_once()
+        self.assertEqual(handler.codigo, 200)
+        self.assertEqual(handler.cuerpo["bucles"][0]["unidad"], "uno.timer")
+        self.assertNotIn("extra", handler.cuerpo["bucles"][0])
+        self.assertNotIn("ajenos", handler.cuerpo)
+
+    def test_corte_del_nexo_devuelve_causa_sin_traza(self):
+        handler = Fingida(":memory:")
+        with mock.patch.object(PWA.urllib.request, "urlopen", side_effect=TimeoutError):
+            PWA.PWA._harness_leer(handler)
+        self.assertEqual(handler.codigo, 200)
+        self.assertEqual(handler.cuerpo["causa"], "TimeoutError")
+        self.assertIsNone(handler.cuerpo["medido"])
