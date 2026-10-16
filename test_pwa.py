@@ -970,3 +970,18 @@ class TestHablarConLab(unittest.TestCase):
         self.assertIn('respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65)', formulario)
         self.assertIn("chat_sin_respuesta", formulario)
         self.assertNotIn("if (filtroCaido) return", formulario)
+
+class TestVistaLab(unittest.TestCase):
+    def test_zona_lab_lee_canales_y_tres_estados_de_modelo(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        panel = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        self.assertIn('fetch("/api/lab", { cache: "no-store" })', app)
+        self.assertIn('paneles[panelActual].id === "lab"', app)
+        self.assertIn("modelos.mini", app)
+        self.assertIn("modelos.grande", app)
+        self.assertIn("modelos.eleccion", app)
+        self.assertIn('id="lab-canales"', panel)
+        self.assertIn('id="lab-modelos"', panel)
+        self.assertIn("lab_estado_live", app)
+        self.assertIn("lab_estado_stale", app)
+        self.assertIn("lab_estado_ausente", app)

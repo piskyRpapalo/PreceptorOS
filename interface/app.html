@@ -112,7 +112,12 @@
   </section>
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
-    <h2 data-i18n="tab_lab">Lab</h2><p class="pie" data-i18n="zona_no_data">Sin datos: contenido de esta zona aún no declarado.</p>
+    <h2 data-i18n="tab_lab">Lab</h2>
+    <h3 data-i18n="lab_canales_titulo">Canales recientes</h3>
+    <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
+    <ul class="turnos" id="lab-canales"></ul>
+    <h3 data-i18n="lab_modelos_titulo">Modelos locales</h3>
+    <ul class="turnos" id="lab-modelos"></ul>
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
     <h2 data-i18n="tab_harness">Harness</h2><p class="pie" data-i18n="zona_no_data">Sin datos: contenido de esta zona aún no declarado.</p>
