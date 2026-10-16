@@ -3,13 +3,13 @@
 
 sistema: MVP · solo biblioteca estandar.
 
-Estos casos son de CAJA NEGRA: arrancan `aurelius.py` como un proceso y le
+Estos casos son de CAJA NEGRA: arrancan `preceptoros.py` como un proceso y le
 hablan por la entrada estandar, igual que una persona. Se hace asi a
 proposito. Un test que importara las funciones y llamara al dict de textos
 comprobaria que el diccionario tiene claves, no que la sesion habla el idioma
 que la persona eligio — y lo segundo es lo unico que le importa a nadie.
 
-Ninguna prueba toca ~/.aurelius/. Cada caso trabaja en una base temporal que
+Ninguna prueba toca ~/.preceptoros/. Cada caso trabaja en una base temporal que
 se crea y se tira; si un dia una de estas lineas apunta al directorio real,
 el caso 0 lo dice antes de que se escriba nada.
 """
@@ -51,7 +51,7 @@ TEMPORALES = []
 
 
 def tmp_dir():
-    d = tempfile.mkdtemp(prefix="aurelius_idioma_")
+    d = tempfile.mkdtemp(prefix="preceptoros_idioma_")
     TEMPORALES.append(d)
     return d
 
@@ -66,18 +66,18 @@ def correr(entradas, ruta=None, extra=()):
     El ritmo va a 0: una suite que espera a que el tono termine de escribir se
     deja de correr, y un mecanismo que no se corre no protege nada.
 
-    AURELIUS_TEST=1 no es un interruptor de conveniencia: `arranque()` (D75) se
+    PRECEPTOROS_TEST=1 no es un interruptor de conveniencia: `arranque()` (D75) se
     ejecuta ANTES de `sesion()` y pregunta por el cerebro y por la voz. Sin la
     bandera, esas dos preguntas se comen las dos primeras lineas del guion —
     la sesion recibe el guion desplazado y el idioma nunca se contesta. Este
     fichero prueba la SESION, no el arranque: el arranque tiene su suite en
     test_descarga.py y test_estado.py. Y ademas cierra el caso 0: sin la
     bandera, `arranque()` llama a `casa.asegurar()`, que escribe estado.json
-    en el ~/.aurelius de la persona.
+    en el ~/.preceptoros de la persona.
     """
     ruta = ruta or tmp_ruta()
-    entorno = dict(os.environ, AURELIUS_RITMO="0", PYTHONIOENCODING="utf-8",
-                   AURELIUS_TEST="1")
+    entorno = dict(os.environ, PRECEPTOROS_RITMO="0", PYTHONIOENCODING="utf-8",
+                   PRECEPTOROS_TEST="1")
     proc = subprocess.run(
         [sys.executable, "preceptoros.py", "--db", ruta, *extra],
         input="\n".join(entradas) + "\n", cwd=AQUI, env=entorno,
@@ -102,7 +102,7 @@ def t0():
     fuente = inspect.getsource(correr)
     assert '"--db", ruta' in fuente, \
         "correr() dejo de fijar la base: una prueba podria ir a la memoria real"
-    real = os.path.expanduser("~/.aurelius")
+    real = os.path.expanduser("~/.preceptoros")
 
     # La foto mira LA MEMORIA, no la carpeta entera, y es la misma correccion
     # que `test_cara.py` recibio para su caso 8 -- alli en dos pasos, aqui de
@@ -342,7 +342,7 @@ def main_sabotaje():
         print(f"  CRITICO: el sabotaje escribio en el arbol original: {mutados}")
         no_detectados.append("original mutado")
     else:
-        print("\nARBOL ORIGINAL INTACTO (aurelius.py, textos.py, memory.py)")
+        print("\nARBOL ORIGINAL INTACTO (preceptoros.py, textos.py, memory.py)")
     total = len(SABOTAJES)
     print(f"\nRESULTADO SABOTAJE: {total - len(no_detectados)}/{total} detectadas")
     return 1 if no_detectados else 0
@@ -358,7 +358,7 @@ def t13():
     Y pedía el nombre en castellano fijo, en un producto que habla dos idiomas.
     """
     import inspect
-    import aurelius as A
+    import preceptoros as A
     import textos as TX
 
     # Se mira el CODIGO, no la documentación: el docstring cita el fallo que
@@ -399,7 +399,7 @@ def t14():
     Una memoria a medio nacer ya sabe en qué idioma le hablan.
     """
     import sqlite3
-    import aurelius as A
+    import preceptoros as A
     import memory as M
 
     ruta = os.path.join(tempfile.mkdtemp(), "memory.db")

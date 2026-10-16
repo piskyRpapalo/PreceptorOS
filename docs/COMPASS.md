@@ -191,7 +191,7 @@ de IP y no por nombre: un nombre lo resuelve quien controle el DNS.
 
 **`~/.preceptoros/memory.db` era un error del spec.** La casa la decide
 `casa.raiz()`, y solo `casa.raiz()` — que en una instalación anterior al
-renombrado devuelve `~/.aurelius` porque la adopta en su sitio. Escribir la
+renombrado devuelve `~/.preceptoros` porque la adopta en su sitio. Escribir la
 ruta a mano es exactamente lo que ese módulo existe para impedir.
 
 **`calibrate()` no recorre la rejilla 6^8.** Son 1.679.616 puntos y cada uno

@@ -1361,7 +1361,7 @@ def resumen_salidas(c, limite=50):
 
 # --- componente 4b · D69 · la capa de borradores --------------------------
 
-def proponer_borrador(c, texto, origen="aurelius"):
+def proponer_borrador(c, texto, origen="preceptoros"):
     """Preceptor propone. No escribe memoria: deja una propuesta esperando.
 
     Es la mitad de la maquina en IronClaw: el gerente escribe por quien no

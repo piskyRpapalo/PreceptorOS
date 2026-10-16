@@ -50,9 +50,9 @@ LINEAS=()
 # Ni microfono, ni sintesis, ni altavoz, en toda la tanda y en los procesos
 # hijo que arranquen las suites. Ver `silencio.py`. Sin esto, en una maquina
 # con whisper.cpp instalado la tanda graba la habitacion.
-export PRECEPTOROS_SIN_HARDWARE=1 AURELIUS_SIN_HARDWARE=1
+export PRECEPTOROS_SIN_HARDWARE=1
 # Y el ritmo del relato a cero: las pausas son para la persona, no para el CI.
-export PRECEPTOROS_RITMO=0 AURELIUS_RITMO=0
+export PRECEPTOROS_RITMO=0
 
 # --- el aviso que va PRIMERO ------------------------------------------------
 # Un verde sobre trabajo sin commitear es un verde que un `git checkout` borra.
@@ -137,7 +137,7 @@ AVISO_V="$(python3 -c 'import interprete; print((interprete.aviso() or "").split
 echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
-UNITTEST=(test_herencia_web test_app_una_pestana test_estado_app test_estado_compacto test_lab_frase test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails
+UNITTEST=(test_herencia_web test_app_una_pestana test_estado_app test_estado_compacto test_lab_frase test_afinado test_captura test_descarga test_pwa test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno
           test_compass test_exportar
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron

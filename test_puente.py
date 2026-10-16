@@ -43,8 +43,8 @@ def _cargar_puente():
     """`bin/preceptoros-puente` no lleva extensión: se carga por ruta."""
     ruta = os.path.join(AQUI, "bin", "preceptoros-puente")
     spec = importlib.util.spec_from_loader(
-        "aurelius_puente",
-        importlib.machinery.SourceFileLoader("aurelius_puente", ruta))
+        "preceptoros_puente",
+        importlib.machinery.SourceFileLoader("preceptoros_puente", ruta))
     modulo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulo)
     return modulo
@@ -177,7 +177,7 @@ class TestPuente(unittest.TestCase):
                       encoding="utf-8").read()
         self.assertNotIn('"0.0.0.0"', fuente,
                          "ninguna dirección abierta escrita en el repo")
-        self.assertIn("AURELIUS_PUENTE_BIND", fuente,
+        self.assertIn("PRECEPTOROS_PUENTE_BIND", fuente,
                       "la dirección se declara por entorno, no en el árbol")
 
     # ------------------------------------------------------------------

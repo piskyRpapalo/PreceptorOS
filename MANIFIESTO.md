@@ -15,7 +15,7 @@ python3 manifest.py --verify my-manifest.txt       # check it still holds
 python3 manifest.py                                 # print, unsigned
 ```
 
-Default database: `~/.aurelius/memory.db`. Change it with `--db PATH`.
+Default database: `~/.preceptoros/memory.db`. Change it with `--db PATH`.
 
 ## What a verification means
 

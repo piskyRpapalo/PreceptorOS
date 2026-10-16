@@ -352,7 +352,7 @@ class TestBucle(unittest.TestCase):
         self.assertEqual(len(pendientes), 1)
 
 
-# --- la sesion enchufada · aurelius.py --charla ---------------------------
+# --- la sesion enchufada · preceptoros.py --charla ---------------------------
 
 class TestPromptCache(unittest.TestCase):
     """A.5b · el acelerador. Medido: el telefono pasa de 5m50s a 33 s por turno.
@@ -401,7 +401,7 @@ class TestPromptCache(unittest.TestCase):
 
     def test_se_puede_apagar(self):
         """Son ~252 MiB que aparecen en su carpeta sin que los pidiera."""
-        with mock.patch.dict(os.environ, {"AURELIUS_SIN_CACHE": "1"}):
+        with mock.patch.dict(os.environ, {"PRECEPTOROS_SIN_CACHE": "1"}):
             self.assertIsNone(C.ruta_cache())
             for orden in self._orden():
                 self.assertNotIn("--prompt-cache", orden)
@@ -470,9 +470,9 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_cg_un_turno_de_sesion_una_fila(self):
         """La sesion existe, corre, y su turno queda registrado."""
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         dicho = []
-        aurelius.charla(self.db, motor=motor_sintetico("Queda como lo escribiste."),
+        preceptoros.charla(self.db, motor=motor_sintetico("Queda como lo escribiste."),
                         entrada=self._guion("hola"), salida=dicho.append)
 
         with M.abrir(self.db) as c:
@@ -485,8 +485,8 @@ class TestSesionCharla(unittest.TestCase):
 
     def test_rojo_cg_dos_turnos_dos_filas(self):
         """Y no cuenta de mas: dos vueltas, dos huellas."""
-        import preceptoros as aurelius
-        aurelius.charla(self.db, motor=motor_sintetico(),
+        import preceptoros as preceptoros
+        preceptoros.charla(self.db, motor=motor_sintetico(),
                         entrada=self._guion("una", "dos"), salida=lambda t: None)
         with M.abrir(self.db) as c:
             self.assertEqual(
@@ -497,9 +497,9 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ch_sin_motor_la_sesion_declara(self):
         """Se ofrece lo que hay, no lo que gustaria tener."""
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         dicho = []
-        aurelius.charla(self.db, motor=None, entrada=self._guion("hola"),
+        preceptoros.charla(self.db, motor=None, entrada=self._guion("hola"),
                         salida=dicho.append)
         texto = "\n".join(dicho)
         self.assertIn("no tiene motor", texto,
@@ -514,10 +514,10 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ci_la_sesion_dice_donde_esta_con_su_nombre(self):
         """El peldano se anuncia por su nombre de juego y con lo que lo mide."""
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         import narrador as NN
         dicho = []
-        aurelius.charla(self.db, motor=None, entrada=self._guion(),
+        preceptoros.charla(self.db, motor=None, entrada=self._guion(),
                         salida=dicho.append)
         texto = "\n".join(dicho)
         self.assertIn(NN.narrar("M0", "es"), texto,
@@ -534,9 +534,9 @@ class TestSesionCharla(unittest.TestCase):
     # ------------------------------------------------------------------
     def test_rojo_ci_un_bloqueo_no_repite_la_herida(self):
         """Si el output-guard salta, la persona se entera y el texto no se reimprime."""
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         dicho = []
-        aurelius.charla(self.db, motor=motor_sintetico("hazlo con rm -rf /"),
+        preceptoros.charla(self.db, motor=motor_sintetico("hazlo con rm -rf /"),
                         entrada=self._guion("borra"), salida=dicho.append)
         texto = "\n".join(dicho)
         self.assertIn("parado", texto, "el bloqueo se cuenta")
@@ -551,17 +551,17 @@ class TestMotorUnaSolaVerdad(unittest.TestCase):
     """C-j · quien ejecuta el binario es quien dice como se llama."""
 
     def test_rojo_cj_no_hay_dos_nombres_del_motor(self):
-        """aurelius.py no puede tener su propia idea de cual es el motor.
+        """preceptoros.py no puede tener su propia idea de cual es el motor.
 
         Ya paso con la voz: el catalogo declaraba una pieza y el modulo cargaba
         otra. Dos verdades sobre la misma pieza no discrepan el dia que se
         escriben, sino seis meses despues.
         """
-        import preceptoros as aurelius
-        self.assertIs(aurelius.MOTOR, C.MOTOR,
+        import preceptoros as preceptoros
+        self.assertIs(preceptoros.MOTOR, C.MOTOR,
                       "el nombre del motor vive en conversacion.py, y solo ahi")
-        self.assertIs(aurelius.motor_conversacion.__wrapped__
-                      if hasattr(aurelius.motor_conversacion, "__wrapped__")
+        self.assertIs(preceptoros.motor_conversacion.__wrapped__
+                      if hasattr(preceptoros.motor_conversacion, "__wrapped__")
                       else True, True)
 
     def test_rojo_cj_el_readme_nombra_el_motor_de_verdad(self):
@@ -599,7 +599,7 @@ class TestLimpieza(unittest.TestCase):
 
     def test_rojo_ck_se_va_el_eco_del_prompt(self):
         """Si faltara la bandera, el prompt no puede colarse en el registro."""
-        prompt = "Eres Aurelius. Se breve."
+        prompt = "Eres preceptoros. Se breve."
         self.assertEqual(C.limpiar(prompt + "Una piedra.", prompt), "Una piedra.")
 
     def test_rojo_ck_no_se_come_el_texto_del_modelo(self):
@@ -648,17 +648,17 @@ class TestAusenciasYTeclado(unittest.TestCase):
 
     def test_rojo_cl_la_sesion_dice_cual_es_la_ausencia(self):
         """Y el mensaje nombra lo que falta: el binario, o la ruta del cerebro."""
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         ruta = "/una/ruta/cerebro.gguf"
 
         dicho = []
-        aurelius.charla(self.db, motor=None, motivo=C.SIN_MODELO, modelo=ruta,
+        preceptoros.charla(self.db, motor=None, motivo=C.SIN_MODELO, modelo=ruta,
                         entrada=lambda: "", salida=dicho.append)
         self.assertIn(ruta, "\n".join(dicho),
                       "no dice DONDE tendria que estar el cerebro")
 
         dicho = []
-        aurelius.charla(self.db, motor=None, motivo=C.SIN_BINARIO,
+        preceptoros.charla(self.db, motor=None, motivo=C.SIN_BINARIO,
                         entrada=lambda: "", salida=dicho.append)
         texto = "\n".join(dicho)
         self.assertIn(C.MOTOR, texto, "no dice QUE hay que instalar")
@@ -671,10 +671,10 @@ class TestAusenciasYTeclado(unittest.TestCase):
     def test_rojo_cm_sale_por_palabra_ademas_de_por_vacio(self):
         """En un telefono, confiar solo en un Enter en blanco es confiar en que
         nadie lo pulse sin querer."""
-        import preceptoros as aurelius
-        for palabra in aurelius.SALIDAS_EXPLICITAS:
+        import preceptoros as preceptoros
+        for palabra in preceptoros.SALIDAS_EXPLICITAS:
             cola = [palabra, "esto no deberia llegar"]
-            aurelius.charla(self.db, motor=motor_sintetico(),
+            preceptoros.charla(self.db, motor=motor_sintetico(),
                             entrada=lambda: cola.pop(0), salida=lambda t: None)
         with M.abrir(self.db) as c:
             self.assertEqual(
@@ -689,14 +689,14 @@ class TestAusenciasYTeclado(unittest.TestCase):
         una forma elegante de no probar nada.
         """
         import builtins
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         original = builtins.input
         try:
             for romper in (EOFError, KeyboardInterrupt):
                 def falla():
                     raise romper
                 builtins.input = falla
-                self.assertEqual(aurelius._teclado(lambda t: None), "",
+                self.assertEqual(preceptoros._teclado(lambda t: None), "",
                                  f"{romper.__name__} tiene que salir limpio")
         finally:
             builtins.input = original
@@ -705,12 +705,12 @@ class TestAusenciasYTeclado(unittest.TestCase):
         """Si la salida esta redirigida, un prompt en el buffer es una pantalla
         en blanco esperando a que pregunten algo que ya se pregunto."""
         import builtins
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         visto = []
         original = builtins.input
         try:
             builtins.input = lambda: "hola"
-            aurelius._teclado(visto.append)
+            preceptoros._teclado(visto.append)
         finally:
             builtins.input = original
         self.assertEqual(visto, ["> "], "el prompt tiene que salir antes de leer")
@@ -728,9 +728,9 @@ class TestPrimerArranque(unittest.TestCase):
     """
 
     def test_rojo_cn_una_bandera_sin_memoria_dice_que_hacer(self):
-        import preceptoros as aurelius
+        import preceptoros as preceptoros
         dicho = []
-        codigo = aurelius._sin_memoria(dicho.append)
+        codigo = preceptoros._sin_memoria(dicho.append)
         texto = "\n".join(dicho)
         self.assertEqual(codigo, 1, "sin memoria, la bandera no puede decir que fue bien")
         self.assertIn("python3 preceptoros.py", texto,
@@ -770,9 +770,9 @@ class TestElTiempo(unittest.TestCase):
             C.motor_disponible = anterior
 
         dicho = str(caja.exception)
-        self.assertIn("AURELIUS_TOPE_TOKENS", dicho,
+        self.assertIn("PRECEPTOROS_TOPE_TOKENS", dicho,
                       "no dice como pedirle menos")
-        self.assertIn("AURELIUS_ESPERA", dicho,
+        self.assertIn("PRECEPTOROS_ESPERA", dicho,
                       "no dice como darle mas tiempo")
 
     def test_rojo_co_el_tope_cabe_en_el_caracter(self):

@@ -35,4 +35,4 @@ OLLAMA_HOST vive en ~/.config/environment.d/50-p0x.conf, no en .bashrc (que las 
 
 LoRA v7 servido en Ollama: preceptor-v7-linea-b:latest, preceptor-v7:latest
 Son las dos lineas (A y B) entrenadas sobre sft_cot_v7.jsonl, 109 lineas, en CPU.
-La forja vive en ~/.venvs/aurelius-forja y su torch es +cpu: no hay ruta GPU en este nodo. Entrenar v8 exige decidir si va aqui en CPU o en la-torre, que tiene CUDA pero no peft ni trl.
+La forja vive en ~/.venvs/preceptoros-forja y su torch es +cpu: no hay ruta GPU en este nodo. Entrenar v8 exige decidir si va aqui en CPU o en la-torre, que tiene CUDA pero no peft ni trl.

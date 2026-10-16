@@ -19,7 +19,7 @@ registro. El `.gitignore` no se toca; el fichero se pone donde sí se guarda.
 
 | Fichero | Línea | Pragma | Motivo | Fecha |
 |---|---|---|---|---|
-| `voz.py` | 43 | `guardia:permitir` | `/opt/homebrew/share/espeak-ng-data` es un prefijo de sistema de macOS, no la carpeta personal de nadie. La guardia de higiene marca rutas absolutas porque el repo es público y una ruta bajo el home describe a quien compiló Piper a mano — exactamente lo que `guardrails` redacta al exportar. Un prefijo de gestor de paquetes es igual en cualquier máquina, así que no describe a nadie. Quien tenga espeak bajo su home lo declara por entorno (`AURELIUS_ESPEAK_DATA`), que es la vía que existe para eso. | 2026-08-16 |
+| `voz.py` | 44 | `guardia:permitir` | Es una ubicación fija del gestor de paquetes de macOS, no una carpeta personal. La guardia marca rutas absolutas porque una ruta bajo el home puede identificar a quien compiló Piper a mano — exactamente lo que `guardrails` redacta al exportar. Quien use otra ubicación la declara por entorno, que es la vía prevista. | 2026-08-16 |
 
 Total: **1**.
 

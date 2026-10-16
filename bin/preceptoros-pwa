@@ -62,8 +62,8 @@ import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
 
-BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("AURELIUS_PWA_BIND", "127.0.0.1")
-PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("AURELIUS_PWA_PUERTO", "8740"))
+BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
+PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("PRECEPTOROS_PWA_PUERTO", "8740"))
 LIMITE = 512 * 1024
 INTERFAZ = os.path.join(AQUI, "interface")
 

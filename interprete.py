@@ -1,6 +1,6 @@
 """Con qué Python se está corriendo esto, y si está dentro de lo probado.
 
-Un solo módulo lo decide, y lo consumen el producto (`aurelius.py`) y la tanda
+Un solo módulo lo decide, y lo consumen el producto (`preceptoros.py`) y la tanda
 de pruebas (`bin/pruebas`). Si cada uno llevara su propio rango, el día que se
 pruebe una versión nueva habría que acertar en dos sitios, y bastaría fallar en
 uno para que el README prometiera un rango y el programa declarara otro.

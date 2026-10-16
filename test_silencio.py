@@ -102,7 +102,7 @@ class TestFrontera(unittest.TestCase):
                          "una suite anterior dejo el interruptor cambiado")
 
     def test_06_el_veto_viaja_a_los_procesos_hijo(self):
-        """`test_idioma` arranca `aurelius.py` como subproceso.
+        """`test_idioma` arranca `preceptoros.py` como subproceso.
 
         Un mock en memoria no cruza esa frontera; una variable de entorno si.
         Por eso el interruptor es una variable y no un parche.

@@ -11,7 +11,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ["AURELIUS_RITMO"] = "0"      # sin esperas en test: se fija ANTES
+os.environ["PRECEPTOROS_RITMO"] = "0"      # sin esperas en test: se fija ANTES
 import tono as T                        # noqa: E402
 
 CASOS = []
@@ -45,7 +45,7 @@ def con_entrada(texto, fn, *a, **kw):
 
 # --- el que importa: el ritmo no puede hacer lento un test ----------------
 
-@caso("1 · con AURELIUS_RITMO=0 no hay esperas: el tono no ralentiza la suite")
+@caso("1 · con PRECEPTOROS_RITMO=0 no hay esperas: el tono no ralentiza la suite")
 def t1():
     frase = "una linea de longitud razonable para medir el coste"
     t0 = time.perf_counter()

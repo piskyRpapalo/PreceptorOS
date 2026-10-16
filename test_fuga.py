@@ -16,7 +16,7 @@ Tampoco se fabrica el esquema. Lo ponen `memory.crear` (M2) y
 `FugaMuseo.__init__` (M3), como en casa de la persona -- ver el comentario de
 abajo, que cuenta lo que la copia inventada estuvo tapando.
 
-Nada toca ~/.aurelius: cada caso trae su HOME temporal y lo devuelve al salir.
+Nada toca ~/.preceptoros: cada caso trae su HOME temporal y lo devuelve al salir.
 """
 from __future__ import annotations
 
@@ -39,8 +39,8 @@ sys.path.insert(0, str(AQUI))
 # Antes de importar `fuga`: la bandera de test y el ritmo a 0. `fuga._RITMO` se
 # lee en el import, y una suite que se sienta a esperar las pausas del relato
 # se deja de correr.
-os.environ["AURELIUS_TEST"] = "1"
-os.environ["AURELIUS_RITMO"] = "0"
+os.environ["PRECEPTOROS_TEST"] = "1"
+os.environ["PRECEPTOROS_RITMO"] = "0"
 
 import fuga     # noqa: E402
 import memory   # noqa: E402
@@ -879,7 +879,7 @@ class TestFuga(BaseFuga):
         """La salvaguarda, como en test_idioma: se declara y se comprueba."""
         self.assertNotEqual(
             os.path.realpath(self.fuga_mod.DB_PATH),
-            os.path.realpath(os.path.expanduser("~/.aurelius/memory.db")),
+            os.path.realpath(os.path.expanduser("~/.preceptoros/memory.db")),
             "un caso de esta suite apunta a la memoria real de la persona")
 
 
@@ -930,7 +930,7 @@ def main_sabotaje():
     for nombre, fichero, ancla, sustitucion in SABOTAJES:
         destino = Path(tempfile.mkdtemp(prefix="sab_fuga_")) / "arbol"
         shutil.copytree(AQUI, destino, ignore=shutil.ignore_patterns(
-            "__pycache__", ".git", "aurelius", "piezas"))
+            "__pycache__", ".git", "preceptoros", "piezas"))
         ruta = destino / fichero
         s = ruta.read_text(encoding="utf-8")
         if ancla not in s:

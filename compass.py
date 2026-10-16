@@ -782,7 +782,7 @@ def main(argv=None):
             db = str(_casa.raiz() / "memory.db")
         except Exception:
             db = None
-    loops = os.path.expanduser("~/.aurelius/loops.db")
+    loops = os.path.expanduser("~/.preceptoros/loops.db")
     b = LearningCompass(db, loops, modo=a.modo)
     print(json.dumps(b.resumen(modo=a.modo, debug=a.debug),
                      indent=2, ensure_ascii=False))

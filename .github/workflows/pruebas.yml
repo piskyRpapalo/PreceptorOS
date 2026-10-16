@@ -22,6 +22,8 @@ permissions:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
+    env:
+      PRECEPTOROS_PRIVATE_SCAN_TOKENS: ${{ secrets.PRECEPTOROS_PRIVATE_SCAN_TOKENS }}
     strategy:
       # Sin fail-fast: si 3.10 se rompe, sigue interesando saber si 3.14 aguanta.
       # Media respuesta obliga a correr la tanda otra vez para ver la otra mitad.

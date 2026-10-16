@@ -547,7 +547,7 @@ class TestPerfilIdentidad(unittest.TestCase):
         self.assertEqual(leido["campos"]["avatar"], "busto-despierto.webp")
 
         for veneno in ("../../etc/passwd", "http://fuera/x.png",
-                       "busto-noexiste.webp", "aurelius-up.png", ""):
+                       "busto-noexiste.webp", "preceptoros-up.png", ""):
             cod, _ = self._guardar({"avatar": veneno})
             self.assertEqual(cod, 400, f"acepto {veneno!r} como avatar")
         # Y el que ya estaba guardado no se toca por un intento fallido.
@@ -1082,7 +1082,7 @@ class TestCacheAppP4(unittest.TestCase):
         import re
         sw = pathlib.Path(AQUI, "interface", "sw.js").read_text(encoding="utf-8")
         html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
-        cache = re.search(r'aurelius-armazon-v(\d+)', sw)
+        cache = re.search(r'preceptoros-armazon-v(\d+)', sw)
         precache = re.search(r'"/app\.js\?v=(\d+)"', sw)
         solicitud = re.search(r'<script src="/app\.js\?v=(\d+)"', html)
         self.assertIsNotNone(cache)

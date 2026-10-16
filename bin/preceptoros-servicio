@@ -24,15 +24,15 @@
 set -uo pipefail
 
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${PRECEPTOROS_PWA_PUERTO:-8740}}"
 # La raiz se la preguntamos a `casa`, que es quien la decide. Escribir
 # `~/.preceptoros` aqui dejaria este guion mirando a la casa vieja el dia del
 # renombrado, mientras el producto mira a la nueva.
 CASA="$(cd "$AQUI" && python3 -c 'import casa; print(casa.raiz())' 2>/dev/null || echo "$HOME/.preceptoros")"
-BITACORA="${PRECEPTOROS_PWA_LOG:-${AURELIUS_PWA_LOG:-$CASA/pwa.log}}"
+BITACORA="${PRECEPTOROS_PWA_LOG:-${PRECEPTOROS_PWA_LOG:-$CASA/pwa.log}}"
 ORDEN="${1:-arranca}"
 
-vivo() { pgrep -f "(aurelius|preceptoros)-pwa" >/dev/null 2>&1; }
+vivo() { pgrep -f "preceptoros-pwa" >/dev/null 2>&1; }
 
 # ¿El proceso vivo es MÁS VIEJO que el código en disco? Encontrado usando la
 # app en el Doogee: tras `git pull` el servicio sigue sirviendo lo de antes y
@@ -42,7 +42,7 @@ vivo() { pgrep -f "(aurelius|preceptoros)-pwa" >/dev/null 2>&1; }
 # declarada: el disco manda sobre lo que diga un fichero.
 codigo_mas_nuevo() {
   local pid inicio codigo
-  pid="$(pgrep -f "(aurelius|preceptoros)-pwa" | head -1)" || return 1
+  pid="$(pgrep -f "preceptoros-pwa" | head -1)" || return 1
   [ -n "$pid" ] || return 1
   # `etimes` da SEGUNDOS TRANSCURRIDOS, no una fecha. Es a proposito: la
   # primera version leia `ps -o lstart=` y se la pasaba a `date -d`, que
@@ -58,11 +58,11 @@ codigo_mas_nuevo() {
 
 case "$ORDEN" in
   para)
-    pkill -f "(aurelius|preceptoros)-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
+    pkill -f "preceptoros-pwa" 2>/dev/null && echo "parado" || echo "no había ninguno"
     ;;
   estado)
     if vivo; then
-      echo "vivo · pid $(pgrep -f "(aurelius|preceptoros)-pwa" | tr '\n' ' ')"
+      echo "vivo · pid $(pgrep -f "preceptoros-pwa" | tr '\n' ' ')"
       curl -s -o /dev/null -w "responde: HTTP %{http_code}\n" \
            "http://127.0.0.1:$PUERTO/api/estado" 2>/dev/null || echo "no responde"
     else
@@ -80,7 +80,7 @@ case "$ORDEN" in
     #
     # Medido en este Beelink el 2026-09-04: un `preceptoros-pwa` arrancado a
     # mano por una sesión anterior (cgroup de la aplicación, no de la unidad)
-    # tenía el puerto ocupado desde hacía 22,7 h. `aurelius.service` llevaba
+    # tenía el puerto ocupado desde hacía 22,7 h. `preceptoros.service` llevaba
     # **7970 reinicios** contra él, uno cada diez segundos -- 7970 x 10 s son
     # exactamente esas 22 h. Y el proceso secuestrador servía código viejo: el
     # aviso de `codigo_mas_nuevo` se imprimía 8.640 veces al día sin que nadie
@@ -92,7 +92,7 @@ case "$ORDEN" in
     # no alerta a nadie, y un fallo visible sí.
     if vivo && [ -n "${INVOCATION_ID:-}" ]; then
       echo "[servicio] había uno vivo fuera de la unidad; lo relevo."
-      pkill -f "(aurelius|preceptoros)-pwa" 2>/dev/null
+      pkill -f "preceptoros-pwa" 2>/dev/null
       for _ in 1 2 3 4 5 6 7 8 9 10; do
         vivo || break
         sleep 1

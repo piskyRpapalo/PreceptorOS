@@ -13,10 +13,10 @@ por el microfono, el guion de teclado no se usa nunca.
 Eso ya paso una vez (D77, `test_fuga`), y se arreglo dentro de esa suite. Se
 arregla aqui para que la siguiente no lo repita: el apagado es del PRODUCTO,
 no de cada fichero de pruebas, y viaja por variable de entorno para que valga
-tambien en los procesos hijo -- `test_idioma` arranca `aurelius.py` como
+tambien en los procesos hijo -- `test_idioma` arranca `preceptoros.py` como
 subproceso, y un mock en memoria no cruza esa frontera.
 
-    AURELIUS_SIN_HARDWARE=1   ni microfono, ni sintesis, ni altavoz.
+    PRECEPTOROS_SIN_HARDWARE=1   ni microfono, ni sintesis, ni altavoz.
 
 No es "modo test": es una declaracion sobre la MAQUINA, como `estado.json`.
 Sirve igual para un servidor sin tarjeta de sonido o para quien no quiere que
@@ -31,7 +31,6 @@ import entorno as _entorno
 
 SUFIJO = "SIN_HARDWARE"
 VARIABLE = _entorno.PREFIJO + SUFIJO
-VARIABLE_ANTERIOR = _entorno.PREFIJO_ANTERIOR + SUFIJO
 
 
 def apagado() -> bool:
@@ -42,14 +41,9 @@ def apagado() -> bool:
 def activar():
     """Apaga el hardware para este proceso y los que arranque.
 
-    Pone los DOS nombres, y aqui si hace falta: esta variable no la lee solo
-    este arbol -- viaja a procesos hijo, y entre ellos hay guiones de `bin/` y
-    herramientas de fuera que todavia buscan el nombre viejo. Escribir solo el
-    nuevo dejaria el microfono encendido en un hijo que creia estar en
-    silencio, que es exactamente el fallo que este modulo existe para impedir.
+    La variable se hereda por los procesos hijo que arranque la tanda.
     """
     os.environ[VARIABLE] = "1"
-    os.environ[VARIABLE_ANTERIOR] = "1"
 
 
 class SinHardware(unittest.TestCase):

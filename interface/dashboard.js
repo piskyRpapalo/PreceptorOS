@@ -1741,11 +1741,11 @@ function fusion(encender) {
   caja.dataset.reloj = id;
 }
 function fusionYaVista() {
-  try { return localStorage.getItem("aurelius-fusion") === "si"; }
+  try { return localStorage.getItem("preceptoros-fusion") === "si"; }
   catch { return false; }
 }
 function marcarFusionVista() {
-  try { localStorage.setItem("aurelius-fusion", "si"); } catch { /* privado */ }
+  try { localStorage.setItem("preceptoros-fusion", "si"); } catch { /* privado */ }
   const caja = $("fusion");
   if (caja.dataset.reloj) clearInterval(Number(caja.dataset.reloj));
   fusion(false);

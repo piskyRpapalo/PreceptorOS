@@ -141,7 +141,7 @@ def cortar_iconos(im):
 
 def main():
     print("laminas -> assets")
-    guardar(quitar_fondo(_lamina("titulo")), "titulo-aurelius.png", 420)
+    guardar(quitar_fondo(_lamina("titulo")), "titulo-preceptoros.png", 420)
     guardar(quitar_fondo(_lamina("pizarra")), "marco-marmol.png", 420)
     guardar(quitar_fondo(_lamina("boton")), "boton-hablar.png", 300)
     guardar(marmol_teselable(), "fondo-marmol.jpg")

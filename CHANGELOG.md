@@ -67,10 +67,11 @@ their syllabus"**, and the distinction is where the next step comes from —
 
 ## v1.1 · 2026-08-25 · PreceptorOS
 
-El producto pasa a llamarse **PreceptorOS**; el personaje sigue siendo Aurelius.
-Los nombres viejos —`aurelius.py`, `import aurelius`, `AURELIUS_*`,
-`bin/aurelius-*`— funcionan hasta el **2026-11-23**. Tu carpeta no se mueve: si
-existe `~/.aurelius/`, se adopta donde está.
+Los puntos de entrada, variables y rutas heredados se retiraron del árbol
+publicable por la ley de privacidad del nodo. La ubicación activa de datos es
+`~/.preceptoros/`; el producto no busca ni adopta ubicaciones anteriores.
+El historial Git permanece cerrado y sin reescritura. Si conservas datos en
+otra carpeta local, consérvala y migra su contenido manualmente antes de iniciar.
 
 - **Prompt-cache**: de 20,3 s a 5,8 s por turno en escritorio, y de 6 min 49 s a
   32,8 s en el teléfono. Un fichero, no un servidor.
@@ -90,7 +91,7 @@ telemetry, that starts empty and says so.
 
 ### Added
 
-- **Memory in one file.** SQLite at `~/.aurelius/memory.db`. Copy it to a USB
+- **Memory in one file.** SQLite at `~/.preceptoros/memory.db`. Copy it to a USB
   stick and your memory goes with you.
 - **First-run ritual** — language, consent, and a memory that is only created
   after you say yes.

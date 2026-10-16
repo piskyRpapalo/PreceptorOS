@@ -73,7 +73,7 @@ Las cinco imágenes del README de perfil **funcionan**. Comprobadas una a una:
 
 | | |
 |---|---|
-| `aurelius-talks.png` | HTTP 200 · `image/png` · 492 756 b |
+| `preceptoros-talks.png` | HTTP 200 · `image/png` · 492 756 b |
 | los cuatro shields | HTTP 200 · `image/svg+xml` · 1,2–1,4 kB cada uno |
 
 Y el marcado es correcto: línea en blanco, los cuatro `<img>` seguidos, línea

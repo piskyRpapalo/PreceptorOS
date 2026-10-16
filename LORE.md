@@ -33,7 +33,7 @@ porque el párrafo se dice en el idioma de la sesión.
 ---
 
 **El libro que no era para nadie**
-> Marcus Aurelius wrote the Meditations for himself, in Greek, on campaign. He
+> Marcus preceptoros wrote the Meditations for himself, in Greek, on campaign. He
 > never published them and never gave them a title. The most quoted private
 > notebook in history was a file its author kept for one reader.
 
@@ -95,7 +95,7 @@ porque el párrafo se dice en el idioma de la sesión.
 
 **El estorbo es el camino**
 > "The impediment to action advances action. What stands in the way becomes the
-> way." Marcus Aurelius wrote it about politics and illness. It survives in
+> way." Marcus preceptoros wrote it about politics and illness. It survives in
 > technical work because it describes debugging exactly.
 
 > «El impedimento a la acción hace avanzar la acción. Lo que se interpone en el

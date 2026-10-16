@@ -39,8 +39,8 @@ except ImportError:
 import silencio as _silencio
 import entorno as _entorno
 
-DB_PATH = os.path.expanduser("~/.aurelius/memory.db")
-MANIFIESTO_PATH = os.path.expanduser("~/.aurelius/manifiesto_fuga.txt")
+DB_PATH = os.path.expanduser("~/.preceptoros/memory.db")
+MANIFIESTO_PATH = os.path.expanduser("~/.preceptoros/manifiesto_fuga.txt")
 
 NO_DATA = "NO_DATA"
 
@@ -197,7 +197,7 @@ def perfil_para_gerente(db) -> dict:
 def hay_fuga_pendiente(ruta=None) -> bool:
     """¿Hay un museo a medias en esta base? Mirar no crea nada.
 
-    Se usa desde `aurelius.ofrecer_m3` para decidir si se ofrece entrar o
+    Se usa desde `preceptoros.ofrecer_m3` para decidir si se ofrece entrar o
     volver. Abre en solo lectura y se traga cualquier error: una base sin las
     tablas de M3 no es un fallo, es alguien que todavia no ha jugado.
     """
@@ -879,7 +879,7 @@ class FugaMuseo:
 
     def _hablar(self, texto: str, pausa: float = 0.5):
         """Habla con voz.py si existe, si no imprime."""
-        print(f"\n[AURELIUS] {texto}")
+        print(f"\n[preceptoros] {texto}")
         self._decir_en_voz(texto)
         if _RITMO > 0:
             time.sleep(pausa * _RITMO)

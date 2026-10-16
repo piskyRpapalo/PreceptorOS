@@ -63,7 +63,7 @@ branches; fixes land on `main` and that is the version to run.
 
 In scope:
 
-- Anything that reads or exfiltrates `~/.aurelius/memory.db` (or the path given
+- Anything that reads or exfiltrates `~/.preceptoros/memory.db` (or the path given
   to `--db`) beyond the machine it lives on.
 - Failures of **redaction at the border**: data that should have been redacted
   on `--export` and was not.
@@ -161,7 +161,7 @@ arreglos aterrizan en `main` y esa es la versión que hay que ejecutar.
 
 Dentro de alcance:
 
-- Cualquier cosa que lea o exfiltre `~/.aurelius/memory.db` (o la ruta dada con
+- Cualquier cosa que lea o exfiltre `~/.preceptoros/memory.db` (o la ruta dada con
   `--db`) fuera de la máquina donde vive.
 - Fallos de la **censura en la frontera**: datos que debieron redactarse en
   `--export` y no se redactaron.

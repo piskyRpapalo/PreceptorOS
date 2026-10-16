@@ -55,11 +55,11 @@ LEXICO_PRIVADO = ("soberano", "ironclaw", "hexelion")
 RED = (r"fetch\s*\(", r"XMLHttpRequest", r"WebSocket", r"EventSource",
        r"navigator\.sendBeacon", r"import\s*\(", r"https?://")
 
-ASSETS = ("aurelius-talks.png", "aurelius-up.png")
+ASSETS = ("preceptoros-talks.png", "preceptoros-up.png")
 
 
 def tmp_dir():
-    d = tempfile.mkdtemp(prefix="aurelius_cara_")
+    d = tempfile.mkdtemp(prefix="preceptoros_cara_")
     TEMPORALES.append(d)
     return d
 
@@ -192,7 +192,7 @@ def t8():
     import inspect
     assert '"--db", ruta' in inspect.getsource(generar), \
         "generar() dejo de fijar la base: una prueba podria ir a la memoria real"
-    real = os.path.expanduser("~/.aurelius")
+    real = os.path.expanduser("~/.preceptoros")
 
     # La foto mira LA MEMORIA, no la carpeta entera. Vigilar todo el directorio
     # hacia esta prueba intermitente: el servicio de la cara, cuando esta
@@ -361,8 +361,8 @@ def t15():
 @caso("16 · la voz viaja incrustada y sigue sin abrir un socket")
 def t16():
     import shutil as _sh
-    piper = os.path.expanduser("~/aurelius-m1/venv/bin/piper")
-    voz = os.path.expanduser("~/aurelius-m1/voces/es_ES-sharvard-medium.onnx")
+    piper = os.path.expanduser("~/preceptoros-m1/venv/bin/piper")
+    voz = os.path.expanduser("~/preceptoros-m1/voces/es_ES-sharvard-medium.onnx")
     if not (os.path.exists(piper) and os.path.exists(voz)):
         return          # sin voz instalada no hay nada que comprobar aquí
     ruta = base_con_recuerdos()
@@ -583,7 +583,7 @@ def t26():
 @caso("27 · R6 · la cara declara cuanta voz lleva dentro, y el numero cuadra")
 def t27():
     html, _ = generar(base_con_recuerdos())
-    m = re.search(r'<meta\s+name="aurelius:audio"\s+content="(\d+)"', html, re.I)
+    m = re.search(r'<meta\s+name="preceptoros:audio"\s+content="(\d+)"', html, re.I)
     assert m, ("la cara no declara cuantos clips lleva; sin numero declarado, "
                "una voz que falta no se distingue de una voz que no se grabo")
     declarados = int(m.group(1))
@@ -770,7 +770,7 @@ def t35():
     """
     import cara
 
-    assert cara.dato_uri("aurelius-up.png").startswith("data:image/png;base64,")
+    assert cara.dato_uri("preceptoros-up.png").startswith("data:image/png;base64,")
     assert cara.dato_uri("preceptor-up-v2.webp").startswith(
         "data:image/webp;base64,"), \
         "un WebP servido como PNG es un tipo declarado que miente"
