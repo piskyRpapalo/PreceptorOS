@@ -51,13 +51,13 @@ cara.html
 # los recuerdos de quien lo generó. Un patrón que solo cubre el nombre por
 # defecto protege el caso que nadie iba a fallar.
 *cara*.html
-aurelius-formulario.json
-aurelius-recuerdos.txt
+preceptoros-formulario.json
+preceptoros-recuerdos.txt
 
 policies.json
-aurelius/
+preceptoros/
 piezas/
-aurelius.spec
+preceptoros.spec
 
 # El ejecutable empaquetado: 14 MB reconstruibles con
 # empaquetado/construir_pc.sh. Un binario en la historia la engorda para

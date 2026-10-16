@@ -14,7 +14,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import preceptoros as aurelius
+import preceptoros as preceptoros
 import memory
 
 
@@ -39,23 +39,23 @@ class TestRestaurar(unittest.TestCase):
 
     def test_1_sin_confirmacion_no_toca_nada(self):
         """La que sostiene la promesa: un enter distraido no borra una memoria."""
-        self.assertEqual(aurelius.restaurar(self.viva, self.copia, confirmar=""), 1)
+        self.assertEqual(preceptoros.restaurar(self.viva, self.copia, confirmar=""), 1)
         self.assertEqual(self._cuantos(self.viva), 2)
 
     def test_2_una_confirmacion_que_no_es_la_palabra_tampoco(self):
         for dicho in ("si", "y", "yes", "vale", "ok"):
             with self.subTest(dicho=dicho):
-                aurelius.restaurar(self.viva, self.copia, confirmar=dicho)
+                preceptoros.restaurar(self.viva, self.copia, confirmar=dicho)
                 self.assertEqual(self._cuantos(self.viva), 2)
 
     def test_3_con_la_palabra_se_restaura(self):
         self.assertEqual(
-            aurelius.restaurar(self.viva, self.copia, confirmar="restore"), 0)
+            preceptoros.restaurar(self.viva, self.copia, confirmar="restore"), 0)
         self.assertEqual(self._cuantos(self.viva), 1)
 
     def test_4_lo_que_habia_se_resguarda(self):
         """Una restauracion que borra la unica copia es el accidente del que protege."""
-        aurelius.restaurar(self.viva, self.copia, confirmar="restore")
+        preceptoros.restaurar(self.viva, self.copia, confirmar="restore")
         guardados = [f for f in os.listdir(self.tmp.name)
                      if "antes-de-restaurar" in f and not f.endswith(("-wal", "-shm"))]
         self.assertEqual(len(guardados), 1, "no quedo resguardo de lo anterior")
@@ -64,7 +64,7 @@ class TestRestaurar(unittest.TestCase):
 
     def test_5_una_copia_que_no_existe_falla_cerrado(self):
         self.assertEqual(
-            aurelius.restaurar(self.viva, os.path.join(self.tmp.name, "nada.db"),
+            preceptoros.restaurar(self.viva, os.path.join(self.tmp.name, "nada.db"),
                                confirmar="restore"), 2)
         self.assertEqual(self._cuantos(self.viva), 2)
 
@@ -73,16 +73,16 @@ class TestRestaurar(unittest.TestCase):
         with open(basura, "w") as fh:
             fh.write("esto no es una base de datos")
         self.assertEqual(
-            aurelius.restaurar(self.viva, basura, confirmar="restore"), 2)
+            preceptoros.restaurar(self.viva, basura, confirmar="restore"), 2)
         self.assertEqual(self._cuantos(self.viva), 2)
 
     def test_7_el_mismo_fichero_se_rechaza(self):
         self.assertEqual(
-            aurelius.restaurar(self.viva, self.viva, confirmar="restore"), 2)
+            preceptoros.restaurar(self.viva, self.viva, confirmar="restore"), 2)
         self.assertEqual(self._cuantos(self.viva), 2)
 
     def test_8_no_deja_ficheros_a_medias_al_rechazar(self):
-        aurelius.restaurar(self.viva, self.copia, confirmar="no")
+        preceptoros.restaurar(self.viva, self.copia, confirmar="no")
         sobras = [f for f in os.listdir(self.tmp.name) if "comprobando" in f]
         self.assertEqual(sobras, [], f"quedaron temporales: {sobras}")
 

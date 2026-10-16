@@ -46,12 +46,12 @@ muere_con() {
     exit 1
 }
 
-REPO="${PRECEPTOROS_REPO:-${AURELIUS_REPO:-https://github.com/piskyRpapalo/PreceptorOS}}"
-DESTINO="${PRECEPTOROS_DESTINO:-${AURELIUS_DESTINO:-$HOME/preceptoros}}"
+REPO="${PRECEPTOROS_REPO:-${PRECEPTOROS_REPO:-https://github.com/piskyRpapalo/PreceptorOS}}"
+DESTINO="${PRECEPTOROS_DESTINO:-${PRECEPTOROS_DESTINO:-$HOME/preceptoros}}"
 LLAMA="$HOME/.llama.cpp"
 MOTOR="llama-completion"
 
-printf "\n${AZUL}AURELIUS${FIN} · instalación en Android\n\n"
+printf "\n${AZUL}preceptoros${FIN} · instalación en Android\n\n"
 
 # --- 1 · herramientas ------------------------------------------------------
 paso "Herramientas"

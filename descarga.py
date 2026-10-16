@@ -27,7 +27,7 @@ import casa as _casa
 
 BLOQUE = 65536
 MARGEN_DISCO = 64 * 1024 * 1024
-AGENTE = "aurelius/1.0 (+stdlib urllib)"
+AGENTE = "preceptoros/1.0 (+stdlib urllib)"
 TIEMPO_ESPERA = 30
 
 # nombre     : lo que se le dice a la persona
@@ -171,12 +171,12 @@ def escribir_flujo(flujo, parcial, total=None, salida=None, bloque=BLOQUE):
 def anunciar(pieza, salida=sys.stdout):
     """Lo que se dice ANTES de pedir el sí. Ninguna cifra se estima."""
     salida.write(
-        f"[AURELIUS] Pieza     : {pieza.nombre}\n"
-        f"[AURELIUS] Licencia  : {pieza.licencia}\n"
-        f"[AURELIUS] Peso      : {humano(pieza.bytes)}\n"
-        f"[AURELIUS] SHA256    : {pieza.sha256}\n"
-        f"[AURELIUS] Origen    : {pieza.url}\n"
-        "[AURELIUS] Si interrumpes la descarga, se empieza de cero.\n"
+        f"[preceptoros] Pieza     : {pieza.nombre}\n"
+        f"[preceptoros] Licencia  : {pieza.licencia}\n"
+        f"[preceptoros] Peso      : {humano(pieza.bytes)}\n"
+        f"[preceptoros] SHA256    : {pieza.sha256}\n"
+        f"[preceptoros] Origen    : {pieza.url}\n"
+        "[preceptoros] Si interrumpes la descarga, se empieza de cero.\n"
     )
     salida.flush()
 

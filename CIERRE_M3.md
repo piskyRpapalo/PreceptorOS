@@ -80,7 +80,7 @@ la larga.
 
 Sin Piper, sin micrófono y sin altavoz, M3 se completa **escribiendo**. La voz
 y el oído son adornos del relato, no requisitos — y el apagado es del producto,
-no de cada suite: `AURELIUS_SIN_HARDWARE=1` cierra las tres puertas y cruza a
+no de cada suite: `PRECEPTOROS_SIN_HARDWARE=1` cierra las tres puertas y cruza a
 los procesos hijo.
 
 ---
@@ -203,7 +203,7 @@ excluye.
   descartada**. Mecanismo: `NO_DATA`. Desde D80c `bin/pruebas` fija
   `TMPDIR=/var/tmp`, así que si vuelve, vuelve en un sitio conocido — eso cierra
   una indeterminación, no el incidente. Detalle en `LIMITES_DEL_CRITERIO.md` §c.
-- **`aurelius.py` no lo importa ninguna suite.** Es el punto de entrada del
+- **`preceptoros.py` no lo importa ninguna suite.** Es el punto de entrada del
   producto y el sitio desde el que se ofrece M3. `test_interprete.py` es lo
   primero que lo arranca, y solo como subproceso y solo para `--view`.
 - **La prueba de recuperación no está hecha.** Borrar el clon, restaurarlo desde
@@ -270,7 +270,7 @@ acta, y después nadie sabe qué se decidió ni por qué.
 ## 5 · ESTADO MEDIDO AL CIERRE
 
 ```
-── AURELIUS · TODAS LAS PRUEBAS ────────────────────────────────
+── preceptoros · TODAS LAS PRUEBAS ────────────────────────────────
   Python 3.14.4 · /usr/bin/python3
   [...]
   225 pruebas · 13 suites · 6 corredores

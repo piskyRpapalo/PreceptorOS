@@ -38,7 +38,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 py-modules = [
-    "aurelius", "afinado", "captura", "cara", "caracter", "casa",
+    "preceptoros", "afinado", "captura", "cara", "caracter", "casa",
     "conversacion", "corredor", "descarga", "estado", "fuga", "fusible",
     "guardrails", "hilos", "interprete", "lore", "manifest", "memory",
     "narrador", "oido", "silencio", "textos", "tono", "traza", "voz",

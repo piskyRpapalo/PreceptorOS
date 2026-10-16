@@ -22,14 +22,14 @@ AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ATAJOS="$HOME/.shortcuts"
 ICONOS="$HOME/.shortcuts/icons"
 NOMBRE="Preceptor"
-PUERTO="${PRECEPTOROS_PWA_PUERTO:-${AURELIUS_PWA_PUERTO:-8740}}"
+PUERTO="${PRECEPTOROS_PWA_PUERTO:-${PRECEPTOROS_PWA_PUERTO:-8740}}"
 # La ruta real de bash en este telefono, no una suposicion.
 BASH="$(command -v bash)"
 
 az()   { printf '\033[38;5;141m··\033[0m %s\n' "$1"; }
 nota() { printf '\033[38;5;103m   %s\033[0m\n' "$1"; }
 
-printf '\n\033[38;5;141mAURELIUS\033[0m · acceso directo\n\n'
+printf '\n\033[38;5;141mpreceptoros\033[0m · acceso directo\n\n'
 
 # --- ¿esta Termux:Widget? -------------------------------------------------
 # Se comprueba por el paquete instalado, no por la carpeta: la carpeta la

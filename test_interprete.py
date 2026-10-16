@@ -66,10 +66,10 @@ class TestRango(unittest.TestCase):
     def test_05_declarar_no_es_bloquear(self):
         """El caso que de verdad importa: el programa ARRANCA fuera de rango.
 
-        No se comprueba leyendo el codigo -- se arranca `aurelius.py` de
+        No se comprueba leyendo el codigo -- se arranca `preceptoros.py` de
         verdad, con el rango movido por debajo de la version en curso, y se
         exige que la nota salga Y que el proceso termine en 0. Un modulo que
-        solo se probara a si mismo no notaria que `aurelius.py` decidio
+        solo se probara a si mismo no notaria que `preceptoros.py` decidio
         `sys.exit(1)` al ver la nota.
         """
         v = ".".join(str(n) for n in I.actual())
@@ -79,11 +79,11 @@ class TestRango(unittest.TestCase):
             # que la de esta maquina queda fuera pase lo que pase.
             "interprete.MINIMA=(3,0,0); interprete.MAXIMA=(3,0,1);"
             "interprete.PROBADAS=('3.0.0','3.0.1');"
-            "sys.argv=['aurelius.py','--view','--db',DB];"
-            "import aurelius; sys.exit(aurelius.main())"
+            "sys.argv=['preceptoros.py','--view','--db',DB];"
+            "import preceptoros; sys.exit(preceptoros.main())"
         )
-        entorno = dict(os.environ, AURELIUS_TEST="1", AURELIUS_RITMO="0",
-                       AURELIUS_SIN_HARDWARE="1")
+        entorno = dict(os.environ, PRECEPTOROS_TEST="1", PRECEPTOROS_RITMO="0",
+                       PRECEPTOROS_SIN_HARDWARE="1")
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             db = os.path.join(tmp, "memoria.db")
@@ -101,8 +101,8 @@ class TestRango(unittest.TestCase):
 
     def test_06_dentro_de_rango_el_arranque_no_dice_nada(self):
         """Y al reves: con el rango de verdad, la nota no aparece."""
-        entorno = dict(os.environ, AURELIUS_TEST="1", AURELIUS_RITMO="0",
-                       AURELIUS_SIN_HARDWARE="1")
+        entorno = dict(os.environ, PRECEPTOROS_TEST="1", PRECEPTOROS_RITMO="0",
+                       PRECEPTOROS_SIN_HARDWARE="1")
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             db = os.path.join(tmp, "memoria.db")

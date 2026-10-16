@@ -77,7 +77,7 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertIn('"/app.css?v=3", "/app.js?v=4", "/zonas.js?v=1"', sw)
         html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<script src="/app.js?v=4"></script>', html)
-        self.assertIn('const Cache = "aurelius-armazon-v100"', sw)
+        self.assertIn('const Cache = "preceptoros-armazon-v101"', sw)
 
 
 if __name__ == "__main__":

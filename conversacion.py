@@ -153,7 +153,7 @@ TAMANO_CACHE_APROX_MIB = 252
 def ruta_cache():
     """Dónde vive el prompt masticado, o None si la persona lo desactivó.
 
-    `AURELIUS_SIN_CACHE=1` lo apaga. Existe porque son ~252 MiB que aparecen en
+    `PRECEPTOROS_SIN_CACHE=1` lo apaga. Existe porque son ~252 MiB que aparecen en
     su carpeta sin que los pidiera, y quien tenga el disco justo tiene que poder
     decir que no y quedarse con un producto más lento pero entero.
     """
@@ -222,7 +222,7 @@ def motor_llama(modelo, hilos=8, tiempo=None, cache=_SIN_DECIR):
             raise SeAgotoElTiempo(
                 f"el modelo tardó más de {tiempo} segundos. En esta máquina "
                 f"puede ser lo normal: prueba con menos tokens "
-                f"(AURELIUS_TOPE_TOKENS) o más espera (AURELIUS_ESPERA).")
+                f"(PRECEPTOROS_TOPE_TOKENS) o más espera (PRECEPTOROS_ESPERA).")
         except Exception:
             return None
         if r.returncode != 0:
@@ -590,7 +590,7 @@ def turno(c, texto_persona, camino, motor=None, idioma=None, canal="modelo_local
     }
 
 
-def proponer(c, texto, origen="aurelius"):
+def proponer(c, texto, origen="preceptoros"):
     """Lo que el game master apunta va al Cuaderno, nunca a la memoria firmada.
 
     D69 en una línea: la máquina propone, la persona firma. El turno puede

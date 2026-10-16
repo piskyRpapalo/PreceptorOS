@@ -28,13 +28,13 @@ Las dos son PNG de **1024 × 341**, RGBA, con **4 fotogramas en horizontal** de
 `background-size: 400% 100%` y `background-position-x` en `0%`, `33.333%`,
 `66.667%` y `100%` para los fotogramas 1 a 4.
 
-> **Desde el 2026-09-02 son tres hojas, no dos.** `aurelius-up.png` sigue en el
+> **Desde el 2026-09-02 son tres hojas, no dos.** `preceptoros-up.png` sigue en el
 > árbol y sigue siendo la hoja de `cara.py`, pero el **tablero PWA** ya no la
 > usa: pasó a `preceptor-up-v2.webp`, de ocho fotogramas. Ver la sección al
 > final. Las dos implementaciones tienen distinto número de fotogramas **a
 > propósito y de momento** — la razón está escrita ahí abajo, y es geométrica.
 
-### `aurelius-talks.png` · la boca
+### `preceptoros-talks.png` · la boca
 
 | # | Qué es |
 |---|---|
@@ -43,7 +43,7 @@ Las dos son PNG de **1024 × 341**, RGBA, con **4 fotogramas en horizontal** de
 | 3 | boca en "o" |
 | 4 | sonrisa de reposo |
 
-### `aurelius-up.png` · el despertar
+### `preceptoros-up.png` · el despertar
 
 | # | Qué es |
 |---|---|

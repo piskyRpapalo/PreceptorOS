@@ -1,13 +1,13 @@
-# Aurelius v1.0.0 · MVP cerrado
+# preceptoros v1.0.0 · MVP cerrado
 
-> **Nota de 2026-08-25.** El producto se llamaba Aurelius cuando se escribió
+> **Nota de 2026-08-25.** El producto se llamaba preceptoros cuando se escribió
 > esto. Las URL de abajo siguen tal cual a propósito — reescribir una nota de
 > versión pasada es falsear el registro. GitHub redirige el nombre viejo al
 > nuevo, así que siguen funcionando. Ver [RELEASE_v1.1.md](RELEASE_v1.1.md).
 
 ## Qué es este release
 
-El primer producto mínimo viable de Aurelius: un compañero de memoria
+El primer producto mínimo viable de preceptoros: un compañero de memoria
 local-first, sin nube, sin telemetría, que empieza vacío y lo dice.
 
 ## Dos puertas de entrada
@@ -22,9 +22,9 @@ local-first, sin nube, sin telemetría, que empieza vacío y lo dice.
 ### Para desarrolladores
 
 ```
-git clone https://github.com/piskyRpapalo/aurelius.git
-cd aurelius
-python3 aurelius.py
+git clone https://github.com/piskyRpapalo/preceptoros.git
+cd preceptoros
+python3 preceptoros.py
 ```
 
 Sin dependencias externas: Python 3.10+ y su biblioteca estándar. Esa

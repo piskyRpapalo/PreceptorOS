@@ -36,7 +36,7 @@ import entorno as _entorno
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(AQUI, "assets")
-RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
+RUTA_DEFECTO = os.path.expanduser("~/.preceptoros/memory.db")
 SALIDA_DEFECTO = os.path.join(AQUI, "cara.html")
 
 # Las claves de texto que la cara usa. Se incrusta este subconjunto y no el
@@ -439,8 +439,8 @@ def generar(c, ruta_db, idioma=None, piper=None, modelo_voz=None, turnos=None,
                 f'<option value="{i}">{i.upper()}</option>' for i, _n in TX.IDIOMAS))
             .replace("__N_AUDIO__", str(n_audio))
             .replace("__ARIA_VOZ__", aria_voz)
-            .replace("__TALKS__", dato_uri("aurelius-talks.png"))
-            .replace("__UP__", dato_uri("aurelius-up.png"))
+            .replace("__TALKS__", dato_uri("preceptoros-talks.png"))
+            .replace("__UP__", dato_uri("preceptoros-up.png"))
             .replace("__IDIOMA__", inicial)
             .replace("__TEXTOS__", _json({i: textos_cara(i) for i, _n in TX.IDIOMAS}))
             .replace("__CAMINO__", _json(CAMINO))
@@ -505,7 +505,7 @@ PLANTILLA = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<meta name="aurelius:audio" content="__N_AUDIO__" />
+<meta name="preceptoros:audio" content="__N_AUDIO__" />
 <title>Preceptor</title>
 <style>
   /* Losa y vena: gris pizarra de fondo, violeta para lo que responde al dedo.
@@ -644,9 +644,9 @@ PLANTILLA = r"""<!DOCTYPE html>
        crearla no se puede auditar antes de usarla. -->
   <div style="padding:0 18px 20px">
     <p style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px">
-      <a class="boton" id="pz-json" download="aurelius-formulario.json" href="#"></a>
+      <a class="boton" id="pz-json" download="preceptoros-formulario.json" href="#"></a>
 __BOTON_PUENTE__
-      <a class="boton" id="pz-txt" download="aurelius-recuerdos.txt" href="#"></a>
+      <a class="boton" id="pz-txt" download="preceptoros-recuerdos.txt" href="#"></a>
     </p>
     <p class="nota" id="pz-aplicar" style="margin:0 0 8px"></p>
     <div class="orden" id="pz-orden"></div>
@@ -933,7 +933,7 @@ function pintarPizarra() {
   bajar(el("pz-txt"), t("pz_bajar_txt"), legible(todos, nuevos), "text/plain");
   el("pz-aplicar").textContent = t("pz_aplicar");
   el("pz-orden").textContent =
-    "python3 cara.py --aplicar aurelius-formulario.json --db " + DATOS.ruta;
+    "python3 cara.py --aplicar preceptoros-formulario.json --db " + DATOS.ruta;
 }
 
 function bajar(a, rotulo, contenido, tipo) {

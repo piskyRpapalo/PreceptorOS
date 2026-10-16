@@ -48,7 +48,7 @@ import afinado as _afinado
 import captura as _captura
 import entorno as _entorno
 
-RUTA_DEFECTO = os.path.expanduser("~/.aurelius/memory.db")
+RUTA_DEFECTO = os.path.expanduser("~/.preceptoros/memory.db")
 
 # --- catálogo de piezas · huellas medidas, no heredadas ------------------
 # Las dos se descargaron ENTERAS y se hashearon en el disco. No se copió el

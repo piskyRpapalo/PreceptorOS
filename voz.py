@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""voz.py · La garganta de Aurelius.
+"""voz.py · La garganta de preceptoros.
 
 Encapsula Piper TTS + efectos de post-procesamiento (pitch, saturación,
 reverb, filtros). Todo el audio se genera localmente, sin red.
@@ -26,8 +26,8 @@ import entorno as _entorno
 
 NO_DATA = "NO_DATA"
 
-VOZ_DIR = os.path.expanduser("~/.aurelius/voz")
-SONIDOS_DIR = os.path.expanduser("~/.aurelius/sonidos")
+VOZ_DIR = os.path.expanduser("~/.preceptoros/voz")
+SONIDOS_DIR = os.path.expanduser("~/.preceptoros/sonidos")
 
 # Modelo por defecto (davefx = masculino grave)
 MODELO_DEFECTO = os.path.join(VOZ_DIR, "es_ES-davefx-medium.onnx")
@@ -48,7 +48,7 @@ ESPEAK_SISTEMA = (
 def espeak_data() -> str:
     """Dónde están los datos de espeak-ng, o NO_DATA. En este orden:
 
-    1. `AURELIUS_ESPEAK_DATA` -- lo que la persona declara manda.
+    1. `PRECEPTOROS_ESPEAK_DATA` -- lo que la persona declara manda.
     2. Las ubicaciones del sistema.
     3. NO_DATA.
 
@@ -181,7 +181,7 @@ def hablar(texto: str, salida: str,
            reverb_decay: float = 0.2,
            length_scale: float = 1.2,
            sentence_silence: float = 0.8) -> Optional[str]:
-    """API principal: genera un WAV con la voz de Aurelius.
+    """API principal: genera un WAV con la voz de preceptoros.
 
     Devuelve la ruta del WAV final, o None si la voz no está disponible.
     """
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     print(f"espeak_data: {espeak_data()}")
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, "voz_modulo.wav")
-        ruta = hablar("A... aaa... aurelius! donde... estoy?", out)
+        ruta = hablar("A... aaa... preceptoros! donde... estoy?", out)
         if ruta:
             print(f"✓ Audio generado ({os.path.getsize(ruta)} bytes)")
         else:

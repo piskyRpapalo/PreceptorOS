@@ -196,7 +196,7 @@ def main(argv):
     import argparse
     import os
     ap = argparse.ArgumentParser(description="Memory manifest · sign and verify")
-    ap.add_argument("--db", default=os.path.expanduser("~/.aurelius/memory.db"))
+    ap.add_argument("--db", default=os.path.expanduser("~/.preceptoros/memory.db"))
     ap.add_argument("--sign", action="store_true", help="generate and sign")
     ap.add_argument("--verify", metavar="FILE", help="verify a manifest file")
     ap.add_argument("--out", metavar="FILE", help="write the manifest here")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M3 · la garganta de Aurelius: efectos, resolucion de rutas, y no bloquear.
+"""M3 · la garganta de preceptoros: efectos, resolucion de rutas, y no bloquear.
 
 sistema: MVP · solo biblioteca estandar.
 
@@ -16,7 +16,7 @@ Dos mitades y la frontera entre ellas:
 Ninguna ruta de carpeta personal vive en este repo. El caso `test_00` lo
 comprueba leyendo `voz.py`: el repo es publico, y una ruta bajo el home es
 justo lo que `guardrails` redacta al exportar. Quien tenga Piper en su casa lo
-declara con AURELIUS_ESPEAK_DATA / AURELIUS_PIPER.
+declara con PRECEPTOROS_ESPEAK_DATA / PRECEPTOROS_PIPER.
 """
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ class TestSinRutasPersonales(unittest.TestCase):
         # Se prohiben las dos formas: la literal -- un prefijo de home seguido
         # de un nombre de usuario, en Linux o en macOS -- y la que la calcula,
         # `expanduser` de una tilde, para todo lo que no sea la casa del
-        # producto (`~/.aurelius`), que es donde vive lo de la persona a
+        # producto (`~/.preceptoros`), que es donde vive lo de la persona a
         # proposito y por doctrina.
         #
         # Los patrones se arman por trozos y no se escriben enteros: este
@@ -79,7 +79,7 @@ class TestSinRutasPersonales(unittest.TestCase):
         self.assertEqual(literales, [],
                          f"voz.py lleva una ruta de home literal: {literales}")
         expandidas = re.findall(r'expanduser\(\s*"~/([^"]*)"', fuente)
-        fuera = [e for e in expandidas if not e.startswith(".aurelius")]
+        fuera = [e for e in expandidas if not e.startswith(".preceptoros")]
         self.assertEqual(fuera, [],
                          "voz.py adivina una carpeta bajo el home que no es la "
                          f"casa del producto: {fuera}")
@@ -90,7 +90,7 @@ class TestResolucionEspeak(unittest.TestCase):
 
     def setUp(self):
         self.antes = {k: os.environ.get(k)
-                      for k in ("AURELIUS_ESPEAK_DATA", "AURELIUS_PIPER")}
+                      for k in ("PRECEPTOROS_ESPEAK_DATA", "PRECEPTOROS_PIPER")}
 
     def tearDown(self):
         for k, v in self.antes.items():
@@ -101,17 +101,17 @@ class TestResolucionEspeak(unittest.TestCase):
 
     def test_01_lo_declarado_manda_sobre_el_sistema(self):
         with tempfile.TemporaryDirectory() as d:
-            os.environ["AURELIUS_ESPEAK_DATA"] = d
+            os.environ["PRECEPTOROS_ESPEAK_DATA"] = d
             self.assertEqual(voz.espeak_data(), d,
                              "lo declarado por entorno no gano al sistema")
 
     def test_02_declarado_que_no_existe_es_NO_DATA_y_no_cae_al_sistema(self):
-        os.environ["AURELIUS_ESPEAK_DATA"] = "/no/existe/espeak-ng-data"
+        os.environ["PRECEPTOROS_ESPEAK_DATA"] = "/no/existe/espeak-ng-data"
         self.assertEqual(voz.espeak_data(), voz.NO_DATA,
                          "una ruta declarada y rota cayo al sistema en silencio")
 
     def test_03_sin_declarar_se_mira_el_sistema_o_se_dice_NO_DATA(self):
-        os.environ.pop("AURELIUS_ESPEAK_DATA", None)
+        os.environ.pop("PRECEPTOROS_ESPEAK_DATA", None)
         hallado = voz.espeak_data()
         if hallado == voz.NO_DATA:
             self.skipTest("esta maquina no tiene espeak-ng-data en ninguna "
@@ -128,7 +128,7 @@ class TestResolucionEspeak(unittest.TestCase):
                             f"{patron!r} no es una ubicacion del sistema")
 
     def test_05_piper_sigue_el_mismo_orden(self):
-        os.environ["AURELIUS_PIPER"] = "/no/existe/piper"
+        os.environ["PRECEPTOROS_PIPER"] = "/no/existe/piper"
         self.assertEqual(voz.piper_binario(), voz.NO_DATA,
                          "un piper declarado y roto no se declaro NO_DATA")
 
@@ -192,8 +192,8 @@ class TestNuncaBloquea(unittest.TestCase):
     """Sin Piper, M3 se completa escribiendo. La voz no es un requisito."""
 
     def test_12_hablar_sin_piper_devuelve_None(self):
-        antes = os.environ.get("AURELIUS_PIPER")
-        os.environ["AURELIUS_PIPER"] = "/no/existe/piper"
+        antes = os.environ.get("PRECEPTOROS_PIPER")
+        os.environ["PRECEPTOROS_PIPER"] = "/no/existe/piper"
         try:
             self.assertFalse(voz.piper_disponible())
             with tempfile.TemporaryDirectory() as d:
@@ -201,9 +201,9 @@ class TestNuncaBloquea(unittest.TestCase):
                                   "sin Piper, hablar() tiene que devolver None")
         finally:
             if antes is None:
-                os.environ.pop("AURELIUS_PIPER", None)
+                os.environ.pop("PRECEPTOROS_PIPER", None)
             else:
-                os.environ["AURELIUS_PIPER"] = antes
+                os.environ["PRECEPTOROS_PIPER"] = antes
 
     def test_13_leitmotiv_que_no_esta_devuelve_None_y_sala_invalida_tambien(self):
         self.assertIsNone(voz.tocar_leitmotiv(99), "una sala que no existe dio ruta")
@@ -228,7 +228,7 @@ class TestVozReal(unittest.TestCase):
             if antes_silencio is not None else None)
 
         if voz.piper_binario() == voz.NO_DATA:
-            self.skipTest("no hay ejecutable de Piper: ni AURELIUS_PIPER ni "
+            self.skipTest("no hay ejecutable de Piper: ni PRECEPTOROS_PIPER ni "
                           "'piper' en el PATH. La voz es opcional por doctrina; "
                           "M3 se completa escribiendo.")
         if not os.path.isfile(voz.MODELO_DEFECTO):

@@ -197,7 +197,7 @@ break the product on purpose in a copy of the tree and **require the tests to
 go red**. That is what separates a suite that proves something from one that
 merely keeps it company: 4/4 and 6/6 breakages caught.
 
-The tests do not touch your `~/.aurelius/`, do not open the microphone and do
+The tests do not touch your `~/.preceptoros/`, do not open the microphone and do
 not send anything to the speaker — see `silencio.py`.
 
 What is verified and what is **not**: [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md).

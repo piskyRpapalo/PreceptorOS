@@ -35,7 +35,7 @@ import memory as M  # noqa: E402
 
 _ruta = os.path.join(AQUI, "bin", "preceptoros-pwa")
 _spec = importlib.util.spec_from_loader(
-    "aurelius_pwa_compass", SourceFileLoader("aurelius_pwa_compass", _ruta))
+    "preceptoros_pwa_compass", SourceFileLoader("preceptoros_pwa_compass", _ruta))
 PWA = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(PWA)
 

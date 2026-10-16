@@ -9,7 +9,7 @@ hasta D78 el ruido salia de `hash(str(i))`, aleatorizado por proceso, y dos
 ejecuciones daban huellas distintas. Aqui se exige la huella, como en
 `descarga.py`: mismo nombre -> mismo sha256, en este proceso y en otro.
 
-Ninguna prueba escribe en ~/.aurelius/ real: todas trabajan en un tmpdir y el
+Ninguna prueba escribe en ~/.preceptoros/ real: todas trabajan en un tmpdir y el
 caso 00 lo comprueba mirando el import, que es donde estaba el agujero.
 """
 from __future__ import annotations
@@ -43,13 +43,13 @@ class TestNoTocaLaCasa(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as home:
             entorno = dict(os.environ, HOME=home)
-            entorno.pop("AURELIUS_TEST", None)
+            entorno.pop("PRECEPTOROS_TEST", None)
             r = subprocess.run(
                 [sys.executable, "-c", "import generar_leitmotivs"],
                 cwd=AQUI, env=entorno, capture_output=True, text=True, timeout=60)
             self.assertEqual(r.returncode, 0, r.stderr)
             self.assertFalse(
-                os.path.exists(os.path.join(home, ".aurelius")),
+                os.path.exists(os.path.join(home, ".preceptoros")),
                 "importar el generador creo la casa de la persona")
 
     def test_01_el_directorio_por_defecto_se_calcula_al_llamar(self):

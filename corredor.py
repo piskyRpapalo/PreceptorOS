@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""corredor.py · corredor canónico de Aurelius.
+"""corredor.py · corredor canónico de preceptoros.
 
 Ejecuta las suites, cuenta los tests, y falla cerrado si falta una suite
 o si hay una suite en disco que no está declarada (Rojo B-Inverso).

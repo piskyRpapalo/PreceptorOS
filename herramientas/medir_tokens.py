@@ -8,7 +8,7 @@ un tokenizador, y el MVP es de biblioteca estandar. La salida es una constante
 cara de dato. Esto es la procedencia.
 
 NO SE EJECUTA EN EL PRODUCTO. Vive en `herramientas/` y necesita el venv de la
-Forja (`~/.venvs/aurelius-forja`), que trae `transformers`. La memoria no
+Forja (`~/.venvs/preceptoros-forja`), que trae `transformers`. La memoria no
 importa nada de aqui: se lee el numero, se escribe en `memory.py` con su fecha,
 y este fichero queda para volver a medirlo cuando cambien los modelos servidos.
 
@@ -22,7 +22,7 @@ que el error se inclina hacia el lado que sobra contexto y no hacia el que
 sobra espera.
 
 Uso:
-    ~/.venvs/aurelius-forja/bin/python herramientas/medir_tokens.py
+    ~/.venvs/preceptoros-forja/bin/python herramientas/medir_tokens.py
 """
 import json
 import os
@@ -71,7 +71,7 @@ def main():
         from transformers import AutoTokenizer
     except ImportError:
         print("NO_DATA · falta `transformers`. Usa el venv de la Forja:")
-        print("  ~/.venvs/aurelius-forja/bin/python herramientas/medir_tokens.py")
+        print("  ~/.venvs/preceptoros-forja/bin/python herramientas/medir_tokens.py")
         return 1
 
     textos = corpus()
