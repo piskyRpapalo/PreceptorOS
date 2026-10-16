@@ -464,6 +464,9 @@ function mostrar(i, opciones = {}) {
     boton.tabIndex = n === panelActual ? 0 : -1;
   });
   actualizarGuionZona();
+  if (indiceAnterior !== panelActual && window.PreceptorSting) {
+    window.PreceptorSting.tocar().catch(() => {});
+  }
   if (indiceAnterior !== panelActual && window.PreceptorTransicion) {
     if (cancelarGusano) cancelarGusano();
     const zonaDestino = paneles[panelActual];

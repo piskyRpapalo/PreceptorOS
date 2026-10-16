@@ -232,6 +232,7 @@ ESTATICOS = {
     "/llms.txt": (os.path.join(AQUI, "llms.txt"), "text/plain; charset=utf-8"),
     "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
     "/transicion.js": ("transicion.js", "application/javascript; charset=utf-8"),
+    "/sting.js": ("sting.js", "application/javascript; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     # La consola soberana: una barra de solo lectura encima del chat. Fichero
     # propio y no dentro de dashboard.js, que ya pasa de 140 KB.
