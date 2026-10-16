@@ -35,6 +35,8 @@ import json
 import os
 import sqlite3
 import sys
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 AQUI = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -261,6 +263,10 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta == "/api/harness":
+            return self._harness_leer()
+        if ruta == "/api/harness":
+            return self._harness_leer()
         if ruta == "/api/captura":
             return self._captura_listar()
         if ruta == "/api/empieza-aqui":
@@ -628,6 +634,48 @@ class PWA(BaseHTTPRequestHandler):
             return self._json(400, {"estado": "bloqueado", "motivo": str(e)})
         except Exception as e:                      # nunca tumba el tablero
             return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+
+    def _harness_leer(self):
+        """Lectura local del sensor de timers del Nexo; solo GET y campos de UI."""
+        try:
+            req = urllib.request.Request("http://127.0.0.1:8765/api/timers", method="GET")
+            with urllib.request.urlopen(req, timeout=3) as r:
+                fuente = json.loads(r.read().decode("utf-8"))
+            if not isinstance(fuente, dict) or not isinstance(fuente.get("propios"), list):
+                raise ValueError("contrato de timers inválido")
+            filas = []
+            for fila in fuente["propios"]:
+                if not isinstance(fila, dict):
+                    continue
+                filas.append({k: fila.get(k) for k in
+                              ("unidad", "descripcion", "activo", "ultima", "proxima", "resultado", "causa")})
+            return self._json(200, {"estado": fuente.get("estado"),
+                                    "medido": fuente.get("medido"),
+                                    "causa": fuente.get("causa"), "bucles": filas})
+        except Exception as e:  # el corte del Nexo es un estado visible, no una traza
+            return self._json(200, {"estado": "NO_DATA", "causa": type(e).__name__,
+                                    "medido": None, "bucles": []})
+
+    def _harness_leer(self):
+        """Lectura local del sensor de timers del Nexo; solo GET y campos de UI."""
+        try:
+            req = urllib.request.Request("http://127.0.0.1:8765/api/timers", method="GET")
+            with urllib.request.urlopen(req, timeout=3) as r:
+                fuente = json.loads(r.read().decode("utf-8"))
+            if not isinstance(fuente, dict) or not isinstance(fuente.get("propios"), list):
+                raise ValueError("contrato de timers inválido")
+            filas = []
+            for fila in fuente["propios"]:
+                if not isinstance(fila, dict):
+                    continue
+                filas.append({k: fila.get(k) for k in
+                              ("unidad", "descripcion", "activo", "ultima", "proxima", "resultado", "causa")})
+            return self._json(200, {"estado": fuente.get("estado"),
+                                    "medido": fuente.get("medido"),
+                                    "causa": fuente.get("causa"), "bucles": filas})
+        except Exception as e:  # el corte del Nexo es un estado visible, no una traza
+            return self._json(200, {"estado": "NO_DATA", "causa": type(e).__name__,
+                                    "medido": None, "bucles": []})
 
     def _lab_leer(self):
         """El Lab hablando: canales + canal del registro (solo lectura) y los
