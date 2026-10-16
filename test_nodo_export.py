@@ -43,7 +43,7 @@ class ExportacionNodo(unittest.TestCase):
         with patch("nodo_export.nodo_app.autenticidad", return_value=("OK", "verificada")):
             r = nodo_export.enviar({"cedula": cedula()}, transport=transport)
         self.assertEqual(r, {"estado": "encolado", "codigo": "recibido", "recibidos": 1})
-        self.assertEqual(recibida[0][0], "https://api.preceptoros.org/api/v1/cedulas")
+        self.assertEqual(recibida[0][0], nodo_export.ENDPOINT)
         self.assertEqual(recibida[0][1], {"cedula": cedula()})
 
     def test_silicio_no_puede_devolver_paquete_firmado(self):
