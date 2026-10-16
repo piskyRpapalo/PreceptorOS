@@ -73,11 +73,9 @@ import entorno as _entorno
 #     defecto la máquina se arrodilla reservando caché (2026-08-18).
 #   · `--no-display-prompt`, o la respuesta llega con el prompt pegado delante.
 #   · `--no-warmup`, porque el arranque en frío ya es bastante lento.
-#   · `-st` NO se pasa: era la bandera que `llama-cli` necesitaba para no
-#     entrar en modo interactivo y reimprimir el prompt en bucle — 427 millones
-#     de líneas y 1,4 GB de basura en cinco minutos. `llama-completion` no tiene
-#     ese modo, así que la bandera sobra. La cicatriz se conserva escrita
-#     porque el binario puede volver a cambiar.
+#   · `-st` (`--single-turn`) SÍ se pasa a `llama-completion`: cierra el turno
+#     actual sin entrar en modo interactivo. No quitarla: forma parte del
+#     contrato de ejecución de este binario.
 # Los dos marcadores que el binario añade al final. Medidos el 2026-08-19 sobre
 # la build b10488: con `-st` cierra con `[end of text]`; sin ella espera más
 # entrada y cierra con `> EOF by user` al encontrarse el flujo cerrado.
