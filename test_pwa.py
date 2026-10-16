@@ -1063,3 +1063,32 @@ class TestZonaModelos(unittest.TestCase):
         self.assertIn('id="modelos-lista"', html)
         self.assertNotIn("modelos-lista.length", app)
         self.assertNotIn("fichas.length", app)
+
+class TestZonaPuerta(unittest.TestCase):
+    def test_puerta_presenta_el_documento_servido_y_conserva_copia_fiel(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        self.assertIn('paneles[panelActual].id === "puerta"', app)
+        self.assertIn('fetch(`/api/empieza-aqui?', app)
+        self.assertIn("d.pegable", app)
+        self.assertIn("d.llave", app)
+        self.assertIn("replaceAll(nd, t.puerta_sin_dato)", app)
+        self.assertIn('id="puerta-documento"', html)
+        self.assertIn('id="puerta-copiar-documento"', html)
+        self.assertIn("puerta_fiel", app)
+
+class TestCacheAppP4(unittest.TestCase):
+    def test_service_worker_y_app_html_suben_y_comparten_clave_app_js(self):
+        import re
+        sw = pathlib.Path(AQUI, "interface", "sw.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        cache = re.search(r'aurelius-armazon-v(\d+)', sw)
+        precache = re.search(r'"/app\.js\?v=(\d+)"', sw)
+        solicitud = re.search(r'<script src="/app\.js\?v=(\d+)"', html)
+        self.assertIsNotNone(cache)
+        self.assertIsNotNone(precache)
+        self.assertIsNotNone(solicitud)
+        self.assertGreater(int(cache.group(1)), 99, "el nombre de caché no subió de main")
+        self.assertGreater(int(precache.group(1)), 3, "la clave precacheada no subió de main")
+        self.assertEqual(precache.group(1), solicitud.group(1),
+                         "precache y HTML piden claves distintas")
