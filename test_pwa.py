@@ -58,6 +58,35 @@ class Fingida:
         self.codigo, self.cuerpo = codigo, cuerpo
 
 
+class TestPostBaseVacia(unittest.TestCase):
+    def test_anidar_sobre_base_vacia_devuelve_recibo_en_vez_de_traza(self):
+        import io
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as d:
+            db = os.path.join(d, "nueva.db")
+            with memory.abrir(db):
+                pass
+            handler = PWA.PWA.__new__(PWA.PWA)
+            cuerpo = json.dumps({"texto": "recuerdo de prueba"}).encode("utf-8")
+            handler.server = SimpleNamespace(ruta_db=db)
+            handler.path = "/api/anidar"
+            handler.headers = {"Content-Length": str(len(cuerpo))}
+            handler.rfile = io.BytesIO(cuerpo)
+            handler.send_response = mock.Mock()
+            handler.send_header = mock.Mock()
+            handler.end_headers = mock.Mock()
+            handler.wfile = io.BytesIO()
+
+            PWA.PWA.do_POST(handler)
+
+            handler.send_response.assert_called_once_with(503)
+            recibo = json.loads(handler.wfile.getvalue())
+            self.assertEqual(recibo["estado"], "bloqueado")
+            self.assertIn("memoria local", recibo["motivo"])
+            self.assertNotIn("OperationalError", handler.wfile.getvalue().decode())
+
+
 class TestFrontera(unittest.TestCase):
 
     def setUp(self):
