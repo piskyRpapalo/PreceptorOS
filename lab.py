@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""lab.py · el Lab hablando: la conversación de los agentes y sus tres modelos.
+"""lab.py · el Lab hablando: conversación de agentes y fichas locales de modelos.
 
 **Solo biblioteca estándar. Ni un socket (D68): el modelo va por tubería.**
 
@@ -13,11 +13,12 @@ QUÉ JUNTA
 * Quién habla, en un vocabulario cerrado: claude-app, claude-lab, claude-web,
   hexelion, orquestador y soberano. Una voz desconocida se enseña como «otra»,
   nunca se disfraza de una conocida.
-* Los tres modelos básicos -- orquestador mini, orquestador grande (solo donde
+* Los modelos básicos -- orquestador mini, orquestador grande (solo donde
   su blob esté, que hoy es el Beelink) y el modelo de elección (tier 1 por
   reglas; tier 2 NO_DATA) -- con tag explícito, sha del blob, tok/s SOLO si hay
   medición con máquina, fecha y backend, y adaptador LoRA NO_DATA salvo
-  artefacto con hash.
+  artefacto con hash. El candidato de código tiene ficha separada fijada por
+  SHA-256 del blob y no sustituye al mini.
 
 CÓMO CONTESTA EL LAB
 --------------------
@@ -51,6 +52,8 @@ TOPE_TEXTO = 600
 
 MINI = "qwen2.5:1.5b-instruct-q4_K_M"
 GRANDE = "qwen3-coder:30b"
+SOBERANO_CODER = "soberano-coder:latest"
+SOBERANO_SHA256 = "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad"
 MEDICIONES = "mediciones_modelos.json"
 ESQUEMA_MEDICION = "preceptoros.medicion-modelo/1"
 BACKENDS = ("CPU", "GPU", "MIXTO")
@@ -173,7 +176,7 @@ def conversacion(base, tope=80):
             "mensajes": mensajes[-tope:]}
 
 
-# --- los tres modelos ---------------------------------------------------------------
+# --- fichas de modelos --------------------------------------------------------------
 def medicion_valida(m):
     """Una medición vale solo con máquina, fecha con zona, backend y sha."""
     if not isinstance(m, dict):
@@ -237,8 +240,60 @@ def _ficha(rol, tag, pc, med, ada, ausente):
     return ficha
 
 
+def _ficha_soberano(pc, raiz_ollama):
+    """Identidad fijada por SHA del blob; el tag es solo una etiqueta declarada."""
+    verificacion = _consola.verificar_blob(SOBERANO_SHA256, raiz=raiz_ollama)
+    motor = _ficha_motor()
+    registrado = pc.get(SOBERANO_CODER)
+    catalogo = nd("el inventario de manifiestos no contiene este tag; no se infiere equivalencia")
+    if registrado:
+        catalogo = {"estado": "MEDIDO", "sha256": registrado.get("sha256"),
+                    "blob_presente": registrado.get("blob_presente")}
+        if registrado.get("sha256") != SOBERANO_SHA256:
+            return {"rol": "candidato de código", "tag": SOBERANO_CODER,
+                    "disponible": False, "sha256": registrado.get("sha256"),
+                    "resolucion": "sha256_blob", "catalogo": catalogo,
+                    "motor": motor,
+                    "causa": "el SHA-256 del manifiesto no coincide con la ficha fijada",
+                    "tok_s": nd("sin medición de velocidad para este SHA-256")}
+    ficha = {"rol": "candidato de código", "tag": SOBERANO_CODER,
+             "sha256": SOBERANO_SHA256, "resolucion": "sha256_blob",
+             "catalogo": catalogo, "verificacion": verificacion, "motor": motor}
+    if verificacion.get("estado") != "MEDIDO" or verificacion.get("sha256") != SOBERANO_SHA256:
+        ficha.update({"disponible": False, "blob_disponible": False,
+                      "causa": verificacion.get("causa", "el blob no pasó la verificación de identidad"),
+                      "tok_s": nd("sin medición de velocidad para este SHA-256")})
+        return ficha
+    ficha["blob_disponible"] = True
+    if motor.get("estado") != "MEDIDO":
+        ficha.update({"disponible": False, "bytes": verificacion["bytes"],
+                      "causa": motor.get("causa", "el binario motor no está disponible"),
+                      "tok_s": nd("sin medición de velocidad para este SHA-256")})
+        return ficha
+    ficha.update({"disponible": True, "bytes": verificacion["bytes"],
+                  "via": "tubería al blob verificado; no requiere socket",
+                  "tok_s": nd("sin medición asociada a este SHA-256, máquina y backend")})
+    return ficha
+
+
+def _ficha_motor():
+    """Disponibilidad del ejecutable que usaría el proceso local."""
+    import conversacion as _conv
+    ruta = _conv.motor_disponible()
+    if not ruta:
+        return nd("el ejecutable motor configurado no está disponible en el PATH del proceso")
+    try:
+        stat = os.stat(ruta)
+    except OSError as e:
+        return nd(f"no se pudo inspeccionar el ejecutable motor ({type(e).__name__})")
+    if not os.path.isfile(ruta) or not os.access(ruta, os.X_OK):
+        return nd("el ejecutable motor no es un fichero ejecutable")
+    return {"estado": "MEDIDO", "ruta": _consola.ruta_visible(ruta), "bytes": stat.st_size}
+
+
 def modelos_lab(base, raiz_ollama=None):
-    pc = {m["id"]: m for m in _consola.modelos_pc(raiz_ollama).get("modelos", [])}
+    raiz = pathlib.Path(raiz_ollama) if raiz_ollama is not None else _consola.raiz_ollama()
+    pc = {m["id"]: m for m in _consola.modelos_pc(raiz).get("modelos", [])}
     med, ada = mediciones(base), _adaptadores(base)
     try:
         reglas = _decisor.cargar()
@@ -252,6 +307,7 @@ def modelos_lab(base, raiz_ollama=None):
                        "su blob no está en este aparato"),
         "grande": _ficha("orquestador grande", GRANDE, pc, med, ada,
                          "no corre en este aparato: solo en el Beelink"),
+        "soberano_coder": _ficha_soberano(pc, raiz),
         "eleccion": {"rol": "modelo de elección", "tier1": tier1,
                      "tier2": nd("aún no existe: la forja la lleva el agente lab"),
                      "adaptador": nd(CAUSA_SIN_LORA)},

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test_lab.py · el Lab hablando y sus tres modelos. Solo biblioteca estandar.
+"""test_lab.py · el Lab hablando y sus fichas de modelos. Solo biblioteca estandar.
 
 Lo que se defiende:
   1. Cada mensaje dice quien habla, en vocabulario cerrado; una voz
@@ -17,6 +17,7 @@ Lo que se defiende:
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib.util
 import json
 import os
@@ -143,6 +144,78 @@ class TestQuienHabla(Base):
 
 class TestModelos(Base):
 
+    def test_verificar_blob_mide_hash_correcto(self):
+        contenido = b"blob de prueba fijado"
+        sha = hashlib.sha256(contenido).hexdigest()
+        blob = self.ollama / "blobs" / ("sha256-" + sha)
+        blob.parent.mkdir(parents=True)
+        blob.write_bytes(contenido)
+        resultado = L._consola.verificar_blob(sha, raiz=self.ollama)
+        self.assertEqual((resultado["estado"], resultado["sha256"], resultado["bytes"]),
+                         ("MEDIDO", sha, len(contenido)))
+
+    def test_verificar_blob_detecta_hash_distinto_del_contenido(self):
+        blob = self.ollama / "blobs" / ("sha256-" + "f" * 64)
+        blob.parent.mkdir(parents=True)
+        blob.write_bytes(b"contenido de prueba")
+        resultado = L._consola.verificar_blob("f" * 64, raiz=self.ollama)
+        self.assertEqual(resultado["estado"], "ERROR")
+        self.assertIn("no coincide", resultado["causa"])
+
+    def test_soberano_coder_ficha_ausente_rechaza_con_causa(self):
+        ficha = L.modelos_lab(self.casa)["soberano_coder"]
+        self.assertFalse(ficha["disponible"])
+        self.assertTrue(ficha["causa"])
+
+    def test_soberano_coder_hash_no_coincidente_rechaza(self):
+        with mock.patch.object(L._consola, "verificar_blob",
+                               return_value={"estado": "ERROR", "sha256": "f" * 64,
+                                             "causa": "el contenido no coincide con el SHA-256 fijado"}):
+            ficha = L.modelos_lab(self.casa)["soberano_coder"]
+        self.assertFalse(ficha["disponible"])
+        self.assertIn("no coincide", ficha["causa"])
+
+    def test_soberano_coder_resuelve_por_sha_y_no_reemplaza_mini(self):
+        medido = {"estado": "MEDIDO", "sha256": L.SOBERANO_SHA256,
+                  "bytes": 123, "ruta": "~/.ollama/models/blobs/sha256-…"}
+        with mock.patch.object(L._consola, "verificar_blob", return_value=medido) as verificar, \
+                mock.patch.object(L, "_ficha_motor",
+                                  return_value={"estado": "MEDIDO", "ruta": "…/llama-completion",
+                                                "bytes": 12}):
+            modelos = L.modelos_lab(self.casa)
+        verificar.assert_called_once_with(L.SOBERANO_SHA256, raiz=self.ollama)
+        self.assertTrue(modelos["soberano_coder"]["disponible"])
+        self.assertEqual(modelos["soberano_coder"]["sha256"], L.SOBERANO_SHA256)
+        self.assertEqual(modelos["soberano_coder"]["resolucion"], "sha256_blob")
+        self.assertIn("mini", modelos)
+        self.assertFalse(modelos["mini"]["disponible"])
+        self.assertEqual(modelos["soberano_coder"]["catalogo"]["estado"], "NO_DATA")
+
+    def test_soberano_coder_blob_verificado_sin_motor_sigue_no_disponible(self):
+        medido = {"estado": "MEDIDO", "sha256": L.SOBERANO_SHA256,
+                  "bytes": 123, "ruta": "…/blob"}
+        with mock.patch.object(L._consola, "verificar_blob", return_value=medido), \
+                mock.patch.object(L, "_ficha_motor",
+                                  return_value={"estado": "NO_DATA", "causa": "motor ausente"}):
+            ficha = L.modelos_lab(self.casa)["soberano_coder"]
+        self.assertTrue(ficha["blob_disponible"])
+        self.assertFalse(ficha["disponible"])
+        self.assertEqual(ficha["causa"], "motor ausente")
+
+    def test_soberano_coder_rechaza_digest_de_manifiesto_distinto(self):
+        inventario = [{"id": L.SOBERANO_CODER, "sha256": "f" * 64,
+                       "blob_presente": True}]
+        with mock.patch.object(L._consola, "modelos_pc", return_value={"modelos": inventario}), \
+                mock.patch.object(L._consola, "verificar_blob",
+                                  return_value={"estado": "MEDIDO", "sha256": L.SOBERANO_SHA256,
+                                                "bytes": 123, "ruta": "…/blob"}), \
+                mock.patch.object(L, "_ficha_motor",
+                                  return_value={"estado": "MEDIDO", "ruta": "…/llama-completion",
+                                                "bytes": 12}):
+            ficha = L.modelos_lab(self.casa)["soberano_coder"]
+        self.assertFalse(ficha["disponible"])
+        self.assertIn("manifiesto no coincide", ficha["causa"])
+
     def test_tres_modelos_con_tag_y_sha(self):
         _blob(self.ollama, "qwen2.5", "1.5b-instruct-q4_K_M", SHA_MINI)
         self.mediciones(_medicion())
@@ -255,7 +328,8 @@ class TestPuerta(Base):
         self.assertEqual((r["codigo"], r["cuerpo"]["respuesta"]["estado"]), (200, "NO_DATA"))
         self.PWA.PWA._lab_leer(h)
         self.assertEqual(r["codigo"], 200)
-        self.assertEqual(set(r["cuerpo"]["modelos"]), {"mini", "grande", "eleccion"})
+        self.assertEqual(set(r["cuerpo"]["modelos"]),
+                         {"mini", "grande", "eleccion", "soberano_coder"})
 
 
 SABOTAJES = (
