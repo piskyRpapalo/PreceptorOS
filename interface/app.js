@@ -61,6 +61,7 @@ const textos = {
     harness_frescura_stale: (age) => `Dato antiguo · hace ${age}`,
     harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario',
     modelos_cargando: 'Consultando los modelos locales…', modelos_error: 'No se pudieron leer los modelos locales.', modelos_live: 'Disponible ahora', modelos_stale: 'Dato antiguo', modelos_ausente: 'No disponible', modelos_causa: 'Causa', modelos_causa_vacia: 'Sin causa declarada', modelos_tier1: 'Tier uno', modelos_tier2: 'Tier dos', modelos_adaptador: 'Adaptador',
+    puerta_cargando: "Leyendo la puerta local…", puerta_error: "No se pudo leer la puerta local.", puerta_fiel: "La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.", puerta_llave_titulo: "Llave de entrada", puerta_copiar_llave: "Copiar llave", puerta_llave_ok: "Llave copiada.", puerta_copia_error: "No se pudo copiar la llave.", puerta_documento_titulo: "Documento que lee la IA", puerta_copiar_documento: "Copiar documento fuente", puerta_documento_ok: "Documento copiado.", puerta_documento_error: "No se pudo copiar el documento.", puerta_sin_dato: "Dato no disponible",
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
@@ -103,6 +104,7 @@ const textos = {
     harness_frescura_stale: (age) => `Stale · ${age} ago`,
     harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule',
     modelos_cargando: 'Checking local models…', modelos_error: 'Could not read local models.', modelos_live: 'Available now', modelos_stale: 'Stale data', modelos_ausente: 'Unavailable', modelos_causa: 'Cause', modelos_causa_vacia: 'No cause declared', modelos_tier1: 'Tier one', modelos_tier2: 'Tier two', modelos_adaptador: 'Adapter',
+    puerta_cargando: "Reading the local gate…", puerta_error: "Could not read the local gate.", puerta_fiel: "The view translates absence markers; the buttons copy the exact source text.", puerta_llave_titulo: "Entry key", puerta_copiar_llave: "Copy key", puerta_llave_ok: "Key copied.", puerta_copia_error: "Could not copy the key.", puerta_documento_titulo: "Document the AI reads", puerta_copiar_documento: "Copy source document", puerta_documento_ok: "Document copied.", puerta_documento_error: "Could not copy the document.", puerta_sin_dato: "Data unavailable",
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -148,6 +150,7 @@ const textos = {
     harness_frescura_stale: (age) => `Donnée ancienne · il y a ${age}`,
     harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire',
     modelos_cargando: 'Lecture des modèles locaux…', modelos_error: 'Impossible de lire les modèles locaux.', modelos_live: 'Disponible maintenant', modelos_stale: 'Donnée ancienne', modelos_ausente: 'Indisponible', modelos_causa: 'Cause', modelos_causa_vacia: 'Aucune cause déclarée', modelos_tier1: 'Niveau un', modelos_tier2: 'Niveau deux', modelos_adaptador: 'Adaptateur',
+    puerta_cargando: "Lecture de la porte locale…", puerta_error: "Impossible de lire la porte locale.", puerta_fiel: "La vue traduit les marqueurs d’absence ; les boutons copient le texte source exact.", puerta_llave_titulo: "Clé d’entrée", puerta_copiar_llave: "Copier la clé", puerta_llave_ok: "Clé copiée.", puerta_copia_error: "Impossible de copier la clé.", puerta_documento_titulo: "Document lu par l’IA", puerta_copiar_documento: "Copier le document source", puerta_documento_ok: "Document copié.", puerta_documento_error: "Impossible de copier le document.", puerta_sin_dato: "Donnée indisponible",
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
@@ -190,6 +193,7 @@ const textos = {
     harness_frescura_stale: (age) => `Dado antigo · há ${age}`,
     harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário',
     modelos_cargando: 'A consultar os modelos locais…', modelos_error: 'Não foi possível ler os modelos locais.', modelos_live: 'Disponível agora', modelos_stale: 'Dado antigo', modelos_ausente: 'Indisponível', modelos_causa: 'Causa', modelos_causa_vacia: 'Sem causa declarada', modelos_tier1: 'Nível um', modelos_tier2: 'Nível dois', modelos_adaptador: 'Adaptador',
+    puerta_cargando: "A ler a porta local…", puerta_error: "Não foi possível ler a porta local.", puerta_fiel: "A vista traduz as marcas de ausência; os botões copiam o texto original exato.", puerta_llave_titulo: "Chave de entrada", puerta_copiar_llave: "Copiar chave", puerta_llave_ok: "Chave copiada.", puerta_copia_error: "Não foi possível copiar a chave.", puerta_documento_titulo: "Documento lido pela IA", puerta_copiar_documento: "Copiar documento original", puerta_documento_ok: "Documento copiado.", puerta_documento_error: "Não foi possível copiar o documento.", puerta_sin_dato: "Dado indisponível",
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
@@ -232,6 +236,7 @@ const textos = {
     harness_frescura_stale: (age) => `Dato vecchio · ${age} fa`,
     harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario',
     modelos_cargando: 'Lettura dei modelli locali…', modelos_error: 'Impossibile leggere i modelli locali.', modelos_live: 'Disponibile ora', modelos_stale: 'Dato vecchio', modelos_ausente: 'Non disponibile', modelos_causa: 'Causa', modelos_causa_vacia: 'Nessuna causa dichiarata', modelos_tier1: 'Livello uno', modelos_tier2: 'Livello due', modelos_adaptador: 'Adattatore',
+    puerta_cargando: "Lettura della porta locale…", puerta_error: "Impossibile leggere la porta locale.", puerta_fiel: "La vista traduce gli indicatori di assenza; i pulsanti copiano il testo sorgente esatto.", puerta_llave_titulo: "Chiave di ingresso", puerta_copiar_llave: "Copia chiave", puerta_llave_ok: "Chiave copiata.", puerta_copia_error: "Impossibile copiare la chiave.", puerta_documento_titulo: "Documento letto dall’IA", puerta_copiar_documento: "Copia documento sorgente", puerta_documento_ok: "Documento copiato.", puerta_documento_error: "Impossibile copiare il documento.", puerta_sin_dato: "Dato non disponibile",
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
@@ -274,6 +279,7 @@ const textos = {
     harness_frescura_stale: (age) => `Veraltete Daten · vor ${age}`,
     harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert',
     modelos_cargando: 'Lokale Modelle werden gelesen…', modelos_error: 'Lokale Modelle konnten nicht gelesen werden.', modelos_live: 'Jetzt verfügbar', modelos_stale: 'Veraltete Daten', modelos_ausente: 'Nicht verfügbar', modelos_causa: 'Ursache', modelos_causa_vacia: 'Keine Ursache angegeben', modelos_tier1: 'Stufe eins', modelos_tier2: 'Stufe zwei', modelos_adaptador: 'Adapter',
+    puerta_cargando: "Lokales Tor wird gelesen…", puerta_error: "Lokales Tor konnte nicht gelesen werden.", puerta_fiel: "Die Ansicht übersetzt Abwesenheitsmarkierungen; die Schaltflächen kopieren den exakten Quelltext.", puerta_llave_titulo: "Eingangsschlüssel", puerta_copiar_llave: "Schlüssel kopieren", puerta_llave_ok: "Schlüssel kopiert.", puerta_copia_error: "Schlüssel konnte nicht kopiert werden.", puerta_documento_titulo: "Dokument für die KI", puerta_copiar_documento: "Quelldokument kopieren", puerta_documento_ok: "Dokument kopiert.", puerta_documento_error: "Dokument konnte nicht kopiert werden.", puerta_sin_dato: "Daten nicht verfügbar",
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
@@ -316,6 +322,7 @@ const textos = {
     harness_frescura_stale: (age) => `Устарело · ${age} назад`,
     harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание',
     modelos_cargando: 'Читаю локальные модели…', modelos_error: 'Не удалось прочитать локальные модели.', modelos_live: 'Доступна сейчас', modelos_stale: 'Устаревшие данные', modelos_ausente: 'Недоступна', modelos_causa: 'Причина', modelos_causa_vacia: 'Причина не указана', modelos_tier1: 'Уровень один', modelos_tier2: 'Уровень два', modelos_adaptador: 'Адаптер',
+    puerta_cargando: "Читаю локальную дверь…", puerta_error: "Не удалось прочитать локальную дверь.", puerta_fiel: "В представлении маркеры отсутствия переведены; кнопки копируют точный исходный текст.", puerta_llave_titulo: "Ключ входа", puerta_copiar_llave: "Копировать ключ", puerta_llave_ok: "Ключ скопирован.", puerta_copia_error: "Не удалось скопировать ключ.", puerta_documento_titulo: "Документ для ИИ", puerta_copiar_documento: "Копировать исходный документ", puerta_documento_ok: "Документ скопирован.", puerta_documento_error: "Не удалось скопировать документ.", puerta_sin_dato: "Данные недоступны",
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
@@ -358,6 +365,7 @@ const textos = {
     harness_frescura_stale: (age) => `Παλιό δεδομένο · πριν από ${age}`,
     harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα',
     modelos_cargando: 'Ανάγνωση τοπικών μοντέλων…', modelos_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών μοντέλων.', modelos_live: 'Διαθέσιμο τώρα', modelos_stale: 'Παλιό δεδομένο', modelos_ausente: 'Μη διαθέσιμο', modelos_causa: 'Αιτία', modelos_causa_vacia: 'Δεν δηλώθηκε αιτία', modelos_tier1: 'Επίπεδο ένα', modelos_tier2: 'Επίπεδο δύο', modelos_adaptador: 'Προσαρμογέας',
+    puerta_cargando: "Ανάγνωση της τοπικής πύλης…", puerta_error: "Δεν ήταν δυνατή η ανάγνωση της τοπικής πύλης.", puerta_fiel: "Η προβολή μεταφράζει τις ενδείξεις απουσίας· τα κουμπιά αντιγράφουν το ακριβές κείμενο πηγής.", puerta_llave_titulo: "Κλειδί εισόδου", puerta_copiar_llave: "Αντιγραφή κλειδιού", puerta_llave_ok: "Το κλειδί αντιγράφηκε.", puerta_copia_error: "Δεν ήταν δυνατή η αντιγραφή του κλειδιού.", puerta_documento_titulo: "Έγγραφο που διαβάζει η ΤΝ", puerta_copiar_documento: "Αντιγραφή εγγράφου πηγής", puerta_documento_ok: "Το έγγραφο αντιγράφηκε.", puerta_documento_error: "Δεν ήταν δυνατή η αντιγραφή του εγγράφου.", puerta_sin_dato: "Μη διαθέσιμα δεδομένα",
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
@@ -400,6 +408,7 @@ const textos = {
     harness_frescura_stale: (age) => `بيانات قديمة · منذ ${age}`,
     harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول',
     modelos_cargando: 'جارٍ فحص النماذج المحلية…', modelos_error: 'تعذرت قراءة النماذج المحلية.', modelos_live: 'متاح الآن', modelos_stale: 'بيانات قديمة', modelos_ausente: 'غير متاح', modelos_causa: 'السبب', modelos_causa_vacia: 'لم يُذكر سبب', modelos_tier1: 'المستوى الأول', modelos_tier2: 'المستوى الثاني', modelos_adaptador: 'المحوّل',
+    puerta_cargando: "جارٍ قراءة البوابة المحلية…", puerta_error: "تعذرت قراءة البوابة المحلية.", puerta_fiel: "تعرض الواجهة علامات الغياب مترجمة؛ وتنسخ الأزرار نص المصدر كما هو.", puerta_llave_titulo: "مفتاح الدخول", puerta_copiar_llave: "نسخ المفتاح", puerta_llave_ok: "تم نسخ المفتاح.", puerta_copia_error: "تعذر نسخ المفتاح.", puerta_documento_titulo: "المستند الذي يقرؤه الذكاء الاصطناعي", puerta_copiar_documento: "نسخ مستند المصدر", puerta_documento_ok: "تم نسخ المستند.", puerta_documento_error: "تعذر نسخ المستند.", puerta_sin_dato: "البيانات غير متاحة",
   },
 };
 let t = textos.es;
@@ -456,6 +465,7 @@ function mostrar(i, opciones = {}) {
   if (paneles[panelActual].id === "lab") cargarLab();
   if (paneles[panelActual].id === "harness") cargarHarness();
   if (paneles[panelActual].id === "modelos") cargarModelos();
+  if (paneles[panelActual].id === "puerta") cargarPuerta();
 }
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
@@ -531,6 +541,34 @@ async function cargarLab() {
     $("lab-estado").textContent = t.lab_actualizado;
   } catch {
     $("lab-estado").textContent = t.lab_error;
+  }
+}
+
+/* --- Puerta · documento de entrada servido, sin alterar la copia ---------- */
+async function cargarPuerta() {
+  const estadoVista = $("puerta-estado");
+  estadoVista.textContent = t.puerta_cargando;
+  try {
+    const idioma = Object.keys(textos).find((k) => textos[k] === t) || "es";
+    const r = await fetch(`/api/empieza-aqui?idioma=${encodeURIComponent(idioma)}`, { cache: "no-store" });
+    const d = await r.json();
+    if (!r.ok || !d || typeof d.llave !== "string" || typeof d.pegable !== "string") {
+      throw new Error("documento de entrada no disponible");
+    }
+    const nd = String.fromCharCode(78, 79, 95, 68, 65, 84, 65);
+    $("puerta-llave").textContent = d.llave.replaceAll(nd, t.puerta_sin_dato);
+    $("puerta-documento").textContent = d.pegable.replaceAll(nd, t.puerta_sin_dato);
+    $("puerta-copiar-llave").onclick = async () => {
+      try { await navigator.clipboard.writeText(d.llave); estadoVista.textContent = t.puerta_llave_ok; }
+      catch { estadoVista.textContent = t.puerta_copia_error; }
+    };
+    $("puerta-copiar-documento").onclick = async () => {
+      try { await navigator.clipboard.writeText(d.pegable); estadoVista.textContent = t.puerta_documento_ok; }
+      catch { estadoVista.textContent = t.puerta_documento_error; }
+    };
+    estadoVista.textContent = typeof d.bienvenida === "string" ? d.bienvenida : t.tab_puerta;
+  } catch {
+    estadoVista.textContent = t.puerta_error;
   }
 }
 
