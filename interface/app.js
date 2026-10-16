@@ -21,7 +21,7 @@ const paneles = window.PreceptorZonas.zonas;
  * El idioma lo manda la memoria, no el navegador. */
 const textos = {
   es: {
-    comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Gobierno",
+    comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Frontera",
     tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
     tab_modelos: "Modelos", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
@@ -54,9 +54,10 @@ const textos = {
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
     chat_sin_respuesta: (edad) => "El orquestador local no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_listo: "Orquestador local preparado.",
     lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
+    aria_frontera: "Frontera del nodo",
   },
   en: {
-    comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Governance",
+    comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
     tab_cuaderno: "Notebook", lo_que_dices: "What you say",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
     tab_modelos: "Models", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
@@ -89,12 +90,13 @@ const textos = {
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
     chat_sin_respuesta: (edad) => "The local orchestrator did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_listo: "Local orchestrator ready.",
     lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
+    aria_frontera: "Node boundary",
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
    * El arabe se escribe de derecha a izquierda: lo pone `pintarEstaticos`. */
   fr: {
-    comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Gouvernance",
+    comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Frontière",
     tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
     tab_modelos: "Modèles", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
@@ -127,9 +129,10 @@ const textos = {
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
     chat_sin_respuesta: (edad) => "L’orchestrateur local n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_listo: "Orchestrateur local prêt.",
     lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
+    aria_frontera: "Frontière du nœud",
   },
   pt: {
-    comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Governação",
+    comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
     tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
     tab_modelos: "Modelos", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
@@ -162,9 +165,10 @@ const textos = {
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
     chat_sin_respuesta: (edad) => "O orquestrador local não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_listo: "Orquestrador local pronto.",
     lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
+    aria_frontera: "Fronteira do nó",
   },
   it: {
-    comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Governo",
+    comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
     tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
     tab_modelos: "Modelli", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
@@ -197,9 +201,10 @@ const textos = {
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
     chat_sin_respuesta: (edad) => "L’orchestratore locale non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_listo: "Orchestratore locale pronto.",
     lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
+    aria_frontera: "Frontiera del nodo",
   },
   de: {
-    comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Regierung",
+    comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
     tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
     tab_modelos: "Modelle", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
@@ -232,9 +237,10 @@ const textos = {
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
     chat_sin_respuesta: (edad) => "Der lokale Orchestrator hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_listo: "Lokaler Orchestrator bereit.",
     lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
+    aria_frontera: "Knotengrenze",
   },
   ru: {
-    comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Управление",
+    comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
     tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
     tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
     tab_modelos: "Модели", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
@@ -267,9 +273,10 @@ const textos = {
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
     chat_sin_respuesta: (edad) => "Локальный оркестратор не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_listo: "Локальный оркестратор готов.",
     lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
+    aria_frontera: "Граница узла",
   },
   el: {
-    comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Διακυβέρνηση",
+    comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
     tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
     tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
     tab_modelos: "Μοντέλα", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
@@ -302,9 +309,10 @@ const textos = {
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
     chat_sin_respuesta: (edad) => "Ο τοπικός ενορχηστρωτής δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_listo: "Ο τοπικός ενορχηστρωτής είναι έτοιμος.",
     lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
+    aria_frontera: "Όριο κόμβου",
   },
   ar: {
-    comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحوكمة",
+    comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
     tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
     tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
     tab_modelos: "النماذج", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
@@ -337,6 +345,7 @@ const textos = {
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
     chat_sin_respuesta: (edad) => "لم يستجب المنسق المحلي. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_listo: "المنسق المحلي جاهز.",
     lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
+    aria_frontera: "حدود العقدة",
   },
 };
 let t = textos.es;
