@@ -1,0 +1,6 @@
+PreceptorOS is the local-first APP for measured local AI; it is not Texas Instruments' RTOS.
+INDEX: README.md#L1; PRECEPTOR.md#L8; LORE.md#L1; RACK.md#L1; STATE.md#L52.
+GLOSSARY: narrador.py#L218; chat injection: conversacion.py#L444.
+LIVE ENTRY: GET /api/empieza-aqui; surface schema: estado_app.py#L6.
+HARDWARE: use device-local PRECEPTOR.md; unmeasured external hardware = NO_DATA.
+AUTHORITY: PRECEPTOR.md#L21; human signature precedes consequential actions.
