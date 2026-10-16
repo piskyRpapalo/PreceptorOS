@@ -87,5 +87,117 @@ class Cedula(unittest.TestCase):
             shutil.rmtree(d)
 
 
+
+# --- P1 + P2 (plan de ronda 2026-10-11, firmas D4/D5) ------------------------------------------------
+import subprocess
+from datetime import datetime, timedelta, timezone
+
+AGENTE = "e5" * 32
+AHORA = datetime(2026, 10, 11, 3, 0, tzinfo=timezone.utc)
+
+
+def iso(dt):
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def con_agente(estado="linkeado", ambito=("herramientas",), caduca=AHORA + timedelta(hours=2)):
+    c = cedula([(MIA, "linkeado")])
+    c.pop("sha256")
+    c["dispositivos"].append({"clave": AGENTE, "estado": estado, "tipo": "agente", "ambito": list(ambito),
+                              "caduca": iso(caduca), "solicitud_testigo": "x", "aceptacion_testigo": "y"})
+    c["sha256"] = hashlib.sha256(json.dumps(c, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return c
+
+
+class AgenteDelegado(unittest.TestCase):
+    """P1 · la clave del agente entra en la cedula con AMBITO, CADUCIDAD y revocacion (patron Artemis:
+    herramienta efimera, 30 min-8 h). La delegacion nunca sube niveles: dice que puede tocar, y cuando."""
+
+    def test_agente_vigente_dentro_de_su_ambito(self):
+        r = NA.agente(con_agente(), AGENTE, "herramientas", AHORA)
+        self.assertEqual(r["estado"], "OK", r)
+
+    def test_fuera_de_su_ambito_rechazado(self):
+        r = NA.agente(con_agente(), AGENTE, "aportar_datos", AHORA)
+        self.assertEqual(r["estado"], "RECHAZADA"); self.assertIn("ambito", r["causa"])
+
+    def test_clave_vencida_rechazada_con_causa(self):
+        r = NA.agente(con_agente(caduca=AHORA - timedelta(seconds=1)), AGENTE, "herramientas", AHORA)
+        self.assertEqual(r["estado"], "RECHAZADA"); self.assertIn("caduc", r["causa"])
+
+    def test_revocado_rechazado_al_instante(self):
+        r = NA.agente(con_agente(estado="revocado"), AGENTE, "herramientas", AHORA)
+        self.assertEqual(r["estado"], "RECHAZADA"); self.assertIn("revocad", r["causa"])
+
+    def test_ttl_fuera_de_la_ventana_artemis_no_se_acepta(self):
+        for mal in (AHORA + timedelta(hours=9), AHORA + timedelta(days=30)):
+            with self.subTest(caduca=iso(mal)):
+                self.assertEqual(NA.agente(con_agente(caduca=mal), AGENTE, "herramientas", AHORA)["estado"], "RECHAZADA")
+
+    def test_capacidad_inventada_no_cuela(self):
+        r = NA.agente(con_agente(ambito=("herramientas", "firmar_valor")), AGENTE, "herramientas", AHORA)
+        self.assertEqual(r["estado"], "RECHAZADA")
+
+    def test_el_agente_no_es_cuenta_nodo_del_humano(self):
+        """La delegacion nunca sube niveles: el agente no hereda el nivel 3 del Soberano."""
+        r = NA.lee(con_agente(), soberano.codigo_de(AGENTE))
+        self.assertNotEqual(r.get("nivel"), 3)
+
+    def test_agente_auto_anadido_sin_rehacer_el_hash(self):
+        c = cedula([(MIA, "linkeado")])
+        c["dispositivos"].append({"clave": AGENTE, "estado": "linkeado", "tipo": "agente", "ambito": ["herramientas"],
+                                  "caduca": iso(AHORA + timedelta(hours=1))})
+        self.assertEqual(NA.agente(c, AGENTE, "herramientas", AHORA)["estado"], "FALLO_INTEGRIDAD")
+
+
+@unittest.skipUnless(shutil.which("ssh-keygen"), "NO_DATA · sin ssh-keygen en este aparato")
+class CedulaFirmada(unittest.TestCase):
+    """P2 · la cedula la firma el SOBERANO (no el rack: IronClaw) con ssh-keygen -Y y namespace
+    preceptoros-cedula; la app la verifica por subproceso, sin dependencia nueva (D5)."""
+
+    def setUp(self):
+        self.d = Path(tempfile.mkdtemp())
+        subprocess.run(["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(self.d / "k"), "-C", "prueba"], check=True)
+        subprocess.run(["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(self.d / "otra"), "-C", "otra"], check=True)
+        t, k = (self.d / "k.pub").read_text().split()[:2]
+        (self.d / "signers").write_text(f'soberano namespaces="preceptoros-cedula" {t} {k}\n')
+
+    def tearDown(self):
+        shutil.rmtree(self.d)
+
+    def firmada(self, c, clave="k"):
+        f = self.d / "cuerpo"
+        f.write_bytes(NA.cuerpo_firmado(c))
+        subprocess.run(["ssh-keygen", "-q", "-Y", "sign", "-n", "preceptoros-cedula", "-f", str(self.d / clave), str(f)], check=True)
+        c = dict(c); c.pop("sha256", None)
+        c["firma_ssh"] = (self.d / "cuerpo.sig").read_text()
+        c["sha256"] = hashlib.sha256(json.dumps(c, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        return c
+
+    def test_firmada_por_el_soberano_autenticidad_ok(self):
+        r = NA.lee(self.firmada(cedula([(MIA, "linkeado")])), soberano.codigo_de(MIA), signers=self.d / "signers")
+        self.assertTrue(r["autenticidad"].startswith("OK"), r["autenticidad"])
+
+    def test_firmada_por_otra_clave_rechazada(self):
+        r = NA.lee(self.firmada(cedula([(MIA, "linkeado")]), "otra"), soberano.codigo_de(MIA), signers=self.d / "signers")
+        self.assertEqual(r["estado"], "RECHAZADA"); self.assertIn("firma", r["causa"])
+
+    def test_agente_anadido_despues_de_firmar_rompe_la_firma(self):
+        c = self.firmada(cedula([(MIA, "linkeado")]))
+        c.pop("sha256")
+        c["dispositivos"].append({"clave": AGENTE, "estado": "linkeado", "tipo": "agente", "ambito": ["herramientas"],
+                                  "caduca": iso(AHORA + timedelta(hours=1))})
+        c["sha256"] = hashlib.sha256(json.dumps(c, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        self.assertEqual(NA.lee(c, soberano.codigo_de(MIA), signers=self.d / "signers")["estado"], "RECHAZADA")
+
+    def test_sin_firma_sigue_no_data_sin_fingir(self):
+        r = NA.lee(cedula([(MIA, "linkeado")]), soberano.codigo_de(MIA), signers=self.d / "signers")
+        self.assertTrue(r["autenticidad"].startswith("NO_DATA"))
+
+    def test_sin_signers_no_data_con_causa(self):
+        r = NA.lee(self.firmada(cedula([(MIA, "linkeado")])), soberano.codigo_de(MIA), signers=self.d / "no-existe")
+        self.assertTrue(r["autenticidad"].startswith("NO_DATA")); self.assertIn("allowed_signers", r["autenticidad"])
+
+
 if __name__ == "__main__":
     unittest.main()

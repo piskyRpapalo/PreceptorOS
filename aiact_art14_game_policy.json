@@ -1,0 +1,38 @@
+{
+ "esquema": "preceptoros.politica-juego/1",
+ "nota": "Politica de juego del nodo (plan de ronda 2026-10-11, firma D6). Vive aparte de policies.json porque guardrails.py rechaza cualquier clave que no sea un filtro de salida (fail-closed): mezclarla habria apagado el filtro de privacidad.",
+ "capacidad": "accion_de_juego",
+ "decide": {
+  "quien": "regla fija (atlas-piloto.js)",
+  "reemplaza": false,
+  "firma": "la persona; el nodo solo propone (AI Act art. 14)"
+ },
+ "st": {
+  "max_bytes": 150,
+  "firma": "requerida",
+  "nota": "S_t es el vector de estado firmado (<150 B); la web lo pinta, el nodo lo firma"
+ },
+ "snapshot": {
+  "esquema": "preceptoros.snapshot/1",
+  "ttl_s": 3600
+ },
+ "conquista_a2a": {
+  "estado": "REQUIERE_FIRMA",
+  "maquina": [
+   "PROPUESTA",
+   "ACTIVA",
+   "INTERCEPTADA",
+   "COMPLETADA",
+   "HUIDA",
+   "CADUCADA",
+   "NO_DATA"
+  ],
+  "sin_firma": "EMULADO"
+ },
+ "prohibido": [
+  "acreditar por tiempo pasivo, hover, scroll o lectura sin firma",
+  "perfil psicologico por telemetria",
+  "gacha casino: reroll pagado o urgencia falsa",
+  "huella del aparato como identidad"
+ ]
+}

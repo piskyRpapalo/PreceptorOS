@@ -11,7 +11,7 @@
 // `bin/traer-motor` desde la web). Si uno no casa, no se juega: FALLO_INTEGRIDAD con el nombre.
 // Una copia editada a mano seria otro juego que dice ser este.
 //
-// ORDENES: inicial{ley} · ciclos{n} · legales · aplica{accion} · final · base{ley,cada,decisiones}
+// ORDENES: decide{instantanea} (A1, sin estado) · inicial{ley} · ciclos{n} · legales · aplica{accion} · final · base{ley,cada,decisiones}
 //          · piloto (la regla fija) · gana{p,h} (el criterio del juez).
 // Puro por dentro: el motor no ve reloj ni azar; todo lo que pasa es funcion de las ordenes.
 import { createRequire } from 'node:module';
@@ -63,7 +63,20 @@ rl.on('line', (linea) => {
   let o;
   try { o = JSON.parse(linea); } catch (x) { di({ ok: false, motivo: 'orden no es JSON' }); return; }
   try {
-    if (o.op === 'inicial') {
+    if (o.op === 'decide') {
+      /* A1 (plan de ronda 2026-10-11): la decision de la regla fija sobre UNA instantanea dada, sin
+         estado de partida. Entra el vector compacto; sale una accion del enum validada o NO_DATA. */
+      const i = o.instantanea;
+      if (!i || typeof i !== 'object' || i.esquema !== 'atlas.instantanea/1') {
+        di({ ok: false, estado: 'NO_DATA', motivo: 'no es una atlas.instantanea/1' });
+      } else if (i.contenido_v !== man.contenido_v) {
+        di({ ok: false, estado: 'NO_DATA', motivo: 'instantanea de otra version del juego: ' + i.contenido_v + ' (este motor: ' + man.contenido_v + ')' });
+      } else {
+        const p = Pi.decide(i, M);
+        di({ ok: true, accion: Pi.valida(p) ? (p.banda ? { accion: p.accion, banda: p.banda } : { accion: p.accion }) : { accion: 'esperar' },
+             valida: Pi.valida(p) });
+      }
+    } else if (o.op === 'inicial') {
       ley = { nd: !!o.ley.nd, integridad_max: o.ley.integridad_max, dano: o.ley.dano };
       e = M.inicial(ley); min = e.integridad; di({ ok: true, ins: ins(e) });
     } else if (!e && o.op !== 'base') {
