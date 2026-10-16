@@ -61,6 +61,7 @@ import consola as _consola                                  # noqa: E402
 import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
+import nodo_export as _nodo_export                         # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("PRECEPTOROS_PWA_PUERTO", "8740"))
@@ -405,6 +406,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._canales_decir(datos)
         if ruta == "/api/lab":
             return self._lab_decir(datos)
+        if ruta == "/api/nodo/export":
+            resultado = _nodo_export.enviar(datos)
+            codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
+            return self._json(codigo, resultado)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
 
     # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del

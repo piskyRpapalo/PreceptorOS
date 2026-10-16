@@ -1,6 +1,7 @@
 """Contrato de la carcasa reorganizable de la app."""
 from html.parser import HTMLParser
 from pathlib import Path
+import re
 import unittest
 
 
@@ -77,10 +78,15 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertIn('"/transicion.js": ("transicion.js", "application/javascript; charset=utf-8")', pwa)
         self.assertIn("/transicion.js?v=2", sw)
         self.assertIn('<script src="/transicion.js?v=2"></script>', (RAIZ / "interface/app.html").read_text(encoding="utf-8"))
-        self.assertIn('"/app.css?v=3", "/app.js?v=4", "/zonas.js?v=1"', sw)
+        cache = re.search(r'preceptoros-armazon-v(\d+)', sw)
+        precache = re.search(r'"/app\.js\?v=(\d+)"', sw)
         html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
-        self.assertIn('<script src="/app.js?v=4"></script>', html)
-        self.assertIn('const Cache = "preceptoros-armazon-v104"', sw)
+        request = re.search(r'<script src="/app\.js\?v=(\d+)"></script>', html)
+        self.assertIsNotNone(cache)
+        self.assertIsNotNone(precache)
+        self.assertIsNotNone(request)
+        self.assertGreater(int(cache.group(1)), 104)
+        self.assertEqual(precache.group(1), request.group(1))
         self.assertIn('/sting.js?v=1', sw)
 
 

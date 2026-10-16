@@ -142,7 +142,17 @@
     <ul class="turnos" id="modelos-lista"></ul>
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
-    <h2 data-i18n="tab_ajustes">Ajustes</h2><p class="pie" data-i18n="zona_no_data">Sin datos: contenido de esta zona aún no declarado.</p>
+    <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <section class="tarjeta" aria-labelledby="nodo-export-title">
+      <h3 id="nodo-export-title" data-i18n="nodo_export_titulo">Identidad del nodo</h3>
+      <p class="pie" data-i18n="nodo_export_ayuda">Elige una cédula ya firmada por ti. Esta app no firma.</p>
+      <form id="nodo-export-form">
+        <label for="nodo-export-file" data-i18n="nodo_export_archivo">Cédula firmada (.json)</label>
+        <input id="nodo-export-file" type="file" accept="application/json,.json" required>
+        <button id="nodo-export-send" type="submit" data-i18n="nodo_export_boton" disabled>Enviar a la aduana</button>
+      </form>
+      <p class="pie" id="nodo-export-estado" role="status" aria-live="polite" data-i18n="nodo_export_espera">Sin cédula seleccionada. No se ha enviado nada.</p>
+    </section>
   </section>
 
 </main>
@@ -151,7 +161,7 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=4"></script>
+<script src="/app.js?v=5"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>
