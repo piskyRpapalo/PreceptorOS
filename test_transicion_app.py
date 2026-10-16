@@ -28,7 +28,7 @@ class IntegracionTransicion(unittest.TestCase):
         self.assertIn('<script src="/transicion.js?v=2"></script>', html)
         self.assertIn('"/transicion.js": ("transicion.js",', pwa)
         self.assertIn('"/transicion.js?v=2"', sw)
-        self.assertIn('preceptoros-armazon-v103', sw)
+        self.assertIn('preceptoros-armazon-v104', sw)
         version = (ROOT / "version.py").read_text(encoding="utf-8")
         self.assertIn('"interface/transicion.js"', version)
 
@@ -40,6 +40,21 @@ class IntegracionTransicion(unittest.TestCase):
         self.assertLess(show.index("actualizarGuionZona();"), show.index("PreceptorTransicion.pintar"))
         self.assertIn('id="guion-zona" role="status" aria-live="polite"', html)
         self.assertIn('opciones.onTau(maxTau)', transition)
+
+    def test_sting_local_va_despues_del_guion_y_se_sirve_offline(self):
+        js = (ROOT / "interface/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
+        pwa = (ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8")
+        sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
+        version = (ROOT / "version.py").read_text(encoding="utf-8")
+        show = js[js.index("function mostrar("):js.index('document.querySelectorAll(".pestanas')]
+        self.assertLess(show.index("actualizarGuionZona();"), show.index("PreceptorSting.tocar"))
+        self.assertIn("indiceAnterior !== panelActual", show)
+        self.assertLess(html.index('<script src="/sting.js?v=1"></script>'), html.index('<script src="/app.js?v=4"></script>'))
+        self.assertIn('"/sting.js": ("sting.js", "application/javascript; charset=utf-8")', pwa)
+        self.assertIn('"/sting.js?v=1"', sw)
+        self.assertIn('preceptoros-armazon-v104', sw)
+        self.assertIn('"interface/sting.js"', version)
 
 
 if __name__ == "__main__":
