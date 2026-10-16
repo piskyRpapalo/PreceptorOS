@@ -12,7 +12,7 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-const paneles = ["chat", "frontera", "captura"];
+const paneles = window.PreceptorZonas.zonas;
 
 /* --- los dos idiomas -------------------------------------------------------
  * Esta cara hablaba solo castellano mientras el resto del producto declaraba
@@ -21,8 +21,10 @@ const paneles = ["chat", "frontera", "captura"];
  * El idioma lo manda la memoria, no el navegador. */
 const textos = {
   es: {
-    comprobando: "comprobando…", tab_chat: "Hablar", tab_frontera: "Frontera",
+    comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Gobierno",
     tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
+    tab_modelos: "Modelos", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
     pie_chat: "Cada turno tarda minutos en un teléfono. No es que se haya colgado.",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
@@ -52,8 +54,10 @@ const textos = {
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
   },
   en: {
-    comprobando: "checking…", tab_chat: "Talk", tab_frontera: "Border",
+    comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Governance",
     tab_cuaderno: "Notebook", lo_que_dices: "What you say",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
     ph_dicho: "Write your answer…", dilo: "Say it",
     pie_chat: "Each turn takes minutes on a phone. It has not frozen.",
     pie_hallazgos: "What you see above is never the text that was found: class and count, nothing else. The numbers come from the payload — this interface does not count.",
@@ -86,8 +90,10 @@ const textos = {
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
    * El arabe se escribe de derecha a izquierda: lo pone `pintarEstaticos`. */
   fr: {
-    comprobando: "vérification…", tab_chat: "Parler", tab_frontera: "Frontière",
+    comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Gouvernance",
     tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
+    tab_modelos: "Modèles", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
     pie_chat: "Chaque tour prend des minutes sur un téléphone. Ce n'est pas bloqué.",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
@@ -117,8 +123,10 @@ const textos = {
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
   },
   pt: {
-    comprobando: "a verificar…", tab_chat: "Falar", tab_frontera: "Fronteira",
+    comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Governação",
     tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
+    tab_modelos: "Modelos", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
     pie_chat: "Cada turno demora minutos num telemóvel. Não está pendurado.",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
@@ -148,8 +156,10 @@ const textos = {
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
   },
   it: {
-    comprobando: "verifica…", tab_chat: "Parla", tab_frontera: "Frontiera",
+    comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Governo",
     tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
+    tab_modelos: "Modelli", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
     pie_chat: "Ogni turno richiede minuti su un telefono. Non si è bloccato.",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
@@ -179,8 +189,10 @@ const textos = {
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
   },
   de: {
-    comprobando: "wird geprüft…", tab_chat: "Reden", tab_frontera: "Grenze",
+    comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Regierung",
     tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
+    tab_modelos: "Modelle", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
     pie_chat: "Jede Runde dauert auf einem Telefon Minuten. Es hängt nicht.",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
@@ -210,8 +222,10 @@ const textos = {
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
   },
   ru: {
-    comprobando: "проверка…", tab_chat: "Разговор", tab_frontera: "Граница",
+    comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Управление",
     tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
+    tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
+    tab_modelos: "Модели", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
     pie_chat: "На телефоне каждый ход занимает минуты. Оно не зависло.",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
@@ -241,8 +255,10 @@ const textos = {
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
   },
   el: {
-    comprobando: "έλεγχος…", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
+    comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Διακυβέρνηση",
     tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
+    tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
+    tab_modelos: "Μοντέλα", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
     pie_chat: "Κάθε γύρος παίρνει λεπτά σε ένα τηλέφωνο. Δεν έχει κολλήσει.",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
@@ -272,8 +288,10 @@ const textos = {
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
   },
   ar: {
-    comprobando: "جارٍ التحقق…", tab_chat: "تحدّث", tab_frontera: "الحدّ",
+    comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحوكمة",
     tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
+    tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
+    tab_modelos: "النماذج", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
     pie_chat: "كل دور يستغرق دقائق على الهاتف. لم يتجمّد.",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
@@ -332,22 +350,45 @@ async function fijarIdioma() {
     t = textos[l] || textos.en;
   } catch { /* sin respuesta, se queda el de fabrica */ }
   pintarEstaticos();
+  actualizarGuionZona();
 }
 let panelActual = 0;
 let filtroCaido = false;
 
-/* --- navegación · pestañas y deslizar ---------------------------------- */
-function mostrar(i) {
-  panelActual = Math.max(0, Math.min(paneles.length - 1, i));
-  paneles.forEach((p, n) => {
-    $("panel-" + p).hidden = n !== panelActual;
-    document.querySelector(`[data-panel="${p}"]`)
-            .setAttribute("aria-selected", String(n === panelActual));
-  });
-  if (paneles[panelActual] === "captura") cargarCuaderno();
+/* --- reorganización · zonas en una sola pestaña ----------------------- */
+function actualizarGuionZona() {
+  const zona = paneles[panelActual];
+  const boton = document.querySelector(`[data-panel="${zona.id}"]`);
+  $("guion-zona").textContent = `${t.zona_activa} ${boton.textContent.trim()}.`;
 }
-document.querySelectorAll(".pestanas button").forEach((b, n) =>
-  b.addEventListener("click", () => mostrar(n)));
+function mostrar(i, opciones = {}) {
+  panelActual = Math.max(0, Math.min(paneles.length - 1, i));
+  paneles.forEach((zona, n) => {
+    const boton = document.querySelector(`[data-panel="${zona.id}"]`);
+    $("panel-" + zona.panel).hidden = n !== panelActual;
+    boton.setAttribute("aria-selected", String(n === panelActual));
+    boton.tabIndex = n === panelActual ? 0 : -1;
+  });
+  actualizarGuionZona();
+  if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
+  if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
+}
+document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
+  b.addEventListener("click", () => mostrar(n));
+  b.addEventListener("keydown", (e) => {
+    let siguiente = null;
+    if (e.key === "ArrowRight") siguiente = (panelActual + 1) % paneles.length;
+    if (e.key === "ArrowLeft") siguiente = (panelActual + paneles.length - 1) % paneles.length;
+    if (e.key === "Home") siguiente = 0;
+    if (e.key === "End") siguiente = paneles.length - 1;
+    if (siguiente !== null) {
+      e.preventDefault();
+      mostrar(siguiente, { enfocar: true });
+    }
+  });
+});
+$("ir-inicio").addEventListener("click", () => mostrar(0, { enfocar: true }));
+mostrar(0);
 
 /* Deslizar. Se exige que el gesto sea claramente horizontal (2:1) o el
  * scroll vertical del hilo cambiaría de panel sin querer. */

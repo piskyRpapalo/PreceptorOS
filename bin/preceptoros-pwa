@@ -225,6 +225,7 @@ ESTATICOS = {
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     # La consola soberana: una barra de solo lectura encima del chat. Fichero
     # propio y no dentro de dashboard.js, que ya pasa de 140 KB.
