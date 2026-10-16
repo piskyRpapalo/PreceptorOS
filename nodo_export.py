@@ -7,7 +7,8 @@ import urllib.request
 
 import nodo_app
 
-ENDPOINT = "https://api.preceptoros.org/api/v1/cedulas"
+# PROVISIONAL: WEB piece 1 fixes the final route within /aduana/*.
+ENDPOINT = "https://api.preceptoros.org/aduana/cedulas"
 TIMEOUT_S = 15
 CAUSAS_ADUANA = {
     "clave_publica_no_configurada", "plan_firmado_no_configurado",
