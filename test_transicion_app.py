@@ -1,5 +1,6 @@
 """Pruebas de integración del proyector visual con el controlador de pestañas."""
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).parent
@@ -28,7 +29,7 @@ class IntegracionTransicion(unittest.TestCase):
         self.assertIn('<script src="/transicion.js?v=2"></script>', html)
         self.assertIn('"/transicion.js": ("transicion.js",', pwa)
         self.assertIn('"/transicion.js?v=2"', sw)
-        self.assertIn('preceptoros-armazon-v104', sw)
+        self.assertRegex(sw, r'preceptoros-armazon-v\d+')
         version = (ROOT / "version.py").read_text(encoding="utf-8")
         self.assertIn('"interface/transicion.js"', version)
 
@@ -50,10 +51,12 @@ class IntegracionTransicion(unittest.TestCase):
         show = js[js.index("function mostrar("):js.index('document.querySelectorAll(".pestanas')]
         self.assertLess(show.index("actualizarGuionZona();"), show.index("PreceptorSting.tocar"))
         self.assertIn("indiceAnterior !== panelActual", show)
-        self.assertLess(html.index('<script src="/sting.js?v=1"></script>'), html.index('<script src="/app.js?v=4"></script>'))
+        app_script = re.search(r'<script src="(/app\.js\?v=\d+)"></script>', html)
+        self.assertIsNotNone(app_script)
+        self.assertLess(html.index('<script src="/sting.js?v=1"></script>'), html.index(app_script.group(0)))
         self.assertIn('"/sting.js": ("sting.js", "application/javascript; charset=utf-8")', pwa)
         self.assertIn('"/sting.js?v=1"', sw)
-        self.assertIn('preceptoros-armazon-v104', sw)
+        self.assertRegex(sw, r'preceptoros-armazon-v\d+')
         self.assertIn('"interface/sting.js"', version)
 
 

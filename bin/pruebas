@@ -244,6 +244,9 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # web; una cedula tocada no pasa, y su autenticidad es NO_DATA porque
           # no va firmada. Incluye el cruce con la cedula real del rack.
           test_nodo_app
+          # test_nodo_export: la salida requiere cédula ya firmada y gesto
+          # humano; la prueba inyecta transporte y no contacta la red.
+          test_nodo_export
           # test_aiact_art14_node_decide: A1 por tuberia. El nodo PROPONE una jugada desde la
           # instantanea con la regla fija de la web (fijada por sha256); 20 estados identicos a la regla
           # del motor. Sin node: NO_DATA, que se dice como salto.

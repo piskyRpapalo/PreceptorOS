@@ -1092,3 +1092,16 @@ class TestCacheAppP4(unittest.TestCase):
         self.assertGreater(int(precache.group(1)), 3, "la clave precacheada no subió de main")
         self.assertEqual(precache.group(1), solicitud.group(1),
                          "precache y HTML piden claves distintas")
+
+class ExportacionNodoContracto(unittest.TestCase):
+    def test_ruta_de_exportacion_y_versiones_de_app_alineadas(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parent
+        server = (root / "bin/preceptoros-pwa").read_text(encoding="utf-8")
+        html = (root / "interface/app.html").read_text(encoding="utf-8")
+        sw = (root / "interface/sw.js").read_text(encoding="utf-8")
+        self.assertIn('if ruta == "/api/nodo/export"', server)
+        self.assertIn('id="nodo-export-form"', html)
+        self.assertIn('/app.js?v=5', html)
+        self.assertIn('"/app.js?v=5"', sw)
+        self.assertIn('preceptoros-armazon-v105', sw)

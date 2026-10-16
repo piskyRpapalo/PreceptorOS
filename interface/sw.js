@@ -30,9 +30,10 @@
 // v101 (2026-10-16): elimina el identificador privado anterior y renueva el caché.
 // v102 (2026-10-16): la pestaña única precachea su proyector de transición.
 // v104: local radio sting follows the accessible zone announcement.
-const Cache = "preceptoros-armazon-v104";
+// v105: the node credential export adds an explicit, signature-checked route.
+const Cache = "preceptoros-armazon-v105";
 const Armazon = ["/", "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
-                 "/app.html", "/app.css?v=3", "/app.js?v=4", "/zonas.js?v=1",
+                 "/app.html", "/app.css?v=3", "/app.js?v=5", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
