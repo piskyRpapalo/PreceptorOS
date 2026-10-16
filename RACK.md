@@ -1,7 +1,7 @@
 # RACK.md · the rack of the PreceptorOS ecosystem
 
-> Status: PROPOSAL, unsigned. It becomes the rack's public card when the
-> architect signs it.
+> Status: SIGNED by the architect. Merged 2026-10-13 (PR #6, 05:47 UTC),
+> the rack's public card.
 
 This is the public card of the rack: the small fleet of machines that runs
 this ecosystem. It exists so a visitor — human or AI — knows what the hardware
