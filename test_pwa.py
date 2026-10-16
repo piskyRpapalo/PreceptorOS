@@ -1019,6 +1019,7 @@ class TestZonaHarness(unittest.TestCase):
         self.assertLess(html.index('id="harness-frescura"'), html.index('id="harness-bucles"'))
         self.assertIn("harness_frescura_live", app)
         self.assertIn("harness_frescura_stale", app)
+        self.assertIn("harness_hora_ausente", app)
         self.assertNotIn("filas.length", app)
 
     def test_endpoint_de_harness_reenvia_solo_filas_del_sensor_loopback(self):

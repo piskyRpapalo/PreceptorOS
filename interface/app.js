@@ -59,7 +59,7 @@ const textos = {
     harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
     harness_frescura_live: (age) => `Actualizado hace ${age} · en directo`,
     harness_frescura_stale: (age) => `Dato antiguo · hace ${age}`,
-    harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa',
+    harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario'
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
@@ -100,7 +100,7 @@ const textos = {
     harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
     harness_frescura_live: (age) => `Updated ${age} ago · live`,
     harness_frescura_stale: (age) => `Stale · ${age} ago`,
-    harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause',
+    harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule'
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -144,7 +144,7 @@ const textos = {
     harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
     harness_frescura_live: (age) => `Actualisé il y a ${age} · en direct`,
     harness_frescura_stale: (age) => `Donnée ancienne · il y a ${age}`,
-    harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause',
+    harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire'
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
@@ -185,7 +185,7 @@ const textos = {
     harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
     harness_frescura_live: (age) => `Atualizado há ${age} · ao vivo`,
     harness_frescura_stale: (age) => `Dado antigo · há ${age}`,
-    harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa',
+    harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário'
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
@@ -226,7 +226,7 @@ const textos = {
     harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
     harness_frescura_live: (age) => `Aggiornato ${age} fa · in diretta`,
     harness_frescura_stale: (age) => `Dato vecchio · ${age} fa`,
-    harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa',
+    harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario'
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
@@ -267,7 +267,7 @@ const textos = {
     harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
     harness_frescura_live: (age) => `Vor ${age} aktualisiert · live`,
     harness_frescura_stale: (age) => `Veraltete Daten · vor ${age}`,
-    harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache',
+    harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert'
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
@@ -308,7 +308,7 @@ const textos = {
     harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
     harness_frescura_live: (age) => `Обновлено ${age} назад · сейчас`,
     harness_frescura_stale: (age) => `Устарело · ${age} назад`,
-    harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина',
+    harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание'
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
@@ -349,7 +349,7 @@ const textos = {
     harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
     harness_frescura_live: (age) => `Ενημερώθηκε πριν από ${age} · ζωντανά`,
     harness_frescura_stale: (age) => `Παλιό δεδομένο · πριν από ${age}`,
-    harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία',
+    harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα'
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
@@ -390,7 +390,7 @@ const textos = {
     harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
     harness_frescura_live: (age) => `حُدّث منذ ${age} · مباشر`,
     harness_frescura_stale: (age) => `بيانات قديمة · منذ ${age}`,
-    harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب',
+    harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول'
   },
 };
 let t = textos.es;
@@ -560,8 +560,8 @@ async function cargarHarness() {
       titulo.textContent = typeof bucle.unidad === "string" ? bucle.unidad : t.harness_vacio;
       li.appendChild(titulo);
       const detalle = document.createElement("p");
-      const ultima = typeof bucle.ultima === "string" && bucle.ultima !== nd ? bucle.ultima : t.harness_vacio;
-      const proxima = typeof bucle.proxima === "string" && bucle.proxima !== nd ? bucle.proxima : t.harness_vacio;
+      const ultima = typeof bucle.ultima === "string" && bucle.ultima !== nd ? bucle.ultima : t.harness_hora_ausente;
+      const proxima = typeof bucle.proxima === "string" && bucle.proxima !== nd ? bucle.proxima : t.harness_hora_ausente;
       detalle.textContent = `${t.harness_ultima}: ${ultima} · ${t.harness_proxima}: ${proxima}`;
       li.appendChild(detalle);
       if (typeof bucle.causa === "string" && bucle.causa) {
