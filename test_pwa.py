@@ -985,3 +985,12 @@ class TestVistaLab(unittest.TestCase):
         self.assertIn("lab_estado_live", app)
         self.assertIn("lab_estado_stale", app)
         self.assertIn("lab_estado_ausente", app)
+
+class TestZonaFrontera(unittest.TestCase):
+    def test_frontera_envia_al_servidor_y_pinta_payload_sin_contar(self):
+        app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
+        html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
+        self.assertIn('fetch("/api/frontera"', app)
+        self.assertIn('h.count', app)
+        self.assertNotIn('hallazgos.length', app)
+        self.assertIn('data-i18n-aria="aria_frontera"', html)
