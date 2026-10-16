@@ -32,6 +32,7 @@ AUSENTE = "NO_DATA"
 ARMAZON = (
     "interface/dashboard.html", "interface/desnuda.css", "interface/dashboard.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
+    "interface/transicion.js",
     "interface/compass.js", "interface/sw.js",
     "interface/manifest.json", "assets/compass.svg",
     "interface/consola.css", "interface/consola.js",

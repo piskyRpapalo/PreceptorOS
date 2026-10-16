@@ -75,12 +75,12 @@ class CarcasaUnaPestana(unittest.TestCase):
         sw = (RAIZ / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('"/zonas.js": ("zonas.js", "application/javascript; charset=utf-8")', pwa)
         self.assertIn('"/transicion.js": ("transicion.js", "application/javascript; charset=utf-8")', pwa)
-        self.assertIn("/transicion.js?v=1", sw)
-        self.assertIn('<script src="/transicion.js?v=1"></script>', (RAIZ / "interface/app.html").read_text(encoding="utf-8"))
+        self.assertIn("/transicion.js?v=2", sw)
+        self.assertIn('<script src="/transicion.js?v=2"></script>', (RAIZ / "interface/app.html").read_text(encoding="utf-8"))
         self.assertIn('"/app.css?v=3", "/app.js?v=4", "/zonas.js?v=1"', sw)
         html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<script src="/app.js?v=4"></script>', html)
-        self.assertIn('const Cache = "preceptoros-armazon-v102"', sw)
+        self.assertIn('const Cache = "preceptoros-armazon-v103"', sw)
 
 
 if __name__ == "__main__":
