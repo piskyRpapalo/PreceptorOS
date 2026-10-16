@@ -228,6 +228,8 @@ ESTATICOS = {
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
+    "/llms.txt": (os.path.join(AQUI, "llms.txt"), "text/plain; charset=utf-8"),
     "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     # La consola soberana: una barra de solo lectura encima del chat. Fichero
@@ -311,7 +313,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._json(404, {"estado": "NO_DATA",
                                     "motivo": "aquí no vive eso"})
         try:
-            with open(os.path.join(INTERFAZ, pieza[0]), "rb") as fh:
+            fichero = pieza[0]
+            if not os.path.isabs(fichero):
+                fichero = os.path.join(INTERFAZ, fichero)
+            with open(fichero, "rb") as fh:
                 crudo = fh.read()
         except OSError as e:
             return self._json(500, {"estado": "bloqueado",
