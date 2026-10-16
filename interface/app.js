@@ -53,6 +53,7 @@ const textos = {
     anidar_no: "no se pudo anidar",
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
     chat_sin_respuesta: (edad) => "El orquestador local no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_listo: "Orquestador local preparado.",
+    lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
   },
   en: {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Governance",
@@ -87,6 +88,7 @@ const textos = {
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
     chat_sin_respuesta: (edad) => "The local orchestrator did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_listo: "Local orchestrator ready.",
+    lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
   },
   /* Las siete lenguas nuevas (2026-09-23), las mismas que la web y que
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
@@ -124,6 +126,7 @@ const textos = {
     anidar_no: "impossible de nicher",
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
     chat_sin_respuesta: (edad) => "L’orchestrateur local n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_listo: "Orchestrateur local prêt.",
+    lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
   },
   pt: {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Governação",
@@ -158,6 +161,7 @@ const textos = {
     anidar_no: "não consegui aninhar",
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
     chat_sin_respuesta: (edad) => "O orquestrador local não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_listo: "Orquestrador local pronto.",
+    lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
   },
   it: {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Governo",
@@ -192,6 +196,7 @@ const textos = {
     anidar_no: "impossibile annidare",
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
     chat_sin_respuesta: (edad) => "L’orchestratore locale non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_listo: "Orchestratore locale pronto.",
+    lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
   },
   de: {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Regierung",
@@ -226,6 +231,7 @@ const textos = {
     anidar_no: "konnte nicht ablegen",
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
     chat_sin_respuesta: (edad) => "Der lokale Orchestrator hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_listo: "Lokaler Orchestrator bereit.",
+    lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
   },
   ru: {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Управление",
@@ -260,6 +266,7 @@ const textos = {
     anidar_no: "не удалось сохранить",
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
     chat_sin_respuesta: (edad) => "Локальный оркестратор не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_listo: "Локальный оркестратор готов.",
+    lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
   },
   el: {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Διακυβέρνηση",
@@ -294,6 +301,7 @@ const textos = {
     anidar_no: "δεν ήταν δυνατό το φώλιασμα",
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
     chat_sin_respuesta: (edad) => "Ο τοπικός ενορχηστρωτής δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_listo: "Ο τοπικός ενορχηστρωτής είναι έτοιμος.",
+    lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
   },
   ar: {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحوكمة",
@@ -328,6 +336,7 @@ const textos = {
     anidar_no: "تعذّر الحفظ",
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
     chat_sin_respuesta: (edad) => "لم يستجب المنسق المحلي. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_listo: "المنسق المحلي جاهز.",
+    lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
   },
 };
 let t = textos.es;
@@ -381,6 +390,7 @@ function mostrar(i, opciones = {}) {
   actualizarGuionZona();
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
+  if (paneles[panelActual].id === "lab") cargarLab();
 }
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
@@ -415,6 +425,49 @@ carril.addEventListener("touchend", (e) => {
   }
   x0 = y0 = null;
 }, { passive: true });
+
+/* --- Lab · lectura servida por el endpoint local ------------------------ */
+async function cargarLab() {
+  $("lab-estado").textContent = t.lab_cargando;
+  try {
+    const r = await fetch("/api/lab", { cache: "no-store" });
+    const d = await r.json();
+    if (!r.ok || !d || typeof d !== "object") throw new Error("respuesta inválida");
+    const mensajes = d.conversacion && Array.isArray(d.conversacion.mensajes)
+      ? d.conversacion.mensajes : [];
+    const lista = $("lab-canales");
+    lista.replaceChildren();
+    mensajes.forEach((m) => {
+      const li = document.createElement("li");
+      const origen = typeof m.origen === "string" ? m.origen : t.lab_causa_vacia;
+      const voz = typeof m.quien === "string" ? m.quien : t.lab_causa_vacia;
+      const texto = typeof m.texto === "string" && m.texto.trim()
+        ? m.texto : t.lab_mensaje_vacio;
+      li.textContent = `${origen} · ${voz}: ${texto}`;
+      lista.appendChild(li);
+    });
+    const modelos = d.modelos && typeof d.modelos === "object" ? d.modelos : {};
+    const filas = [
+      [t.lab_mini, modelos.mini], [t.lab_grande, modelos.grande],
+      [t.lab_eleccion, modelos.eleccion],
+    ];
+    const ul = $("lab-modelos");
+    ul.replaceChildren();
+    filas.forEach(([nombre, ficha]) => {
+      const li = document.createElement("li");
+      const disponible = ficha && ficha.disponible === true;
+      const nivel = ficha && (ficha.frescura || ficha.estado);
+      const estado = nivel === String.fromCharCode(83, 84, 65, 76, 69) ? t.lab_estado_stale
+        : disponible || nivel === String.fromCharCode(77, 69, 68, 73, 68, 79) ? t.lab_estado_live : t.lab_estado_ausente;
+      const tag = ficha && typeof ficha.tag === "string" ? ` · ${ficha.tag}` : "";
+      li.textContent = `${nombre}${tag}: ${estado}`;
+      ul.appendChild(li);
+    });
+    $("lab-estado").textContent = t.lab_actualizado;
+  } catch {
+    $("lab-estado").textContent = t.lab_error;
+  }
+}
 
 /* --- estado ------------------------------------------------------------ */
 async function estado() {
