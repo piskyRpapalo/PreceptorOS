@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -355,6 +356,15 @@ class PWA(BaseHTTPRequestHandler):
 
     # --- api ---------------------------------------------------------------
     def do_POST(self):
+        try:
+            return self._despachar_post()
+        except sqlite3.Error:
+            # La interfaz recibe un recibo acotado, nunca una traza del
+            # esquema local. Una base aún no inicializada se niega en cerrado.
+            return self._json(503, {"estado": "bloqueado",
+                                    "motivo": "la memoria local aún no está preparada"})
+
+    def _despachar_post(self):
         ruta = self.path.split("?")[0]
         datos = self._leer()
         if datos is None:
