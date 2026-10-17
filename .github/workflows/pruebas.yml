@@ -16,6 +16,11 @@ on:
   push:
   pull_request:
 
+# Ronda 208 (A3): un run superseded de la misma rama se cancela y no consume runners.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -34,9 +39,9 @@ jobs:
     name: python ${{ matrix.python }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python }}
 
