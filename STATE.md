@@ -13,8 +13,8 @@
 
 Machine for local test and file measurements: Linux x86_64, AMD Ryzen 7 255 with Radeon 780M Graphics, 16 logical CPUs.
 
-- APP Python discovery: `python3 -m unittest discover` at APP `3c39596` — **867 tests: 856 passed, 11 skipped, 0 failed**. This is the Python discovery yardstick only; it is not the full `./bin/pruebas` suite.
-- WEB Node suite: `node --test` at WEB `e1aafeeb` — **244 tests: 234 passed, 10 skipped, 0 failed**. This is separate from the Python `test_web.py` yardstick.
+- APP Python discovery: `python3 -m unittest discover` at APP `3c39596` — **867 tests: 856 passed, 11 skipped, 0 failed in each of two runs**. Python 3.14.4. This is the Python discovery yardstick only; it is not the full `./bin/pruebas` suite.
+- WEB Node suite: `node --test` at WEB `e1aafeeb` — **179 tests: 174 passed, 5 skipped, 0 failed in each of two runs**. Node v22.22.1. This is separate from the Python `test_web.py` yardstick.
 - WEB public-site weight: **1,237,121 B across 186 counted files**, recomputed read-only from `public/` with the exclusions `downloads/`, `counters.json` and `historial/` defined by WEB `contadores.py:55-65`. It matches the declared `peso_sitio` in WEB `public/counters.json`; that file was not changed.
 
 ## Current recorded LAB benchmarks
@@ -39,7 +39,7 @@ No inference was re-run for this card. The figures below are dated records, each
 
 - Counts describe the command named beside them. Skips remain visible and are not counted as passing checks.
 - The APP discovery result covers `unittest` discovery only. It does not stand in for `./bin/pruebas`, remote CI, or live PWA rendering.
-- The WEB Node result is the complete `node --test` run at the recorded commit. It is not the separate Python web gate.
+- The WEB Node result is the complete `node --test` run at the recorded commit, repeated twice. It is not the separate Python web gate.
 - Site weight follows the public tree's declared counter exclusions; the calculation was repeated without rewriting the counter file.
 - Archived LAB results retain their original measurement dates. They are not implied to be live throughput on the card's measurement date.
 - The older `tg32` throughput figures remain in the LAB archive, but the session log is absent; command, exact date, machine details and repetition count are `NO_DATA` (`benchmarks/tg32/README.md:8-15`).
