@@ -1,0 +1,25 @@
+name: PREGUNTA PARA LA MESA
+description: "Canal bidireccional FIRMOdo (ronda 201): el preceptor pregunta, la Mesa contesta EN este issue."
+labels: ["pregunta-para-la-mesa"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        AVISO DE LA CASA: este issue es VISTA, no registro. No concede nada:
+        solo el FIRMO del carbono decide. La respuesta llega como comentario de la Mesa.
+        El título sigue la forma: "PREGUNTA PARA LA MESA: <tema>".
+  - type: input
+    id: tema
+    attributes:
+      label: Tema (una línea)
+      description: Se refleja en el título del issue.
+    validations:
+      required: true
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: "≤300 tokens (Ley del Mini). Solo forma: pieza, sello, fecha, fichero:línea, qué se midió y qué es NO_DATA con causa. Sin nombres privados: conteo y ruta si hace falta. Sin código nuevo."
+      placeholder: "Pieza · sello · fichero:línea · medida o NO_DATA con causa"
+    validations:
+      required: true
