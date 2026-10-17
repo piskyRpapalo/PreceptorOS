@@ -1,52 +1,52 @@
 # STATE · PreceptorOS (APP)
 
-> Status: PROPOSAL, unsigned. It becomes the state card when the architect signs it.
+> Status: PROPOSAL, unsigned. Measurement snapshot: 2026-10-17. This card
+> records measured values and links to their source; it is not a promise.
 
-This file is the ecosystem's state card: one page an AI (or a person) can read
-in a single pass, carry away, and hand to another AI. Every figure below was
-measured; anything not measured is `NO_DATA` with its cause. Nothing here is a
-promise.
+## The ecosystem
 
-## The three parts
+- **WEB** · [preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web), measured at `e1aafeeb`.
+- **APP** · this local-first repository, measured at `3c39596`.
+- **LAB** · [lab](https://github.com/piskyRpapalo/lab), measured at `2cb70d8`; it preserves benchmark records and counters.
 
-- **WEB** · [preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web) — the public gateway, guides and theGame. Live at [preceptoros.org](https://preceptoros.org).
-- **APP** · this repository — the local-first companion: local memory, local inference, zero cloud.
-- **LAB** · [lab](https://github.com/piskyRpapalo/lab) — the measured record: benchmarks and counters, honest sensors.
+## Measurements taken 2026-10-17
 
-The architect's profile is [piskyRpapalo](https://github.com/piskyRpapalo).
+Machine for local test and file measurements: Linux x86_64, AMD Ryzen 7 255 with Radeon 780M Graphics, 16 logical CPUs.
 
-## What is measured (with its source)
+- APP Python discovery: `python3 -m unittest discover` at APP `3c39596` — **867 tests: 856 passed, 11 skipped, 0 failed in each of two runs**. Python 3.14.4. This is the Python discovery yardstick only; it is not the full `./bin/pruebas` suite.
+- WEB Node suite: `node --test` at WEB `e1aafeeb` — **179 tests: 174 passed, 5 skipped, 0 failed in each of two runs**. Node v22.22.1. This is separate from the Python `test_web.py` yardstick.
+- WEB public-site weight: **1,237,121 B across 186 counted files**, recomputed read-only from `public/` with the exclusions `downloads/`, `counters.json` and `historial/` defined by WEB `contadores.py:55-65`. It matches the declared `peso_sitio` in WEB `public/counters.json`; that file was not changed.
 
-- Web tests passing: **75** · 9 languages served · 0 external requests on load ·
-  site weight **1,096,576 B** — source: [lab/counters/site.md](https://github.com/piskyRpapalo/lab/blob/main/counters/site.md), rack session 2026-10.
-- App tests: **NO_DATA** — the app's corridor run was not executed in that
-  session (cause in the session log; same source as above).
-- Model throughput on the node (rack, same session): Qwen3-Coder-30B **30.65
-  tok/s** · Qwen3-4B **26.72 tok/s** · Swift **3.68 tok/s** — source:
-  [lab/benchmarks/tg32](https://github.com/piskyRpapalo/lab/blob/main/benchmarks/tg32/README.md).
-- Embedding throughput, 2026-10-11: embeddinggemma-2 **6459 tok/s** at
-  prompt-pair 512, sanity cosine similarity **0.908** — source:
-  [lab/benchmarks/bench_20261011](https://github.com/piskyRpapalo/lab/blob/main/benchmarks/bench_20261011/README.md).
-- Node card (nodo.0.hexelion, Beelink mini PC): 57 GiB memory · 55.15 tok/s
-  generation (1.7B model), latest measurement 2026-10-04 — source: the node's
-  card, served on [preceptoros.org](https://preceptoros.org).
+## Current recorded LAB benchmarks
 
-## The live state door
+No inference was re-run for this card. The figures below are dated records, each with its own yardstick.
 
-The game on the WEB keeps its whole visible state in a vector under 1 KB,
-readable in a single call: `AtlasVector.leer()` (schema `preceptoros.vector/1`).
-Anything missing appears in its `nd` field with its cause — never a silent gap,
-never an invented zero. Source:
-[state_vector.js](https://github.com/piskyRpapalo/preceptoros-web/blob/main/public/game/state_vector.js).
+- Qwen 35B-A3B GGUF, 2026-10-16, `llama-bench`: Vulkan generation **20.760 tok/s** (two samples, SD 0.197); CPU generation **2.114 tok/s** (two samples, SD 1.747). Prefill: Vulkan **294.271 tok/s**, CPU **92.295 tok/s**. See [LAB benchmark and provenance](https://github.com/piskyRpapalo/lab/blob/2cb70d8/benchmarks/qwen36-35b-20261016/README.md), lines 3-19.
+- Local role check, 2026-10-16: the unavailable-engine sabotage was rejected; two local responses matched by hash, each with 75 prompt-evaluation tokens and 33 output tokens. Timings: **14.698 s** (13.209 s load) and **1.037 s** (0.002 s load). This measures one narrow authority task, not general model quality. See [LAB G0 record](https://github.com/piskyRpapalo/lab/blob/2cb70d8/benchmarks/preceptor-g0-20261016/README.md), lines 3-15.
+- H9 readability, 2026-10-16, synthetic fixtures: explicit map without dictionary **4/8** exact reads; dense stimulus **0/8** versus prose **2/8** exact reads. Length and content differed, so this is an observation, not an isolated causal estimate. See [LAB H9 record](https://github.com/piskyRpapalo/lab/blob/2cb70d8/benchmarks/h9-readability-20261016/README.md), lines 7-17.
+- Embedding record, 2026-10-11: embeddinggemma-2 **6,459 tok/s** at prompt-pair 512, sanity cosine similarity **0.908**. See [LAB record and raw-data reference](https://github.com/piskyRpapalo/lab/blob/2cb70d8/benchmarks/bench_20261011/README.md), lines 3-18.
 
-## For a visiting AI
+## Boundaries and missing measurements
 
-You may copy this file, quote its figures with their sources, and hand it to
-another AI. If you act on this ecosystem, measure first and report what you
-measured with the command, the machine and the date. What you cannot measure,
-say `NO_DATA` and say why. The contributor's contract is `PRECEPTOR.md` in this
-repository.
+- The WEB vector is described by the live contract `preceptoros.vector/1`; its current source is [`public/game/state_vector.js`](https://github.com/piskyRpapalo/preceptoros-web/blob/e1aafeeb/public/game/state_vector.js). This card does not copy a live vector or claim a current device reading.
+- APP `./bin/pruebas` total, suite count and full-gate result: `NO_DATA` for this measurement; the requested `python3 -m unittest discover` command was measured instead. Do not compare or add those yardsticks.
+- Current browser rendering, service-worker behavior, physical-device FPS, temperature, energy, sustained-load behavior and broad model quality: `NO_DATA` with cause — the measurements above do not exercise those sensors.
+- LAB remote CI: `NO_DATA` / not configured, per [LAB agent contract](https://github.com/piskyRpapalo/lab/blob/2cb70d8/AGENTS.md); its local test yardstick is `python3 -m unittest discover -s tests -p "test_*.py"`, separate from APP and WEB.
 
-*Measured from this repository's tree on 2026-10-12T22:34Z (app HEAD
-`9f9b447`, lab HEAD `6b6a4db`). A figure is never republished without its
-source measurement.*
+*Measured 2026-10-17 from APP `3c39596`, WEB `e1aafeeb` and LAB `2cb70d8`. Historical benchmark dates remain attached to their records.*
+
+## Reading and scope
+
+- Counts describe the command named beside them. Skips remain visible and are not counted as passing checks.
+- The APP discovery result covers `unittest` discovery only. It does not stand in for `./bin/pruebas`, remote CI, or live PWA rendering.
+- The WEB Node result is the complete `node --test` run at the recorded commit, repeated twice. It is not the separate Python web gate.
+- Site weight follows the public tree's declared counter exclusions; the calculation was repeated without rewriting the counter file.
+- Archived LAB results retain their original measurement dates. They are not implied to be live throughput on the card's measurement date.
+- The older `tg32` throughput figures remain in the LAB archive, but the session log is absent; command, exact date, machine details and repetition count are `NO_DATA` (`benchmarks/tg32/README.md:8-15`).
+- No browser session, physical-device FPS run, thermal probe or broad model-quality corpus was run as part of this refresh.
+
+## Refresh rule
+
+- Replace a figure only after measuring it again with its own command and source; keep historic benchmark dates and yardsticks attached to their records.
+- Do not infer status from a skipped test, an archived result, a model tag or a public web page.
+This line is a stable deep-link target from the APP's `llms.txt` index; its destination is this dated state card, not a separate live sensor.
