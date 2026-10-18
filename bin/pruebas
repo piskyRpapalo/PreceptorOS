@@ -267,6 +267,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # guardrails; «firmado» en un texto no cambia el estado. Con su
           # `--sabotaje`.
           test_canales
+          test_contratos_decision
           # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
           # cerrado; el orquestador contesta con su voz y por tuberia; registro
           # en solo lectura; tok/s solo medido; LoRA solo con hash. Con su

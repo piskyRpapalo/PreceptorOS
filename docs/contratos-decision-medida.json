@@ -1,0 +1,56 @@
+{
+  "status": "SIMULATED",
+  "date": "2026-10-18T01:48:23.521608+00:00",
+  "machine": "Linux x86_64",
+  "yardstick": "pure validators; synthetic corpus; no model, network or live DB",
+  "baseline_source_sha256": "8821b2a7b2fa7780d5ebf2264abbad9f8004630fd68eddad91020cd949b49a84",
+  "validator_sha256": "672e9f24006ebf296c7eb60c66dcfbdf31ef30b4aab4c9a987a5d4ec6744709f",
+  "input_sha256": "87fa50f56ba373d5152c096b9ab9e2036b1c5be542a4f68fde07b72f3d5257d8",
+  "comparison": {
+    "legacy_without_trace": {
+      "before_accepted": true,
+      "after_accepted": false
+    },
+    "abstention_with_score": {
+      "before_accepted": true,
+      "after_accepted": false
+    }
+  },
+  "epsilon": {
+    "normalized": 0,
+    "fixture_count": 20,
+    "seed": 42,
+    "vectors_sha256": "7f19227b18d0d19d2fd494d2c8d63407cd7f7b42baa8da3490c2f1633d7ec30d",
+    "max_exact_error": "0",
+    "max_float_error_declared_by_sensor": 0.0
+  },
+  "sabotages": [
+    {
+      "case": "no_validator",
+      "detected": true
+    },
+    {
+      "case": "no_calibration",
+      "detected": true
+    },
+    {
+      "case": "epsilon_absent",
+      "detected": true
+    }
+  ],
+  "optimization": {
+    "status": "SIMULATED",
+    "scope": "producer without digest",
+    "before": {
+      "calls": 2,
+      "accepted": true,
+      "cause": null
+    },
+    "after": {
+      "calls": 0,
+      "accepted": false,
+      "cause": "arnes: tier=2, digest, build y configuraci\u00f3n requeridos"
+    },
+    "live_benefit": "NO_DATA: canonical corpus absent"
+  }
+}

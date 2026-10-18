@@ -95,3 +95,7 @@ corpus/muestras.json
 *.sqlite
 ledger.jsonl
 medidas.json
+
+# Contratos públicos y vara sintética: lote de decisiones 2026-10-18.
+!docs/contratos-decision.md
+!docs/contratos-decision-medida.json
