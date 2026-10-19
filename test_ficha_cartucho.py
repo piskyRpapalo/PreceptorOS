@@ -30,7 +30,8 @@ def manifiesto():
 class FichaCartuchoTests(unittest.TestCase):
     def test_esquemas_de_tarjeta_y_cartucho_son_json_lecturable(self):
         root = os.path.dirname(os.path.abspath(__file__))
-        for name in ("ficha_cartucho.schema.json", "edificio.schema.json"):
+        for name in ("ficha_cartucho.schema.json", "edificio.schema.json",
+                     "orquestador.schema.json"):
             with self.subTest(name=name):
                 with open(os.path.join(root, "data", name), encoding="utf-8") as fh:
                     self.assertEqual(json.load(fh)["$schema"],

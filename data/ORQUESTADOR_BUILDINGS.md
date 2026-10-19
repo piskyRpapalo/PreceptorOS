@@ -27,7 +27,7 @@ The three intents are closed:
 | Intent | App behavior |
 | --- | --- |
 | `DEPLOY_BUILDING` | Validates `preceptoros.edificio/1` and its required `ficha`; returns `PROPOSED`, `requiere: FIRMO DESPLIEGUE`, and no effect. The web motor owns game behavior and actual rendering/deployment. |
-| `QUERY_STATE` | Validates the local cartridge ID and delegates state to an injected rack adapter. The adapter must return an origin and either `MEASURED`/`STALE` plus `dato`, or `NO_DATA` plus `causa`. No adapter means `NO_DATA`. The app does not calculate lifecycle, combat, cooldown behavior, or game results. |
+| `QUERY_STATE` | Accepts either a local cartridge `id` (delegated to an injected rack adapter) or a `consulta` (retrieved from the local read-only RAG index, then answered by the local mini-model). RAG returns `MEASURED` only when retrieval and local inference both succeed; otherwise it returns `NO_DATA` with cause. The app does not calculate lifecycle, combat, cooldown behavior, or game results. |
 | `UPDATE_RAG` | Always returns cause-bearing `NO_DATA` from chat. RAG writes require a separately attached, signed `frontera.py` adapter; no chat request writes data. |
 
 The language/math card schema is [ficha_cartucho.schema.json](ficha_cartucho.schema.json).
