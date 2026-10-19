@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:orquestador:1",
+  "title": "App orchestrator request",
+  "description": "Closed web-to-local-app request envelope; total UTF-8 size is checked in code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "intent", "payload"],
+  "properties": {
+    "esquema": {"const": "preceptoros.orquestador/1"},
+    "intent": {"enum": ["DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG"]},
+    "payload": {"type": "object"}
+  },
+  "allOf": [
+    {"if": {"properties": {"intent": {"const": "DEPLOY_BUILDING"}}}, "then": {"properties": {"payload": {"type": "object", "additionalProperties": false, "required": ["manifiesto"], "properties": {"manifiesto": {"$ref": "urn:preceptoros:edificio:1"}}}}}},
+    {"if": {"properties": {"intent": {"const": "QUERY_STATE"}}}, "then": {"properties": {"payload": {"oneOf": [
+      {"type": "object", "additionalProperties": false, "required": ["id"], "properties": {"id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"}}},
+      {"type": "object", "additionalProperties": false, "required": ["consulta"], "properties": {"consulta": {"type": "string", "minLength": 1, "maxLength": 600}}}
+    ]}}}},
+    {"if": {"properties": {"intent": {"const": "UPDATE_RAG"}}}, "then": {"properties": {"payload": {"type": "object"}}}}
+  ]
+}

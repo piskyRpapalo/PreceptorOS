@@ -108,11 +108,13 @@ def _respuesta(intent, estado, causa=None, **campos):
     return r
 
 
-def enrutar(raw, *, raiz=None, leer_estado=None, desde_chat=True):
+def enrutar(raw, *, raiz=None, leer_estado=None, consultar_rag=None, desde_chat=True):
     """Route one bounded request without embedding game or arena logic."""
     p = decodificar(raw)
     intent, payload = p["intent"], p["payload"]
     if intent == "DEPLOY_BUILDING":
+        if set(payload) != {"manifiesto"}:
+            return _respuesta(intent, "NO_DATA", "forma DEPLOY_BUILDING inválida")
         manifest = payload.get("manifiesto")
         causa = _manifiesto(manifest)
         if causa:
@@ -124,7 +126,48 @@ def enrutar(raw, *, raiz=None, leer_estado=None, desde_chat=True):
                  if desde_chat else
                  "signed frontera.py RAG adapter is not attached")
         return _respuesta(intent, "NO_DATA", causa)
+    if "consulta" in payload:
+        if (set(payload) != {"consulta"} or type(payload["consulta"]) is not str
+                or not payload["consulta"].strip() or len(payload["consulta"]) > 600):
+            return _respuesta(intent, "NO_DATA", "forma de consulta RAG inválida")
+        if consultar_rag is None:
+            return _respuesta(intent, "NO_DATA", "mini RAG local no está conectado",
+                              origen="rag:unavailable")
+        try:
+            resultado = consultar_rag(payload["consulta"])
+        except Exception as exc:
+            return _respuesta(intent, "NO_DATA", "consulta RAG falló: " + type(exc).__name__,
+                              origen="rag")
+        if type(resultado) is not dict or type(resultado.get("estado")) is not str:
+            return _respuesta(intent, "NO_DATA", "el adaptador RAG devolvió una forma inválida",
+                              origen="rag")
+        origen = resultado.get("origen")
+        if type(origen) is not str or not origen:
+            return _respuesta(intent, "NO_DATA", "la respuesta RAG no declara origen",
+                              origen="rag")
+        if resultado["estado"] != "MEASURED":
+            causa = resultado.get("causa")
+            return _respuesta(intent, "NO_DATA", causa if type(causa) is str and causa
+                              else "RAG no medido", origen=origen)
+        respuesta = resultado.get("respuesta")
+        if type(respuesta) is not str or not respuesta.strip():
+            return _respuesta(intent, "NO_DATA", "respuesta RAG vacía",
+                              origen=origen)
+        fuentes = resultado.get("fuentes")
+        tokens = resultado.get("tokens_rag_aprox")
+        completo = resultado.get("rag_completo")
+        if (type(fuentes) is not int or not 1 <= fuentes <= 50
+                or type(tokens) is not int or not 0 <= tokens <= 1200
+                or type(completo) is not bool):
+            return _respuesta(intent, "NO_DATA", "metadatos de recuperación RAG inválidos",
+                              origen=origen)
+        return _respuesta(intent, "MEASURED", None, origen=origen,
+                          respuesta=respuesta.strip(),
+                          fuentes=fuentes, tokens_rag_aprox=tokens,
+                          rag_completo=completo)
     ident = payload.get("id")
+    if set(payload) != {"id"}:
+        return _respuesta(intent, "NO_DATA", "forma de consulta de estado inválida")
     if type(ident) is not str or not ID.fullmatch(ident):
         return _respuesta(intent, "NO_DATA", "cartucho id is invalid")
     base = Path(raiz) if raiz is not None else Path.home() / ".preceptoros" / "buildings"
