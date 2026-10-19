@@ -461,7 +461,9 @@ class PWA(BaseHTTPRequestHandler):
         if len(raw) != largo:
             return self._json(400, {"estado": "NO_DATA", "causa": "cuerpo truncado"})
         try:
-            resultado = _orquestador.enrutar(raw)
+            resultado = _orquestador.enrutar(
+                raw, consultar_rag=lambda consulta: _lab.consultar_rag(
+                    consulta, _casa.raiz()))
         except _orquestador.PeticionRechazada as exc:
             return self._json(400, {"estado": "NO_DATA", "causa": str(exc)})
         return self._json(200, resultado)
