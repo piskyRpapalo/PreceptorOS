@@ -48,7 +48,7 @@ def validate_event(raw):
         datetime.fromisoformat(event["utc"][:-1] + "+00:00")
     except ValueError as exc:
         raise EventRejected("invalid utc timestamp") from exc
-    if event["sello"] not in STAMPS:
+    if not isinstance(event["sello"], str) or event["sello"] not in STAMPS:
         raise EventRejected("unknown stamp")
     if not isinstance(event["payload"], dict):
         raise EventRejected("payload must be an object")
