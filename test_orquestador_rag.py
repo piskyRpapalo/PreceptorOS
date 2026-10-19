@@ -69,6 +69,18 @@ class ConsultaRAGTests(unittest.TestCase):
         self.assertEqual(result["estado"], "NO_DATA")
         self.assertEqual(result["causa"], "index absent")
 
+    def test_router_conserva_causa_de_rag_local_sin_coincidencias(self):
+        request = {"esquema": ESQUEMA, "intent": "QUERY_STATE",
+                   "payload": {"consulta": "palabra-sin-coincidencia"}}
+        raw = json.dumps(request, separators=(",", ":")).encode()
+        result = enrutar(raw, raiz=self.root,
+                         consultar_rag=lambda consulta: lab.consultar_rag(
+                             consulta, self.root,
+                             motor=lambda _: self.fail("no debe inferir sin fuente")))
+        self.assertEqual(result["estado"], "NO_DATA")
+        self.assertIn("no encontró", result["causa"])
+        self.assertEqual(result["origen"], "rag")
+
     def test_update_rag_desde_chat_no_invoca_adaptador(self):
         request = {"esquema": ESQUEMA, "intent": "UPDATE_RAG",
                    "payload": {"consulta": "contenido"}}

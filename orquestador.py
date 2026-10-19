@@ -142,13 +142,14 @@ def enrutar(raw, *, raiz=None, leer_estado=None, consultar_rag=None, desde_chat=
             return _respuesta(intent, "NO_DATA", "el adaptador RAG devolvió una forma inválida",
                               origen="rag")
         origen = resultado.get("origen")
-        if type(origen) is not str or not origen:
-            return _respuesta(intent, "NO_DATA", "la respuesta RAG no declara origen",
-                              origen="rag")
         if resultado["estado"] != "MEASURED":
             causa = resultado.get("causa")
             return _respuesta(intent, "NO_DATA", causa if type(causa) is str and causa
-                              else "RAG no medido", origen=origen)
+                              else "RAG no medido",
+                              origen=origen if type(origen) is str and origen else "rag")
+        if type(origen) is not str or not origen:
+            return _respuesta(intent, "NO_DATA", "la respuesta RAG no declara origen",
+                              origen="rag")
         respuesta = resultado.get("respuesta")
         if type(respuesta) is not str or not respuesta.strip():
             return _respuesta(intent, "NO_DATA", "respuesta RAG vacía",
