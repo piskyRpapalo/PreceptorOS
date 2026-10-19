@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "preceptoros/rack-observation/1",
+  "title": "PreceptorOS rack observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["observed_at", "state", "cause"],
+  "properties": {
+    "observed_at": {"type": ["string", "null"], "format": "date-time"},
+    "state": {"enum": ["LIVE", "STALE", "STATIC", "SIMULATED", "NO_DATA", "ERROR"]},
+    "cause": {"type": ["string", "null"]},
+    "ttl_days": {"const": 7}
+  }
+}

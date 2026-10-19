@@ -1,0 +1,3 @@
+# OpenSSH allowed_signers format; public keys only.
+# No active signer entry in this proposal.
+# Additions and rotations require the Sovereign's signed instruction.
