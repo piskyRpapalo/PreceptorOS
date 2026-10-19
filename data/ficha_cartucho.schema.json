@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:ficha-cartucho:1",
+  "title": "Ficha de lenguaje y mesura del cartucho",
+  "description": "Datos no visuales; piel/silueta se transporta por separado.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "verbos", "mesuras", "posturas", "cooldown_ticks", "ram_bytes"],
+  "properties": {
+    "esquema": {"const": "preceptoros.ficha_cartucho/1"},
+    "verbos": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG"]}},
+    "mesuras": {"type": "array", "maxItems": 8, "items": {"type": "object", "additionalProperties": false, "required": ["id", "valor", "unidad", "estado", "causa"], "properties": {
+      "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$"},
+      "valor": {"type": ["number", "null"]},
+      "unidad": {"type": "string", "pattern": "^[a-zA-Z0-9/_-]{1,16}$"},
+      "estado": {"enum": ["MEASURED", "STALE", "NO_DATA"]},
+      "causa": {"type": ["string", "null"]}
+    }}},
+    "posturas": {"type": "array", "minItems": 1, "maxItems": 8, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$"}},
+    "cooldown_ticks": {"type": "integer", "minimum": 0, "maximum": 1000000000},
+    "ram_bytes": {"type": "integer", "minimum": 0, "maximum": 1099511627776}
+  }
+}

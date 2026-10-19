@@ -62,10 +62,13 @@ import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
+import orquestador as _orquestador                          # noqa: E402
+import estado_compacto as _estado_compacto                   # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("PRECEPTOROS_PWA_PUERTO", "8740"))
 LIMITE = 512 * 1024
+ORIGEN_WEB_ORQUESTADOR = "https://preceptoros.org"
 INTERFAZ = os.path.join(AQUI, "interface")
 
 # Los campos del perfil que la interfaz puede tocar. El perfil tiene claves que
@@ -249,12 +252,43 @@ class PWA(BaseHTTPRequestHandler):
     server_version = "preceptoros-pwa"
 
     def _json(self, codigo, cuerpo):
-        crudo = json.dumps(cuerpo, ensure_ascii=False).encode("utf-8")
+        if self.path.split("?")[0] == "/api/orquestador":
+            try:
+                crudo = _estado_compacto.serializar_objeto(cuerpo)
+            except ValueError:
+                codigo = 503
+                crudo = _estado_compacto.serializar_objeto({
+                    "estado": "NO_DATA", "causa": "respuesta fuera del sobre de 1.023 B"})
+        else:
+            crudo = json.dumps(cuerpo, ensure_ascii=False).encode("utf-8")
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(crudo)))
+        if (self.path.split("?")[0] == "/api/orquestador" and
+                self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
+            self.send_header("Access-Control-Allow-Origin", ORIGEN_WEB_ORQUESTADOR)
+            self.send_header("Vary", "Origin")
         self.end_headers()
         self.wfile.write(crudo)
+
+    def do_OPTIONS(self):
+        """One exact web origin may use only the bounded orchestrator route."""
+        if (self.path.split("?")[0] != "/api/orquestador" or
+                self.headers.get("Origin") != ORIGEN_WEB_ORQUESTADOR or
+                self.headers.get("Access-Control-Request-Method", "").upper() != "POST"):
+            return self._json(403, {"estado": "NO_DATA", "causa": "origen o ruta no permitidos"})
+        solicitados = {x.strip().lower() for x in
+                       self.headers.get("Access-Control-Request-Headers", "").split(",") if x.strip()}
+        if not solicitados <= {"content-type"}:
+            return self._json(403, {"estado": "NO_DATA", "causa": "cabecera solicitada no permitida"})
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", ORIGEN_WEB_ORQUESTADOR)
+        self.send_header("Vary", "Origin")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Max-Age", "600")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def _leer(self):
         largo = int(self.headers.get("Content-Length") or 0)
@@ -380,6 +414,8 @@ class PWA(BaseHTTPRequestHandler):
 
     def _despachar_post(self):
         ruta = self.path.split("?")[0]
+        if ruta == "/api/orquestador":
+            return self._orquestador()
         datos = self._leer()
         if datos is None:
             return self._json(400, {"estado": "bloqueado",
@@ -411,6 +447,24 @@ class PWA(BaseHTTPRequestHandler):
             codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
             return self._json(codigo, resultado)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    def _orquestador(self):
+        """Local signed-verb contract: bounded bytes, no writes or network."""
+        try:
+            largo = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            largo = 0
+        if largo <= 0 or largo >= 1024:
+            return self._json(400, {"estado": "NO_DATA",
+                                    "causa": "petición vacía o alcanza el techo de 1.024 B"})
+        raw = self.rfile.read(largo)
+        if len(raw) != largo:
+            return self._json(400, {"estado": "NO_DATA", "causa": "cuerpo truncado"})
+        try:
+            resultado = _orquestador.enrutar(raw)
+        except _orquestador.PeticionRechazada as exc:
+            return self._json(400, {"estado": "NO_DATA", "causa": str(exc)})
+        return self._json(200, resultado)
 
     # Donde vive el Manifiesto. Es doctrina del repositorio, no un asset del
     # producto, asi que NO se copia aqui: dos copias del mismo texto divergen, y

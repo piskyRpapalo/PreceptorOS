@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:edificio:1",
+  "title": "Cartucho de edificio local",
+  "description": "La ficha de lenguaje/mesura viaja junto a la etiqueta; la piel va separada.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "id", "tipo", "col", "fila", "huella", "nace_tic", "madura_tics", "desgaste_por_tic", "ficha"],
+  "properties": {
+    "esquema": {"const": "preceptoros.edificio/1"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"},
+    "tipo": {"enum": ["boya", "observatorio", "lapidas", "cristal", "botella", "monumento", "vivero", "baliza", "nombres"]},
+    "col": {"type": "integer", "minimum": -9999, "maximum": 9999},
+    "fila": {"type": "integer", "minimum": -9999, "maximum": 9999},
+    "huella": {"type": "integer", "minimum": 1, "maximum": 4},
+    "nace_tic": {"type": "integer", "minimum": 0, "maximum": 1000000000},
+    "madura_tics": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "desgaste_por_tic": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "caduca_tic": {"type": "integer", "minimum": 0, "maximum": 1000000000},
+    "cuidado_tic": {"type": "integer", "minimum": 0, "maximum": 1000000000},
+    "carga": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "escudo": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "ficha": {"$ref": "urn:preceptoros:ficha-cartucho:1"}
+  }
+}
