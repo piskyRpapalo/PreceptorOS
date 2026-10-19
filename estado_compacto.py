@@ -1,4 +1,4 @@
-"""Molde binario S_t v1, separado de la superficie JSON de hasta 1024 bytes.
+"""Molde binario S_t v1 y envoltorios JSON compactos (< 1.024 bytes).
 
 Offsets inclusivos/exclusivos (enteros big-endian salvo bytes indicados):
   0:4 magic ``PST1``; 4 versión; 5 zona; 6 frescura; 7 flags;
@@ -14,6 +14,7 @@ Hue/Saturación/Luminosidad y carga/confianza/escudo no son colores ni
 autoridad: viajan como datos. Este molde no contiene hashes ni claves.
 """
 from types import MappingProxyType
+import json
 
 ZONAS = MappingProxyType({
     "mando": 1, "conversacion": 2, "gobierno": 3, "cuaderno": 4,
@@ -25,6 +26,7 @@ LONGITUD = 150
 U32_MAX = (1 << 32) - 1
 U64_MAX = (1 << 64) - 1
 U176_MAX = (1 << 176) - 1
+TOPE_JSON_B = 1024
 TAU_MAX = 1_000_000
 _CAMPOS = {
     "zona", "frescura", "tau", "origen", "tick", "id_sesion", "hue",
@@ -46,6 +48,18 @@ def _entero(valor, minimo, maximo, campo):
 def _bytes(valor, longitud, campo):
     if type(valor) is not bytes or len(valor) != longitud:
         raise ValueError(f"{campo}: longitud inválida")
+
+
+def serializar_objeto(objeto):
+    """Devuelve JSON UTF-8 compacto si el objeto completo cabe en 1.023 B."""
+    try:
+        raw = json.dumps(objeto, ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":"), allow_nan=False).encode("utf-8")
+    except (TypeError, ValueError, UnicodeError, RecursionError) as exc:
+        raise ValueError("JSON inválido") from exc
+    if len(raw) >= TOPE_JSON_B:
+        raise ValueError("objeto de 1.024 B o mayor; rechazo entero")
+    return raw
 
 
 def _validar(estado):
