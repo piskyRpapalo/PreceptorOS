@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:orquestador-respuesta:1",
+  "title": "App orchestrator response consumed by web clients",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "intent", "estado", "causa"],
+  "properties": {
+    "esquema": {"const": "preceptoros.orquestador/1"},
+    "intent": {"enum": ["DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG"]},
+    "estado": {"enum": ["PROPOSED", "MEASURED", "STALE", "NO_DATA"]},
+    "causa": {"type": ["string", "null"]},
+    "requiere": {"type": "string"},
+    "efecto": {"type": "string"},
+    "manifiesto": {"$ref": "urn:preceptoros:edificio:1"},
+    "origen": {"type": "string", "minLength": 1},
+    "respuesta": {"type": "string", "minLength": 1},
+    "fuentes": {"type": "integer", "minimum": 1, "maximum": 50},
+    "tokens_rag_aprox": {"type": "integer", "minimum": 0, "maximum": 1200},
+    "rag_completo": {"type": "boolean"},
+    "dato": {}
+  },
+  "oneOf": [
+    {"properties": {"intent": {"const": "DEPLOY_BUILDING"}, "estado": {"const": "PROPOSED"}, "causa": {"type": "null"}}, "required": ["requiere", "efecto", "manifiesto"]},
+    {"properties": {"intent": {"const": "DEPLOY_BUILDING"}, "estado": {"const": "NO_DATA"}, "causa": {"type": "string", "minLength": 1}}},
+    {"properties": {"intent": {"const": "QUERY_STATE"}, "estado": {"const": "MEASURED"}, "causa": {"type": "null"}}, "required": ["origen", "respuesta", "fuentes", "tokens_rag_aprox", "rag_completo"]},
+    {"properties": {"intent": {"const": "QUERY_STATE"}, "estado": {"const": "STALE"}}, "required": ["origen", "dato"]},
+    {"properties": {"intent": {"const": "QUERY_STATE"}, "estado": {"const": "NO_DATA"}, "causa": {"type": "string", "minLength": 1}}},
+    {"properties": {"intent": {"const": "UPDATE_RAG"}, "estado": {"const": "NO_DATA"}, "causa": {"type": "string", "minLength": 1}}}
+  ]
+}

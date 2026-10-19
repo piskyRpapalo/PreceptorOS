@@ -30,6 +30,8 @@ The three intents are closed:
 | `QUERY_STATE` | Accepts either a local cartridge `id` (delegated to an injected rack adapter) or a `consulta` (retrieved from the local read-only RAG index, then answered by the local mini-model). RAG returns `MEASURED` only when retrieval and local inference both succeed; otherwise it returns `NO_DATA` with cause. The app does not calculate lifecycle, combat, cooldown behavior, or game results. |
 | `UPDATE_RAG` | Always returns cause-bearing `NO_DATA` from chat. RAG writes require a separately attached, signed `frontera.py` adapter; no chat request writes data. |
 
+Responses follow [orquestador-respuesta.schema.json](orquestador-respuesta.schema.json): the APP returns the intent, state, cause, and measured fields without voice or UI copy. The web client maps `DEPLOY_BUILDING` / `QUERY_STATE` / `UPDATE_RAG` to the signed `deploy` / `state` / `rag` grammar in T_CRT §8.3. `NO_DATA` carries a concrete `causa`; `STALE` carries the rack observation as `dato`. The full response stays below 1,024 UTF-8 bytes.
+
 The language/math card schema is [ficha_cartucho.schema.json](ficha_cartucho.schema.json).
 It carries the closed verbs, measures and their stamps/causes, postures,
 `cooldown_ticks`, and `ram_bytes`. The full compact label includes the web

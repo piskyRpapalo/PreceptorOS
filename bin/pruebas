@@ -137,7 +137,7 @@ AVISO_V="$(python3 -c 'import interprete; print((interprete.aviso() or "").split
 echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
-UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_lab_frase test_afinado test_captura test_descarga test_pwa test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts
+UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_orquestador_respuesta test_lab_frase test_afinado test_captura test_descarga test_pwa test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno
           test_compass test_exportar
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
