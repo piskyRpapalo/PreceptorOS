@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "preceptoros/canal-event/1",
+  "title": "PreceptorOS bounded channel event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "ancla", "utc", "sello", "payload"],
+  "properties": {
+    "version": {"const": 1},
+    "ancla": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "utc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "sello": {"enum": ["LIVE", "STALE", "STATIC", "SIMULATED", "NO_DATA", "ERROR"]},
+    "payload": {"type": "object"}
+  },
+  "x-max-serialized-utf8-bytes": 1024
+}
