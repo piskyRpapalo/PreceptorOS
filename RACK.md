@@ -47,3 +47,11 @@ Measured or NO_DATA.
 `TTL_DAYS = 7` (entero exacto; 604800 segundos). En cada lectura, una observación cuyo sello guardado sea `LIVE` pasa automáticamente a `STALE` cuando su edad alcanza 604800 segundos. La función pura vive en `rack_freshness.py`; invocación: `python3 rack_freshness.py --observed-at <ISO-8601-UTC>`. La transición es de lectura y no reescribe el recibo firmado. `NO_DATA`, `STATIC`, `SIMULATED` y `ERROR` conservan su estado y causa.
 
 Recibo de esta sesión: `NO_DATA` para los endpoints locales de inferencia y PWA, causa: la política de sockets del sandbox bloqueó las conexiones loopback. Rutas sysfs y comandos medidos están en el PR del LAB; este entorno no certifica el estado live de la máquina física fuera del sandbox.
+
+## Re-medición · 2026-10-19T12:04:41Z
+
+- `http://127.0.0.1:11434/api/tags`: `LIVE`, HTTP 200, 45 entradas; se excluyeron los nombres.
+- `http://127.0.0.1:11434/api/version`: `LIVE`, HTTP 200.
+- `http://127.0.0.1:8740/`: `LIVE`, HTTP 200.
+- El contador de tokens sigue `NO_DATA`, causa: `/metrics` devuelve HTTP 404. La energía neta por token sigue `NO_DATA`: la lectura RAPL devuelve `PermissionError` y no hay contador de tokens correlacionado.
+- Comando exacto para los tres endpoints: `python3 -c 'import datetime as dt,json,urllib.request; print("observed_at="+dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00","Z")); p="/api/tags"; r=urllib.request.urlopen("http://127.0.0.1:11434"+p,timeout=3); print(p+" HTTP "+str(r.status)+" models="+str(len(json.load(r).get("models",[])))); r=urllib.request.urlopen("http://127.0.0.1:11434/api/version",timeout=3); print("/api/version HTTP "+str(r.status)); r=urllib.request.urlopen("http://127.0.0.1:8740/",timeout=3); print("PWA / HTTP "+str(r.status))'`.
