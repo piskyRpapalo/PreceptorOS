@@ -30,6 +30,14 @@ The three intents are closed:
 | `QUERY_STATE` | Accepts either a local cartridge `id` (delegated to an injected rack adapter) or a `consulta` (retrieved from the local read-only RAG index, then answered by the local mini-model). RAG returns `MEASURED` only when retrieval and local inference both succeed; otherwise it returns `NO_DATA` with cause. The app does not calculate lifecycle, combat, cooldown behavior, or game results. |
 | `UPDATE_RAG` | Always returns cause-bearing `NO_DATA` from chat. RAG writes require a separately attached, signed `frontera.py` adapter; no chat request writes data. |
 
+Every response includes a deterministic `motivo` code and `habla` utterance
+selected from the exact `(intent, estado)` pair. The web client may speak the
+fixed utterance; this contract does not synthesize audio or let model text
+choose the status. The pair list has a 1:1 parity check against
+[orquestador-respuesta.schema.json](orquestador-respuesta.schema.json), which
+is the response contract. `NO_DATA` carries a concrete `causa`; `STALE` uses
+its fixed utterance and carries the rack observation as `dato`.
+
 The language/math card schema is [ficha_cartucho.schema.json](ficha_cartucho.schema.json).
 It carries the closed verbs, measures and their stamps/causes, postures,
 `cooldown_ticks`, and `ram_bytes`. The full compact label includes the web

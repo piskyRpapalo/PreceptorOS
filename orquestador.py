@@ -11,6 +11,7 @@ from pathlib import Path
 
 import estado_compacto
 import ficha_cartucho
+import gramatica_acustica
 
 ESQUEMA = "preceptoros.orquestador/1"
 INTENTS = frozenset({"DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG"})
@@ -97,14 +98,15 @@ def _manifiesto(m):
 
 def _respuesta(intent, estado, causa=None, **campos):
     r = {"esquema": ESQUEMA, "intent": intent, "estado": estado,
-         "causa": causa, **campos}
+         "causa": causa, **gramatica_acustica.frase(intent, estado), **campos}
     try:
         raw = estado_compacto.serializar_objeto(r)
     except (TypeError, ValueError, UnicodeError):
         raw = b""
     if len(raw) >= TOPE_B:
         return {"esquema": ESQUEMA, "intent": intent, "estado": "NO_DATA",
-                "causa": "respuesta de 1.024 B o mayor; rechazo entero"}
+                "causa": "respuesta de 1.024 B o mayor; rechazo entero",
+                **gramatica_acustica.frase(intent, "NO_DATA")}
     return r
 
 
