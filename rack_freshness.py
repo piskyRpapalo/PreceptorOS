@@ -29,12 +29,13 @@ def freshness(state, observed_at, now=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--observed-at", required=True, type=parse_utc)
-    parser.add_argument("--now", type=parse_utc, default=lambda: dt.datetime.now(dt.timezone.utc))
+    parser.add_argument("--now", type=parse_utc)
     args = parser.parse_args()
-    state = freshness("LIVE", args.observed_at, args.now)
+    now = args.now or dt.datetime.now(dt.timezone.utc)
+    state = freshness("LIVE", args.observed_at, now)
     print(json.dumps({"state": state, "ttl_days": TTL_DAYS,
                       "observed_at": args.observed_at.isoformat().replace("+00:00", "Z"),
-                      "evaluated_at": args.now.isoformat().replace("+00:00", "Z")},
+                      "evaluated_at": now.isoformat().replace("+00:00", "Z")},
                      sort_keys=True))
 
 

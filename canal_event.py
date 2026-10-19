@@ -6,6 +6,8 @@ from datetime import datetime
 
 MAX_EVENT_BYTES = 1024
 STAMPS = {"LIVE", "STALE", "STATIC", "SIMULATED", "NO_DATA", "ERROR"}
+UTC_TIMESTAMP = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 
 
 class EventRejected(ValueError):
@@ -42,7 +44,7 @@ def validate_event(raw):
     if not isinstance(event["ancla"], str) or not re.fullmatch(
             r"[0-9a-f]{64}", event["ancla"]):
         raise EventRejected("ancla must be a lowercase SHA-256 digest")
-    if not isinstance(event["utc"], str) or not event["utc"].endswith("Z"):
+    if not isinstance(event["utc"], str) or not UTC_TIMESTAMP.fullmatch(event["utc"]):
         raise EventRejected("utc must be an ISO-8601 UTC timestamp")
     try:
         datetime.fromisoformat(event["utc"][:-1] + "+00:00")

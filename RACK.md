@@ -47,4 +47,3 @@ Measured or NO_DATA.
 `TTL_DAYS = 7` (entero exacto; 604800 segundos). En cada lectura, una observación cuyo sello guardado sea `LIVE` pasa automáticamente a `STALE` cuando su edad alcanza 604800 segundos. La función pura vive en `rack_freshness.py`; invocación: `python3 rack_freshness.py --observed-at <ISO-8601-UTC>`. La transición es de lectura y no reescribe el recibo firmado. `NO_DATA`, `STATIC`, `SIMULATED` y `ERROR` conservan su estado y causa.
 
 Recibo de esta sesión: `NO_DATA` para los endpoints locales de inferencia y PWA, causa: la política de sockets del sandbox bloqueó las conexiones loopback. Rutas sysfs y comandos medidos están en el PR del LAB; este entorno no certifica el estado live de la máquina física fuera del sandbox.
-
