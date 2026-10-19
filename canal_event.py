@@ -4,7 +4,7 @@ import json
 import re
 from datetime import datetime
 
-MAX_EVENT_BYTES = 1024
+MAX_EVENT_BYTES = 1024  # exclusive: the house ceiling is < 1,024 B (RC-07, FIRMO r362)
 STAMPS = {"LIVE", "STALE", "STATIC", "SIMULATED", "NO_DATA", "ERROR"}
 
 
@@ -25,8 +25,8 @@ def validate_event(raw):
     """Return the validated event; reject the complete input on every failure."""
     if not isinstance(raw, (bytes, bytearray)):
         raise EventRejected("event must arrive as bytes")
-    if len(raw) > MAX_EVENT_BYTES:
-        raise EventRejected("event exceeds 1024 UTF-8 bytes; rejected whole")
+    if len(raw) >= MAX_EVENT_BYTES:
+        raise EventRejected("event reaches 1024 UTF-8 bytes; the ceiling is < 1024; rejected whole")
     try:
         text = bytes(raw).decode("utf-8", errors="strict")
         event = json.loads(text, object_pairs_hook=_unique_object,

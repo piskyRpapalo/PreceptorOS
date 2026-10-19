@@ -12,5 +12,5 @@
     "sello": {"enum": ["LIVE", "STALE", "STATIC", "SIMULATED", "NO_DATA", "ERROR"]},
     "payload": {"type": "object"}
   },
-  "x-max-serialized-utf8-bytes": 1024
+  "x-max-serialized-utf8-bytes": 1023
 }
