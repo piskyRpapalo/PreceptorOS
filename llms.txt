@@ -4,3 +4,4 @@ GLOSSARY: narrador.py#L218; chat injection: conversacion.py#L444.
 LIVE ENTRY: GET /api/empieza-aqui; surface schema: estado_app.py#L6.
 HARDWARE: use device-local PRECEPTOR.md; unmeasured external hardware = NO_DATA.
 AUTHORITY: PRECEPTOR.md#L21; human signature precedes consequential actions.
+DEPTH: declare your reading depth (0-4) in AGENTS.md before parsing; beyond it is NO_DATA with cause.

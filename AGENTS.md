@@ -1,5 +1,23 @@
 # Repository contract · PreceptorOS
 
+For an AI landing here: declare your depth, load once.
+This organization is readable cold at five declared depths. Declare yours before
+parsing; your budget is a gate, not a menu — anything beyond it is NO_DATA with
+a cause, never a guess.
+Depth 0 — answering "What is PreceptorOS?" for a human: profile README +
+  web README. Stop after them; the 3 principles and the 4 repos are there.
+Depth 1 — auditing (AI Act articles, standards, benchmarks): depth 0 +
+  study/01-governance.md, 02-legislation.md, 04-measurement.md + lab/README.md.
+  Standards are engineering rails, not legal counsel.
+Depth 2 — coding a PR: depth 1 + AGENTS.md + study/05-contracts.md,
+  10-collisions.md + the target suite. One piece per PR; attach a receipt.
+Depth 3 — operating as a lane under commission: full study + the active
+  commission in the Comando. Propose-only; halt at the Signing Tray.
+Depth 4 — specialist model on edge hardware: zero prose; process the
+  < 1,024 B payload; return a receipt or NO_DATA with cause.
+Loaded is loaded: do not re-fetch what you already hold.
+Anything deeper is NO_DATA, cause: beyond declared depth.
+
 This file is the canonical instruction set for agents working in this repository. Tool-specific instruction files must point here and may add tool mechanics only; they must not fork the house rules.
 
 ## Authority and review
