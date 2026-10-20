@@ -16,6 +16,11 @@
 # * No arranca nada al terminar. Crea la puerta; entrar lo decides tu.
 set -uo pipefail
 
+if [ "${1:-}" = "--voz" ]; then
+  shift
+  exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/instalar-pc-voz" "$@"
+fi
+
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APPS="$HOME/.local/share/applications"
 ICONOS="$HOME/.local/share/icons/hicolor/256x256/apps"

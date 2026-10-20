@@ -11,6 +11,13 @@
 # Sin voz disponible: NO_DATA con causa, nunca se bloquea la instalación.
 set -uo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MODO_SECO=0
+for argumento in "$@"; do
+  case "$argumento" in
+    --dry-run) MODO_SECO=1 ;;
+    *) printf 'Opción no reconocida: %s\n' "$argumento" >&2; exit 2 ;;
+  esac
+done
 
 # --- helpers de salida ------------------------------------------------------
 az()   { printf '\033[38;5;141m··\033[0m %s\n' "$1"; }
@@ -20,6 +27,7 @@ muere(){ printf '\n✗ %s\n' "$1" >&2; exit 1; }
 # --- la garganta: decir un texto (voz local, nunca red) ----------------------
 decir() {
   local texto="$1" salida
+  if [ "${PRECEPTOROS_VOICE_SILENT:-0}" = "1" ]; then printf '%s\n' "$texto"; return 0; fi
   salida="$(mktemp /tmp/preceptoros-voz-XXXXXX.wav)"
   if python3 -c "import sys; sys.path.insert(0, '$AQUI'); import voz; r = voz.hablar(sys.argv[1], sys.argv[2]); sys.exit(0 if r else 1)" "$texto" "$salida" 2>/dev/null && [ -s "$salida" ]; then
     if command -v paplay >/dev/null 2>&1; then paplay "$salida" 2>/dev/null
@@ -63,6 +71,12 @@ else
   muere "sin producto que instalar"
 fi
 az "1 · Modo detectado: $MODO"
+
+if [ "$MODO_SECO" -eq 1 ]; then
+  decir "Ensayo sin cambios. El instalador normal sería el siguiente paso y requiere tu confirmación."
+  printf 'DRY_RUN · no se han creado archivos ni se ha ejecutado el instalador\n'
+  exit 0
+fi
 
 # --- paso 2: instalar (delega al instalador real, anunciado) ----------------
 confirmar "Voy a crear el icono en tu menú de aplicaciones. ¿Firmas la instalación?"

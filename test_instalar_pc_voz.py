@@ -65,6 +65,29 @@ class InstalarPcVozTests(unittest.TestCase):
         pasos = src.count("az \"")
         self.assertGreaterEqual(pasos, 3, "faltan anuncios de pasos")
 
+    def test_voz_dry_run_es_explicito_y_no_escribe(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as home:
+            env = dict(os.environ, HOME=home, PRECEPTOROS_VOICE_SILENT="1")
+            result = subprocess.run(
+                [str(ROOT / "bin/instalar-pc"), "--voz", "--dry-run"],
+                cwd=ROOT, env=env, text=True, capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("DRY_RUN", result.stdout)
+            self.assertFalse((Path(home) / ".local").exists())
+
+    def test_voz_rechaza_opcion_desconocida(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as home:
+            env = dict(os.environ, HOME=home, PRECEPTOROS_VOICE_SILENT="1")
+            result = subprocess.run(
+                [str(ROOT / "bin/instalar-pc"), "--voz", "--unknown"],
+                cwd=ROOT, env=env, text=True, capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("opción", result.stderr.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
