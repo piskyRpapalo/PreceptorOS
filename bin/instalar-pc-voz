@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# instalar-pc-voz · instalación guiada por voz para preceptores y usuarios.
+# Parte del objetivo central del Soberano: una persona ciega descarga y
+# configura la app con ayuda de un agente en el rack (A11Y plug&play).
+#
+# ES: bin/instalar-pc --voz — el instalador normal, anunciado paso a paso.
+# NO ES: firma automática. Cada paso consequential espera confirmación
+# hablada ("sí" / "no") y, para cambios en el sistema, el FIRMO del Soberano.
+#
+# Voz: usa voz.py (Piper local) si existe; si no, espeak-ng; si no, texto.
+# Sin voz disponible: NO_DATA con causa, nunca se bloquea la instalación.
+set -uo pipefail
+AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# --- helpers de salida ------------------------------------------------------
+az()   { printf '\033[38;5;141m··\033[0m %s\n' "$1"; }
+nota() { printf '\033[38;5;103m   %s\033[0m\n' "$1"; }
+muere(){ printf '\n✗ %s\n' "$1" >&2; exit 1; }
+
+# --- la garganta: decir un texto (voz local, nunca red) ----------------------
+decir() {
+  local texto="$1" salida
+  salida="$(mktemp /tmp/preceptoros-voz-XXXXXX.wav)"
+  if python3 -c "import sys; sys.path.insert(0, '$AQUI'); import voz; r = voz.hablar(sys.argv[1], sys.argv[2]); sys.exit(0 if r else 1)" "$texto" "$salida" 2>/dev/null && [ -s "$salida" ]; then
+    if command -v paplay >/dev/null 2>&1; then paplay "$salida" 2>/dev/null
+    elif command -v aplay >/dev/null 2>&1; then aplay -q "$salida" 2>/dev/null
+    elif command -v ffplay >/dev/null 2>&1; then ffplay -nodisp -autoexit -loglevel quiet "$salida" 2>/dev/null
+    else printf '%s\n' "$texto"; fi
+    rm -f "$salida"
+  elif command -v espeak-ng >/dev/null 2>&1; then
+    espeak-ng -v es "$texto" 2>/dev/null || printf '%s\n' "$texto"
+  elif command -v espeak >/dev/null 2>&1; then
+    espeak -v es "$texto" 2>/dev/null || printf '%s\n' "$texto"
+  else
+    printf '%s\n' "$texto"  # NO_DATA: sin voz local; cae a texto, nunca bloquea
+  fi
+}
+
+# --- confirmación hablada: consequential espera "sí" -------------------------
+confirmar() {
+  local pregunta="$1" respuesta
+  decir "$pregunta. Responde sí o no."
+  read -r -p "¿Continuamos? [s/N] " respuesta
+  case "${respuesta,,}" in
+    s|sí|si|y|yes) return 0 ;;
+    *) decir "Cancelado. Nada ha cambiado."; exit 0 ;;
+  esac
+}
+
+# --- paso 0: bienvenida ------------------------------------------------------
+decir "Bienvenido a PreceptorOS. Te guiaré paso a paso. Tu memoria vive en un solo archivo que puedes llevarte."
+az "0 · Bienvenida anunciada"
+
+# --- paso 1: detectar modo (repositorio o ejecutable) -----------------------
+if [ -f "$AQUI/bin/preceptoros-servicio" ] && [ -f "$AQUI/preceptoros.py" ]; then
+  MODO="repositorio"
+  decir "Encontré el repositorio. Instalaré el acceso desde el código fuente."
+elif [ -x "$AQUI/dist/preceptoros" ]; then
+  MODO="ejecutable"
+  decir "Encontré el ejecutable. Instalaré el acceso al binario."
+else
+  decir "No encuentro ni el repositorio ni el ejecutable. Descarga PreceptorOS primero."
+  muere "sin producto que instalar"
+fi
+az "1 · Modo detectado: $MODO"
+
+# --- paso 2: instalar (delega al instalador real, anunciado) ----------------
+confirmar "Voy a crear el icono en tu menú de aplicaciones. ¿Firmas la instalación?"
+decir "Instalando. Un momento."
+if ! bash "$AQUI/bin/instalar-pc" >/tmp/preceptoros-instalar.log 2>&1; then
+  decir "La instalación falló. Reviso el registro."
+  muere "instalar-pc devolvió error (ver /tmp/preceptoros-instalar.log)"
+fi
+az "2 · Icono instalado"
+decir "Listo. Busca PreceptorOS en el menú de aplicaciones. Al abrirlo, la cara arranca en tu navegador local."
+
+# --- paso 3: siguiente paso sugerido (nunca firma por ti) -------------------
+decir "Cuando abras la app, te pedirá declarar tu soberanía y vincular tu nodo. Eso es una firma: la decides tú, no yo."
+nota "Firma por voz disponible: di tu código de vínculo al agente del rack."
+nota "Sin voz local: todo cayó a texto. La instalación igualmente quedó hecha."
+
+printf '\n\033[1mListo por voz.\033[0m Icono en el menú · estado en ~/.preceptoros/\n\n'

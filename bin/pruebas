@@ -272,7 +272,12 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # cerrado; el orquestador contesta con su voz y por tuberia; registro
           # en solo lectura; tok/s solo medido; LoRA solo con hash. Con su
           # `--sabotaje`.
-          test_lab)
+          test_lab
+          # test_instalar_pc_voz: el instalador guiado por voz (A11Y plug&play).
+          # La voz nunca firma sola: dice, confirma, y delega en instalar-pc;
+          # sin Piper ni espeak cae a texto y NO_DATA nunca bloquea. Entra en
+          # su MISMO commit: el guardian de test_superficie no admite otra cosa.
+          test_instalar_pc_voz)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done
