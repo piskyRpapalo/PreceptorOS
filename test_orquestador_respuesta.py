@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 
+import audio_feedback
 import estado_compacto
 from orquestador import ESQUEMA, enrutar
 from test_ficha_cartucho import manifiesto
@@ -58,6 +59,72 @@ class ContratoRespuestaTests(unittest.TestCase):
         base = {"esquema": ESQUEMA, "intent": "UPDATE_RAG", "estado": "NO_DATA", "causa": None}
         self.assertTrue(list(validator.iter_errors(base)))
         self.assertTrue(list(validator.iter_errors({**base, "causa": "blocked", "habla": "invented"})))
+
+
+class ProyeccionAcusticaTests(unittest.TestCase):
+    def test_tres_verbos_y_cuatro_estados_coinciden_con_la_gramatica(self):
+        expected = {
+            ("DEPLOY_BUILDING", "MEASURED"): (220.0, 440.0, 20, 0.28, False),
+            ("DEPLOY_BUILDING", "PROPOSED"): (220.0, 440.0, 35, 0.28, True),
+            ("DEPLOY_BUILDING", "STALE"): (220.0, 110.0, 60, 0.5, False),
+            ("DEPLOY_BUILDING", "NO_DATA"): (220.0, 308.0, 180, 0.4, False),
+            ("QUERY_STATE", "MEASURED"): (277.18, 554.36, 20, 0.28, False),
+            ("QUERY_STATE", "PROPOSED"): (277.18, 554.36, 35, 0.28, True),
+            ("QUERY_STATE", "STALE"): (277.18, 138.59, 60, 0.5, False),
+            ("QUERY_STATE", "NO_DATA"): (277.18, 388.05, 180, 0.4, False),
+            ("UPDATE_RAG", "MEASURED"): (369.99, 739.98, 20, 0.28, False),
+            ("UPDATE_RAG", "PROPOSED"): (369.99, 739.98, 35, 0.28, True),
+            ("UPDATE_RAG", "STALE"): (369.99, 185.0, 60, 0.5, False),
+            ("UPDATE_RAG", "NO_DATA"): (369.99, 517.99, 180, 0.4, False),
+        }
+        labels = {"DEPLOY_BUILDING": "Deploy", "QUERY_STATE": "State", "UPDATE_RAG": "Sources"}
+        verbs = {"DEPLOY_BUILDING": "deploy", "QUERY_STATE": "state", "UPDATE_RAG": "rag"}
+        states = {
+            "MEASURED": "measured", "PROPOSED": "proposed, waits a signature",
+            "STALE": "stale", "NO_DATA": "NO_DATA",
+        }
+        for (intent, state), motif in expected.items():
+            with self.subTest(intent=intent, state=state):
+                result = audio_feedback.project({"intent": intent, "estado": state, "causa": None})
+                self.assertEqual(result["verbo"], verbs[intent])
+                self.assertEqual(result["estado"], state)
+                self.assertEqual(set(result), {
+                    "verbo", "estado", "sonido", "sonido_causa", "motivo", "texto", "causa"
+                })
+                self.assertEqual(tuple(result["motivo"].values()), motif)
+                suffix = " (cause not declared by the caller)" if state == "NO_DATA" else ""
+                self.assertEqual(result["texto"], labels[intent] + ": " + states[state] + suffix)
+                self.assertEqual(result["sonido"], "INACTIVO")
+
+    def test_causa_no_data_y_salida_acustica_no_conectada(self):
+        result = audio_feedback.project({
+            "intent": "UPDATE_RAG", "estado": "NO_DATA", "causa": "local adapter is not attached",
+        })
+        self.assertEqual(result["causa"], "local adapter is not attached")
+        self.assertIn("(local adapter is not attached)", result["texto"])
+        self.assertEqual(result["sonido_causa"], "sound is off until you turn it on")
+        missing = audio_feedback.project({"intent": "UPDATE_RAG", "estado": "NO_DATA", "causa": None})
+        self.assertEqual(missing["causa"], "cause not declared by the caller")
+
+    def test_seis_entradas_sabotaje_rechazadas(self):
+        invalid = (
+            None, [],
+            {"intent": "WRITE_STATE", "estado": "MEASURED", "causa": None},
+            {"intent": "QUERY_STATE", "estado": "UNKNOWN", "causa": None},
+            {"intent": 7, "estado": "MEASURED", "causa": None},
+            {"intent": "QUERY_STATE", "estado": ["MEASURED"], "causa": None},
+        )
+        self.assertEqual(len(invalid), 6)
+        for value in invalid:
+            with self.subTest(value=value):
+                self.assertIsNone(audio_feedback.project(value))
+
+    def test_repeticion_y_techo_de_canal(self):
+        response = {"intent": "DEPLOY_BUILDING", "estado": "PROPOSED", "causa": None}
+        first = audio_feedback.project(response)
+        self.assertEqual(first, audio_feedback.project(response))
+        encoded = json.dumps(first, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        self.assertLess(len(encoded), 1024)
 
 
 if __name__ == "__main__":
