@@ -117,6 +117,26 @@ class MCPPuente(unittest.TestCase):
         self.assertIsNone(rejected)
         self.assertIn("1024-byte", reason)
 
+    def test_cell_initializes_local_memory_and_reports_listener_no_data(self):
+        import preceptor_cell as cell
+        with tempfile.TemporaryDirectory() as folder:
+            home = Path(folder) / ".preceptoros"
+            result = cell.initialize(home)
+            self.assertEqual(result["estado"], "READY")
+            self.assertEqual(result["listener"]["estado"], "NO_DATA")
+            self.assertTrue((home / "memory.db").is_file())
+            self.assertEqual(oct(home.stat().st_mode)[-3:], "700")
+            again = cell.initialize(home)
+            self.assertEqual(again["estado"], "READY")
+
+    def test_cell_check_is_read_only_and_has_no_network_import(self):
+        import preceptor_cell as cell
+        result = cell.check()
+        source = (AQUI / "preceptor_cell.py").read_text(encoding="utf-8")
+        self.assertEqual(result["estado"], "READY")
+        self.assertNotIn("import http", source)
+        self.assertNotIn("import socket", source)
+
     def test_sin_socket_ni_red(self):
         py = (AQUI / "atlas_runner.py").read_text(encoding="utf-8")
         server = (AQUI / "mcp_thegame_server.py").read_text(encoding="utf-8")
