@@ -243,5 +243,55 @@ class CuentaAgente(unittest.TestCase):
         self.assertEqual(transitioned["fase"], "errante")
 
 
+class AduanaAgente(unittest.TestCase):
+    def setUp(self):
+        import customs_agente as customs
+        self.customs = customs
+        self.d = Path(tempfile.mkdtemp())
+        fingerprint, self.private = CC.generar_par(persistente=True, directorio=self.d / "agent")
+        self.key_dir = Path(self.private).parent
+        _, self.other_private = CC.generar_par(persistente=True, directorio=self.d / "other")
+        _, self.sovereign = CC.generar_par(persistente=True, directorio=self.d / "sovereign")
+        public = Path(self.sovereign + ".pub").read_text().split()
+        self.signers = self.d / "allowed_signers"
+        self.signers.write_text(f'soberano namespaces="preceptoros-account" {public[0]} {public[1]}\n')
+        account = CC.crear_cuenta("puente", "nodo.1.edge", ["herramientas"], fingerprint)
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "account"
+            source.write_bytes(CC._account_payload(account))
+            subprocess.run(["ssh-keygen", "-q", "-Y", "sign", "-n", CC.ACCOUNT_NAMESPACE, "-f", self.sovereign, str(source)], check=True)
+            signature = source.with_name("account.sig").read_text()
+        self.account = CC.activar_cuenta(account, signature, self.signers)
+        self.payload = b'{"esquema":"atlas.accion/1","accion":"esperar","origen":"agente"}'
+        self.signature = CC.firmar(self.payload, self.private)
+
+    def tearDown(self):
+        shutil.rmtree(self.d)
+
+    def test_valid_signature_accepts_and_tampered_signature_rejects(self):
+        result = self.customs.verificar_entrada(self.account, self.signature, self.payload, self.signers, self.key_dir)
+        self.assertEqual(result["estado"], "ACEPTADO", result)
+        invalid_signature = CC.firmar(self.payload, self.other_private)
+        result = self.customs.verificar_entrada(self.account, invalid_signature, self.payload, self.signers, self.key_dir)
+        self.assertEqual(result["estado"], "RECHAZADA")
+
+    def test_missing_account_bad_shape_oversize_and_scope_reject(self):
+        self.assertEqual(self.customs.verificar_entrada(None, "", self.payload)["estado"], "NO_DATA")
+        self.assertEqual(self.customs.validar_payload(self.payload + b" " * 1024)["estado"], "RECHAZADA")
+        self.assertEqual(self.customs.validar_payload(b'{"esquema":"other/1"}')["estado"], "RECHAZADA")
+        self.assertEqual(self.customs.verificar_entrada({**self.account, "estado": "revocado"}, self.signature, self.payload, self.signers, self.key_dir)["estado"], "RECHAZADA")
+        narrow = {**self.account, "ambito": ["memoria_compartida"]}
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "account"
+            source.write_bytes(CC._account_payload(narrow))
+            subprocess.run(["ssh-keygen", "-q", "-Y", "sign", "-n", CC.ACCOUNT_NAMESPACE, "-f", self.sovereign, str(source)], check=True)
+            narrow["firma_ssh"] = source.with_name("account.sig").read_text()
+        self.assertEqual(self.customs.verificar_entrada(narrow, self.signature, self.payload, self.signers, self.key_dir)["estado"], "RECHAZADA")
+
+    def test_entry_receipt_uses_append_only_channel(self):
+        result = self.customs.registrar_entrada(self.account, "esperar", {"estado": "ACEPTADO"}, self.d / "home")
+        self.assertEqual(result["estado"], "REGISTRADO")
+
+
 if __name__ == "__main__":
     unittest.main()
