@@ -204,6 +204,28 @@ What is verified and what is **not**: [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRIT
 Third mission close-out: [CIERRE_M3.md](CIERRE_M3.md). Pragmas that switch a
 guard off: [EXCEPCIONES.md](EXCEPCIONES.md).
 
+## The doctrine shelf (signed orientation, objectives, architectural limits)
+
+These are the pages that define **what the product is, what it may do, and
+where it must stop**. They are signed or closed canon; read them before
+proposing anything that touches character, levels, or sovereignty:
+
+- [ARQUETIPO.md](ARQUETIPO.md) — the character of PreceptorOS (signed 2026-08-18).
+  What it is, what it is not, and why it is short on purpose.
+- [docs/CANON_NIVELES.md](docs/CANON_NIVELES.md) — the four levels, closed
+  definition. Level 1 is local inference, not external APIs; the contradiction
+  is settled here so it cannot live in two prompts.
+- [docs/SOBERANIA.md](docs/SOBERANIA.md) — the sovereignty layers (0 Sanctuary,
+  1 Harness, 2 Expansion). The product ships at level 0 and never raises
+  itself; `soberania.py` is the mechanism and `test_soberania.py` proves the
+  page and the code agree.
+- [LIMITES_DEL_CRITERIO.md](LIMITES_DEL_CRITERIO.md) — what the 10 M3 criteria
+  prove, what they do not, and what stayed red without a known cause.
+- [docs/COMPASS.md](docs/COMPASS.md) — the Learning Compass: a sensor of
+  `memory.db`, never an actuator. It reads and points; it never writes.
+- [CIERRE_M3.md](CIERRE_M3.md) — the signed close-out of the third mission
+  (2026-08-16): what was built, what is verified, what M4 still owes.
+
 ## Lore names (kept in Spanish)
 
 Some names stay in Spanish because that is how they were created. They are
