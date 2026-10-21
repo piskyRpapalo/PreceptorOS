@@ -9,6 +9,7 @@ from pathlib import Path
 
 import nodo_app as NA
 import soberano
+import cuenta_cangrejo as CC
 
 MIA, OTRA, TERCERA = "a1" * 32, "b2" * 32, "c3" * 32
 
@@ -197,6 +198,49 @@ class CedulaFirmada(unittest.TestCase):
     def test_sin_signers_no_data_con_causa(self):
         r = NA.lee(self.firmada(cedula([(MIA, "linkeado")])), soberano.codigo_de(MIA), signers=self.d / "no-existe")
         self.assertTrue(r["autenticidad"].startswith("NO_DATA")); self.assertIn("allowed_signers", r["autenticidad"])
+
+
+@unittest.skipUnless(shutil.which("ssh-keygen"), "NO_DATA: ssh-keygen unavailable")
+class CuentaAgente(unittest.TestCase):
+    def setUp(self):
+        self.d = Path(tempfile.mkdtemp())
+        self.public_fingerprint, self.private = CC.generar_par(persistente=True, directorio=self.d / "keys")
+        self.public = Path(self.private + ".pub")
+        _, self.sovereign = CC.generar_par(persistente=True, directorio=self.d / "sovereign")
+        key = Path(self.sovereign + ".pub").read_text().split()
+        self.signers = self.d / "allowed_signers"
+        self.signers.write_text(f'soberano namespaces="preceptoros-account" {key[0]} {key[1]}\n')
+
+    def tearDown(self):
+        shutil.rmtree(self.d)
+
+    def test_ed25519_firma_y_verificacion(self):
+        payload = b'{"scope":"herramientas"}'
+        account = CC.crear_cuenta("puente", "nodo.1.edge", ["herramientas"], self.public_fingerprint)
+        signature = CC.firmar(payload, self.private)
+        self.assertEqual(CC.verificar_firma(account, signature, payload, self.public)["estado"], "OK")
+        self.assertEqual(CC.verificar_firma(account, signature, payload + b"x", self.public)["estado"], "RECHAZADA")
+
+    def test_scope_expiry_and_invalid_account_fail_closed(self):
+        account = CC.crear_cuenta("puente", "nodo.1.edge", ["herramientas"], self.public_fingerprint)
+        self.assertEqual(account["estado"], "solicitado")
+        self.assertIsNotNone(account["caduca_utc"])
+        self.assertEqual(CC.verificar_cuenta({**account, "estado": "revocado"}, self.d / "missing")["estado"], "RECHAZADA")
+        with self.assertRaises(ValueError):
+            CC.crear_cuenta("errante", "nodo.1.edge", ["unknown"], self.public_fingerprint)
+
+    def test_phase_transition_needs_valid_signature(self):
+        account = CC.crear_cuenta("puente", "nodo.1.edge", ["herramientas"], self.public_fingerprint)
+        self.assertEqual(CC.cambiar_fase(account, "errante")["estado"], "RECHAZADA")
+        target = dict(account, fase="errante", caduca_utc=None)
+        payload = CC._account_payload(target)
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "account"
+            source.write_bytes(payload)
+            subprocess.run(["ssh-keygen", "-q", "-Y", "sign", "-n", CC.ACCOUNT_NAMESPACE, "-f", self.sovereign, str(source)], check=True)
+            signature = source.with_name("account.sig").read_text()
+        transitioned = CC.cambiar_fase(account, "errante", signature, self.signers)
+        self.assertEqual(transitioned["fase"], "errante")
 
 
 if __name__ == "__main__":
