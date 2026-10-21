@@ -4,14 +4,15 @@ import sys
 PROTOCOL = "2026-07-28"
 LIMIT = 1024
 TOOLS = [
-    {"name": "leer_estado", "description": "Read the local node snapshot.", "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}},
-    {"name": "proponer_accion", "description": "Propose a game action without executing it.", "inputSchema": {"type": "object", "properties": {"instantanea": {"type": "object"}}, "required": ["instantanea"], "additionalProperties": False}},
-    {"name": "consultar_piloto", "description": "Ask the fixed game pilot for a suggested action.", "inputSchema": {"type": "object", "properties": {"instantanea": {"type": "object"}}, "required": ["instantanea"], "additionalProperties": False}},
-    {"name": "leer_canal", "description": "Read an append-only conversation channel.", "inputSchema": {"type": "object", "properties": {"canal": {"type": "string"}, "desde": {"type": "integer", "minimum": 0}}, "required": ["canal"], "additionalProperties": False}},
-    {"name": "escribir_canal", "description": "Append an agent message to a conversation channel.", "inputSchema": {"type": "object", "properties": {"canal": {"type": "string"}, "voz": {"type": "string"}, "texto": {"type": "string"}}, "required": ["canal", "voz", "texto"], "additionalProperties": False}},
-    {"name": "verificar_cuenta", "description": "Verify an agent account record.", "inputSchema": {"type": "object", "properties": {"cuenta": {"type": "object"}}, "required": ["cuenta"], "additionalProperties": False}},
-    {"name": "consultar_politica", "description": "Read the local node policy.", "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}},
+    {"name": "leer_estado", "inputSchema": {"type": "object"}},
+    {"name": "proponer_accion", "inputSchema": {"type": "object", "properties": {"instantanea": {"type": "object"}}, "required": ["instantanea"]}},
+    {"name": "consultar_piloto", "inputSchema": {"type": "object", "properties": {"instantanea": {"type": "object"}}, "required": ["instantanea"]}},
+    {"name": "leer_canal", "inputSchema": {"type": "object", "properties": {"canal": {"type": "string"}, "desde": {"type": "integer"}}, "required": ["canal"]}},
+    {"name": "escribir_canal", "inputSchema": {"type": "object", "properties": {"canal": {"type": "string"}, "voz": {"type": "string"}, "texto": {"type": "string"}}, "required": ["canal", "voz", "texto"]}},
+    {"name": "verificar_cuenta", "inputSchema": {"type": "object", "properties": {"cuenta": {"type": "object"}}, "required": ["cuenta"]}},
+    {"name": "consultar_politica", "inputSchema": {"type": "object"}},
 ]
+POLICY_CONDITIONS = {"registro_deudas", "freno_hidraulico", "fork_politico", "colateral_entrada", "cooperacion_obligatoria", "sandbox_wasmtime"}
 
 
 def _bytes(value):
@@ -20,6 +21,26 @@ def _bytes(value):
 
 def _error(code, message):
     return {"code": code, "message": message}
+
+
+def _read_policy():
+    from pathlib import Path
+    path = Path(__file__).parent / "politica_nodo.json"
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        return None, "node policy is unavailable"
+    if len(raw) >= LIMIT:
+        return None, "node policy reaches the 1024-byte ceiling"
+    try:
+        value = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        return None, "node policy is invalid JSON"
+    if (not isinstance(value, dict) or set(value) != {"esquema", "version", "nodo", "no_data", "condiciones"}
+            or value.get("esquema") != "preceptoros.politica-nodo/1" or set(value.get("condiciones", {})) != POLICY_CONDITIONS
+            or any(not isinstance(condition, dict) for condition in value["condiciones"].values())):
+        return None, "node policy does not match its closed six-condition contract"
+    return value, None
 
 
 def _call(name, args):
@@ -31,6 +52,10 @@ def _call(name, args):
         result = consola.instantanea(casa.raiz())
     elif name in ("proponer_accion", "consultar_piloto"):
         import aiact_art14_node_decide as pilot
+        if name == "proponer_accion":
+            policy, cause = _read_policy()
+            if policy is None:
+                return {"content": [{"type": "text", "text": _bytes({"estado": "NO_DATA", "causa": cause}).decode()}], "isError": False}
         result = pilot.decide(args.get("instantanea"))
         if name == "proponer_accion" and result.get("estado") == "OK":
             result = {"estado": "PROPUESTA", "accion": result["accion"], "firma": None}
@@ -41,15 +66,13 @@ def _call(name, args):
         import canales
         result = canales.di(args.get("canal"), args.get("voz"), args.get("texto"), sello="PROPUESTA", rol="agente")
     elif name == "verificar_cuenta":
+        import casa
         import cuenta_cangrejo
-        result = cuenta_cangrejo.verificar_cuenta(args.get("cuenta"), [])
+        result = cuenta_cangrejo.verificar_cuenta(args.get("cuenta"), casa.raiz() / "allowed_signers_accounts")
     elif name == "consultar_politica":
-        from pathlib import Path
-        path = Path(__file__).parent / "politica_nodo.json"
-        if not path.is_file():
-            result = {"estado": "NO_DATA", "causa": "node policy file has not been added yet"}
-        else:
-            result = json.loads(path.read_text(encoding="utf-8"))
+        result, cause = _read_policy()
+        if result is None:
+            result = {"estado": "NO_DATA", "causa": cause}
     else:
         raise LookupError("unknown tool")
     if len(_bytes(result)) >= LIMIT:
@@ -79,8 +102,18 @@ def handle(message, initialized=False):
         name = params.get("name") if isinstance(params, dict) else None
         if name not in {tool["name"] for tool in TOOLS}:
             return {"jsonrpc": "2.0", "id": request_id, "error": _error(-32602, "unknown tool")}, initialized
+        required = {"proponer_accion": {"instantanea"}, "consultar_piloto": {"instantanea"},
+                    "leer_canal": {"canal"}, "escribir_canal": {"canal", "voz", "texto"},
+                    "verificar_cuenta": {"cuenta"}}
+        allowed = {"leer_estado": set(), "consultar_politica": set(),
+                   "proponer_accion": {"instantanea"}, "consultar_piloto": {"instantanea"},
+                   "leer_canal": {"canal", "desde"}, "escribir_canal": {"canal", "voz", "texto"},
+                   "verificar_cuenta": {"cuenta"}}
+        arguments = params.get("arguments", {}) if isinstance(params, dict) else None
+        if not isinstance(arguments, dict) or not required.get(name, set()).issubset(arguments) or set(arguments) - allowed[name]:
+            return {"jsonrpc": "2.0", "id": request_id, "error": _error(-32602, "invalid tool arguments")}, initialized
         try:
-            result = _call(name, params.get("arguments", {}))
+            result = _call(name, arguments)
             return {"jsonrpc": "2.0", "id": request_id, "result": result}, initialized
         except (ValueError, TypeError):
             return {"jsonrpc": "2.0", "id": request_id, "error": _error(-32602, "invalid tool arguments")}, initialized

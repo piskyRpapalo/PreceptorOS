@@ -103,6 +103,20 @@ class MCPPuente(unittest.TestCase):
         self.assertEqual(result.failures, [])
         self.assertEqual(result.testsRun, 2)
 
+    def test_policy_closed_and_whole_rejection_at_ceiling(self):
+        import mcp_thegame_server as server
+        policy, cause = server._read_policy()
+        self.assertIsNone(cause)
+        self.assertEqual(set(policy["condiciones"]), server.POLICY_CONDITIONS)
+        original = server.__file__
+        with tempfile.TemporaryDirectory() as folder:
+            server.__file__ = str(Path(folder) / "mcp_thegame_server.py")
+            (Path(folder) / "politica_nodo.json").write_bytes(b" " * 1024)
+            rejected, reason = server._read_policy()
+        server.__file__ = original
+        self.assertIsNone(rejected)
+        self.assertIn("1024-byte", reason)
+
     def test_sin_socket_ni_red(self):
         py = (AQUI / "atlas_runner.py").read_text(encoding="utf-8")
         server = (AQUI / "mcp_thegame_server.py").read_text(encoding="utf-8")
