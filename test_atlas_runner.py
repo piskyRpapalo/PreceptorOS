@@ -89,11 +89,27 @@ class Runner(unittest.TestCase):
         finally:
             shutil.rmtree(tmp)
 
+
+class MCPPuente(unittest.TestCase):
+    def frio(self):
+        return R.Escudo(sensor=lambda: ("cpu", 50.0), dormir=lambda s: None)
+
+    def test_mcp_standalone_suite_is_registered(self):
+        import mcp_thegame_server_cases
+        suite = unittest.defaultTestLoader.loadTestsFromModule(mcp_thegame_server_cases)
+        result = unittest.TestResult()
+        suite.run(result)
+        self.assertEqual(result.errors, [])
+        self.assertEqual(result.failures, [])
+        self.assertEqual(result.testsRun, 2)
+
     def test_sin_socket_ni_red(self):
         py = (AQUI / "atlas_runner.py").read_text(encoding="utf-8")
+        server = (AQUI / "mcp_thegame_server.py").read_text(encoding="utf-8")
         js = (AQUI / "atlas" / "corre.mjs").read_text(encoding="utf-8")
         for prohibido in ("import socket", "urllib", "http.client"):
             self.assertNotIn(prohibido, py)
+            self.assertNotIn(prohibido, server)
         for prohibido in ("node:net", "node:http", "node:https", "fetch(", "WebSocket", "Math.random"):
             self.assertNotIn(prohibido, js)
 
