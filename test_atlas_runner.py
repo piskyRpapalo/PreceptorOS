@@ -89,11 +89,61 @@ class Runner(unittest.TestCase):
         finally:
             shutil.rmtree(tmp)
 
+
+class MCPPuente(unittest.TestCase):
+    def frio(self):
+        return R.Escudo(sensor=lambda: ("cpu", 50.0), dormir=lambda s: None)
+
+    def test_mcp_standalone_suite_is_registered(self):
+        import mcp_thegame_server_cases
+        suite = unittest.defaultTestLoader.loadTestsFromModule(mcp_thegame_server_cases)
+        result = unittest.TestResult()
+        suite.run(result)
+        self.assertEqual(result.errors, [])
+        self.assertEqual(result.failures, [])
+        self.assertEqual(result.testsRun, 2)
+
+    def test_policy_closed_and_whole_rejection_at_ceiling(self):
+        import mcp_thegame_server as server
+        policy, cause = server._read_policy()
+        self.assertIsNone(cause)
+        self.assertEqual(set(policy["condiciones"]), server.POLICY_CONDITIONS)
+        original = server.__file__
+        with tempfile.TemporaryDirectory() as folder:
+            server.__file__ = str(Path(folder) / "mcp_thegame_server.py")
+            (Path(folder) / "politica_nodo.json").write_bytes(b" " * 1024)
+            rejected, reason = server._read_policy()
+        server.__file__ = original
+        self.assertIsNone(rejected)
+        self.assertIn("1024-byte", reason)
+
+    def test_cell_initializes_local_memory_and_reports_listener_no_data(self):
+        import preceptor_cell as cell
+        with tempfile.TemporaryDirectory() as folder:
+            home = Path(folder) / ".preceptoros"
+            result = cell.initialize(home)
+            self.assertEqual(result["estado"], "READY")
+            self.assertEqual(result["listener"]["estado"], "NO_DATA")
+            self.assertTrue((home / "memory.db").is_file())
+            self.assertEqual(oct(home.stat().st_mode)[-3:], "700")
+            again = cell.initialize(home)
+            self.assertEqual(again["estado"], "READY")
+
+    def test_cell_check_is_read_only_and_has_no_network_import(self):
+        import preceptor_cell as cell
+        result = cell.check()
+        source = (AQUI / "preceptor_cell.py").read_text(encoding="utf-8")
+        self.assertEqual(result["estado"], "READY")
+        self.assertNotIn("import http", source)
+        self.assertNotIn("import socket", source)
+
     def test_sin_socket_ni_red(self):
         py = (AQUI / "atlas_runner.py").read_text(encoding="utf-8")
+        server = (AQUI / "mcp_thegame_server.py").read_text(encoding="utf-8")
         js = (AQUI / "atlas" / "corre.mjs").read_text(encoding="utf-8")
         for prohibido in ("import socket", "urllib", "http.client"):
             self.assertNotIn(prohibido, py)
+            self.assertNotIn(prohibido, server)
         for prohibido in ("node:net", "node:http", "node:https", "fetch(", "WebSocket", "Math.random"):
             self.assertNotIn(prohibido, js)
 
