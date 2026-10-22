@@ -137,7 +137,7 @@ AVISO_V="$(python3 -c 'import interprete; print((interprete.aviso() or "").split
 echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
-UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_orquestador_respuesta test_lab_frase test_afinado test_captura test_descarga test_pwa test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts
+UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_orquestador_respuesta test_lab_frase test_afinado test_captura test_descarga test_pwa test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts test_lexical_projection
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_path test_casa test_entorno
           test_compass test_exportar
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
@@ -156,65 +156,9 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # exige que el camino por defecto sea stdlib puro. Entra aqui en su
           # mismo commit por la misma razon: un candado que no corre no cierra.
           test_superficie
-          # test_huella: la Huella Soberana (SHA256). Entra en su mismo commit,
-          # y no por disciplina abstracta -- se comprobo que sin esta linea la
-          # suite existia, pytest la corria y ESTE corredor no, asi que el
-          # numero de arriba habria subido sin cubrirla. Desde el mismo commit
-          # hay un guardian en test_superficie que impide que vuelva a pasar.
-          test_huella
-          # test_metricas: la encontro el guardian el mismo dia que nacio, y
-          # llevaba fuera desde antes. Es la suite del Banco de Pruebas -- las
-          # once cifras que el producto ensena como argumento de confianza --,
-          # o sea que el corredor publicaba un numero que no cubria justo lo
-          # que el producto usa para demostrar que no miente.
-          test_metricas
-          # test_herramientas: la recuperacion que va delante del modelo. Entra
-          # en su mismo commit -- el guardian de test_superficie no admite otra
-          # cosa, y con razon: es la suite que cubre lo que el producto le
-          # cuenta al modelo de la persona.
-          test_herramientas
-          # test_empieza_aqui: LA PUERTA. Es la suite que exige que lo que la
-          # puerta ANUNCIA y lo que la puerta HACE sean la misma lista -- el
-          # unico defecto de una superficie autodescriptiva que no se ve desde
-          # dentro: se ve en la sesion de otro, que no puede arreglarlo. Y con
-          # la llave pegada en la IA de fuera de alguien, ese otro puede ser
-          # cualquiera. Entra en su mismo commit.
-          test_empieza_aqui
-          # test_soberano: quien manda en este aparato. Entra en su mismo
-          # commit -- y sobre todo porque cruza la derivacion del codigo con la
-          # que hace el navegador: dos implementaciones del mismo vinculo que
-          # nadie compare acaban vinculando cosas distintas.
-          test_soberano
-          # test_importar: EL PUENTE DE VUELTA. La web ya escribia los campos
-          # de `captura.turnos` uno a uno para que no hiciera falta traductor,
-          # y aun asi el puente iba en un solo sentido: no habia donde meter lo
-          # corregido al llegar aqui. Entra en su mismo commit, y ademas cruza
-          # con el OTRO repo -- lee `corregir.js` y comprueba que no escribe
-          # ningun campo que este lado tire. Esa comprobacion no puede vivir en
-          # la web (no conoce esta tabla) ni en la cabeza de nadie: un campo que
-          # se pierde callando es como se separan dos esquemas que decian ser
-          # el mismo.
-          test_importar
-          # test_medidas: el medidor de aqui hablando el esquema que la web
-          # publica. Entra en su mismo commit, y como la de al lado cruza con
-          # el OTRO repo: lee el `contrato.obligatorio` de `medidas.json` y
-          # exige que salgan todos sus campos. Un campo obligatorio que la web
-          # anada solo puede verse rojo AQUI -- alli nadie conoce este
-          # traductor.
-          test_medidas
-          # test_cifras: la regla del NO_DATA aplicada a los numeros. Entra en
-          # su mismo commit. Sus casos no son inventados: son las afirmaciones
-          # con las que los adaptadores de La Charla pasaron una corrida entera
-          # en verde -- «el modelo base ocupa unos 200 gigas», que son 4,4.
-          test_cifras
-          # test_compliance: el documento que va a manos de un auditor, atado
-          # al codigo que dice describir. Entra en su mismo commit. Su modo de
-          # fallo no es estar incompleto sino DESACTUALIZARSE sin que nadie lo
-          # note: el dia que alguien renombre `cruzar_frontera`, el documento
-          # sigue diciendo que existe, y eso deja de ser documentacion vieja
-          # para ser una afirmacion falsa por escrito ante quien vino a
-          # comprobarla.
-          test_compliance
+          # Every suite is counted separately; test_superficie catches omissions.
+          test_huella test_metricas test_herramientas test_empieza_aqui test_soberano
+          test_importar test_medidas test_cifras test_compliance
           # test_linea y test_normas: el registro encadenado y la tabla de
           # anclas legislativas. Entran en su mismo commit. La primera lleva
           # dentro la prueba del SABOTEADOR --se manipula una fila por debajo y
