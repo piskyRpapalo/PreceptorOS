@@ -4,6 +4,6 @@ BUDGET: 29850.
 GLOSSARY: narrador.py#L218; chat injection: conversacion.py#L444.
 LIVE ENTRY: GET /api/empieza-aqui; surface schema: estado_app.py#L6.
 HARDWARE: use device-local PRECEPTOR.md; unmeasured external hardware = NO_DATA.
-DEPTH: declare your reading depth (0-4) in AGENTS.md before parsing; beyond it is NO_DATA with cause.
+DEPTH: declare your reading depth (0-4) in AGENTS.md before parsing; beyond declared depth is NO_DATA with cause.
 REREAD: loaded is loaded; do not re-fetch what you already hold.
 DEPTH 2 EXAMPLE: empieza_aqui.py#L213 (self-description); ficha_cartucho.py#L20 (schema validation); exportar_contexto.py#L194 (context export). Reuse loaded files; do not fetch them again.
