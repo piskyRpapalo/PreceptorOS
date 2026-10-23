@@ -593,7 +593,7 @@ PLANTILLA = r"""<!DOCTYPE html>
   .orden { background:var(--losa-800); border:1px solid var(--losa-600); border-radius:9px;
            padding:11px 13px; font:13px/1.5 ui-monospace, monospace; color:var(--texto);
            overflow-x:auto; white-space:pre; }
-  /* El tronco y las paradas. El diseno lineal se rompe a proposito: quien mira
+  /* El nucleo y las paradas. El diseno lineal se rompe a proposito: quien mira
      el Camino tiene que VER que las cinco de abajo no son obligatorias, sin
      leer una palabra. */
   .peldano { display:flex; gap:12px; padding:11px 0 11px 12px;
@@ -968,7 +968,7 @@ function pintarCamino() {
     var id = par[0], como = estado[id] || "sin_empezar";
     var d = document.createElement("div");
     d.className = "peldano";
-    // Tronco o parada, dicho en el propio nodo: el CSS solo pinta lo que el
+    // Nucleo o parada, dicho en el propio nodo: el CSS solo pinta lo que el
     // codigo ya sabe. Si manana cambia el reparto, el dibujo cambia solo.
     d.dataset.rama = (DATOS.camino.opcionales || []).indexOf(id) >= 0
       ? "opcional" : "nucleo";

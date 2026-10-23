@@ -695,7 +695,7 @@ def t30():
         assert f"cm_prueba_{p}" in html, f"{p} no dice que lo da por hecho"
 
 
-@caso("31 · el Camino se ve bifurcado: tronco y paradas, sin leer una palabra")
+@caso("31 · el Camino se ve bifurcado: nucleo y paradas, sin leer una palabra")
 def t31():
     """La modularidad tiene que entrar por los ojos, no por el pie de texto."""
     html, _ = generar(base_con_recuerdos())
@@ -708,7 +708,7 @@ def t31():
     for regla in ('[data-rama="nucleo"]', '[data-rama="opcional"]', ".bifurcacion"):
         assert regla in css, f"falta la regla {regla}"
     assert 'd.dataset.rama' in html, \
-        "el nodo no declara si es tronco o parada: el CSS estaría adivinando"
+        "el nodo no declara si es nucleo o parada: el CSS estaría adivinando"
 
 @caso("32 · un recuerdo no puede salirse del bloque de script")
 def t32():
