@@ -460,7 +460,7 @@ def recuperar(c, consulta, limite=LIMITE, techo=TECHO, idioma=None,
             continue
         if ids is not None:
             # Las partes se construyen EN ORDEN desde `lineas`, asi que la
-            # posicion de cada superviviente indexa su id. Se compara por texto
+            # posicion de cada rotor indexa su id. Se compara por texto
             # y no por indice para no depender de que `_cabe` conserve el orden
             # el dia que alguien lo cambie.
             for k, l in enumerate(lineas):
