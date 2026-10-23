@@ -123,17 +123,8 @@ def handle(message, initialized=False):
 
 
 def main():
-    initialized = False
-    for line in sys.stdin:
-        try:
-            request = json.loads(line)
-            response, initialized = handle(request, initialized)
-        except (ValueError, TypeError):
-            response = {"jsonrpc": "2.0", "id": None, "error": _error(-32700, "parse error")}
-        if response is not None:
-            sys.stdout.write(_bytes(response).decode("utf-8") + "\n")
-            sys.stdout.flush()
-    return 0
+    from mcp_transport import serve
+    return serve(sys.stdin.buffer, sys.stdout.buffer, handle)
 
 
 if __name__ == "__main__":
