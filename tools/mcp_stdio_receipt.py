@@ -59,11 +59,20 @@ def _exchange(process, message, timeout):
 
 
 def _validate_config(config):
-    if (config.get("schema") != "preceptoros.mcp-client-receipt/1"
+    fields = {"schema", "server", "transport", "protocol_version",
+              "request_limit_bytes_including_lf", "bubble_fixture",
+              "bubble_fixture_sha256", "exchange", "tool_calls"}
+    if (not isinstance(config, dict) or set(config) != fields
+            or config.get("schema") != "preceptoros.mcp-client-receipt/1"
             or config.get("server") != "mcp_thegame_server.py"
             or config.get("transport") != "stdio"
+            or config.get("protocol_version") != "2026-07-28"
             or config.get("request_limit_bytes_including_lf") != LIMIT
             or config.get("bubble_fixture") != "tests/fixtures/bubble-frame.json"
+            or not isinstance(config.get("bubble_fixture_sha256"), str)
+            or len(config["bubble_fixture_sha256"]) != 64
+            or any(c not in "0123456789abcdef" for c in config["bubble_fixture_sha256"])
+            or config.get("exchange") != ["initialize", "notifications/initialized", "ping", "tools/list"]
             or config.get("tool_calls") is not False):
         raise ReceiptError("NO_DATA · client launch contract is not the closed declaration")
 
@@ -73,7 +82,7 @@ def run_receipt(command=None, timeout=3):
     _validate_config(config)
     argv = command or [sys.executable, str(ROOT / config["server"])]
     process = subprocess.Popen(argv, cwd=ROOT, stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                bufsize=0)
     sizes = []
     try:
@@ -87,8 +96,8 @@ def run_receipt(command=None, timeout=3):
         result = initialized.get("result", {})
         if result.get("protocolVersion") != config["protocol_version"]:
             raise ReceiptError("NO_DATA · protocol version mismatch")
-        if not isinstance(result.get("serverInfo"), dict):
-            raise ReceiptError("NO_DATA · server information missing")
+        if result.get("serverInfo") != {"name": "preceptoros-thegame", "version": "1.0.0"}:
+            raise ReceiptError("NO_DATA · declared server identity mismatch")
 
         notice = _line({"jsonrpc": "2.0", "method": "notifications/initialized"})
         if len(notice) >= LIMIT:
