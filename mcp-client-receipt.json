@@ -1,0 +1,11 @@
+{
+  "schema": "preceptoros.mcp-client-receipt/1",
+  "server": "mcp_thegame_server.py",
+  "transport": "stdio",
+  "protocol_version": "2026-07-28",
+  "request_limit_bytes_including_lf": 1024,
+  "bubble_fixture": "tests/fixtures/bubble-frame.json",
+  "bubble_fixture_sha256": "5b21a0044ca4038ed25124ff295f55322f5ad4bd0bace8f9049946c1654c96e1",
+  "exchange": ["initialize", "notifications/initialized", "ping", "tools/list"],
+  "tool_calls": false
+}
