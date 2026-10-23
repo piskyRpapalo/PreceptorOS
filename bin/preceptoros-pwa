@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 import sys
 import urllib.error
@@ -64,6 +65,8 @@ import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
+import creacion_import as _creacion_import                   # noqa: E402
+import creacion_publicacion as _creacion_publicacion         # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("PRECEPTOROS_PWA_PUERTO", "8740"))
@@ -230,6 +233,7 @@ ESTATICOS = {
     "/dashboard.css": ("desnuda.css", "text/css; charset=utf-8"),
     "/dashboard.js": ("dashboard.js", "application/javascript; charset=utf-8"),
     "/app.html": ("app.html", "text/html; charset=utf-8"),
+    "/creation_publish.js": ("creation_publish.js", "application/javascript; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
@@ -273,6 +277,28 @@ class PWA(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         """One exact web origin may use only the bounded orchestrator route."""
+        if self.path.split("?")[0] == "/api/creaciones":
+            puerto = self.server.server_address[1]
+            origen = self.headers.get("Origin")
+            if not _creacion_publicacion.origen_local_valido(
+                    origen, self.headers.get("Host"), puerto):
+                return self._json(403, {"estado": "NO_DATA", "causa": "origen no permitido"})
+            if self.headers.get("Access-Control-Request-Method", "").upper() != "POST":
+                return self._json(403, {"estado": "NO_DATA", "causa": "método no permitido"})
+            solicitados = {x.strip().lower() for x in
+                           self.headers.get("Access-Control-Request-Headers", "").split(",")
+                           if x.strip()}
+            if not solicitados <= {"content-type"}:
+                return self._json(403, {"estado": "NO_DATA", "causa": "cabecera no permitida"})
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", origen)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Access-Control-Max-Age", "600")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if (self.path.split("?")[0] != "/api/orquestador" or
                 self.headers.get("Origin") != ORIGEN_WEB_ORQUESTADOR or
                 self.headers.get("Access-Control-Request-Method", "").upper() != "POST"):
@@ -302,6 +328,12 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta.startswith("/api/creaciones/"):
+            return self._creacion_leer(ruta)
+        if ruta.startswith("/creaciones/"):
+            return self._creacion_vista(ruta)
+        if ruta.startswith("/creation-view/"):
+            return self._creacion_asset(ruta)
         if ruta == "/api/harness":
             return self._harness_leer()
         if ruta == "/api/harness":
@@ -406,6 +438,8 @@ class PWA(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             return self._despachar_post()
+        except _creacion_import.CreationError as exc:
+            return self._json(400, {"estado": "NO_DATA", "causa": str(exc).replace("NO_DATA · ", "")})
         except sqlite3.Error:
             # La interfaz recibe un recibo acotado, nunca una traza del
             # esquema local. Una base aún no inicializada se niega en cerrado.
@@ -414,6 +448,8 @@ class PWA(BaseHTTPRequestHandler):
 
     def _despachar_post(self):
         ruta = self.path.split("?")[0]
+        if ruta == "/api/creaciones":
+            return self._creacion_publicar()
         if ruta == "/api/orquestador":
             return self._orquestador()
         datos = self._leer()
@@ -447,6 +483,74 @@ class PWA(BaseHTTPRequestHandler):
             codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
             return self._json(codigo, resultado)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    def _creacion_store(self):
+        root = os.environ.get("PRECEPTOROS_CREATION_DIR") or os.path.expanduser("~/.preceptoros/creaciones")
+        from creacion_store import CreationStore
+        return CreationStore(root)
+
+    def _creacion_publicar(self):
+        origen = self.headers.get("Origin")
+        host = self.headers.get("Host")
+        puerto = self.server.server_address[1]
+        if not _creacion_publicacion.origen_local_valido(origen, host, puerto):
+            return self._json(403, {"estado": "NO_DATA", "causa": "origen no permitido"})
+        if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+            return self._json(415, {"estado": "NO_DATA", "causa": "se requiere application/json"})
+        try:
+            largo = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            largo = 0
+        if largo <= 0 or largo > _creacion_publicacion.MAX_PACKAGE:
+            return self._json(413, {"estado": "NO_DATA", "causa": "paquete vacío o excede 25 MiB"})
+        raw = self.rfile.read(largo)
+        if len(raw) != largo:
+            return self._json(400, {"estado": "NO_DATA", "causa": "paquete truncado"})
+        identifier, creado = self._creacion_store().put(raw)
+        return self._json(201 if creado else 200, {
+            "estado": "publicado", "id": identifier,
+            "url": "/creaciones/" + identifier,
+        })
+
+    def _creacion_leer(self, ruta):
+        match = re.fullmatch(r"/api/creaciones/([a-f0-9]{64})", ruta)
+        if not match:
+            return self._json(404, {"estado": "NO_DATA", "causa": "creación no encontrada"})
+        try:
+            value = self._creacion_store().get(match.group(1))
+        except _creacion_import.CreationError as exc:
+            return self._json(503, {"estado": "NO_DATA", "causa": str(exc).replace("NO_DATA · ", "")})
+        if value is None:
+            return self._json(404, {"estado": "NO_DATA", "causa": "creación no encontrada"})
+        raw = value["package_bytes"]
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def _creacion_vista(self, ruta):
+        if not re.fullmatch(r"/creaciones/[a-f0-9]{64}", ruta):
+            return self._json(404, {"estado": "NO_DATA", "causa": "creación no encontrada"})
+        return self._servir_creacion_asset("creation.html")
+
+    def _creacion_asset(self, ruta):
+        name = ruta.removeprefix("/creation-view/")
+        return self._servir_creacion_asset(name)
+
+    def _servir_creacion_asset(self, name):
+        root = os.path.join(AQUI, "assets", "creation-view")
+        try:
+            raw, media = _creacion_publicacion.read_asset(root, name)
+        except _creacion_import.CreationError:
+            return self._json(404, {"estado": "NO_DATA", "causa": "recurso de creación no disponible"})
+        self.send_response(200)
+        self.send_header("Content-Type", media)
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(raw)
 
     def _orquestador(self):
         """Local signed-verb contract: bounded bytes, no writes or network."""

@@ -164,6 +164,16 @@
       </form>
       <p class="pie" id="nodo-export-estado" role="status" aria-live="polite" data-i18n="nodo_export_espera">Sin cédula seleccionada. No se ha enviado nada.</p>
     </section>
+    <section class="tarjeta" aria-labelledby="creation-publish-title">
+      <h3 id="creation-publish-title">Publicar una creación firmada</h3>
+      <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
+      <form id="creation-publish-form">
+        <label id="creation-publish-label" for="creation-publish-file">Paquete de creación (.json, hasta 25 MiB)</label>
+        <input id="creation-publish-file" type="file" accept="application/json,.json" required>
+        <button id="creation-publish-send" type="submit" disabled>Verificar e importar</button>
+      </form>
+      <p class="pie" id="creation-publish-status" role="status" aria-live="polite">No se ha seleccionado ni enviado ninguna creación.</p>
+    </section>
   </section>
 
 </main>
@@ -175,5 +185,6 @@
 <script src="/app.js?v=5"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
+<script src="/creation_publish.js?v=1"></script>
 </body>
 </html>
