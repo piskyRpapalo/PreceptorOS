@@ -183,6 +183,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # mide contra la regla fija. Incluye el sabotaje: un byte tocado en el
           # motor y no juega. Entra en su MISMO commit (2026-09-28).
           test_atlas_runner
+          test_mcp_transport
           # test_nodo_app: ¿este aparato es cuenta nodo? Lo dice la cedula del
           # rack (nodos.py cedula), leida con el mismo codigo de vinculo que la
           # web; una cedula tocada no pasa, y su autenticidad es NO_DATA porque
