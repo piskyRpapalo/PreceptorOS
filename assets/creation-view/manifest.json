@@ -1,0 +1,17 @@
+{
+  "schema": "preceptoros.creation-view/1",
+  "files": {
+    "creation.html": {
+      "sha256": "007d6285e9d14f4f5a42303797cc17d4dd2e95b153527a4882908f20dfb31416",
+      "size": 1122
+    },
+    "creation_read.js": {
+      "sha256": "443ce71309be5710e696c8ace65d5ef0dcb11de83ccc2f3f6566a14829e367c5",
+      "size": 1931
+    },
+    "game/creation_package.js": {
+      "sha256": "3fc2de0432c9bc9b227e574774842e8ede800d48529276ad670500843ecf53da",
+      "size": 6731
+    }
+  }
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17131F">
+<title>Verified creation · PreceptorOS</title>
+<style>
+body{font:1rem/1.5 system-ui,sans-serif;max-width:56rem;margin:auto;padding:1rem;background:#121419;color:#f4f2ec}
+main,section{display:grid;gap:.75rem}a{color:#9de3ef}#art svg{width:100%;height:18rem;border:1px solid currentColor}
+audio{width:100%}p{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<main>
+<h1>Verified creation</h1>
+<p id="status" role="status" aria-live="polite">Loading the signed creation from this rack…</p>
+<section id="creation" hidden>
+<p id="author"></p><p id="description"></p><div id="art"></div>
+<audio id="voice" controls preload="none"></audio>
+</section>
+<footer><p>Author signatures prove the supplied creation bytes. This view alone does not prove node presence.</p><a href="/app.html">PreceptorOS</a></footer>
+</main>
+<script src="/creation-view/game/creation_package.js"></script>
+<script src="/creation-view/creation_read.js"></script>
+</body>
+</html>
