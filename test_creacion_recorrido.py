@@ -52,9 +52,12 @@ class CreationJourney(unittest.TestCase):
     def test_sabotage_switch_rejects_changed_signed_bytes(self):
         damaged = json.loads(self.package)
         value = damaged["files"]["declaration.wav"]
-        damaged["files"]["declaration.wav"] = ("A" if value[0] != "A" else "B") + value[1:]
+        index = 60  # alter a sample byte after the 44-byte WAV header
+        replacement = "A" if value[index] != "A" else "B"
+        damaged["files"]["declaration.wav"] = value[:index] + replacement + value[index + 1:]
         if os.environ.get("CREATION_JOURNEY_SABOTAGE") == "1":
-            I.validate(json.dumps(damaged).encode())
+            with mock.patch.dict(os.environ, {"CREATION_IMPORT_SABOTAGE": "1"}):
+                I.validate(json.dumps(damaged).encode())
         with self.assertRaises(I.CreationError):
             I.validate(json.dumps(damaged).encode())
 
