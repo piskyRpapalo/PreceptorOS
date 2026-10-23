@@ -138,7 +138,7 @@ echo
 
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_orquestador_respuesta test_lab_frase test_afinado test_captura test_descarga test_pwa test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts test_lexical_projection
-          test_interprete test_leitmotivs test_silencio test_voz_cyber test_voz_creacion test_creacion_import test_creacion_publicacion test_path test_casa test_entorno
+          test_interprete test_leitmotivs test_silencio test_voz_cyber test_voz_creacion test_creacion_import test_creacion_publicacion test_creacion_recorrido test_path test_casa test_entorno
           test_compass test_exportar
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
           # dos roturas reales: el renombrado del output-guard y el de la
