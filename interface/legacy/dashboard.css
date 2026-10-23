@@ -609,7 +609,7 @@ body {
   background: var(--ground); color: var(--ink-soft);
   border-left: 3px solid var(--line);
 }
-/* El tronco y las paradas se distinguen sin leer una palabra: el nucleo lleva
+/* El nucleo y las paradas se distinguen sin leer una palabra: el nucleo lleva
    el violeta de la casa; lo opcional, el cobre. Es la misma regla que la cara. */
 .camino li[data-rama="nucleo"]   .peldano { border-left-color: var(--violeta); }
 .camino li[data-rama="opcional"] .peldano { border-left-color: var(--ambar); }
