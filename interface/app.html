@@ -143,6 +143,17 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <section class="tarjeta" lang="en" aria-labelledby="creation-voice-title">
+      <h3 id="creation-voice-title">Creation voice</h3>
+      <p id="creation-voice-help">Generate the drawing guidance and your author statement with one local voice.</p>
+      <form id="creation-voice-form">
+        <label id="creation-voice-label" for="creation-voice-text">Your author statement</label>
+        <textarea id="creation-voice-text" required rows="3" maxlength="1024"></textarea>
+        <button id="creation-voice-generate" type="submit" style="min-height:44px;min-width:44px">Generate voice downloads</button>
+      </form>
+      <p id="creation-voice-status" role="status" aria-live="polite">Nothing generated yet.</p>
+      <div id="creation-voice-downloads"></div>
+    </section>
     <section class="tarjeta" aria-labelledby="nodo-export-title">
       <h3 id="nodo-export-title" data-i18n="nodo_export_titulo">Identidad del nodo</h3>
       <p class="pie" data-i18n="nodo_export_ayuda">Elige una cédula ya firmada por ti. Esta app no firma.</p>
@@ -162,6 +173,7 @@
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
 <script src="/app.js?v=5"></script>
+<script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 </body>
 </html>
