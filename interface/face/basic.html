@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Preceptor · Neutral</title>
+<meta name="description" content="Walk the crab across the living map, talk to the Preceptor, and lead a squad of sound waves. Every screen is also a small machine-readable frame, so a voice app can read it aloud and drive it.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/face/face.css"><link rel="stylesheet" href="/face/face_canon.css">
+<script type="application/json" id="skin">{"name":"basic","layout":"quiet","ui":{"bg":"paper","fg":"ink","panel":"paper","accent":"cyan","onAccent":"ink","edge":"ink"},"cast":"none","sea":"ocean","tide":"cyan","sand":"paper","cliff":"ink","rock":"cyan","forest":"paper","leaf":"cyan","coral":"vermilion.sombra","mount":"paper","star":"cyan","lit":"comic yellow.base","path":"vermilion.base","face":"cyan","body":"vermilion.base","label":"paper","halo":"ink","brume":"ink","shelf":"cyan"}</script>
+</head>
+<body data-layout="quiet">
+<canvas id="map" aria-hidden="true"></canvas>
+<main class="face">
+<header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div class="vh"><h1>The living map</h1><p class="how">You are the crab. Tap the star to take a task, then walk the dashed path.</p></div></header>
+<section class="map" aria-label="The living map"><div id="mapwin" role="img" aria-label="The living map" aria-describedby="say"></div>
+<dl id="counter" class="counter" hidden><div><dt>Distance left</dt><dd id="c-dist"></dd></div><div><dt>Time left</dt><dd id="c-time"></dd></div><div class="wide"><dt>Real time</dt><dd id="c-real"></dd></div><p id="c-yard" class="vh"></p></dl>
+<p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+<div id="offer" class="offer" role="dialog" aria-modal="false" aria-labelledby="offer-text" hidden><p id="offer-text"></p><div class="tools"><button type="button" id="offer-yes" class="go">Accept</button><button type="button" id="offer-no">Decline</button></div></div>
+<div class="mapbtns" role="group" aria-label="Map actions">
+<button type="button" id="start" class="icon go" data-act="task"><canvas data-icon="task" aria-hidden="true"></canvas><span class="vh">Task</span></button>
+<button type="button" id="follow" class="icon" data-act="follow" disabled><canvas data-icon="follow" aria-hidden="true"></canvas><span class="vh">Follow the path</span></button>
+<button type="button" id="whole" class="icon" data-act="whole" aria-pressed="false"><canvas data-icon="whole" aria-hidden="true"></canvas><span class="vh">Whole map</span></button>
+</div>
+<div class="pad"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Push to walk the crab across the map. Arrow keys work too." aria-describedby="say"></canvas></div>
+<section id="sheet-battle" class="stage-sheet" role="tabpanel" aria-labelledby="tab-battle" hidden><div class="sheet-head"><b id="title-battle">Battle</b> <span class="seal" data-seal-of="battle">LIVE</span><span class="small" data-source-of="battle"></span></div><h3 class="sub">Your Army</h3><ul id="army" class="army" aria-label="Your Army: adopted waves"></ul><p id="army-note" class="small"></p><h3 class="sub">Summon a wave</h3><div class="tools" role="group" aria-label="Summon level"><button type="button" data-tc="tc1" aria-pressed="true">Level 1</button><button type="button" data-tc="tc2" aria-pressed="false">Level 2</button><button type="button" data-tc="tc3" aria-pressed="false">Level 3</button><button type="button" data-tc="tc4" aria-pressed="false">Level 4</button></div><p id="odds" class="small"></p><div class="tools"><button type="button" id="g-summon" class="go">Sign and summon</button><button type="button" id="g-adopt" disabled>Sign and adopt</button></div><p id="g-note" class="small" aria-live="polite"></p><div class="fight"><h3 class="sub">Battle at the rift <button type="button" id="b-back" class="mini2">Back to the Army</button></h3>
+<p class="small">A wave stirs at the rift. Your squad is three troops from the Codex; each troop is a sound wave. Rounds are seeded, so the same battle replays the same for everyone.</p>
+<div class="tools" role="group" aria-label="Formation: how your squad stands"><button type="button" data-form="agresiva" aria-pressed="false">Spear</button><button type="button" data-form="defensiva" aria-pressed="true">Shield</button><button type="button" data-form="flanqueo" aria-pressed="false">Wings</button></div>
+<div class="tools"><button type="button" id="b-start" class="go">Start battle</button><button type="button" id="b-step" disabled>Next tick</button><button type="button" id="b-play" disabled>Play to the end</button></div>
+<p class="small">Withdraw one troop before the next tick (one order fits the 200-byte receipt):</p>
+<div class="tools" id="b-withdraw"><button type="button">Withdraw troop 1</button><button type="button">Withdraw troop 2</button><button type="button">Withdraw troop 3</button></div>
+<p id="b-tick" class="small"></p>
+<ol id="b-life" class="small"></ol>
+<pre id="b-receipt"></pre>
+</div></section>
+<section id="sheet-profile" class="stage-sheet" role="tabpanel" aria-labelledby="tab-profile" hidden><div class="sheet-head"><b id="title-profile">Profile</b> <span class="seal" data-seal-of="profile">LIVE</span><span class="small" data-source-of="profile"></span></div><div class="me"><canvas id="me-art" role="img" aria-label="You"></canvas><dl id="me-stats" class="me-stats"></dl></div><h3 class="sub">Your key</h3><p class="small">Your key is born in this browser and signs every summon and adoption. Nothing of value happens without it.</p><div id="identity"></div></section>
+<section id="sheet-info" class="stage-sheet" role="tabpanel" aria-labelledby="tab-info" hidden><div class="sheet-head"><b id="title-info">Info</b> <span class="seal" data-seal-of="info">LIVE</span><span class="small" data-source-of="info"></span></div>
+<div class="tools"><button type="button" id="sound" data-act="sound" aria-pressed="false"><span aria-hidden="true">♪ </span><span>Sound off</span></button><button type="button" data-act="read">Read aloud</button></div>
+<p id="readout" class="small" aria-live="polite"></p>
+<nav class="skins" aria-label="Three layouts of the same face"><a href="/face/basic.html">Neutral</a><a href="/face/atlantis.html">Atlantis for children</a><a href="/face/zombie.html">Zombie terminal</a></nav>
+<nav class="skins" aria-label="Tools of this product"><a href="/dashboard.html">Chat with your local model, voice and console</a><a href="/app.html">Detail panel</a></nav>
+<ol id="tasks" class="tasks" aria-label="Tutorial tasks"><li><span>The beacon</span> · <span></span></li><li><span>The Reef</span> · <span></span></li><li><span>The rift</span> · <span></span></li></ol>
+<details>
+<summary>Technical details</summary>
+<ul>
+<li>One product: the web and the app load the same face files and draw the same frames.</li>
+<li>The map is one isometric plane drawn from small <code>preceptoros.bubble/1</code> frames, each under 1,024 bytes; your state and the battle are frames too. Deterministic, no network, no clock. The state sits in this page as JSON (<code>#packet</code>).</li>
+<li>Distance and time are counted in cells and steps; real time is NO_DATA because no clock is read.</li>
+<li>Battle: the canon seeded rounds; the receipt is at most 200 bytes and is checked by replaying from tick 0. Formation changes how the squad stands, not the rounds.</li>
+<li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: task, accept, decline, start, follow, up, down, left, right, whole, sound, read, say.</li><li>The three map icons say their name on the map when tapped, and the voice speaks it when Sound is on.</li>
+<li>Vibration: <span id="touch">NO_DATA</span>.</li>
+</ul>
+</details>
+<details><summary>Machine view · <span id="bytes"></span></summary><pre id="machine"></pre><pre id="machine-map"></pre></details>
+</section>
+</section>
+<section class="side panel card" aria-label="Chat with the Preceptor"><div class="viewbar"><div class="tabs" role="tablist" aria-label="What the top of the screen shows"><button type="button" role="tab" id="tab-map" aria-controls="mapwin" aria-label="Map" aria-selected="true"><canvas data-icon="tab-map" aria-hidden="true"></canvas></button><button type="button" role="tab" id="tab-battle" aria-controls="sheet-battle" aria-label="Battle" aria-selected="false" tabindex="-1"><canvas data-icon="tab-battle" aria-hidden="true"></canvas></button><button type="button" role="tab" id="tab-profile" aria-controls="sheet-profile" aria-label="Profile" aria-selected="false" tabindex="-1"><canvas data-icon="tab-profile" aria-hidden="true"></canvas></button><button type="button" role="tab" id="tab-info" aria-controls="sheet-info" aria-label="Info" aria-selected="false" tabindex="-1"><canvas data-icon="tab-info" aria-hidden="true"></canvas></button></div><b id="sheet-title" class="vh">Map</b><button type="button" id="speaker" class="icon speak" aria-pressed="false"><canvas data-icon="speaker" aria-hidden="true"></canvas><span class="vh">Screen reader off</span></button><div id="radio" class="radio" role="region" aria-label="Radio: the screen read aloud" hidden><b>Radio</b> <span id="radio-line" class="radio-line"></span> <button type="button" id="radio-again">Read again</button></div></div><p id="say" class="say" role="status" aria-live="polite"></p><div class="chatbox"><ol id="log" class="log" aria-label="Chat with the Preceptor"></ol><form id="ask" class="ask"><label for="reply" class="vh">Write to the Preceptor</label><div><input id="reply" autocomplete="off" maxlength="280" placeholder="Write to the Preceptor"><button type="submit">Send</button></div></form></div></section>
+</main>
+<script type="application/json" id="packet"></script>
+<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/bubble_bestiary.js"></script><script src="/face/bubble/bubble_world.js"></script><script src="/face/bubble/core.js"></script><script src="/face/bubble/isometric_floor_projection.js"></script><script src="/face/bubble/world_camera.js"></script><script src="/face/bubble/map_zoom.js"></script><script src="/face/bubble/fog_of_war.js"></script><script src="/face/bubble/atlas-coord.js"></script><script src="/face/bubble/canon.js"></script><script src="/face/bubble/combate_ticks.js"></script><script src="/face/bubble/escuadron.js"></script><script src="/face/bubble/wave_render.js"></script><script src="/face/bubble/worm_transition.js"></script><script src="/face/bubble/escena.js"></script><script src="/face/bubble/sea-floor.js"></script><script src="/face/bubble/gdpr-art25-ephemeral-crab.js"></script><script src="/face/bubble/crab_render_hd.js"></script><script src="/face/bubble/bubble_icons.js"></script><script src="/face/bubble/db.js"></script><script src="/face/bubble/army-wave-panel.js"></script><script src="/face/bubble/summon-wave-card.js"></script><script src="/face/bubble/summon_reveal.js"></script><script src="/face/bubble/auth.js"></script><script src="/face/face_world.js"></script><script src="/face/face_hero.js"></script><script src="/face/face_paint.js"></script><script src="/face/face_battle.js"></script><script src="/face/face_panel.js"></script><script src="/face/face_hud.js"></script><script src="/face/face.js"></script><script src="/face/face_fight.js"></script><script src="/face/face_army.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+"""La cara nueva: chat + joystick, la misma que la web, servida en "/".
+
+Encargo NORTE 5 (one-shot del pintor, 2026-10-24). La cara vive en
+`interface/face/` y es la MISMA que la web: `face.js`, `face.css`,
+`skins.json` y las tres paginas son bytes identicos a los de
+preceptoros-web `docs/rebuild/examples/` (la paridad la mide
+`APP_DIR=... node docs/rebuild/examples/validate.mjs` desde la web).
+
+Las nueve piezas de la lengua de burbujas se copian tal cual desde la web
+`public/game/` y quedan clavadas por sha256: si alguien edita una copia,
+esta prueba se pone roja antes de que la app y la web digan cosas distintas.
+"""
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import io
+import os
+import pathlib
+import re
+import unittest
+from importlib.machinery import SourceFileLoader
+from unittest import mock
+
+AQUI = os.path.dirname(os.path.abspath(__file__))
+_spec = importlib.util.spec_from_loader(
+    "preceptoros_pwa_face", SourceFileLoader("preceptoros_pwa_face", os.path.join(AQUI, "bin", "preceptoros-pwa")))
+PWA = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(PWA)
+
+CARA = pathlib.Path(AQUI, "interface", "face")
+PIELES = ("basic", "atlantis", "zombie")
+# sha256 de preceptoros-web public/game/ y public/assets/ en la base 63c8331 (rama del terreno NORTE 5).
+CLAVADAS = {
+    "tabla_semantica.js": "eaab078c53a15602bd6e0ed596c1b04c4320db19bd536d6813b5afc0100019ce",
+    "comic_tokens.js": "41c49df095fb5e7e80bd11f790988d9371dcbe219cb91ce1fd6a644bfec52936",
+    "comic_accents.js": "2d3483daa5d99fa28654aae211e487ad70100a12236f0aa86094f41d34dd0091",
+    "valores.js": "0982f47281becb01f98f4db6d16b4df0d649e7fdbf01aacae34e5d455d254114",
+    "gacha.js": "f98302cf4f59f281b1ee2bdd90715c576a4630ec42316231191d4fba266d403c",
+    "comic_atoms.js": "4d73eed589017461d90aec51a244d4c3f4331e0eeee57764fca89308f0cbd101",
+    "bubble_light.js": "ddec8332ed88e3482a2101bc93fe0d4dd0e0befd8889a9932f39d3490d00ceb1",
+    "bubble_language.js": "21f1c84ac69575e6352de2a1ba350f1798908179fc28b8390c89c095234ab96f",
+    "core.js": "f7f126fde151931830f772be35aecdd84fa97f7c5be4b257f80d9674a66f6a0d",
+    "bubble_bestiary.js": "7288216a1bedb8f4ced75cf3c2930eaf40a917f15f52d8332881d182a10c69aa",
+    "bubble_world.js": "7673379cca9a827a4c40209fa0d3aeb99bd4988ba2332e88ab1d9b4015a34749",
+    "isometric_floor_projection.js": "56bec1e57cbc68d9e3803139e9a49ff55a487147f0dd6d4113c5d029669e16f7",
+    "world_camera.js": "816cb43df904406ddc52892dd1150cc14868e638565ef5c47a24b0e921533b6b",
+    "map_zoom.js": "762b7e9781246bc09ea1b1a91b7adddeb82de6a1a6b96d86c1b9e1691d9c01c1",
+    "fog_of_war.js": "d49073798b909aa575c8f527f2f49aae9bb8f1861febd698ab48f36d8fce405d",
+    "canon.js": "c361e777366c0942b4a9271258e97658ce44bf28a82d45e9889a7b9846698358",
+    "combate_ticks.js": "b40c73a978c4e92e071259b9698a2b315b4a67ae7707e338bab40e1e0660dff2",
+    "escuadron.js": "a59f79e28169f2283e4a52bdbf3c8f9e3f827ea79ca5fcdf4d3eee63d1c44483",
+    "wave_render.js": "c26d3d78b3ea27c449c9fa6b6a8692647e954b72c99a6f4e5f4025eab3adb1d6",
+    "atlas-coord.js": "144278777fabd5e5cea40b468a9686764bf57c6a9d87b2c67260b71844282cf6",
+    "worm_transition.js": "ebe5f45de93bce9c9f34ae04fd4377a96f7ed39e02c370de0eec93d721a6363f",
+    "escena.js": "d2763adc92124644fe66c87041d9f7ec9b958f84f4ce0e9b82a887a1c770cb50",
+    "sea-floor.js": "4b48588e105ffed7a3bb03a474b84d30b0240f855bbc5575e6067e885d7de334",
+    "gdpr-art25-ephemeral-crab.js": "79e5b0d14cb7d99a32a8c2f1cc978ae14be336e66bd0b35256e98f9c49857620",
+    "crab_render_hd.js": "75150cfa6bbcc8fc9e00bd85011707b91f80288ebcde950f11700066bb1eae16",
+    "bubble_icons.js": "047adf069d216f50dd5b15ac2a36382be26e5f347832dc5d122c5877e2070fab",
+    "db.js": "367b753efc94807ea5339baa3e180339e15283449124cbc9b7563533712c65ed",
+    "army-wave-panel.js": "81af9bbffe49c6ee479a858955347cc28dce51f88293d8282e5ae1b417e324ea",
+    "summon-wave-card.js": "043f277c835573d8a7cb3e87af315722b580fe1df34e2ba55ba64f1094af007e",
+    "summon_reveal.js": "457e10687dfb12e44adaa092ab777e5558b66b2859e612711f224736ad64cbc4",
+    "auth.js": "c8170b51e6c86328736356cb6319c0cd0bba11b991e8a7442255e26e208075e1",
+}
+
+
+def _get(ruta):
+    h = PWA.PWA.__new__(PWA.PWA)
+    h.path = ruta
+    h.send_response = mock.Mock()
+    h.send_header = mock.Mock()
+    h.end_headers = mock.Mock()
+    h.wfile = io.BytesIO()
+    h.headers = {}
+    PWA.PWA.do_GET(h)
+    return h.send_response.call_args[0][0], h.wfile.getvalue()
+
+
+def _rutas_de(html):
+    return re.findall(r'(?:src|href)="(/face/[^"]+)"', html)
+
+
+class TestLaCaraEsLaPuerta(unittest.TestCase):
+
+    def test_la_raiz_sirve_la_cara_basic(self):
+        codigo, cuerpo = _get("/")
+        self.assertEqual(codigo, 200)
+        self.assertEqual(cuerpo, (CARA / "basic.html").read_bytes())
+
+    def test_cada_piel_y_cada_pieza_que_enlaza_se_sirve(self):
+        for piel in PIELES:
+            codigo, cuerpo = _get(f"/face/{piel}.html")
+            self.assertEqual(codigo, 200, piel)
+            for ruta in _rutas_de(cuerpo.decode("utf-8")):
+                with self.subTest(piel=piel, ruta=ruta):
+                    c, b = _get(ruta)
+                    self.assertEqual(c, 200, f"{ruta} no se sirve")
+                    self.assertGreater(len(b), 0)
+
+    def test_nada_de_red_ni_de_reloj_con_autoridad(self):
+        for f in sorted(CARA.rglob("*")):
+            if f.is_file() and f.suffix in (".html", ".js", ".css"):
+                t = f.read_text(encoding="utf-8")
+                with self.subTest(f=f.name):
+                    self.assertNotRegex(t, r'(?:src|href)=["\']https?://', "peticion externa")
+                    self.assertLessEqual(len(t.encode("utf-8")), 16384, "techo por pieza")
+        cara = (CARA / "face.js").read_text(encoding="utf-8")
+        self.assertNotRegex(cara, r"Math\.random|Date\.now|fetch\(|localStorage")
+
+    def test_las_piezas_de_la_lengua_son_las_de_la_web(self):
+        for nombre, sha in CLAVADAS.items():
+            with self.subTest(pieza=nombre):
+                self.assertEqual(hashlib.sha256((CARA / "bubble" / nombre).read_bytes()).hexdigest(), sha)
+
+    def test_el_armazon_offline_lleva_toda_la_cara(self):
+        sw = pathlib.Path(AQUI, "interface", "sw.js").read_text(encoding="utf-8")
+        for piel in PIELES:
+            html = (CARA / f"{piel}.html").read_text(encoding="utf-8")
+            for ruta in [f"/face/{piel}.html"] + _rutas_de(html):
+                with self.subTest(ruta=ruta):
+                    self.assertIn(f'"{ruta}"', sw, "sin esto la cara no abre sin red")
+
+
+if __name__ == "__main__":
+    unittest.main()

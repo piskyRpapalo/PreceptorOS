@@ -32,8 +32,29 @@
 // v104: local radio sting follows the accessible zone announcement.
 // v105: the node credential export adds an explicit, signature-checked route.
 // v106: signed creation import is explicit and local to the rack.
-const Cache = "preceptoros-armazon-v106";
-const Armazon = ["/", "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
+// v107 (2026-10-24): "/" pasa a ser la cara nueva (chat + joystick, encargo Norte 5);
+// entran sus tres pieles, su hoja, su guion y las nueve piezas de la lengua.
+// v108 (2026-10-24): la cara camina el mapa vivo: entra face_world.js y
+// cambian face.js, face.css y las tres pieles (tres distribuciones).
+// v109 (2026-10-24): la terminal zombie trae su vagabundo y Atlantis las
+// criaturas canon del Codex: entra bubble_bestiary.js.
+// v110 (2026-10-24): una sola ventana fija sobre el mapa isométrico vivo:
+// entran face_paint.js y cinco piezas del mapa de la web (proyección, cámara,
+// zoom, niebla y ciudad).
+// v111 (2026-10-24): el panel con categorías y el gusano canon, y el combate
+// de ondas (combate_ticks, escuadrón, wave_render) en la cara.
+// v112 (2026-10-24): fondo marino canon bajo el mapa y el cangrejo canon que
+// crece y cambia de color: entran escena, sea-floor y las dos piezas del cangrejo.
+// v113 (2026-10-24): el joystick y los iconos del mapa entran en el mapa, el
+// panel sube bajo el mapa y el busto sale del mapa: entra face_hud.js.
+// v114 (2026-10-24): altavoz y radio que leen la pantalla, la frase guía pasa a
+// la voz, y el soldado espacial de la terminal zombie: entra face_hero.js.
+// v115 (2026-10-24): vistas por iconos (mapa, batalla, perfil, info) con el
+// chat siempre abajo; Army canon, gacha firmada y revelación: entran face_army,
+// face_canon.css y seis piezas canon (icons, db, panel, ficha, revela, auth).
+const Cache = "preceptoros-armazon-v115";
+const Armazon = ["/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face_world.js", "/face/face_paint.js", "/face/face_battle.js", "/face/face_panel.js", "/face/face_fight.js", "/face/face_hud.js", "/face/face_hero.js", "/face/face_army.js", "/face/face.css", "/face/face_canon.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/bubble_bestiary.js", "/face/bubble/bubble_world.js", "/face/bubble/core.js", "/face/bubble/isometric_floor_projection.js", "/face/bubble/world_camera.js", "/face/bubble/map_zoom.js", "/face/bubble/fog_of_war.js", "/face/bubble/atlas-coord.js", "/face/bubble/canon.js", "/face/bubble/combate_ticks.js", "/face/bubble/escuadron.js", "/face/bubble/wave_render.js", "/face/bubble/worm_transition.js", "/face/bubble/escena.js", "/face/bubble/sea-floor.js", "/face/bubble/gdpr-art25-ephemeral-crab.js", "/face/bubble/crab_render_hd.js", "/face/bubble/bubble_icons.js", "/face/bubble/db.js", "/face/bubble/army-wave-panel.js", "/face/bubble/summon-wave-card.js", "/face/bubble/summon_reveal.js", "/face/bubble/auth.js",
+                 "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
                  "/app.html", "/app.css?v=3", "/app.js?v=5", "/creation_publish.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental

@@ -225,9 +225,11 @@ def _cerebro_paquete(modelo):
 
 
 ESTATICOS = {
-    # La puerta es el tablero. `app.html` sigue existiendo y se llega desde el
-    # -- es el panel de detalle, no la portada.
-    "/": ("dashboard.html", "text/html; charset=utf-8"),
+    # La puerta es la cara nueva (NORTE 5, 2026-10-24): chat + joystick, la
+    # misma que la web, en `interface/face/`. El tablero sigue en
+    # /dashboard.html porque el chat con modelo, la voz y la consola viven ahi;
+    # su retirada es la pieza siguiente, no esta.
+    "/": ("face/basic.html", "text/html; charset=utf-8"),
     "/dashboard.html": ("dashboard.html", "text/html; charset=utf-8"),
     # Ruta histórica que conserva dashboard.html y clientes ya cacheados;
     # sirve la hoja mínima activa, no el CSS ornamental archivado en legacy/.
@@ -250,6 +252,34 @@ ESTATICOS = {
     "/manifest.json": ("manifest.json", "application/manifest+json"),
     "/sw.js": ("sw.js", "application/javascript; charset=utf-8"),
 }
+
+# La cara: tres pieles, su hoja, su guion y las nueve piezas de la lengua de
+# burbujas copiadas de la web (clavadas por sha256 en test_face.py). La ruta
+# de comic_tokens va con la t escapada porque asi la pide el html: el
+# servidor compara la ruta cruda, sin decodificar.
+CARA_PIELES = ("basic", "atlantis", "zombie")
+CARA_LENGUA = ("tabla_semantica", "comic_tokens", "comic_accents", "valores", "gacha",
+               "comic_atoms", "bubble_light", "bubble_language", "bubble_bestiary", "bubble_world", "core",
+               "isometric_floor_projection", "world_camera", "map_zoom", "fog_of_war",
+               "atlas-coord", "canon", "combate_ticks", "escuadron", "wave_render", "worm_transition",
+               "escena", "sea-floor", "gdpr-art25-ephemeral-crab", "crab_render_hd",
+               "bubble_icons", "db", "army-wave-panel", "summon-wave-card", "summon_reveal", "auth")
+for _piel in CARA_PIELES:
+    ESTATICOS[f"/face/{_piel}.html"] = (f"face/{_piel}.html", "text/html; charset=utf-8")
+ESTATICOS["/face/face.js"] = ("face/face.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_world.js"] = ("face/face_world.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_paint.js"] = ("face/face_paint.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_battle.js"] = ("face/face_battle.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_panel.js"] = ("face/face_panel.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_fight.js"] = ("face/face_fight.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_hud.js"] = ("face/face_hud.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_hero.js"] = ("face/face_hero.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_army.js"] = ("face/face_army.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_canon.css"] = ("face/face_canon.css", "text/css; charset=utf-8")
+ESTATICOS["/face/face.css"] = ("face/face.css", "text/css; charset=utf-8")
+for _pieza in CARA_LENGUA:
+    _url = "/face/bubble/" + _pieza.replace("tokens", "%74okens") + ".js"
+    ESTATICOS[_url] = (f"face/bubble/{_pieza}.js", "application/javascript; charset=utf-8")
 
 
 class PWA(BaseHTTPRequestHandler):

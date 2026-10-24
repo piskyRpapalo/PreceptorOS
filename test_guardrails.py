@@ -446,8 +446,15 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         directorio = RAIZ / "interface"
         if not directorio.is_dir():
             self.fail("no hay interfaz que auditar: rojo esperado antes de escribirla")
+        # `interface/face/bubble/` son las nueve piezas de la lengua de burbujas
+        # copiadas byte a byte de la web (public/game/) y clavadas por sha256 en
+        # test_face.py: no son superficie escrita aqui, son la web. Su lexico lo
+        # audita la web en su propio gate. La cara que SI se escribe para esta
+        # app (face.js, face.css, las tres paginas) se sigue auditando aqui.
+        vendida = directorio / "face" / "bubble"
         encontrados = sorted(
-            p for p in directorio.rglob("*") if p.suffix in {".html", ".css", ".js"}
+            p for p in directorio.rglob("*")
+            if p.suffix in {".html", ".css", ".js"} and vendida not in p.parents
         )
         if not encontrados:
             self.fail("la interfaz no tiene ningún fichero auditable")
@@ -476,6 +483,26 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         g = cargar(self)
         conocidas = set(g.CORE_POLICIES) | set(g.CUSTOM_POLICIES)
         INTRINSECOS = {"JSON", "DOCTYPE", "UTF", "HTML", "HTTP", "POST"}
+        # La cara (NORTE 5) dice NO_DATA con su causa -- es el valor honesto de
+        # la casa, no un nombre de politica -- y la piel zombie pinta con las
+        # bandas de sello STALE y NO_DATA de tabla_semantica: colores con su
+        # significado literal (dormido, sin medir), tampoco politicas.
+        INTRINSECOS |= {"NO_DATA", "STALE"}
+        # La terminal zombie oxida su metal con la banda SIMULATED: el mapa de
+        # la cara ES una simulacion, asi que el color dice la verdad literal.
+        INTRINSECOS |= {"SIMULATED"}
+        # El busto canon del Codex lleva su ojo violeta en la banda FIRMADO:
+        # en esta casa el violeta significa firmado. Banda, no politica.
+        INTRINSECOS |= {"FIRMADO"}
+        # Las cabeceras del panel de la cara llevan su sello como el marco de
+        # la terminal canon (LIVE, STALE o NO_DATA): estado, no politica.
+        INTRINSECOS |= {"LIVE"}
+        # EMULADO es el sello honesto de lo heuristico (CLAUDE.md de la web):
+        # la regla de crecimiento del cangrejo de la cara lo lleva escrito.
+        INTRINSECOS |= {"EMULADO"}
+        # face_army.js lee la API canon de la gacha y del Army por sus nombres
+        # (AtlasGacha.RAREZAS / TCS, AtlasArmy.TOPE): propiedades canon, no politicas.
+        INTRINSECOS |= {"RAREZAS", "TCS", "TOPE"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):
