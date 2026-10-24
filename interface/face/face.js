@@ -3,11 +3,11 @@
   var doc = root.document, B = root.AtlasBubble, P = root.AtlasComicAtoms, A = root.AtlasSintesis, Wd = root.PreceptorWorld;
   var $ = function (id) { return doc.getElementById(id); };
   var skin = JSON.parse($('skin').textContent);
-  var places = Wd.places, actionList = ['start', 'follow', 'up', 'down', 'left', 'right', 'whole', 'sound', 'read', 'say'];
+  var places = Wd.places, actionList = ['task', 'accept', 'decline', 'start', 'follow', 'up', 'down', 'left', 'right', 'whole', 'sound', 'read', 'say'];
   var words = {
     hello: 'Hi! I am your Preceptor. Someone new arrives, plays, and in under five minutes their own node speaks for them: safe, local, no cloud.',
-    how: 'This is the living map. You are the crab. Press Start task.',
-    tap: 'A dashed path goes to the task. Tap the path, or press Follow the path.',
+    how: 'This is the living map. You are the crab. Tap the star icon to start it.',
+    tap: 'A dashed path goes to the task. Tap the path, or tap the path icon.',
     end: 'All three places are measured and the fog is gone. Walk anywhere with the joystick.',
     free: 'No model is connected to this preview, so I cannot answer free text yet: NO_DATA. The tasks work without one.',
     tail: 'Shortcuts: Start task, Follow the path, Whole map, Sound, Read aloud.'
@@ -15,7 +15,7 @@
   var st = { won: false, at: Wd.homeAt.slice(), trail: [], moves: 0, dir: -1, met: null, task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
   var map = $('map'), win = $('mapwin'), joy = $('joy'), log = $('log'), say = $('say'), painter = null;
   var touch = typeof root.navigator.vibrate === 'function' ? 'vibrate' : 'NO_DATA: this device has no vibration';
-  var timer = 0, held = null, queued = 0, focusAt = null, extraPaint = null, extraFrame = null, panel = null;
+  var hud = null, timer = 0, held = null, queued = 0, focusAt = null, extraPaint = null, extraFrame = null, panel = null;
 
   function band(n) { return B.band(n); }
   function theme() { var r = doc.documentElement.style, u = skin.ui, k; for (k in u) { if (Object.prototype.hasOwnProperty.call(u, k)) { r.setProperty('--' + k, band(u[k])); } } }
@@ -74,7 +74,8 @@
     win.setAttribute('aria-label', 'The living map, one isometric sea of islands. ' + f.atoms.map(function (a) { return a.r; }).join('. ') + '.');
     say.textContent = st.said;
     $('start').disabled = st.walking || done;
-    $('start').lastChild.textContent = done ? 'All tasks done' : 'Start task ' + (st.task + 1) + ': ' + places[st.task].name;
+    $('start').lastChild.textContent = done ? 'All tasks done' : 'Task ' + (st.task + 1) + ': ' + places[st.task].name;
+    $('whole').lastChild.textContent = st.whole ? 'Near view' : 'Whole map';
     $('follow').disabled = !st.path || st.walking;
     $('whole').setAttribute('aria-pressed', String(st.whole));
     $('sound').setAttribute('aria-pressed', String(st.sound));
@@ -124,7 +125,7 @@
     bubble('pre', place.done);
     var grown = crabNow();
     if (grown) { bubble('pre', 'Your crab grows to size ' + Math.round(grown.forma.escala * 100) / 100 + (grown.node ? ' and turns coral: the colour of a crab that holds a node (EMULADO in this preview).' : '.')); }
-    bubble('pre', st.task < places.length ? places[st.task].task + ' Press Start task.' : words.end);
+    bubble('pre', st.task < places.length ? places[st.task].task + ' Tap the star icon to start it.' : words.end);
     buzz([30, 40, 30]); voice(st.task);
     return true;
   }
@@ -135,7 +136,7 @@
     st.path = Wd.route(st.at, places[st.task]);
     st.route = null; st.step = 0; st.change = 'path';
     bubble('pre', places[st.task].task + ' ' + words.tap);
-    st.said = 'A dashed path is drawn to ' + places[st.task].name + '. Tap it, or press Follow the path.';
+    st.said = 'A dashed path is drawn to ' + places[st.task].name + '. Tap it, or tap the path icon.';
     render();
   }
 
@@ -171,7 +172,7 @@
 
   function move(dx, dy, n) {
     focusAt = null;
-    if (st.walking) { stopWalk(); st.route = null; st.step = 0; st.said = 'You took the joystick. Press Start task to draw the path again.'; }
+    if (st.walking) { stopWalk(); st.route = null; st.step = 0; st.said = 'You took the joystick. Tap the star icon to draw the path again.'; }
     st.at = [Wd.clamp(Math.round(st.at[0] + dx * n), 20, Wd.worldSize - 20), Wd.clamp(Math.round(st.at[1] + dy * n), 20, Wd.worldSize - 20)];
     if (dx - dy) { st.dir = dx - dy > 0 ? 1 : -1; }
     st.moves++;
@@ -189,26 +190,24 @@
 
   function act(name, arg) {
     var T = 2 * Wd.tile;
-    if (name === 'start') { start(); }
-    else if (name === 'follow') { follow(); }
+    if (name === 'task') { if (st.task < places.length && !st.walking) { if (hud) { hud.ask(places[st.task].task, function () { act('accept'); }, function () { act('decline'); }); } else { act('accept'); } } }
+    else if (name === 'accept') { start(); tell('Task accepted: a path to ' + (places[st.task] ? places[st.task].name : 'the end')); }
+    else if (name === 'decline') { st.said = 'Task declined. Tap the star icon when you are ready.'; bubble('pre', st.said); render(); }
+    else if (name === 'start') { start(); }
+    else if (name === 'follow') { follow(); tell('Follow the path'); }
     else if (name === 'left') { screen(-1, 0, T); }
     else if (name === 'right') { screen(1, 0, T); }
     else if (name === 'up') { screen(0, -1, T); }
     else if (name === 'down') { screen(0, 1, T); }
-    else if (name === 'whole') { st.whole = !st.whole; st.change = st.whole ? 'whole map' : 'near view'; render(); }
+    else if (name === 'whole') { st.whole = !st.whole; st.change = st.whole ? 'whole map' : 'near view'; render(); tell(st.whole ? 'Whole map' : 'Near view'); }
     else if (name === 'sound') { st.sound = !st.sound; st.change = st.sound ? 'sound on' : 'sound off'; render(); }
     else if (name === 'read') { read(); }
     else if (name === 'say' && arg) { bubble('me', String(arg).slice(0, 280)); st.said = words.free; bubble('pre', words.free); st.change = 'free text'; render(); }
     return state();
   }
 
-  function read() {
-    var vs = root.speechSynthesis ? root.speechSynthesis.getVoices().filter(function (v) { return v.localService && /^en/i.test(v.lang); }) : [], out = $('readout');
-    if (!vs.length) { out.textContent = 'Read aloud: NO_DATA. Cause: no local English voice on this device.'; return; }
-    root.speechSynthesis.cancel();
-    [st.said, words.tail].forEach(function (t) { var u = new root.SpeechSynthesisUtterance(t); u.voice = vs[0]; u.lang = vs[0].lang; root.speechSynthesis.speak(u); });
-    out.textContent = 'Reading aloud with a local voice: the answer first, then the shortcuts.';
-  }
+  function tell(text) { if (hud) { hud.show(text); } }
+  function read() { if (hud) { hud.read([st.said, words.tail], $('readout')); } }
 
   function state() {
     var f = frameNow();
@@ -274,13 +273,14 @@
     theme();
     painter = root.PreceptorPaint.create(map, win, skin);
     panel = root.PreceptorPanel.create(function () { soon(); });
+    hud = root.PreceptorHud ? root.PreceptorHud.create(skin, function () { return st.sound; }) : null;
     root.PreceptorFaceHooks.panel = panel;
     doc.body.dataset.layout = skin.layout;
     paintSmall($('head'), Wd.headFrame(skin));
     var ks = doc.querySelectorAll('.skins a');
     for (var j = 0; j < ks.length; j++) { if (ks[j].getAttribute('href').slice(-skin.name.length - 6) === '/' + skin.name + '.html' || ks[j].getAttribute('href') === skin.name + '.html') { ks[j].setAttribute('aria-current', 'page'); } }
     bubble('pre', words.hello);
-    bubble('pre', places[0].task + ' Press Start task.');
+    bubble('pre', places[0].task + ' Tap the star icon to start it.');
     stick();
     render();
     root.preceptorFace = Object.freeze({ state: state, act: act, actions: actionList.slice() });

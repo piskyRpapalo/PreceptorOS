@@ -271,6 +271,7 @@ ESTATICOS["/face/face_paint.js"] = ("face/face_paint.js", "application/javascrip
 ESTATICOS["/face/face_battle.js"] = ("face/face_battle.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_panel.js"] = ("face/face_panel.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_fight.js"] = ("face/face_fight.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_hud.js"] = ("face/face_hud.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face.css"] = ("face/face.css", "text/css; charset=utf-8")
 for _pieza in CARA_LENGUA:
     _url = "/face/bubble/" + _pieza.replace("tokens", "%74okens") + ".js"

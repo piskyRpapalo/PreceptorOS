@@ -12,15 +12,18 @@
 <body data-layout="zones">
 <canvas id="map" aria-hidden="true"></canvas>
 <main class="face">
-<header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div><h1>The living map</h1><p class="how">You are the crab. Start a task, tap the dashed path, and walk.</p></div></header>
-<section class="map" aria-label="The living map"><div id="mapwin" role="img" aria-label="The living map" aria-describedby="say"></div></section>
-<section class="task card" aria-label="Your task">
-<button type="button" id="start" class="go" data-act="start"><span aria-hidden="true">▶ </span><span>Start task</span></button>
-<button type="button" id="follow" data-act="follow" disabled>Follow the path</button>
-<button type="button" id="whole" data-act="whole" aria-pressed="false">Whole map</button>
-<dl id="counter" class="counter" hidden><div><dt>Distance left</dt><dd id="c-dist"></dd></div><div><dt>Time left</dt><dd id="c-time"></dd></div><div class="wide"><dt>Real time</dt><dd id="c-real"></dd></div><p id="c-yard" class="small"></p></dl>
+<header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div><h1>The living map</h1><p class="how">You are the crab. Tap the star to take a task, then walk the dashed path.</p></div></header>
+<section class="map" aria-label="The living map"><div id="mapwin" role="img" aria-label="The living map" aria-describedby="say"></div>
+<dl id="counter" class="counter" hidden><div><dt>Distance left</dt><dd id="c-dist"></dd></div><div><dt>Time left</dt><dd id="c-time"></dd></div><div class="wide"><dt>Real time</dt><dd id="c-real"></dd></div><p id="c-yard" class="vh"></p></dl>
+<p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+<div id="offer" class="offer" role="dialog" aria-modal="false" aria-labelledby="offer-text" hidden><p id="offer-text"></p><div class="tools"><button type="button" id="offer-yes" class="go">Accept</button><button type="button" id="offer-no">Decline</button></div></div>
+<div class="mapbtns" role="group" aria-label="Map actions">
+<button type="button" id="start" class="icon go" data-act="task"><canvas data-icon="task" aria-hidden="true"></canvas><span class="vh">Task</span></button>
+<button type="button" id="follow" class="icon" data-act="follow" disabled><canvas data-icon="follow" aria-hidden="true"></canvas><span class="vh">Follow the path</span></button>
+<button type="button" id="whole" class="icon" data-act="whole" aria-pressed="false"><canvas data-icon="whole" aria-hidden="true"></canvas><span class="vh">Whole map</span></button>
+</div>
+<div class="pad"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Push to walk the crab across the map. Arrow keys work too." aria-describedby="say"></canvas></div>
 </section>
-<section class="pad card" aria-label="Joystick"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Push to walk the crab across the map. Arrow keys work too." aria-describedby="say"></canvas></section>
 <section class="side panel card" aria-label="Panel">
 <div class="tabs" role="tablist" aria-label="Panel categories"><button type="button" role="tab" id="tab-chat" aria-controls="sheet-chat" aria-selected="true">Chat</button><button type="button" role="tab" id="tab-battle" aria-controls="sheet-battle" aria-selected="false" tabindex="-1">Battle</button><button type="button" role="tab" id="tab-info" aria-controls="sheet-info" aria-selected="false" tabindex="-1">Info</button></div>
 <div class="sheet-head"><b id="sheet-title">Chat</b> <span id="sheet-seal" class="seal">LIVE</span><span id="sheet-source" class="small"></span></div>
@@ -53,7 +56,7 @@
 <li>The map is one isometric plane drawn from small <code>preceptoros.bubble/1</code> frames, each under 1,024 bytes; your state and the battle are frames too. Deterministic, no network, no clock. The state sits in this page as JSON (<code>#packet</code>).</li>
 <li>Distance and time are counted in cells and steps; real time is NO_DATA because no clock is read.</li>
 <li>Battle: the canon seeded rounds; the receipt is at most 200 bytes and is checked by replaying from tick 0. Formation changes how the squad stands, not the rounds.</li>
-<li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: start, follow, up, down, left, right, whole, sound, read, say.</li>
+<li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: task, accept, decline, start, follow, up, down, left, right, whole, sound, read, say.</li><li>The three map icons say their name on the map when tapped, and the voice speaks it when Sound is on.</li>
 <li>Vibration: <span id="touch">NO_DATA</span>.</li>
 </ul>
 </details>
@@ -63,6 +66,6 @@
 </section>
 </main>
 <script type="application/json" id="packet"></script>
-<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/bubble_bestiary.js"></script><script src="/face/bubble/bubble_world.js"></script><script src="/face/bubble/core.js"></script><script src="/face/bubble/isometric_floor_projection.js"></script><script src="/face/bubble/world_camera.js"></script><script src="/face/bubble/map_zoom.js"></script><script src="/face/bubble/fog_of_war.js"></script><script src="/face/bubble/atlas-coord.js"></script><script src="/face/bubble/canon.js"></script><script src="/face/bubble/combate_ticks.js"></script><script src="/face/bubble/escuadron.js"></script><script src="/face/bubble/wave_render.js"></script><script src="/face/bubble/worm_transition.js"></script><script src="/face/bubble/escena.js"></script><script src="/face/bubble/sea-floor.js"></script><script src="/face/bubble/gdpr-art25-ephemeral-crab.js"></script><script src="/face/bubble/crab_render_hd.js"></script><script src="/face/face_world.js"></script><script src="/face/face_paint.js"></script><script src="/face/face_battle.js"></script><script src="/face/face_panel.js"></script><script src="/face/face.js"></script><script src="/face/face_fight.js"></script>
+<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/bubble_bestiary.js"></script><script src="/face/bubble/bubble_world.js"></script><script src="/face/bubble/core.js"></script><script src="/face/bubble/isometric_floor_projection.js"></script><script src="/face/bubble/world_camera.js"></script><script src="/face/bubble/map_zoom.js"></script><script src="/face/bubble/fog_of_war.js"></script><script src="/face/bubble/atlas-coord.js"></script><script src="/face/bubble/canon.js"></script><script src="/face/bubble/combate_ticks.js"></script><script src="/face/bubble/escuadron.js"></script><script src="/face/bubble/wave_render.js"></script><script src="/face/bubble/worm_transition.js"></script><script src="/face/bubble/escena.js"></script><script src="/face/bubble/sea-floor.js"></script><script src="/face/bubble/gdpr-art25-ephemeral-crab.js"></script><script src="/face/bubble/crab_render_hd.js"></script><script src="/face/face_world.js"></script><script src="/face/face_paint.js"></script><script src="/face/face_battle.js"></script><script src="/face/face_panel.js"></script><script src="/face/face_hud.js"></script><script src="/face/face.js"></script><script src="/face/face_fight.js"></script>
 </body>
 </html>

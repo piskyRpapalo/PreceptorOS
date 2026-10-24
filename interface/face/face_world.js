@@ -167,8 +167,7 @@
   var canon = [
     { o: 'octo', x: 800, y: 500, r: 29, eye: 'up', say: 'A little octopus looks up at you. Hello!' },
     { o: 'star', x: 360, y: 520, r: 32, eye: 'up', say: 'A starfish waves one of its five arms.' },
-    { o: 'snail', x: 600, y: 760, r: 26, eye: 'up', say: 'A snail takes its time. So can you.' },
-    { o: 'bust', x: 430, y: 160, r: 74, eye: 'open', cybEye: 'violet', mEye: 'happy', mouth: 'o', say: 'The Preceptor has landed upright by the rift. Its violet eye means signed.' }
+    { o: 'snail', x: 600, y: 760, r: 26, eye: 'up', say: 'A snail takes its time. So can you.' }
   ];
 
   function wanderAt(moves) {
@@ -184,11 +183,11 @@
         var it = {}, k, p = iso(c.x, c.y);
         for (k in c) { if (k !== 'say') { it[k] = c[k]; } }
         it.x = p[0]; it.y = p[1];
-        if (c.o !== 'bust' && near(st, c.x, c.y, 110)) { it.eye = 'open'; }
+        if (near(st, c.x, c.y, 110)) { it.eye = 'open'; }
         items.push(it);
       });
-      return { v: V, id: 'cast', t: st.step || 0, cv: [1420, 1420], atoms: [{ k: 'creatures', r: 'the canon creatures: an octopus, a starfish, a snail, and the Preceptor by the rift', i: items }],
-        bands: ['cyan', 'ink', 'ocean', 'paper', 'FIRMADO.base'], change: [st.change || 'rest'], sound: 'NO_DATA', soundCause: 'the creatures are silent', motion: 'they look at you when you come near' };
+      return { v: V, id: 'cast', t: st.step || 0, cv: [1420, 1420], atoms: [{ k: 'creatures', r: 'the canon creatures: an octopus, a starfish and a snail', i: items }],
+        bands: ['cyan', 'ink', 'ocean', 'paper'], change: [st.change || 'rest'], sound: 'NO_DATA', soundCause: 'the creatures are silent', motion: 'they look at you when you come near' };
     }
     if (skin.cast === 'wanderer') {
       var w = wanderAt(st.moves || 0), c0 = iso(w[0], w[1]), x = c0[0], y = c0[1], d = w[2], z = skin.zombie;
