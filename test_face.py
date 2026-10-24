@@ -42,6 +42,11 @@ CLAVADAS = {
     "bubble_language.js": "21f1c84ac69575e6352de2a1ba350f1798908179fc28b8390c89c095234ab96f",
     "core.js": "f7f126fde151931830f772be35aecdd84fa97f7c5be4b257f80d9674a66f6a0d",
     "bubble_bestiary.js": "7288216a1bedb8f4ced75cf3c2930eaf40a917f15f52d8332881d182a10c69aa",
+    "bubble_world.js": "7673379cca9a827a4c40209fa0d3aeb99bd4988ba2332e88ab1d9b4015a34749",
+    "isometric_floor_projection.js": "56bec1e57cbc68d9e3803139e9a49ff55a487147f0dd6d4113c5d029669e16f7",
+    "world_camera.js": "816cb43df904406ddc52892dd1150cc14868e638565ef5c47a24b0e921533b6b",
+    "map_zoom.js": "762b7e9781246bc09ea1b1a91b7adddeb82de6a1a6b96d86c1b9e1691d9c01c1",
+    "fog_of_war.js": "d49073798b909aa575c8f527f2f49aae9bb8f1861febd698ab48f36d8fce405d",
 }
 
 

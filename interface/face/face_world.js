@@ -1,30 +1,40 @@
 (function (root) {
   'use strict';
-  var V = 'preceptoros.bubble/1';
-  var W = 720, H = 960, tile = 12;
-  var homeAt = [360, 836];
+  var V = 'preceptoros.bubble/1', root2 = Math.SQRT2;
+  var worldSize = 1000, tile = 12;
+  var homeAt = [500, 690];
   var starH = [[1, 26, 26, 0], [-4, 8, 8, 0]];
-  var crabH = [[1, 30, 18, 0], [5, 5, 5, 32], [-3, 5, 5, -32]];
   var places = [
-    { id: 'beacon', name: 'the beacon', at: [168, 548], bend: 1,
-      task: 'Your first task: walk to the beacon.',
+    { id: 'beacon', name: 'the beacon', at: [306, 462], bend: 1,
+      task: 'Your first task: sail to the beacon.',
       done: 'You reached the beacon. It is the door that picks your world and your tutorial. A node would show its signed card here; node: NO_DATA, cause: no node is paired with this preview.' },
-    { id: 'reef', name: 'the Reef', at: [566, 470], bend: -1,
-      task: 'Task two: walk to the Reef.',
+    { id: 'reef', name: 'the Reef', at: [722, 430], bend: -1,
+      task: 'Task two: sail to the Reef.',
       done: 'This is the Reef, where buildings grow. A phone can hold one building that nobody can take. Building it needs you: the machine proposes, you sign.' },
-    { id: 'rift', name: 'the rift', at: [330, 214], bend: 1,
-      task: 'Last task: walk to the rift.',
+    { id: 'rift', name: 'the rift', at: [486, 196], bend: 1,
+      task: 'Last task: sail to the rift.',
       done: 'This is the rift, the door of the map. It is quiet today: its life is not built yet, so it says NO_DATA.' }
   ];
-  var fogZones = [[400, 720, 330, 640], [160, 500, 70, 330]];
+  var isles = [
+    { id: 'home', x: 500, y: 700, rx: 124, ry: 92, kind: 'sand' },
+    { id: 'beacon', x: 300, y: 456, rx: 76, ry: 62, kind: 'sand' },
+    { id: 'reef', x: 724, y: 428, rx: 92, ry: 74, kind: 'sand' },
+    { id: 'rift', x: 486, y: 190, rx: 116, ry: 72, kind: 'rock' },
+    { id: 'west', x: 196, y: 762, rx: 60, ry: 48, kind: 'forest' },
+    { id: 'east', x: 824, y: 758, rx: 62, ry: 50, kind: 'rock' },
+    { id: 'peak', x: 168, y: 230, rx: 84, ry: 64, kind: 'rock' },
+    { id: 'wood', x: 820, y: 168, rx: 64, ry: 52, kind: 'forest' },
+    { id: 'islet', x: 640, y: 588, rx: 40, ry: 30, kind: 'sand' }
+  ];
 
   function hash32(s) {
     var h = 0x811c9dc5, i;
     for (i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 0x01000193); }
     return h >>> 0;
   }
-  function uniq(list) { return list.filter(function (b, j, a) { return a.indexOf(b) === j; }); }
+  function uniq(list) { return list.filter(function (b, j, a) { return b && a.indexOf(b) === j; }); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function iso(x, y) { return [Math.round((x - y) * root2 / 2), Math.round((x + y) * root2 / 4)]; }
 
   function route(from, place) {
     var a = from, b = place.at, dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
@@ -54,109 +64,130 @@
   }
 
   function walk(pts) {
-    var s = sample(pts), acc = [0], i, total, steps, out = [], j = 0, d;
+    var s = sample(pts), acc = [0], i, total, steps, out = [], j = 0, d, f;
     for (i = 1; i < s.length; i++) { acc.push(acc[i - 1] + Math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1])); }
     total = acc[acc.length - 1];
     steps = Math.max(1, Math.round(total / tile));
     for (i = 0; i <= steps; i++) {
       d = total * i / steps;
       while (j < acc.length - 2 && acc[j + 1] < d) { j++; }
-      var f = acc[j + 1] > acc[j] ? (d - acc[j]) / (acc[j + 1] - acc[j]) : 0;
+      f = acc[j + 1] > acc[j] ? (d - acc[j]) / (acc[j + 1] - acc[j]) : 0;
       out.push([Math.round(s[j][0] + (s[j + 1][0] - s[j][0]) * f), Math.round(s[j][1] + (s[j + 1][1] - s[j][1]) * f)]);
     }
     return { steps: steps, units: Math.round(total), at: out };
   }
 
   function counter(left, units) {
-    return { tiles: left, steps: left, yardstick: '1 tile = ' + tile + ' map units; 1 step = 1 tile', mapUnits: units, realTime: 'NO_DATA: no clock is read' };
+    return { tiles: left, steps: left, yardstick: '1 cell = ' + tile + ' map units; 1 step = 1 cell', mapUnits: units, realTime: 'NO_DATA: no clock is read' };
   }
 
-  function mapFrame(skin) {
-    return { v: V, id: 'map', t: 0, cv: [W, H], atoms: [
-            { k: 'land', r: 'home, west, east, north', i: [
-        { o: 'blob', x: 360, y: 846, rx: 230, ry: 96, f: skin.land },
-        { o: 'blob', x: 186, y: 560, rx: 150, ry: 186, f: skin.land },
-        { o: 'blob', x: 570, y: 470, rx: 136, ry: 214, f: skin.land },
-        { o: 'blob', x: 330, y: 206, rx: 226, ry: 118, f: skin.land }] },
-      { k: 'rift', r: 'the rift', i: [{ o: 'ribbon', pts: [[176, 214], [330, 176], [486, 214], [330, 250]], closed: true, f: skin.deep }] },
-      { k: 'reef', r: 'the Reef', i: [{ o: 'field', kind: 'phyllo', x: 566, y: 470, n: 34, c: 9, r: 7, f: skin.coral }] }],
-      bands: uniq([skin.land, skin.deep, skin.coral]), change: ['rest'], sound: 'NO_DATA', soundCause: 'the map is silent', motion: 'NO_DATA' };
+  function islandItems(list, skin) {
+    var out = [];
+    list.forEach(function (s) {
+      var top = s.kind === 'rock' ? skin.rock : s.kind === 'forest' ? skin.forest : skin.sand;
+      out.push({ o: 'blob', x: s.x + 9, y: s.y + 9, rx: s.rx, ry: s.ry, seed: s.id, rough: 0.7, f: skin.cliff });
+      out.push({ o: 'blob', x: s.x, y: s.y, rx: s.rx, ry: s.ry, seed: s.id, rough: 0.7, f: top });
+    });
+    return out;
   }
 
-  function nodesFrame(skin) {
-    var small = [[1, 14, 14, 0], [-4, 4, 4, 0]];
-    return { v: V, id: 'nodes', t: 0, cv: [W, H], atoms: [
-      { k: 'islet', r: 'an islet', i: [{ o: 'blob', x: 626, y: 790, rx: 62, ry: 36, f: skin.land }] },
-      { k: 'nodes', r: 'two other nodes', i: [{ o: 'wave', x: 626, y: 784, h: small, f: skin.star }, { o: 'wave', x: 96, y: 300, h: small, f: skin.star }] }],
-      bands: uniq([skin.land, skin.star]), change: ['rest'], sound: 'NO_DATA', soundCause: 'the map is silent', motion: 'NO_DATA' };
+  function seaFrame(skin) {
+    return { v: V, id: 'sea', t: 0, cv: [worldSize, worldSize], style: 'clear', atoms: [
+      { k: 'tiles', r: 'the deep sea, in diamond tiles', i: [{ o: 'field', kind: 'halftone', x: [0, worldSize], y: [0, worldSize], r: '3|3|2|2', step: 50, a: 0, f: skin.tide }] }],
+      bands: [skin.tide], change: ['rest'], sound: 'NO_DATA', soundCause: 'the sea is silent', motion: 'NO_DATA' };
   }
 
-  function gridFrame(skin) {
-    var i = [], k;
-    for (k = 1; k < 3; k++) { i.push({ o: 'ribbon', pts: [[k * 240, 24], [k * 240 + (2 * k - 3) * 40, 480], [k * 240, 936]], s: skin.grid, lw: 2 }); }
-    for (k = 1; k < 3; k++) { i.push({ o: 'ribbon', pts: [[24, k * 320], [360, k * 320 + 24], [696, k * 320]], s: skin.grid, lw: 2 }); }
-    return { v: V, id: 'grid', t: 0, cv: [W, H], atoms: [
-      { k: 'grid', r: 'globe lines', i: i },
-      { k: 'names', r: 'place names', i: [
-        { o: 'text', x: 300, y: 900, tx: 'home', sz: 28, f: skin.label, sh: [2, 2, skin.halo] },
-        { o: 'text', x: 96, y: 620, tx: 'the beacon', sz: 28, f: skin.label, sh: [2, 2, skin.halo] },
-        { o: 'text', x: 500, y: 600, tx: 'the Reef', sz: 28, f: skin.label, sh: [2, 2, skin.halo] },
-        { o: 'text', x: 280, y: 300, tx: 'the rift', sz: 28, f: skin.label, sh: [2, 2, skin.halo] }] }],
-      bands: uniq([skin.grid, skin.label, skin.halo]), change: ['rest'], sound: 'NO_DATA', soundCause: 'the map is silent', motion: 'NO_DATA' };
+  var groups = [['home', 'beacon'], ['reef', 'rift'], ['west', 'east', 'peak'], ['wood', 'islet']];
+  var groupNames = ['home and the beacon', 'the Reef and the rift', 'the west node, the east node and the peak', 'the wood and an islet'];
+
+  function islesFrame(skin, part) {
+    var list = isles.filter(function (s) { return groups[part].indexOf(s.id) >= 0; }), extra = [];
+    var atoms = [{ k: 'isles', r: groupNames[part], i: islandItems(list, skin) }];
+    if (part === 1) { atoms.push({ k: 'chasm', r: 'the rift opens', i: [{ o: 'ribbon', pts: [[420, 196], [486, 168], [552, 194], [486, 214]], closed: true, f: 'ink' }] }); extra = ['ink']; }
+    if (part === 1) { atoms.push({ k: 'coral', r: 'coral of the Reef', i: [{ o: 'field', kind: 'phyllo', x: 724, y: 428, n: 30, c: 10, r: 8, f: skin.coral }] }); extra.push(skin.coral); }
+    if (part === 3) { atoms.push({ k: 'woods', r: 'trees', i: [
+      { o: 'field', kind: 'phyllo', x: 196, y: 760, n: 22, c: 9, r: 9, f: skin.leaf },
+      { o: 'field', kind: 'phyllo', x: 820, y: 166, n: 26, c: 9, r: 9, f: skin.leaf }] }); extra = [skin.leaf]; }
+    return { v: V, id: 'isles' + part, t: 0, cv: [worldSize, worldSize], atoms: atoms,
+      bands: uniq([skin.cliff].concat(list.map(function (q) { return q.kind === 'rock' ? skin.rock : q.kind === 'forest' ? skin.forest : skin.sand; }), extra)), change: ['rest'], sound: 'NO_DATA', soundCause: 'the islands are silent', motion: 'NO_DATA' };
+  }
+
+  function standFrame(skin) {
+    var p1 = iso(168, 224), p2 = iso(830, 752), p3 = iso(486, 176), h = iso(500, 690), w = iso(196, 756), e = iso(824, 750), small = [[1, 14, 14, 0], [-4, 4, 4, 0]];
+    return { v: V, id: 'stand', t: 0, cv: [1420, 1420], atoms: [
+      { k: 'peaks', r: 'mountains on the peak, the east node and the rift', i: [
+        { o: 'blob', x: p1[0] - 22, y: p1[1] - 26, rx: 34, ry: 42, seed: 'm1', rough: 0.5, f: skin.mount },
+        { o: 'blob', x: p1[0] + 20, y: p1[1] - 18, rx: 26, ry: 32, seed: 'm2', rough: 0.5, f: skin.mount },
+        { o: 'blob', x: p2[0], y: p2[1] - 22, rx: 26, ry: 32, seed: 'm3', rough: 0.5, f: skin.mount },
+        { o: 'blob', x: p3[0] - 70, y: p3[1] - 20, rx: 24, ry: 30, seed: 'm4', rough: 0.5, f: skin.mount }] },
+      { k: 'town', r: 'the home town, domes', i: [{ o: 'city', x: [h[0] - 54, h[0] + 54], y: [h[1] - 58, h[1] - 8], dome: 3 }] },
+      { k: 'nodes', r: 'two other nodes, each on its island', i: [{ o: 'wave', x: w[0], y: w[1] - 30, h: small, f: skin.star }, { o: 'wave', x: e[0] + 30, y: e[1] - 30, h: small, f: skin.star }] }],
+      bands: uniq([skin.mount, skin.star, 'cyan']), change: ['rest'], sound: 'NO_DATA', soundCause: 'the map is silent', motion: 'NO_DATA' };
+  }
+
+  function namesFrame(skin) {
+    var n = function (tx, x, y) { var p = iso(x, y); return { o: 'text', x: p[0], y: p[1], tx: tx, sz: 24, f: skin.label, sh: [2, 2, skin.halo] }; };
+    return { v: V, id: 'names', t: 0, cv: [1420, 1420], atoms: [{ k: 'names', r: 'place names', i: [
+      n('home', 560, 800), n('the beacon', 330, 540), n('the Reef', 760, 520), n('the rift', 540, 270)] }],
+      bands: uniq([skin.label, skin.halo]), change: ['rest'], sound: 'NO_DATA', soundCause: 'the map is silent', motion: 'NO_DATA' };
+  }
+
+  function clears(st) {
+    var c = [{ x: homeAt[0], y: homeAt[1], r: 190 }], i;
+    for (i = 0; i < Math.min(st.task, places.length); i++) { c.push({ x: places[i].at[0], y: places[i].at[1], r: 150 }); }
+    (st.trail || []).forEach(function (q) { c.push({ x: q[0], y: q[1], r: 80 }); });
+    c.push({ x: st.at[0], y: st.at[1], r: 110 });
+    return c;
   }
 
   function stateFrame(skin, st) {
-    var c = st.at, x = c[0], y = c[1], ph = (st.step || 0) % 2 ? 4 : 0, done = st.task, fog = [], atoms;
-    fogZones.forEach(function (z, i) { if (done < i + 2) { fog.push({ o: 'field', kind: 'halftone', x: [z[0], z[1]], y: [z[2], z[3]], f: skin.fog }); } });
-    atoms = [{ k: 'beacon', r: done ? 'beacon lit' : 'beacon', i: [{ o: 'wave', x: 168, y: 548, h: starH, f: done ? skin.lit : skin.star }] }];
-    if (fog.length) { atoms.push({ k: 'fog', r: 'fog', i: fog }); }
-    if (st.path) { atoms.push({ k: 'path', r: 'path', i: [{ o: 'ribbon', pts: st.path, s: skin.path, lw: 6 }] }); }
+    var c = iso(st.at[0], st.at[1]), x = c[0], y = c[1], done = st.task, atoms, b = iso(306, 462);
+    atoms = [{ k: 'beacon', r: done ? 'beacon lit' : 'beacon', i: [{ o: 'wave', x: b[0], y: b[1] - 34, h: starH, f: done ? skin.lit : skin.star }] }];
+    if (st.path) { atoms.push({ k: 'path', r: 'path', i: [{ o: 'ribbon', pts: st.path.map(function (q) { return iso(q[0], q[1]); }), s: skin.path, lw: 6 }] }); }
     if (done < places.length) {
-      var p = places[done].at;
-      atoms.push({ k: 'goal', r: 'task: ' + places[done].name, i: [{ o: 'arcs', x: p[0], y: p[1], r: [40, 40], n: 4, arc: 50, ph: -25, s: skin.path, lw: 6 }] });
+      var p = iso(places[done].at[0], places[done].at[1]);
+      atoms.push({ k: 'goal', r: 'task: ' + places[done].name, i: [{ o: 'arcs', x: p[0], y: p[1] - 8, r: [44, 44], n: 4, arc: 50, ph: -25, s: skin.path, lw: 6 }] });
     }
-    atoms.push({ k: 'crab', r: 'you at ' + x + ',' + y, i: skin.crab === 'canon'
-      ? [{ o: 'crab', x: x, y: y, rr: 54, dir: st.dir === 1 ? 1 : -1, eye: (st.step || 0) % 2 ? 'up' : 'open' }]
-      : [{ o: 'wave', x: x, y: y, h: [crabH[0], [5, 5, 5, 32 + ph], [-3, 5, 5, -32 + ph]], f: skin.body },
-        { o: 'arcs', x: x, y: y - 6, r: [9, 9], n: 2, arc: 24, ph: 168, s: 'ink', lw: 7 }] });
-    return { v: V, id: 'you', t: st.step || 0, cv: [W, H], atoms: atoms,
-      bands: uniq([done ? skin.lit : skin.star].concat(fog.length ? [skin.fog] : [], [skin.path, skin.crab === 'canon' ? 'cyan' : skin.body, 'ink'])),
+    atoms.push({ k: 'brume', r: 'mist clears: home, ' + Math.min(done, places.length) + ' places, ' + (st.trail || []).length + ' trail marks', i: [] });
+    atoms.push({ k: 'crab', r: 'you at ' + st.at[0] + ',' + st.at[1], i: [{ o: 'crab', x: x, y: y - 14, rr: 32, dir: st.dir === 1 ? 1 : -1, eye: (st.step || 0) % 2 ? 'up' : 'open' }] });
+    return { v: V, id: 'you', t: st.step || 0, cv: [1420, 1420], atoms: atoms,
+      bands: uniq([done ? skin.lit : skin.star, skin.path, 'cyan', 'ink']),
       change: [st.change || 'rest'], sound: st.sound ? 'arrival voice' : 'NO_DATA', soundCause: st.sound ? 'vozDe star h' : 'sound off', motion: st.walking ? 'walking' : 'on input' };
   }
 
-  var patrol = [[486, 642], [566, 700], [626, 768], [566, 830], [476, 772], [430, 700]];
+  var patrol = [[560, 560], [610, 610], [640, 680], [610, 750], [560, 790], [520, 600]];
   var codexScale = 1.6;
   var canon = [
-    { o: 'octo', x: 650, y: 610, r: 29, eye: 'up', say: 'A little octopus looks up at you. Hello!' },
-    { o: 'star', x: 262, y: 716, r: 32, eye: 'up', say: 'A starfish waves one of its five arms.' },
-    { o: 'snail', x: 480, y: 872, r: 26, eye: 'up', say: 'A snail takes its time. So can you.' },
-    { o: 'bust', x: 452, y: 132, r: 74, eye: 'open', cybEye: 'violet', mEye: 'happy', mouth: 'o', say: 'The Preceptor has landed upright by the rift. Its violet eye means signed.' }
+    { o: 'octo', x: 800, y: 500, r: 29, eye: 'up', say: 'A little octopus looks up at you. Hello!' },
+    { o: 'star', x: 360, y: 520, r: 32, eye: 'up', say: 'A starfish waves one of its five arms.' },
+    { o: 'snail', x: 600, y: 760, r: 26, eye: 'up', say: 'A snail takes its time. So can you.' },
+    { o: 'bust', x: 430, y: 160, r: 74, eye: 'open', cybEye: 'violet', mEye: 'happy', mouth: 'o', say: 'The Preceptor has landed upright by the rift. Its violet eye means signed.' }
   ];
 
   function wanderAt(moves) {
     var k = 6, n = patrol.length * k, i = ((moves % n) + n) % n, a = patrol[Math.floor(i / k)], b = patrol[(Math.floor(i / k) + 1) % patrol.length], t = (i % k) / k;
-    return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), b[0] >= a[0] ? 1 : -1];
+    return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), b[0] - b[1] >= a[0] - a[1] ? 1 : -1];
   }
-
   function near(st, x, y, r) { return Math.hypot(st.at[0] - x, st.at[1] - y) < r; }
 
   function castFrame(skin, st) {
     if (skin.cast === 'canon') {
-      var items = [{ o: 'field', kind: 'halftone', y: [70, 300], r: '2.2|1.2|.6|0', step: 16, f: 'cyan' }];
+      var items = [];
       canon.forEach(function (c) {
-        var it = {}, k;
+        var it = {}, k, p = iso(c.x, c.y);
         for (k in c) { if (k !== 'say') { it[k] = c[k]; } }
+        it.x = p[0]; it.y = p[1];
         if (c.o !== 'bust' && near(st, c.x, c.y, 110)) { it.eye = 'open'; }
         items.push(it);
       });
-      return { v: V, id: 'cast', t: st.step || 0, cv: [W, H], atoms: [{ k: 'creatures', r: 'the canon creatures: an octopus, a starfish, a snail, and the Preceptor by the rift', i: items }],
+      return { v: V, id: 'cast', t: st.step || 0, cv: [1420, 1420], atoms: [{ k: 'creatures', r: 'the canon creatures: an octopus, a starfish, a snail, and the Preceptor by the rift', i: items }],
         bands: ['cyan', 'ink', 'ocean', 'paper', 'FIRMADO.base'], change: [st.change || 'rest'], sound: 'NO_DATA', soundCause: 'the creatures are silent', motion: 'they look at you when you come near' };
     }
     if (skin.cast === 'wanderer') {
-      var w = wanderAt(st.moves || 0), x = w[0], y = w[1], d = w[2], z = skin.zombie;
+      var w = wanderAt(st.moves || 0), c0 = iso(w[0], w[1]), x = c0[0], y = c0[1], d = w[2], z = skin.zombie;
       var q = function (dx, dy) { return [Math.round(x + 1.5 * dx * d), Math.round(y - 1.5 * dy)]; };
       var o = function (kind, dx, dy, r, f) { var c = q(dx, dy); return { o: kind, x: c[0], y: c[1], rx: r, ry: r, f: f }; };
-      return { v: V, id: 'cast', t: st.moves || 0, cv: [W, H], atoms: [{ k: 'wanderer', r: 'friendly wanderer at ' + x + ',' + y, i: [
+      return { v: V, id: 'cast', t: st.moves || 0, cv: [1420, 1420], atoms: [{ k: 'wanderer', r: 'friendly wanderer at ' + w[0] + ',' + w[1], i: [
         { o: 'ribbon', pts: [q(-7, 0), q(-5, 22), q(5, 22), q(8, 1)], s: z.pants, lw: 13 },
         { o: 'wave', x: x, y: Math.round(y - 52), h: [[1, 24, 26, 0], [6, 0, 3, 0]], f: z.shirt },
         o('blob', 5, 34, 6, z.patch),
@@ -171,8 +202,9 @@
   }
 
   function castMeet(skin, st) {
-    if (skin.cast === 'canon') { for (var i = 0; i < canon.length; i++) { if (near(st, canon[i].x, canon[i].y, 110)) { return canon[i].say; } } }
-    if (skin.cast === 'wanderer') { var w = wanderAt(st.moves || 0); if (near(st, w[0], w[1] - 40, 90)) { return 'Radio: a wanderer shuffles past, arms out. It only wants company, and it cannot hurt you.'; } }
+    var i, w;
+    if (skin.cast === 'canon') { for (i = 0; i < canon.length; i++) { if (near(st, canon[i].x, canon[i].y, 110)) { return canon[i].say; } } }
+    if (skin.cast === 'wanderer') { w = wanderAt(st.moves || 0); if (near(st, w[0], w[1], 90)) { return 'Radio: a wanderer shuffles past, arms out. It only wants company, and it cannot hurt you.'; } }
     return null;
   }
 
@@ -187,10 +219,10 @@
 
   function joyFrame(skin, dx, dy) {
     return { v: V, id: 'joy', t: 0, cv: [168, 168], atoms: [
-      { k: 'base', r: 'joystick, four arrows', i: [{ o: 'blob', x: 84, y: 84, rx: 74, ry: 74, rough: 0, f: skin.land },
+      { k: 'base', r: 'joystick, four arrows', i: [{ o: 'blob', x: 84, y: 84, rx: 74, ry: 74, rough: 0, f: skin.sand },
         { o: 'arcs', x: 84, y: 84, r: [58, 58], n: 4, arc: 36, ph: -18, s: 'ink', lw: 5 }] },
       { k: 'knob', r: dx || dy ? 'knob pushed' : 'knob centered', i: [{ o: 'blob', x: 84 + dx, y: 84 + dy, rx: 30, ry: 30, rough: 0, f: skin.body }] }],
-      bands: uniq([skin.land, 'ink', skin.body]), change: ['joystick'], sound: 'NO_DATA', soundCause: 'joystick is silent', motion: 'follows the finger' };
+      bands: uniq([skin.sand, 'ink', skin.body]), change: ['joystick'], sound: 'NO_DATA', soundCause: 'joystick is silent', motion: 'follows the finger' };
   }
 
   function bytes(o) {
@@ -198,7 +230,8 @@
     return typeof TextEncoder === 'function' ? new TextEncoder().encode(s).length : Buffer.byteLength(s, 'utf8');
   }
 
-  var World = { W: W, H: H, tile: tile, homeAt: homeAt, places: places, starH: starH, route: route, walk: walk, counter: counter, clamp: clamp,
-    mapFrame: mapFrame, gridFrame: gridFrame, nodesFrame: nodesFrame, stateFrame: stateFrame, headFrame: headFrame, castFrame: castFrame, castMeet: castMeet, wanderAt: wanderAt, canon: canon, codexScale: codexScale, joyFrame: joyFrame, bytes: bytes };
+  var World = { worldSize: worldSize, tile: tile, homeAt: homeAt, places: places, isles: isles, starH: starH, iso: iso, route: route, walk: walk, counter: counter, clamp: clamp, clears: clears,
+    seaFrame: seaFrame, islesFrame: islesFrame, groups: groups, standFrame: standFrame, namesFrame: namesFrame, stateFrame: stateFrame,
+    castFrame: castFrame, castMeet: castMeet, wanderAt: wanderAt, canon: canon, codexScale: codexScale, headFrame: headFrame, joyFrame: joyFrame, bytes: bytes };
   if (typeof module === 'object' && module.exports) { module.exports = World; } else { root.PreceptorWorld = World; }
 })(typeof module === 'object' && module.exports ? this : window);

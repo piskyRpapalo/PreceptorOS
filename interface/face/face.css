@@ -1,109 +1,102 @@
-:root{--bg:#f2f5f7;--fg:#1e1826;--panel:#f2f5f7;--accent:#00d2ff;--onAccent:#1e1826;--edge:#1e1826;--r:14px;--bw:1px;--gap:16px;--tap:48px;color-scheme:light dark}
+:root{--bg:#f2f5f7;--fg:#1e1826;--panel:#f2f5f7;--accent:#00d2ff;--onAccent:#1e1826;--edge:#1e1826;--r:14px;--bw:1px;--gap:12px;--tap:48px;--joy:132px;color-scheme:light dark}
 *{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 html{background:var(--bg);color:var(--fg)}
-body{margin:0;min-height:100dvh;font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
-.face{max-width:1180px;margin:0 auto;padding:var(--gap);display:grid;gap:var(--gap);align-items:start}
-.card{border:var(--bw) solid var(--edge);border-radius:var(--r);padding:16px;background:var(--panel);min-width:0}
-.hello{grid-area:hello;display:flex;align-items:center;gap:12px}
-.map{grid-area:map;padding:8px;position:relative}
-.task{grid-area:task;display:grid;gap:10px;align-content:start}
-.pad{grid-area:pad;display:grid;place-items:center;gap:6px}
-.chat{grid-area:chat}
-.more{grid-area:more}
-h1{font-size:1.3rem;line-height:1.2;margin:0;font-weight:650}
-.how{margin:4px 0 0}
-#head{width:60px;height:60px;flex:none}
-#map{display:block;width:100%;aspect-ratio:4/3;height:auto;border-radius:calc(var(--r) - 6px);touch-action:manipulation;cursor:pointer}
-.mini{display:block;margin:8px 0 0 auto;font-size:.9rem}
-#joy{width:150px;height:150px;border-radius:50%;touch-action:none;display:block}
-.log{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px;max-height:15rem;overflow:auto}
-.log li{border:var(--bw) solid var(--edge);border-radius:14px 14px 14px 4px;padding:8px 12px;max-width:96%}
-.log li.me{justify-self:end;border-radius:14px 14px 4px 14px;background:var(--accent);color:var(--onAccent)}
-.who{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.say{margin:0;padding:8px 12px;border-left:4px solid var(--accent);font-weight:600}
+body{margin:0;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+#map{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:0;display:block}
+.face{position:relative;z-index:1;height:100vh;height:100dvh;max-width:1280px;margin:0 auto;padding:var(--gap);display:grid;gap:var(--gap);overflow:hidden}
+.card{border:var(--bw) solid var(--edge);border-radius:var(--r);padding:12px;background:var(--panel);min-width:0;min-height:0}
+.hello{grid-area:hello;display:flex;align-items:center;gap:10px;padding:8px 12px}
+.map{grid-area:map;padding:0;background:transparent;border:0;min-height:0}
+#mapwin{width:100%;height:100%;min-height:80px;border-radius:var(--r);touch-action:none;cursor:pointer;box-shadow:inset 0 0 0 2px var(--edge)}
+.task{grid-area:task;display:flex;flex-wrap:wrap;gap:8px;align-items:center;align-content:center}
+.pad{grid-area:pad;display:grid;place-items:center}
+.side{grid-area:side;display:flex;flex-direction:column;gap:var(--gap);overflow:auto;min-height:0;min-width:0;overscroll-behavior:contain}
+.side>.card{flex:none;min-height:auto}
+h1{font-size:1.15rem;line-height:1.15;margin:0;font-weight:700}
+.how{margin:2px 0 0;font-size:.85rem}
+#head{width:46px;height:46px;flex:none}
+#joy{width:var(--joy);height:var(--joy);border-radius:50%;touch-action:none;display:block}
+.log{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}
+.log li{border:var(--bw) solid var(--edge);border-radius:12px 12px 12px 4px;padding:6px 10px;max-width:98%}
+.log li.me{justify-self:end;border-radius:12px 12px 4px 12px;background:var(--accent);color:var(--onAccent)}
+.who{display:block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.say{margin:0;padding:6px 10px;border-left:4px solid var(--accent);font-weight:600;font-size:.95rem}
 button,input{font:inherit;color:inherit;min-height:var(--tap);border-radius:12px}
-button{cursor:pointer;border:var(--bw) solid var(--edge);background:var(--panel);font-weight:650;padding:6px 14px;touch-action:manipulation;text-align:left}
+button{cursor:pointer;border:var(--bw) solid var(--edge);background:var(--panel);font-weight:650;padding:6px 12px;touch-action:manipulation;text-align:left;min-width:44px}
 button:disabled{opacity:.5;cursor:default}
 button[aria-pressed=true],.go:not(:disabled){background:var(--accent);color:var(--onAccent)}
-.counter{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.task button{flex:1 1 auto;overflow-wrap:anywhere}
+.counter{margin:0;display:flex;flex-wrap:wrap;gap:6px;width:100%}
 .counter[hidden]{display:none}
-.counter div{border:var(--bw) solid var(--edge);border-radius:10px;padding:6px 10px}
-.counter .wide{grid-column:1/-1}
-.counter dt{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-.counter dd{margin:0;font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums}
-.counter .wide dd{font-size:.9rem;font-weight:600}
-.counter p{grid-column:1/-1;margin:0}
-.tasks{margin:0;padding-left:1.3em;font-size:.9rem}
-.tasks li[data-state=done]{text-decoration:line-through}
-.tasks li[data-state=now]{font-weight:800}
-.ask{margin:0 0 12px}
-.ask label{display:block;font-weight:700;margin-bottom:4px}
+.counter div{border:var(--bw) solid var(--edge);border-radius:10px;padding:2px 8px;display:flex;gap:6px;align-items:baseline}
+.counter dt{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.counter dd{margin:0;font-size:1rem;font-weight:800;font-variant-numeric:tabular-nums}
+.counter .wide dd{font-size:.75rem;font-weight:600}
+.counter p{margin:0;font-size:.7rem;width:100%}
+.tasks{display:none}
+.ask{margin:0 0 8px}
+.ask label{display:block;font-weight:700;margin-bottom:4px;font-size:.9rem}
 .ask div{display:flex;gap:8px}
-input{flex:1;min-width:0;border:var(--bw) solid var(--edge);background:var(--bg);padding:8px 12px}
-.tools{display:flex;flex-wrap:wrap;gap:8px}
-.small{font-size:.85rem;margin:6px 0 0}
-.skins{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.skins a{color:inherit;font-weight:700;min-height:44px;display:inline-flex;align-items:center;padding:0 12px;border:1px dashed var(--edge);border-radius:12px}
+input{flex:1;min-width:0;border:var(--bw) solid var(--edge);background:var(--bg);padding:6px 10px}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.small{font-size:.8rem;margin:4px 0 0}
+.skins{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.skins a{color:inherit;font-weight:700;min-height:44px;display:inline-flex;align-items:center;padding:0 10px;border:1px dashed var(--edge);border-radius:12px;font-size:.9rem}
 .skins a[aria-current=page]{background:var(--accent);color:var(--onAccent);border-style:solid}
-details{margin-top:12px;border-top:1px dashed var(--edge);padding-top:6px}
+details{margin-top:8px;border-top:1px dashed var(--edge);padding-top:4px}
 summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
-details ul{padding-left:1.1em;margin:4px 0}
-code,pre{font:.8rem/1.35 ui-monospace,"Cascadia Mono",Menlo,monospace}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:16rem;overflow:auto;margin:6px 0 0}
-:focus-visible{outline:4px solid var(--accent);outline-offset:3px}
-[data-layout=quiet]{--gap:24px}
-[data-layout=quiet] .face{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-areas:"hello map" "chat map" "chat task" "more pad"}
+details ul{padding-left:1.1em;margin:4px 0;font-size:.85rem}
+code,pre{font:.75rem/1.3 ui-monospace,"Cascadia Mono",Menlo,monospace}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}
+:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+[data-layout=quiet] .face{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hello map map" "side map map" "side task pad"}
 [data-layout=quiet] .card{border-color:color-mix(in srgb,var(--edge) 22%,transparent)}
-[data-layout=quiet] .task{grid-template-columns:auto auto 1fr;align-items:start}
-[data-layout=quiet] .task .counter,[data-layout=quiet] .task .tasks{grid-column:1/-1}
-[data-layout=zones]{--r:28px;--bw:4px;--tap:64px;--gap:12px}
-body[data-layout=zones]{font-size:20px}
-[data-layout=zones] .face{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);grid-template-areas:"hello hello" "map chat" "pad task" "more more"}
-[data-layout=zones] .card{box-shadow:0 8px 0 var(--edge)}
+body[data-layout=zones]{--r:24px;--bw:4px;--tap:60px;--joy:170px;font-size:18px}
+[data-layout=zones] .face{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hello side" "map side" "map pad" "task task"}
+[data-layout=zones] .card{box-shadow:0 6px 0 var(--edge)}
 [data-layout=zones] .pad,[data-layout=zones] .task{background:var(--bg)}
-[data-layout=zones] #joy{width:200px;height:200px}
-[data-layout=zones] button{border-radius:22px;font-size:1.1rem;text-align:center}
-[data-layout=zones] .go{font-size:1.25rem;min-height:80px}
-[data-layout=zones] h1{font-size:1.7rem}
-[data-layout=zones] #head{width:84px;height:84px}
-[data-layout=terminal]{--r:4px;--bw:3px;--gap:10px}
-body[data-layout=terminal]{font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;background:repeating-linear-gradient(135deg,var(--bg) 0 14px,color-mix(in srgb,var(--edge) 22%,var(--bg)) 14px 16px)}
-[data-layout=terminal] .face{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr) minmax(0,.6fr);grid-template-areas:"hello hello hello" "chat map task" "chat map pad" "more more more"}
-[data-layout=terminal] .card{border-style:ridge;border-width:6px;background:radial-gradient(circle at 10px 10px,var(--edge) 3px,transparent 4px),radial-gradient(circle at calc(100% - 10px) 10px,var(--edge) 3px,transparent 4px),radial-gradient(circle at 10px calc(100% - 10px),var(--edge) 3px,transparent 4px),radial-gradient(circle at calc(100% - 10px) calc(100% - 10px),var(--edge) 3px,transparent 4px),var(--panel)}
-[data-layout=terminal] .hello{padding:8px 16px}
-[data-layout=terminal] .map{padding:14px;background:var(--edge)}
-[data-layout=terminal] #map{border-radius:18px;box-shadow:inset 0 0 0 3px var(--panel)}
-[data-layout=terminal] .chat::before{content:"Radio log · channel 1" / "";display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;border-bottom:2px dashed var(--edge)}
-[data-layout=terminal] .log li{border:0;border-left:3px solid var(--edge);border-radius:0;padding:4px 10px}
-[data-layout=terminal] .log li.me{border-left-color:var(--accent);background:none;color:var(--fg)}
-[data-layout=terminal] .pad{border-style:dashed;outline:3px dashed var(--accent);outline-offset:-14px}
-[data-layout=terminal] button{border-radius:2px;text-transform:uppercase;letter-spacing:.04em;font-size:.95rem}
-[data-layout=terminal] h1{text-transform:uppercase;letter-spacing:.08em;text-shadow:0 0 6px var(--accent)}
-@media (max-width:760px){
-.face{padding:10px;gap:10px}.card{padding:12px}#head{width:52px;height:52px}h1{font-size:1.15rem}.how{font-size:.9rem}
-[data-layout=quiet]{--gap:14px}
-[data-layout=quiet] .face{grid-template-columns:minmax(0,1fr);grid-template-areas:"hello" "map" "task" "pad" "chat" "more"}
-[data-layout=quiet] .task{grid-template-columns:1fr 1fr}
-[data-layout=quiet] #joy{width:132px;height:132px}
-body[data-layout=zones]{font-size:19px}
-[data-layout=zones] .face{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"hello hello" "map map" "pad task" "chat chat" "more more"}
-[data-layout=zones] #map{aspect-ratio:1/1}
-[data-layout=zones] #joy{width:100%;height:auto;aspect-ratio:1/1;max-width:190px}
-[data-layout=zones] .task .tasks{display:none}
-[data-layout=zones] .go{min-height:96px}
+[data-layout=zones] button{border-radius:20px;text-align:center}
+[data-layout=zones] .go{font-size:1.15rem}
+[data-layout=zones] #head{width:60px;height:60px}
 [data-layout=zones] h1{font-size:1.4rem}
-[data-layout=zones] #head{width:70px;height:70px}
-[data-layout=terminal] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"hello hello" "chat chat" "map map" "task pad" "more more"}
-[data-layout=terminal] .log{max-height:6.5rem}
-[data-layout=terminal] #map{aspect-ratio:5/4}
-[data-layout=terminal] #joy{width:124px;height:124px}
-[data-layout=terminal] .task .tasks{display:none}
+body[data-layout=terminal]{--r:4px;--bw:3px;--gap:8px;font-family:ui-monospace,"Cascadia Mono",Menlo,monospace}
+[data-layout=terminal] .face{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hello hello hello" "side map pad" "side map task"}
+[data-layout=terminal] .card{border-style:ridge;border-width:5px;background:radial-gradient(circle at 9px 9px,var(--edge) 3px,transparent 4px),radial-gradient(circle at calc(100% - 9px) 9px,var(--edge) 3px,transparent 4px),radial-gradient(circle at 9px calc(100% - 9px),var(--edge) 3px,transparent 4px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),var(--edge) 3px,transparent 4px),var(--panel)}
+[data-layout=terminal] .map.card,[data-layout=terminal] .map{background:transparent;border:0}
+[data-layout=terminal] #mapwin{border-radius:16px;box-shadow:inset 0 0 0 5px var(--accent),inset 0 0 40px rgba(0,0,0,.45)}
+[data-layout=terminal] .chat::before{content:"Radio log · channel 1" / "";display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;border-bottom:2px dashed var(--edge)}
+[data-layout=terminal] .log li{border:0;border-left:3px solid var(--edge);border-radius:0;padding:3px 8px}
+[data-layout=terminal] .log li.me{border-left-color:var(--accent);background:none;color:var(--fg)}
+[data-layout=terminal] .pad{border-style:dashed;outline:3px dashed var(--accent);outline-offset:-12px}
+[data-layout=terminal] button{border-radius:2px;text-transform:uppercase;letter-spacing:.02em;font-size:.85rem}
+[data-layout=terminal] h1{text-transform:uppercase;letter-spacing:.08em;text-shadow:0 0 6px var(--accent)}
+@media (max-width:760px) and (orientation:portrait){
+.face{padding:8px;gap:8px}.how{display:none}
+[data-layout=quiet] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto minmax(0,34%);grid-template-areas:"hello hello" "map map" "task task" "side pad"}
+[data-layout=quiet] .pad{align-self:end}
+body[data-layout=zones]{--joy:min(34vw,140px);--tap:56px;font-size:17px}
+[data-layout=zones] .face{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto minmax(0,24%);grid-template-areas:"hello hello" "map map" "pad task" "side side"}
+[data-layout=zones] .task{display:grid;grid-template-columns:1fr;gap:6px}[data-layout=zones] .task button{font-size:.95rem;padding:4px 8px;min-height:48px}
+[data-layout=zones] .go{font-size:1rem}
+[data-layout=zones] h1{font-size:1.15rem}[data-layout=zones] #head{width:44px;height:44px}
+body[data-layout=terminal]{--joy:112px}
+[data-layout=terminal] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,24%) minmax(0,1fr) auto;grid-template-areas:"hello hello" "side side" "map map" "task pad"}
+}
+@media (orientation:landscape) and (max-height:560px){
+.face{padding:6px;gap:6px}.how{display:none}#head{width:34px;height:34px}h1{font-size:1rem}.hello{padding:4px 10px}.card{padding:6px 8px}
+:root{--joy:min(30vh,120px);--tap:44px}
+body[data-layout=zones]{--joy:min(34vh,130px);--tap:44px;font-size:16px}
+body[data-layout=terminal]{--joy:min(28vh,110px)}
+[data-layout=quiet] .face{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hello map pad" "side map pad" "task task pad"}
+[data-layout=zones] .face{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"map hello pad" "map side pad" "task task pad"}
+[data-layout=terminal] .face{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hello hello pad" "side map pad" "task task pad"}
+[data-layout=zones] .task{display:flex}
+.task{gap:6px}.task button{font-size:.8rem;padding:2px 10px;min-height:44px;flex:0 1 auto}
+.counter{gap:10px}.counter div{border:0;padding:0}.counter dt{font-size:.62rem}.counter dd{font-size:.8rem}.counter .wide dd{font-size:.7rem}.counter p{display:none}
+.pad{padding:4px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 @media (prefers-contrast:more){.card,button,.log li{border-width:4px}}
 @media (forced-colors:active){button[aria-pressed=true],.go{outline:3px solid CanvasText}.card{box-shadow:none;background:Canvas}}
-.task button{width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal}
-.task .counter div{min-width:0;overflow-wrap:anywhere}
-@media (max-width:760px){body[data-layout=zones] .go{font-size:1.05rem}body[data-layout=zones] .task button{padding:6px 10px}body[data-layout=terminal] .task button{letter-spacing:0;font-size:.85rem;padding:6px 8px}body[data-layout=terminal] .counter dd{font-size:1.1rem}}
-.counter dt{overflow-wrap:normal;word-break:normal}
-@media (max-width:760px){body[data-layout=zones] .counter{grid-template-columns:1fr}body[data-layout=zones] .counter dt{font-size:.68rem;letter-spacing:.02em}}
+.side{position:relative}

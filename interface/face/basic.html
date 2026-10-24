@@ -7,19 +7,22 @@
 <meta name="description" content="Talk to the Preceptor and walk the crab across the living map. Every screen is also a small machine-readable frame, so a voice app can read it aloud and drive it.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/face/face.css">
-<script type="application/json" id="skin">{"name":"basic","layout":"quiet","sea":"ocean","grid":"cyan","land":"paper","deep":"ink","coral":"vermilion.sombra","star":"cyan","lit":"comic yellow.base","fog":"cyan","path":"vermilion.base","face":"cyan","body":"vermilion.base","label":"ink","halo":"paper","ui":{"bg":"paper","fg":"ink","panel":"paper","accent":"cyan","onAccent":"ink","edge":"ink"},"cast":"none"}</script>
+<script type="application/json" id="skin">{"name":"basic","layout":"quiet","ui":{"bg":"paper","fg":"ink","panel":"paper","accent":"cyan","onAccent":"ink","edge":"ink"},"cast":"none","sea":"ocean","tide":"cyan","sand":"paper","cliff":"ink","rock":"cyan","forest":"paper","leaf":"cyan","coral":"vermilion.sombra","mount":"paper","star":"cyan","lit":"comic yellow.base","path":"vermilion.base","face":"cyan","body":"vermilion.base","label":"paper","halo":"ink","brume":"ink"}</script>
 </head>
 <body data-layout="quiet">
+<canvas id="map" aria-hidden="true"></canvas>
 <main class="face">
 <header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div><h1>The living map</h1><p class="how">You are the crab. Start a task, tap the dashed path, and walk.</p></div></header>
-<section class="map card" aria-label="The living map"><canvas id="map" role="img" aria-label="The living map" aria-describedby="say"></canvas><button type="button" id="whole" class="mini" data-act="whole" aria-pressed="false">Whole map</button></section>
+<section class="map card" aria-label="The living map"><div id="mapwin" role="img" aria-label="The living map" aria-describedby="say"></div></section>
 <section class="task card" aria-label="Your task">
 <button type="button" id="start" class="go" data-act="start"><span aria-hidden="true">▶ </span><span>Start task</span></button>
 <button type="button" id="follow" data-act="follow" disabled>Follow the path</button>
+<button type="button" id="whole" data-act="whole" aria-pressed="false">Whole map</button>
 <dl id="counter" class="counter" hidden><div><dt>Distance left</dt><dd id="c-dist"></dd></div><div><dt>Time left</dt><dd id="c-time"></dd></div><div class="wide"><dt>Real time</dt><dd id="c-real"></dd></div><p id="c-yard" class="small"></p></dl>
 <ol id="tasks" class="tasks" aria-label="Tutorial tasks"><li><span>The beacon</span> · <span></span></li><li><span>The Reef</span> · <span></span></li><li><span>The rift</span> · <span></span></li></ol>
 </section>
 <section class="pad card" aria-label="Joystick"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Push to walk the crab across the map. Arrow keys work too." aria-describedby="say"></canvas></section>
+<div class="side">
 <section class="chat card" aria-label="Chat with the Preceptor"><ol id="log" class="log"></ol><p id="say" class="say" role="status" aria-live="polite"></p></section>
 <section class="more card" aria-label="Write, listen and learn more">
 <form id="ask" class="ask"><label for="reply">Write to the Preceptor</label><div><input id="reply" autocomplete="off" maxlength="280"><button type="submit">Send</button></div></form>
@@ -30,7 +33,7 @@
 <summary>Technical details</summary>
 <ul>
 <li>One product: the web and the app load the same face.js and face_world.js and draw the same frames.</li>
-<li>The map is one <code>preceptoros.bubble/1</code> frame and your state is another, each under 1,024 bytes: deterministic, no network, no clock. The state sits in this page as JSON (<code>#packet</code>).</li>
+<li>The map is one isometric plane drawn from small <code>preceptoros.bubble/1</code> frames (sea, four island groups, mountains and towns, names), each under 1,024 bytes; your state is another. Deterministic, no network, no clock. The state sits in this page as JSON (<code>#packet</code>).</li>
 <li>Distance and time are counted in tiles and steps, never minutes: real time is NO_DATA because no clock is read. The walk advances one step every few screen frames.</li>
 <li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: start, follow, up, down, left, right, whole, sound, read, say.</li>
 <li>Vibration: <span id="touch">NO_DATA</span>.</li>
@@ -39,8 +42,9 @@
 </details>
 <details><summary>Machine view · <span id="bytes"></span></summary><pre id="machine"></pre><pre id="machine-map"></pre></details>
 </section>
+</div>
 </main>
 <script type="application/json" id="packet"></script>
-<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/bubble_bestiary.js"></script><script src="/face/bubble/core.js"></script><script src="/face/face_world.js"></script><script src="/face/face.js"></script>
+<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/bubble_bestiary.js"></script><script src="/face/bubble/bubble_world.js"></script><script src="/face/bubble/core.js"></script><script src="/face/bubble/isometric_floor_projection.js"></script><script src="/face/bubble/world_camera.js"></script><script src="/face/bubble/map_zoom.js"></script><script src="/face/bubble/fog_of_war.js"></script><script src="/face/face_world.js"></script><script src="/face/face_paint.js"></script><script src="/face/face.js"></script>
 </body>
 </html>
