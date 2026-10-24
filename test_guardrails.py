@@ -491,6 +491,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # La terminal zombie oxida su metal con la banda SIMULATED: el mapa de
         # la cara ES una simulacion, asi que el color dice la verdad literal.
         INTRINSECOS |= {"SIMULATED"}
+        # El busto canon del Codex lleva su ojo violeta en la banda FIRMADO:
+        # en esta casa el violeta significa firmado. Banda, no politica.
+        INTRINSECOS |= {"FIRMADO"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

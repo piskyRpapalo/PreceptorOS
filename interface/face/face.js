@@ -12,7 +12,7 @@
     free: 'No model is connected to this preview, so I cannot answer free text yet: NO_DATA. The tasks work without one.',
     tail: 'Shortcuts: Start task, Follow the path, Whole map, Sound, Read aloud.'
   };
-  var st = { at: Wd.homeAt.slice(), task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
+  var st = { at: Wd.homeAt.slice(), moves: 0, dir: -1, met: null, task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
   var map = $('map'), joy = $('joy'), log = $('log'), say = $('say');
   var touch = typeof root.navigator.vibrate === 'function' ? 'vibrate' : 'NO_DATA: this device has no vibration';
   var mapItems = null, cam = { x: 0, y: 0, z: 1 }, timer = 0, held = null;
@@ -31,7 +31,10 @@
   }
 
   function frameNow() {
-    return Wd.stateFrame(skin, { at: st.at, step: st.step, task: st.task, path: st.path, change: st.change, sound: st.sound, walking: st.walking });
+    return Wd.stateFrame(skin, { at: st.at, dir: st.dir, step: st.step, task: st.task, path: st.path, change: st.change, sound: st.sound, walking: st.walking });
+  }
+  function castNow() {
+    return Wd.castFrame(skin, { at: st.at, moves: st.moves, step: st.step, change: st.change });
   }
 
   function view() {
@@ -53,6 +56,8 @@
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     if (!mapItems) { mapItems = B.compile(Wd.mapFrame(skin)).concat(B.compile(Wd.nodesFrame(skin)), B.compile(Wd.gridFrame(skin))); }
     P.paint(ctx, mapItems);
+    var cf = castNow();
+    if (cf) { P.paint(ctx, B.compile(cf)); }
     items = B.compile(f);
     for (i = 0; i < items.length; i++) {
       ctx.setLineDash(items[i].o === 'ribbon' ? [16, 13] : []);
@@ -82,7 +87,7 @@
     paintMap(f);
     $('packet').textContent = JSON.stringify(f);
     $('machine').textContent = JSON.stringify(f, null, 1);
-    $('machine-map').textContent = [Wd.mapFrame(skin), Wd.nodesFrame(skin), Wd.gridFrame(skin)].map(function (x) { return JSON.stringify(x); }).join('\n');
+    $('machine-map').textContent = [Wd.mapFrame(skin), Wd.nodesFrame(skin), Wd.gridFrame(skin), castNow()].filter(Boolean).map(function (x) { return JSON.stringify(x); }).join('\n');
     $('bytes').textContent = n + ' B of 1,024 B';
     map.setAttribute('aria-label', 'The living map. ' + f.atoms.map(function (a) { return a.r; }).join('. ') + '.');
     say.textContent = st.said;
@@ -110,6 +115,12 @@
     A.activa(true);
     A.suena(A.vozDe({ armonicos: Wd.starH.map(function (h, j) { return [h[0], h[1] + 3 * i * j, h[2], h[3]]; }) }));
     root.setTimeout(function () { A.suena('pop'); }, 620);
+  }
+
+  function meet() {
+    var m = Wd.castMeet(skin, { at: st.at, moves: st.moves });
+    if (m && m !== st.met) { bubble('pre', m); }
+    st.met = m;
   }
 
   function stopWalk() { st.walking = false; if (timer) { root.cancelAnimationFrame(timer); timer = 0; } }
@@ -148,7 +159,10 @@
       tick++;
       if (reduce || tick % 4 === 0) {
         st.step = reduce ? st.route.steps : st.step + 1;
+        if (st.route.at[st.step][0] !== st.at[0]) { st.dir = st.route.at[st.step][0] > st.at[0] ? 1 : -1; }
         st.at = st.route.at[st.step].slice();
+        st.moves++;
+        meet();
         st.change = 'step ' + st.step + ' of ' + st.route.steps;
         if (st.step >= st.route.steps) {
           st.walking = false; timer = 0;
@@ -167,6 +181,9 @@
   function move(dx, dy, n) {
     if (st.walking) { stopWalk(); st.route = null; st.step = 0; st.said = 'You took the joystick. Press Start task to draw the path again.'; }
     st.at = [Wd.clamp(Math.round(st.at[0] + dx * n), 20, Wd.W - 20), Wd.clamp(Math.round(st.at[1] + dy * n), 20, Wd.H - 20)];
+    if (dx) { st.dir = dx > 0 ? 1 : -1; }
+    st.moves++;
+    meet();
     st.change = 'joystick';
     if (!arriveCheck() && st.path) { st.path = Wd.route(st.at, places[st.task]); st.route = null; }
     render();

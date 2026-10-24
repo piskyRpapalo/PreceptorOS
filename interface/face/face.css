@@ -105,3 +105,5 @@ body[data-layout=zones]{font-size:19px}
 .task button{width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal}
 .task .counter div{min-width:0;overflow-wrap:anywhere}
 @media (max-width:760px){body[data-layout=zones] .go{font-size:1.05rem}body[data-layout=zones] .task button{padding:6px 10px}body[data-layout=terminal] .task button{letter-spacing:0;font-size:.85rem;padding:6px 8px}body[data-layout=terminal] .counter dd{font-size:1.1rem}}
+.counter dt{overflow-wrap:normal;word-break:normal}
+@media (max-width:760px){body[data-layout=zones] .counter{grid-template-columns:1fr}body[data-layout=zones] .counter dt{font-size:.68rem;letter-spacing:.02em}}

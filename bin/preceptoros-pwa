@@ -259,7 +259,7 @@ ESTATICOS = {
 # servidor compara la ruta cruda, sin decodificar.
 CARA_PIELES = ("basic", "atlantis", "zombie")
 CARA_LENGUA = ("tabla_semantica", "comic_tokens", "comic_accents", "valores", "gacha",
-               "comic_atoms", "bubble_light", "bubble_language", "core")
+               "comic_atoms", "bubble_light", "bubble_language", "bubble_bestiary", "core")
 for _piel in CARA_PIELES:
     ESTATICOS[f"/face/{_piel}.html"] = (f"face/{_piel}.html", "text/html; charset=utf-8")
 ESTATICOS["/face/face.js"] = ("face/face.js", "application/javascript; charset=utf-8")

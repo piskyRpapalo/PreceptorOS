@@ -115,12 +115,65 @@
       var p = places[done].at;
       atoms.push({ k: 'goal', r: 'task: ' + places[done].name, i: [{ o: 'arcs', x: p[0], y: p[1], r: [40, 40], n: 4, arc: 50, ph: -25, s: skin.path, lw: 6 }] });
     }
-    atoms.push({ k: 'crab', r: 'you at ' + x + ',' + y, i: [
-      { o: 'wave', x: x, y: y, h: [crabH[0], [5, 5, 5, 32 + ph], [-3, 5, 5, -32 + ph]], f: skin.body },
-      { o: 'arcs', x: x, y: y - 6, r: [9, 9], n: 2, arc: 24, ph: 168, s: 'ink', lw: 7 }] });
+    atoms.push({ k: 'crab', r: 'you at ' + x + ',' + y, i: skin.crab === 'canon'
+      ? [{ o: 'crab', x: x, y: y, rr: 54, dir: st.dir === 1 ? 1 : -1, eye: (st.step || 0) % 2 ? 'up' : 'open' }]
+      : [{ o: 'wave', x: x, y: y, h: [crabH[0], [5, 5, 5, 32 + ph], [-3, 5, 5, -32 + ph]], f: skin.body },
+        { o: 'arcs', x: x, y: y - 6, r: [9, 9], n: 2, arc: 24, ph: 168, s: 'ink', lw: 7 }] });
     return { v: V, id: 'you', t: st.step || 0, cv: [W, H], atoms: atoms,
-      bands: uniq([done ? skin.lit : skin.star].concat(fog.length ? [skin.fog] : [], [skin.path, skin.body, 'ink'])),
+      bands: uniq([done ? skin.lit : skin.star].concat(fog.length ? [skin.fog] : [], [skin.path, skin.crab === 'canon' ? 'cyan' : skin.body, 'ink'])),
       change: [st.change || 'rest'], sound: st.sound ? 'arrival voice' : 'NO_DATA', soundCause: st.sound ? 'vozDe star h' : 'sound off', motion: st.walking ? 'walking' : 'on input' };
+  }
+
+  var patrol = [[486, 642], [566, 700], [626, 768], [566, 830], [476, 772], [430, 700]];
+  var codexScale = 1.6;
+  var canon = [
+    { o: 'octo', x: 650, y: 610, r: 29, eye: 'up', say: 'A little octopus looks up at you. Hello!' },
+    { o: 'star', x: 262, y: 716, r: 32, eye: 'up', say: 'A starfish waves one of its five arms.' },
+    { o: 'snail', x: 480, y: 872, r: 26, eye: 'up', say: 'A snail takes its time. So can you.' },
+    { o: 'bust', x: 452, y: 132, r: 74, eye: 'open', cybEye: 'violet', mEye: 'happy', mouth: 'o', say: 'The Preceptor has landed upright by the rift. Its violet eye means signed.' }
+  ];
+
+  function wanderAt(moves) {
+    var k = 6, n = patrol.length * k, i = ((moves % n) + n) % n, a = patrol[Math.floor(i / k)], b = patrol[(Math.floor(i / k) + 1) % patrol.length], t = (i % k) / k;
+    return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), b[0] >= a[0] ? 1 : -1];
+  }
+
+  function near(st, x, y, r) { return Math.hypot(st.at[0] - x, st.at[1] - y) < r; }
+
+  function castFrame(skin, st) {
+    if (skin.cast === 'canon') {
+      var items = [{ o: 'field', kind: 'halftone', y: [70, 300], r: '2.2|1.2|.6|0', step: 16, f: 'cyan' }];
+      canon.forEach(function (c) {
+        var it = {}, k;
+        for (k in c) { if (k !== 'say') { it[k] = c[k]; } }
+        if (c.o !== 'bust' && near(st, c.x, c.y, 110)) { it.eye = 'open'; }
+        items.push(it);
+      });
+      return { v: V, id: 'cast', t: st.step || 0, cv: [W, H], atoms: [{ k: 'creatures', r: 'the canon creatures: an octopus, a starfish, a snail, and the Preceptor by the rift', i: items }],
+        bands: ['cyan', 'ink', 'ocean', 'paper', 'FIRMADO.base'], change: [st.change || 'rest'], sound: 'NO_DATA', soundCause: 'the creatures are silent', motion: 'they look at you when you come near' };
+    }
+    if (skin.cast === 'wanderer') {
+      var w = wanderAt(st.moves || 0), x = w[0], y = w[1], d = w[2], z = skin.zombie;
+      var q = function (dx, dy) { return [Math.round(x + 1.5 * dx * d), Math.round(y - 1.5 * dy)]; };
+      var o = function (kind, dx, dy, r, f) { var c = q(dx, dy); return { o: kind, x: c[0], y: c[1], rx: r, ry: r, f: f }; };
+      return { v: V, id: 'cast', t: st.moves || 0, cv: [W, H], atoms: [{ k: 'wanderer', r: 'friendly wanderer at ' + x + ',' + y, i: [
+        { o: 'ribbon', pts: [q(-7, 0), q(-5, 22), q(5, 22), q(8, 1)], s: z.pants, lw: 13 },
+        { o: 'wave', x: x, y: Math.round(y - 52), h: [[1, 24, 26, 0], [6, 0, 3, 0]], f: z.shirt },
+        o('blob', 5, 34, 6, z.patch),
+        { o: 'ribbon', pts: [q(4, 44), q(18, 46), q(31, 42)], s: z.skin, lw: 11 },
+        o('blob', 3, 63, 34, z.skin),
+        o('blob', 10, 66, 8, 'paper'), o('blob', -3, 66, 7, 'paper'),
+        { o: 'arcs', x: q(4, 65)[0], y: q(4, 65)[1], r: [10, 10], n: 2, arc: 30, ph: -15, s: 'ink', lw: 5 },
+        o('blob', 7, 54, 7, z.patch)] }],
+        bands: uniq([z.pants, z.shirt, z.patch, z.skin, 'paper', 'ink']), change: [st.change || 'rest'], sound: 'NO_DATA', soundCause: 'silent', motion: 'steps when you move' };
+    }
+    return null;
+  }
+
+  function castMeet(skin, st) {
+    if (skin.cast === 'canon') { for (var i = 0; i < canon.length; i++) { if (near(st, canon[i].x, canon[i].y, 110)) { return canon[i].say; } } }
+    if (skin.cast === 'wanderer') { var w = wanderAt(st.moves || 0); if (near(st, w[0], w[1] - 40, 90)) { return 'Radio: a wanderer shuffles past, arms out. It only wants company, and it cannot hurt you.'; } }
+    return null;
   }
 
   function headFrame(skin) {
@@ -146,6 +199,6 @@
   }
 
   var World = { W: W, H: H, tile: tile, homeAt: homeAt, places: places, starH: starH, route: route, walk: walk, counter: counter, clamp: clamp,
-    mapFrame: mapFrame, gridFrame: gridFrame, nodesFrame: nodesFrame, stateFrame: stateFrame, headFrame: headFrame, joyFrame: joyFrame, bytes: bytes };
+    mapFrame: mapFrame, gridFrame: gridFrame, nodesFrame: nodesFrame, stateFrame: stateFrame, headFrame: headFrame, castFrame: castFrame, castMeet: castMeet, wanderAt: wanderAt, canon: canon, codexScale: codexScale, joyFrame: joyFrame, bytes: bytes };
   if (typeof module === 'object' && module.exports) { module.exports = World; } else { root.PreceptorWorld = World; }
 })(typeof module === 'object' && module.exports ? this : window);

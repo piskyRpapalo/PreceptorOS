@@ -41,6 +41,7 @@ CLAVADAS = {
     "bubble_light.js": "ddec8332ed88e3482a2101bc93fe0d4dd0e0befd8889a9932f39d3490d00ceb1",
     "bubble_language.js": "21f1c84ac69575e6352de2a1ba350f1798908179fc28b8390c89c095234ab96f",
     "core.js": "f7f126fde151931830f772be35aecdd84fa97f7c5be4b257f80d9674a66f6a0d",
+    "bubble_bestiary.js": "7288216a1bedb8f4ced75cf3c2930eaf40a917f15f52d8332881d182a10c69aa",
 }
 
 
