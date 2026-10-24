@@ -30,7 +30,7 @@ _spec.loader.exec_module(PWA)
 
 CARA = pathlib.Path(AQUI, "interface", "face")
 PIELES = ("basic", "atlantis", "zombie")
-# sha256 de preceptoros-web public/game/ en la base 63c8331 (rama del terreno NORTE 5).
+# sha256 de preceptoros-web public/game/ y public/assets/ en la base 63c8331 (rama del terreno NORTE 5).
 CLAVADAS = {
     "tabla_semantica.js": "eaab078c53a15602bd6e0ed596c1b04c4320db19bd536d6813b5afc0100019ce",
     "comic_tokens.js": "41c49df095fb5e7e80bd11f790988d9371dcbe219cb91ce1fd6a644bfec52936",
@@ -47,6 +47,12 @@ CLAVADAS = {
     "world_camera.js": "816cb43df904406ddc52892dd1150cc14868e638565ef5c47a24b0e921533b6b",
     "map_zoom.js": "762b7e9781246bc09ea1b1a91b7adddeb82de6a1a6b96d86c1b9e1691d9c01c1",
     "fog_of_war.js": "d49073798b909aa575c8f527f2f49aae9bb8f1861febd698ab48f36d8fce405d",
+    "canon.js": "c361e777366c0942b4a9271258e97658ce44bf28a82d45e9889a7b9846698358",
+    "combate_ticks.js": "b40c73a978c4e92e071259b9698a2b315b4a67ae7707e338bab40e1e0660dff2",
+    "escuadron.js": "a59f79e28169f2283e4a52bdbf3c8f9e3f827ea79ca5fcdf4d3eee63d1c44483",
+    "wave_render.js": "c26d3d78b3ea27c449c9fa6b6a8692647e954b72c99a6f4e5f4025eab3adb1d6",
+    "atlas-coord.js": "144278777fabd5e5cea40b468a9686764bf57c6a9d87b2c67260b71844282cf6",
+    "worm_transition.js": "ebe5f45de93bce9c9f34ae04fd4377a96f7ed39e02c370de0eec93d721a6363f",
 }
 
 

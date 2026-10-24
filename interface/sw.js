@@ -41,8 +41,10 @@
 // v110 (2026-10-24): una sola ventana fija sobre el mapa isométrico vivo:
 // entran face_paint.js y cinco piezas del mapa de la web (proyección, cámara,
 // zoom, niebla y ciudad).
-const Cache = "preceptoros-armazon-v110";
-const Armazon = ["/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face_world.js", "/face/face_paint.js", "/face/face.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/bubble_bestiary.js", "/face/bubble/bubble_world.js", "/face/bubble/core.js", "/face/bubble/isometric_floor_projection.js", "/face/bubble/world_camera.js", "/face/bubble/map_zoom.js", "/face/bubble/fog_of_war.js",
+// v111 (2026-10-24): el panel con categorías y el gusano canon, y el combate
+// de ondas (combate_ticks, escuadrón, wave_render) en la cara.
+const Cache = "preceptoros-armazon-v111";
+const Armazon = ["/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face_world.js", "/face/face_paint.js", "/face/face_battle.js", "/face/face_panel.js", "/face/face_fight.js", "/face/face.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/bubble_bestiary.js", "/face/bubble/bubble_world.js", "/face/bubble/core.js", "/face/bubble/isometric_floor_projection.js", "/face/bubble/world_camera.js", "/face/bubble/map_zoom.js", "/face/bubble/fog_of_war.js", "/face/bubble/atlas-coord.js", "/face/bubble/canon.js", "/face/bubble/combate_ticks.js", "/face/bubble/escuadron.js", "/face/bubble/wave_render.js", "/face/bubble/worm_transition.js",
                  "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
                  "/app.html", "/app.css?v=3", "/app.js?v=5", "/creation_publish.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",

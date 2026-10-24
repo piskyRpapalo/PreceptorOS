@@ -494,6 +494,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # El busto canon del Codex lleva su ojo violeta en la banda FIRMADO:
         # en esta casa el violeta significa firmado. Banda, no politica.
         INTRINSECOS |= {"FIRMADO"}
+        # Las cabeceras del panel de la cara llevan su sello como el marco de
+        # la terminal canon (LIVE, STALE o NO_DATA): estado, no politica.
+        INTRINSECOS |= {"LIVE"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

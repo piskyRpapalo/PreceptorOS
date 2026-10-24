@@ -11,8 +11,19 @@ body{margin:0;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif
 #mapwin{width:100%;height:100%;min-height:80px;border-radius:var(--r);touch-action:none;cursor:pointer;box-shadow:inset 0 0 0 2px var(--edge)}
 .task{grid-area:task;display:flex;flex-wrap:wrap;gap:8px;align-items:center;align-content:center}
 .pad{grid-area:pad;display:grid;place-items:center}
-.side{grid-area:side;display:flex;flex-direction:column;gap:var(--gap);overflow:auto;min-height:0;min-width:0;overscroll-behavior:contain}
-.side>.card{flex:none;min-height:auto}
+.side{grid-area:side;display:flex;flex-direction:column;gap:6px;overflow:hidden;min-height:0;min-width:0}
+.tabs{display:flex;gap:6px;flex:none}
+.tabs [role=tab]{flex:1 1 0;text-align:center;min-height:44px;padding:4px 8px}
+.tabs [role=tab][aria-selected=true]{background:var(--accent);color:var(--onAccent)}
+.sheet-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;flex:none;font-size:.9rem}
+.seal{font-size:.68rem;font-weight:800;letter-spacing:.06em;border:1px solid var(--edge);border-radius:999px;padding:0 8px}
+.sheet-head .small{width:100%;margin:0;opacity:.85}
+.side .say{flex:none}
+.sheets{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;position:relative}
+.sheets [role=tabpanel]{display:flex;flex-direction:column;gap:8px}
+.sheets [hidden]{display:none}
+.worm{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:5}
+#b-receipt{font-size:.68rem;margin:0}
 h1{font-size:1.15rem;line-height:1.15;margin:0;font-weight:700}
 .how{margin:2px 0 0;font-size:.85rem}
 #head{width:46px;height:46px;flex:none}
@@ -72,16 +83,20 @@ body[data-layout=terminal]{--r:4px;--bw:3px;--gap:8px;font-family:ui-monospace,"
 [data-layout=terminal] button{border-radius:2px;text-transform:uppercase;letter-spacing:.02em;font-size:.85rem}
 [data-layout=terminal] h1{text-transform:uppercase;letter-spacing:.08em;text-shadow:0 0 6px var(--accent)}
 @media (max-width:760px) and (orientation:portrait){
-.face{padding:8px;gap:8px}.how{display:none}
-[data-layout=quiet] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto minmax(0,34%);grid-template-areas:"hello hello" "map map" "task task" "side pad"}
-[data-layout=quiet] .pad{align-self:end}
-body[data-layout=zones]{--joy:min(34vw,140px);--tap:56px;font-size:17px}
-[data-layout=zones] .face{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto minmax(0,24%);grid-template-areas:"hello hello" "map map" "pad task" "side side"}
-[data-layout=zones] .task{display:grid;grid-template-columns:1fr;gap:6px}[data-layout=zones] .task button{font-size:.95rem;padding:4px 8px;min-height:48px}
-[data-layout=zones] .go{font-size:1rem}
-[data-layout=zones] h1{font-size:1.15rem}[data-layout=zones] #head{width:44px;height:44px}
-body[data-layout=terminal]{--joy:112px}
-[data-layout=terminal] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,24%) minmax(0,1fr) auto;grid-template-areas:"hello hello" "side side" "map map" "task pad"}
+.face{padding:6px;gap:6px}.how{display:none}.card{padding:8px}
+.sheet-head .small{display:none}.tabs [role=tab]{min-height:44px;font-size:.95rem}
+.task{flex-wrap:nowrap;gap:6px}.task button{font-size:.82rem;padding:2px 8px;min-height:44px}
+.counter{gap:8px}.counter div{border:0;padding:0}.counter p{display:none}
+[data-layout=quiet] .hello,[data-layout=zones] .hello{display:none}
+[data-layout=quiet] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto minmax(0,46%);grid-template-areas:"map map" "task task" "side pad"}
+[data-layout=quiet] .task{flex-wrap:wrap}[data-layout=quiet] .pad{align-self:end}
+body[data-layout=zones]{--joy:min(30vw,118px);--tap:52px;font-size:17px}
+[data-layout=zones] .face{grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto minmax(0,42%);grid-template-areas:"map map" "pad task" "side side"}
+[data-layout=zones] .task{display:grid;grid-template-columns:1fr 1fr;gap:6px}[data-layout=zones] .task .go,[data-layout=zones] .task .counter{grid-column:1/-1}
+body[data-layout=terminal]{--joy:104px}
+[data-layout=terminal] .hello{padding:4px 10px}[data-layout=terminal] #head{width:30px;height:30px}[data-layout=terminal] h1{font-size:.95rem}
+[data-layout=terminal] .face{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,40%) minmax(0,1fr) auto;grid-template-areas:"hello hello" "side side" "map map" "task pad"}
+[data-layout=terminal] .task{flex-wrap:wrap}
 }
 @media (orientation:landscape) and (max-height:560px){
 .face{padding:6px;gap:6px}.how{display:none}#head{width:34px;height:34px}h1{font-size:1rem}.hello{padding:4px 10px}.card{padding:6px 8px}
