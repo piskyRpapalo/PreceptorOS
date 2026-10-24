@@ -67,6 +67,7 @@ import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
+import voz_creacion as _voz_creacion                          # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
 PUERTO = int(os.environ.get("PRECEPTOROS_PWA_PUERTO") or os.environ.get("PRECEPTOROS_PWA_PUERTO", "8740"))
@@ -299,6 +300,28 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
+        if self.path.split("?")[0] == "/api/creaciones/voz":
+            puerto = self.server.server_address[1]
+            origen = self.headers.get("Origin")
+            if not _creacion_publicacion.origen_local_valido(
+                    origen, self.headers.get("Host"), puerto):
+                return self._json(403, {"estado": "NO_DATA", "causa": "origen no permitido"})
+            if self.headers.get("Access-Control-Request-Method", "").upper() != "POST":
+                return self._json(403, {"estado": "NO_DATA", "causa": "método no permitido"})
+            solicitados = {x.strip().lower() for x in
+                           self.headers.get("Access-Control-Request-Headers", "").split(",")
+                           if x.strip()}
+            if not solicitados <= {"content-type"}:
+                return self._json(403, {"estado": "NO_DATA", "causa": "cabecera no permitida"})
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", origen)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Access-Control-Max-Age", "600")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if (self.path.split("?")[0] != "/api/orquestador" or
                 self.headers.get("Origin") != ORIGEN_WEB_ORQUESTADOR or
                 self.headers.get("Access-Control-Request-Method", "").upper() != "POST"):
@@ -450,6 +473,8 @@ class PWA(BaseHTTPRequestHandler):
         ruta = self.path.split("?")[0]
         if ruta == "/api/creaciones":
             return self._creacion_publicar()
+        if ruta == "/api/creaciones/voz":
+            return self._creacion_voz()
         if ruta == "/api/orquestador":
             return self._orquestador()
         datos = self._leer()
@@ -483,6 +508,68 @@ class PWA(BaseHTTPRequestHandler):
             codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
             return self._json(codigo, resultado)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    def _creacion_voz(self):
+        origen = self.headers.get("Origin")
+        host = self.headers.get("Host")
+        puerto = self.server.server_address[1]
+        if not _creacion_publicacion.origen_local_valido(origen, host, puerto):
+            return self._json(403, {"estado": "NO_DATA", "causa": "origen no permitido"})
+        if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+            return self._json(415, {"estado": "NO_DATA", "causa": "se requiere application/json"})
+        try:
+            largo = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            largo = 0
+        if largo <= 0 or largo > 2048:
+            return self._json(413, {"estado": "NO_DATA", "causa": "cuerpo vacío o excede el límite"})
+        raw = self.rfile.read(largo)
+        if len(raw) != largo:
+            return self._json(400, {"estado": "NO_DATA", "causa": "cuerpo truncado"})
+        try:
+            datos = json.loads(raw.decode("utf-8", "strict"))
+        except (ValueError, UnicodeError, RecursionError):
+            return self._json(400, {"estado": "NO_DATA", "causa": "JSON UTF-8 inválido"})
+        if not isinstance(datos, dict) or set(datos) != {"text"}:
+            return self._json(400, {"estado": "NO_DATA", "causa": "campos de solicitud inválidos"})
+        texto = datos["text"]
+        try:
+            bytes_texto = texto.encode("utf-8", "strict") if isinstance(texto, str) else b""
+        except UnicodeError:
+            bytes_texto = b""
+        if (not isinstance(texto, str) or not texto.strip()
+                or not bytes_texto or len(bytes_texto) > 1024):
+            return self._json(400, {"estado": "NO_DATA", "causa": "declaración debe tener 1 a 1024 bytes UTF-8"})
+        resultado = _voz_creacion.generar(texto)
+        if not isinstance(resultado, dict):
+            return self._json(503, {"estado": "NO_DATA", "causa": "generador local devolvió una respuesta inválida"})
+        try:
+            respuesta = json.dumps(resultado, ensure_ascii=False).encode("utf-8", "strict")
+        except (TypeError, ValueError, UnicodeError):
+            return self._json(503, {"estado": "NO_DATA", "causa": "respuesta local inválida"})
+        if len(respuesta) > _voz_creacion.LIMITE:
+            return self._json(413, {"estado": "NO_DATA", "causa": "descargas de voz exceden 25 MiB"})
+        if resultado.get("estado") == "ok":
+            catalogo, declaracion = resultado.get("catalog"), resultado.get("declaration")
+            if (not isinstance(catalogo, dict) or not isinstance(declaracion, dict)
+                    or not catalogo.get("profile_id")
+                    or catalogo.get("profile_id") != declaracion.get("profile_id")):
+                return self._json(503, {"estado": "NO_DATA", "causa": "perfil de voz inconsistente"})
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(respuesta)))
+            self.send_header("Vary", "Origin")
+            self.end_headers()
+            self.wfile.write(respuesta)
+            return
+        if resultado.get("estado") != "NO_DATA" or set(resultado) != {"estado", "causa"}:
+            return self._json(503, {"estado": "NO_DATA", "causa": "respuesta local inválida"})
+        self.send_response(503)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(respuesta)))
+        self.send_header("Vary", "Origin")
+        self.end_headers()
+        self.wfile.write(respuesta)
 
     def _creacion_store(self):
         root = os.environ.get("PRECEPTOROS_CREATION_DIR") or os.path.expanduser("~/.preceptoros/creaciones")
