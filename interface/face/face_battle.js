@@ -17,19 +17,22 @@
   var formNames = { agresiva: 'Spear', defensiva: 'Shield', flanqueo: 'Wings' };
   var spots = [[[440, 300], [490, 326], [540, 300]], [[436, 104], [486, 82], [536, 104]]];
 
-  function teams() {
+  function teams(squad) {
     return {
-      def: [{ semilla: codex.normal, tc: 'tc3' }, { semilla: codex.magico, tc: 'tc3' }, { semilla: codex.raro, tc: 'tc3' }],
+      def: squad && squad.length ? squad.slice(0, 3) : [{ semilla: codex.normal, tc: 'tc3' }, { semilla: codex.magico, tc: 'tc3' }, { semilla: codex.raro, tc: 'tc3' }],
       asa: [{ semilla: K.sha('preceptor.face/enemy:1'), tc: 'tc3' }, { semilla: K.sha('preceptor.face/enemy:2'), tc: 'tc3' }, { semilla: codex.unico, tc: 'tc2' }]
     };
   }
   var seed = K.sha('preceptor.face/battle:rift');
 
   function create() {
-    var t = teams(), draws = [t.def.map(function (x) { return G.tirada(x.semilla, x.tc); }), t.asa.map(function (x) { return G.tirada(x.semilla, x.tc); })];
+    var t, draws;
+    function load() { t = teams(root.PreceptorArmySquad); draws = [t.def.map(function (x) { return G.tirada(x.semilla, x.tc); }), t.asa.map(function (x) { return G.tirada(x.semilla, x.tc); })]; }
+    load();
     var b = { on: false, form: 'defensiva', orders: [], st: null, last: [], result: null, receipt: null, verified: null, reveal: 0 };
 
     function begin() {
+      load();
       b.on = true; b.orders = []; b.result = null; b.receipt = null; b.verified = null; b.last = []; b.reveal = 0;
       b.st = T.inicia(t.def, t.asa, seed);
       return b;
@@ -49,6 +52,7 @@
       b.result = T.cierra(b.st);
       var r = T.recibo(t.def, t.asa, seed, b.orders);
       b.receipt = r.ok ? r.texto : 'NO_DATA: ' + r.motivo;
+      b.teams = t;
       b.verified = r.ok ? T.verifica(r.recibo, t.def, t.asa) : { ok: false, motivo: r.motivo };
     }
     function withdraw(i) {

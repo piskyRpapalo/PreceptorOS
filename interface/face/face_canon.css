@@ -1,0 +1,20 @@
+#identity button,#identity a{min-height:44px;font:inherit;color:inherit;border:var(--bw) solid var(--edge);border-radius:12px;background:var(--bg);padding:6px 12px;font-weight:700;display:inline-flex;align-items:center;margin:4px 6px 0 0}
+#identity-menu{padding:12px;border:3px solid var(--edge);border-radius:14px;background:var(--panel);color:var(--fg)}
+#identity-menu button{min-height:44px;font:inherit;margin-top:8px}
+.revela{position:fixed;inset:0;z-index:90;display:grid;grid-template-rows:minmax(0,1fr) auto;background:rgb(5,8,18)}
+.revela-lienzo{width:100%;height:100%;display:block;cursor:pointer}
+.revela-pie{display:grid;justify-items:center;gap:.6rem;padding:1rem;max-height:55dvh;overflow:auto;color:#f2f5f7}
+.revela-txt{margin:0;min-height:1.4em;font:700 1.05rem/1.3 ui-monospace,monospace;text-align:center}
+.revela-ok{min-height:48px;min-width:9rem;font:inherit;font-weight:700;border-radius:14px}
+.revela-ficha{width:min(100%,40rem);max-height:36dvh;overflow:auto;padding:.6rem;border:2px solid #00d2ff;border-radius:12px;font-size:.85rem}
+.revela-ficha-vector{display:block;max-height:4rem;overflow:auto;font-size:.68rem;overflow-wrap:anywhere}
+#army-wave-dialog{width:min(94vw,40rem);max-height:88dvh;padding:1rem;color:var(--fg);background:var(--panel);border:3px solid var(--edge);border-radius:16px}
+#army-wave-dialog::backdrop{background:rgb(5,8,18);opacity:.8}
+.army-wave-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.army-wave-head h2{margin:0;font-size:1.15rem}
+.army-wave-head button,.army-wave-plus{min-width:44px;min-height:44px}
+.army-wave-body{display:grid;gap:.6rem}
+.army-wave-section{padding:.6rem;border:1px solid var(--edge);border-radius:10px}
+.army-wave-stat{display:grid;grid-template-columns:1fr auto;gap:.25rem .65rem;padding:.4rem 0;border-top:1px solid var(--edge)}
+.army-wave-stat h4,.army-wave-value,.army-wave-source,.army-wave-stat small{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.army-wave-level{width:100%;height:1rem}

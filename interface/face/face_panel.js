@@ -2,25 +2,28 @@
   'use strict';
   var doc = root.document;
   var heads = {
-    chat: ['Chat', 'LIVE', 'this page: the Preceptor answers; no model is connected'],
-    battle: ['Battle', 'NO_DATA', 'combate_ticks: seeded rounds, receipt verified by replay'],
-    info: ['Info', 'LIVE', 'this page: sound, voice, layouts and the machine view']
+    map: ['Map', 'LIVE', 'this page: the living map'],
+    battle: ['Battle', 'NO_DATA', 'canon Army, gacha and combate_ticks; summons and adoptions are signed by your key'],
+    profile: ['Profile', 'LIVE', 'this page: your growth by the canon rule; your key from the canon identity'],
+    info: ['Info', 'LIVE', 'this page: sound, voice, layouts, tools and the machine view']
   };
 
   function create(onShow) {
-    var tabs = Array.prototype.slice.call(doc.querySelectorAll('[role=tab]')), now = 'chat', opened = {}, switches = 0, worm = null, run = 0;
+    var tabs = Array.prototype.slice.call(doc.querySelectorAll('[role=tab]')), now = 'map', opened = {}, switches = 0, worm = null, run = 0;
     var seal = {};
     Object.keys(heads).forEach(function (k) { seal[k] = heads[k][1]; });
 
     function center(el) { var q = el.getBoundingClientRect(); return [Math.round(q.left + q.width / 2), Math.round(q.top + q.height / 2)]; }
     function quiet() { return root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches; }
     function hue(s) { var S = root.AtlasSemantica, d = S && S.de ? S.de(s) : null; return d ? d.hue : null; }
+    function sheet(id) { return doc.getElementById('sheet-' + id); }
 
     function crawl(a, b, id) {
       var W = root.AtlasWorm;
       if (!W || quiet()) { return; }
       if (!worm) { worm = doc.createElement('canvas'); worm.className = 'worm'; worm.setAttribute('aria-hidden', 'true'); doc.body.appendChild(worm); }
-      var S = { ciclo: switches, intentos: opened[id], delta: (doc.getElementById('sheet-' + id).textContent.length - doc.getElementById('sheet-' + a.id).textContent.length), sello: seal[id] };
+      var ta = sheet(a.id), tb = sheet(id);
+      var S = { ciclo: switches, intentos: opened[id], delta: (tb ? tb.textContent.length : 0) - (ta ? ta.textContent.length : 0), sello: seal[id] };
       var A = center(a.el), B = center(b), turn = ++run, frame = 0, d = Math.min(2, root.devicePixelRatio || 1), h = hue(seal[id]);
       var color = h === null ? 'rgba(150,160,180,.85)' : 'hsl(' + h + ' 70% 60%)';
       function draw() {
@@ -41,18 +44,20 @@
 
     function head(id) {
       doc.getElementById('sheet-title').textContent = heads[id][0];
-      doc.getElementById('sheet-seal').textContent = seal[id];
-      doc.getElementById('sheet-seal').dataset.seal = seal[id];
-      doc.getElementById('sheet-source').textContent = 'Source: ' + heads[id][2];
+      var sl = doc.querySelector('[data-seal-of="' + id + '"]'), so = doc.querySelector('[data-source-of="' + id + '"]');
+      if (sl) { sl.textContent = seal[id]; sl.dataset.seal = seal[id]; }
+      if (so) { so.textContent = 'Source: ' + heads[id][2]; }
     }
 
     function show(id, focus) {
       if (!heads[id]) { return; }
+      if (id === now && id !== 'map') { id = 'map'; }
       var from = { id: now, el: doc.getElementById('tab-' + now) }, to = doc.getElementById('tab-' + id);
       if (id !== now) { switches++; }
       opened[id] = (opened[id] || 0) + 1;
       tabs.forEach(function (t) { var on = t.id === 'tab-' + id; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
-      Object.keys(heads).forEach(function (k) { doc.getElementById('sheet-' + k).hidden = k !== id; });
+      Object.keys(heads).forEach(function (k) { var s = sheet(k); if (s) { s.hidden = k !== id; } });
+      doc.body.dataset.view = id;
       if (id !== now) { crawl(from, to, id); }
       now = id;
       head(id);
@@ -60,7 +65,7 @@
       if (onShow) { onShow(id); }
     }
 
-    function mark(id, s) { seal[id] = s; if (id === now) { head(id); } }
+    function mark(id, s) { seal[id] = s; head(id); }
 
     tabs.forEach(function (t, i) {
       t.addEventListener('click', function () { show(t.id.slice(4), false); });
@@ -69,6 +74,7 @@
         if (k) { e.preventDefault(); show(tabs[(i + k + tabs.length) % tabs.length].id.slice(4), true); }
       });
     });
+    doc.body.dataset.view = now;
     head(now);
     return { show: show, mark: mark, now: function () { return now; }, switches: function () { return switches; } };
   }

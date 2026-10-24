@@ -33,8 +33,9 @@
     root.cancelAnimationFrame(loop);
     fight.begin();
     H.focus(field);
+    doc.body.dataset.battle = 'on';
     H.panel.mark('battle', 'LIVE');
-    H.bubble('A wave rises at the rift. Your three Codex troops answer in ' + Bt.formNames[fight.b.form] + ' formation. Rounds are seeded: the same battle replays the same for everyone.');
+    H.bubble('A wave rises at the rift. ' + (root.PreceptorArmySquad && root.PreceptorArmySquad.length ? 'Your adopted waves' : 'Three Codex troops (your Army is empty)') + ' answer in ' + Bt.formNames[fight.b.form] + ' formation. Rounds are seeded: the same battle replays the same for everyone.');
     H.say('Battle at the rift, tick 0. Press Next tick or Play to the end.');
     if (H.sound()) { fight.sonar(root.AtlasSintesis); }
     var n = 0;
@@ -57,6 +58,7 @@
   }
 
   $('b-start').addEventListener('click', start);
+  $('b-back').addEventListener('click', function () { doc.body.dataset.battle = ''; });
   $('b-step').addEventListener('click', step);
   $('b-play').addEventListener('click', play);
   Array.prototype.forEach.call(doc.querySelectorAll('#b-withdraw button'), function (b, i) {

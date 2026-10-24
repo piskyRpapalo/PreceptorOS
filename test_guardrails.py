@@ -500,6 +500,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # EMULADO es el sello honesto de lo heuristico (CLAUDE.md de la web):
         # la regla de crecimiento del cangrejo de la cara lo lleva escrito.
         INTRINSECOS |= {"EMULADO"}
+        # face_army.js lee la API canon de la gacha y del Army por sus nombres
+        # (AtlasGacha.RAREZAS / TCS, AtlasArmy.TOPE): propiedades canon, no politicas.
+        INTRINSECOS |= {"RAREZAS", "TCS", "TOPE"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

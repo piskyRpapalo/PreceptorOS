@@ -57,6 +57,12 @@ CLAVADAS = {
     "sea-floor.js": "4b48588e105ffed7a3bb03a474b84d30b0240f855bbc5575e6067e885d7de334",
     "gdpr-art25-ephemeral-crab.js": "79e5b0d14cb7d99a32a8c2f1cc978ae14be336e66bd0b35256e98f9c49857620",
     "crab_render_hd.js": "75150cfa6bbcc8fc9e00bd85011707b91f80288ebcde950f11700066bb1eae16",
+    "bubble_icons.js": "047adf069d216f50dd5b15ac2a36382be26e5f347832dc5d122c5877e2070fab",
+    "db.js": "367b753efc94807ea5339baa3e180339e15283449124cbc9b7563533712c65ed",
+    "army-wave-panel.js": "81af9bbffe49c6ee479a858955347cc28dce51f88293d8282e5ae1b417e324ea",
+    "summon-wave-card.js": "043f277c835573d8a7cb3e87af315722b580fe1df34e2ba55ba64f1094af007e",
+    "summon_reveal.js": "457e10687dfb12e44adaa092ab777e5558b66b2859e612711f224736ad64cbc4",
+    "auth.js": "c8170b51e6c86328736356cb6319c0cd0bba11b991e8a7442255e26e208075e1",
 }
 
 
