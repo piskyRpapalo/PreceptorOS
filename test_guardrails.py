@@ -446,8 +446,15 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         directorio = RAIZ / "interface"
         if not directorio.is_dir():
             self.fail("no hay interfaz que auditar: rojo esperado antes de escribirla")
+        # `interface/face/bubble/` son las nueve piezas de la lengua de burbujas
+        # copiadas byte a byte de la web (public/game/) y clavadas por sha256 en
+        # test_face.py: no son superficie escrita aqui, son la web. Su lexico lo
+        # audita la web en su propio gate. La cara que SI se escribe para esta
+        # app (face.js, face.css, las tres paginas) se sigue auditando aqui.
+        vendida = directorio / "face" / "bubble"
         encontrados = sorted(
-            p for p in directorio.rglob("*") if p.suffix in {".html", ".css", ".js"}
+            p for p in directorio.rglob("*")
+            if p.suffix in {".html", ".css", ".js"} and vendida not in p.parents
         )
         if not encontrados:
             self.fail("la interfaz no tiene ningún fichero auditable")
@@ -476,6 +483,11 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         g = cargar(self)
         conocidas = set(g.CORE_POLICIES) | set(g.CUSTOM_POLICIES)
         INTRINSECOS = {"JSON", "DOCTYPE", "UTF", "HTML", "HTTP", "POST"}
+        # La cara (NORTE 5) dice NO_DATA con su causa -- es el valor honesto de
+        # la casa, no un nombre de politica -- y la piel zombie pinta con las
+        # bandas de sello STALE y NO_DATA de tabla_semantica: colores con su
+        # significado literal (dormido, sin medir), tampoco politicas.
+        INTRINSECOS |= {"NO_DATA", "STALE"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

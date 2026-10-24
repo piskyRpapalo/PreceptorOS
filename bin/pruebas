@@ -148,6 +148,8 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           test_frontera test_hilos test_identidad test_narrador test_mcp_stdio_receipt
           test_output_guard test_api_guia_capa1 test_puente test_puerta test_recuperacion
           test_traza test_version
+          # test_face: la cara nueva (chat + joystick), la misma que la web.
+          test_face
           # El guardian. Entra en el corredor en su MISMO commit: una suite que
           # existe y no corre miente sobre lo que cubre, y esta cubre el suelo.
           #

@@ -74,6 +74,11 @@ class TestHerencia(unittest.TestCase):
         archivos = list(raiz.glob('*.py'))
         for carpeta in ('interface', 'assets', 'atlas'):
             archivos.extend((raiz / carpeta).rglob('*.js'))
+        # La copia de la web en interface/face/bubble/ no es una segunda tabla:
+        # son los bytes exactos de public/game/tabla_semantica.js, clavados por
+        # sha256 en test_face.py. Una edicion local la pone roja alli.
+        vendida = raiz / 'interface' / 'face' / 'bubble'
+        archivos = [a for a in archivos if vendida not in a.parents]
         for archivo in archivos:
             for bloque in re.findall(rb'\{[^{}]+\}', archivo.read_bytes()):
                 self.assertFalse(claves <= set(dict(re.findall(patron, bloque))),

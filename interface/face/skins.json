@@ -1,0 +1,5 @@
+{
+ "basic": {"sea": "paper", "land": "comic yellow.brillo", "path": "cyan", "face": "comic yellow.base", "star": "paper", "lit": "comic yellow.base", "body": "vermilion.base", "ui": {"bg": "paper", "fg": "ink", "panel": "paper", "accent": "comic yellow.base", "onAccent": "ink", "edge": "ink"}},
+ "atlantis": {"sea": "ocean", "land": "comic yellow.sombra", "path": "paper", "face": "cyan", "star": "paper", "lit": "comic yellow.base", "body": "vermilion.brillo", "ui": {"bg": "ocean", "fg": "paper", "panel": "ocean", "accent": "cyan", "onAccent": "ink", "edge": "cyan"}},
+ "zombie": {"sea": "NO_DATA.contorno", "land": "STALE.sombra", "path": "NO_DATA.brillo", "face": "STALE.brillo", "star": "NO_DATA.sombra", "lit": "STALE.brillo", "body": "STALE.base", "ui": {"bg": "NO_DATA.contorno", "fg": "STALE.brillo", "panel": "NO_DATA.contorno", "accent": "STALE.base", "onAccent": "ink", "edge": "STALE.base"}}
+}

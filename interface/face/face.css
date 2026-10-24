@@ -1,0 +1,48 @@
+:root{--bg:#f2f5f7;--fg:#1e1826;--panel:#f2f5f7;--accent:#ffb800;--onAccent:#1e1826;--edge:#1e1826;color-scheme:light dark}
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--fg)}
+body{margin:0;min-height:100dvh;font:18px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+.face{max-width:1080px;margin:0 auto;padding:16px;display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"hello art" "chat art" "more pad";align-items:start}
+.card{border:3px solid var(--edge);border-radius:24px;padding:14px;background:var(--panel);box-shadow:5px 5px 0 var(--edge)}
+.hello{grid-area:hello;display:flex;align-items:center;gap:12px}
+.art{grid-area:art;padding:8px}
+.chat{grid-area:chat}
+.pad{grid-area:pad;display:flex;gap:14px;align-items:center}
+.more{grid-area:more}
+h1{font-size:1.45rem;line-height:1.2;margin:0}
+.how{margin:4px 0 0}
+#head{width:76px;height:76px;flex:none}
+.log{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px;max-height:15rem;overflow:auto}
+.log li{border:2px solid var(--edge);border-radius:18px 18px 18px 6px;padding:8px 12px;max-width:96%}
+.log li.me{justify-self:end;border-radius:18px 18px 6px 18px;background:var(--accent);color:var(--onAccent)}
+.who{display:block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.say{margin:0;padding:8px 12px;border-left:6px solid var(--accent);font-weight:600}
+.stick{display:grid;justify-items:center;flex:none}
+#joy{width:150px;height:150px;border-radius:50%;touch-action:none;display:block}
+.stars{flex:1;display:grid;grid-template-columns:1fr;gap:8px}
+button,input{font:inherit;color:inherit;min-height:48px;border-radius:16px}
+button{cursor:pointer;border:3px solid var(--edge);background:var(--panel);font-weight:700;padding:6px 12px;box-shadow:3px 3px 0 var(--edge);touch-action:manipulation;text-align:left}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+button[aria-current=true],button[aria-pressed=true]{background:var(--accent);color:var(--onAccent)}
+.stars span{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;border:2px solid currentColor;margin-right:6px}
+.ask{margin:0 0 12px}
+.ask label{display:block;font-weight:700;margin-bottom:4px}
+.ask div{display:flex;gap:8px}
+input{flex:1;min-width:0;border:3px solid var(--edge);background:var(--bg);padding:8px 12px}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.small{font-size:.85rem;margin:6px 0 0}
+details{margin-top:12px;border-top:2px dashed var(--edge);padding-top:6px}
+summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+details ul{padding-left:1.1em;margin:4px 0}
+code,pre{font:.8rem/1.35 ui-monospace,"Cascadia Mono",Menlo,monospace}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:18rem;overflow:auto;margin:6px 0 0}
+#scene{width:100%;aspect-ratio:4/5;height:auto;border-radius:18px;display:block}
+:focus-visible{outline:4px solid var(--accent);outline-offset:3px}
+@media (max-width:760px){.face{grid-template-columns:minmax(0,1fr);grid-template-areas:"hello" "art" "pad" "chat" "more";padding:12px;gap:12px}#scene{width:auto;max-width:100%;max-height:40dvh;margin:0 auto}.how{font-size:.9rem}h1{font-size:1.25rem}#head{width:60px;height:60px}.log{max-height:11rem}#joy{width:136px;height:136px}.art{padding:6px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}button:active{transform:none}}
+@media (prefers-contrast:more){.card,button,.log li{border-width:4px}}
+@media (forced-colors:active){button[aria-current=true],button[aria-pressed=true]{outline:3px solid CanvasText}.card{box-shadow:none}}
+@media (max-width:400px){.pad{gap:10px;flex-direction:column}.stars{grid-template-columns:1fr 1fr;width:100%}#joy{width:120px;height:120px}button{padding:6px 10px}.stars span{margin-right:4px}}
+.skins{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.skins a{color:inherit;font-weight:700;min-height:44px;display:inline-flex;align-items:center;padding:0 12px;border:2px dashed var(--edge);border-radius:14px}
+.skins a[aria-current=page]{background:var(--accent);color:var(--onAccent);border-style:solid}
