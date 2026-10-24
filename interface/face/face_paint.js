@@ -106,7 +106,12 @@
       upright(ctx, names, d, false);
       brume(ctx, state.circles, d);
       upright(ctx, state.frame, d, true);
-      if (state.crab && root.AtlasToon) {
+      if (state.crab && skin.hero && root.PreceptorHero) {
+        var hc = toScreen(state.at[0], state.at[1]), hs = 0.75 * state.crab.forma.escala, hk = state.crab.forma.clase + state.crab.dir;
+        if (!minis[hk]) { minis[hk] = B.compile(root.PreceptorHero.heroFrame(skin, state.crab.forma.clase, state.crab.dir)); nminis++; }
+        ctx.setTransform(d * hs, 0, 0, d * hs, d * (hc[0] - 60 * hs), d * (hc[1] - 106 * hs));
+        P.paint(ctx, minis[hk]);
+      } else if (state.crab && root.AtlasToon) {
         var c = toScreen(state.at[0], state.at[1]);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         root.AtlasToon.cangrejo(ctx, c[0] * d, c[1] * d + 12 * d, 40 * d, { forma: state.crab.forma, cuerpo: state.crab.cuerpo, dir: state.crab.dir, dpr: d, quieto: true, id: 'yo' });

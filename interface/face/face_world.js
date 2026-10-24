@@ -156,7 +156,7 @@
     }
     atoms.push({ k: 'brume', r: 'mist clears: home, ' + Math.min(done, places.length) + ' places, ' + (st.trail || []).length + ' trail marks', i: [] });
     var cs = crabState(done, st.won), fo = st.forma || { escala: 1, clase: 'mar' };
-    atoms.push({ k: 'crab', r: 'you, a ' + fo.clase + ' crab, size ' + fo.escala + ' (army ' + cs.army + '), at ' + st.at[0] + ',' + st.at[1], i: [] });
+    atoms.push({ k: 'crab', r: 'you, a ' + fo.clase + (skin.hero ? ' space soldier' : ' crab') + ', size ' + fo.escala + ' (army ' + cs.army + '), at ' + st.at[0] + ',' + st.at[1], i: [] });
     return { v: V, id: 'you', t: st.step || 0, cv: [1420, 1420], atoms: atoms,
       bands: uniq([done ? skin.lit : skin.star, skin.path, 'cyan', 'ink']),
       change: [st.change || 'rest'], sound: st.sound ? 'arrival voice' : 'NO_DATA', soundCause: st.sound ? 'vozDe star h' : 'sound off', motion: st.walking ? 'walking' : 'on input' };

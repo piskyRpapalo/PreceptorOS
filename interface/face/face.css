@@ -128,3 +128,18 @@ body[data-layout=terminal]{--joy:min(28vh,72px)}
 .toast,.offer{border:3px solid var(--edge);box-shadow:6px 6px 0 var(--edge);border-radius:14px}
 .toast::after,.offer::after{content:"";position:absolute;left:28px;bottom:-14px;border:12px solid transparent;border-top-color:var(--edge);border-bottom:0}
 @media (max-height:300px){.sheet-head{display:none}.side .say{max-height:2.6em}.tabs [role=tab]{min-height:44px}}
+.hello{justify-content:center;padding:4px}
+[data-layout=zones] .face{grid-template-columns:minmax(0,1fr) auto}
+[data-layout=zones] .hello{max-width:96px}
+[data-layout=zones] #head{width:72px;height:72px}
+@media (max-width:760px) and (orientation:portrait){.hello{padding:2px}#head,[data-layout=zones] #head,[data-layout=terminal] #head{width:34px;height:34px}[data-layout=zones] .hello{max-width:none}}
+@media (max-width:760px) and (orientation:portrait){.hello,[data-layout=zones] .hello,[data-layout=terminal] .hello{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;border:0}}
+.sheet-head{align-items:center}
+button.speak{--icon:44px;margin-left:auto}
+.radio{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 8px;border:2px dashed var(--accent);border-radius:12px;max-height:5.2em;overflow:auto}
+.radio[hidden]{display:none}
+.radio b{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.radio button{min-height:44px;padding:2px 10px;font-size:.85rem}
+@media (max-height:300px){.sheet-head{display:flex}.sheet-head #sheet-seal,.sheet-head .small{display:none}.radio{max-height:2.6em}}
+.radio-line{flex:1 1 60%;font-size:.8rem;line-height:1.3;max-height:2.6em;overflow:hidden}
+.side .say{position:absolute;width:1px;height:1px;max-height:none;overflow:hidden;clip-path:inset(50%);white-space:nowrap;padding:0;margin:0;border:0}

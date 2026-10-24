@@ -191,8 +191,8 @@
   function act(name, arg) {
     var T = 2 * Wd.tile;
     if (name === 'task') { if (st.task < places.length && !st.walking) { if (hud) { hud.ask(places[st.task].task, function () { act('accept'); }, function () { act('decline'); }); } else { act('accept'); } } }
-    else if (name === 'accept') { start(); tell('Task accepted: a path to ' + (places[st.task] ? places[st.task].name : 'the end')); }
-    else if (name === 'decline') { st.said = 'Task declined. Tap the star icon when you are ready.'; bubble('pre', st.said); render(); }
+    else if (name === 'accept') { if (hud) { hud.dismiss(); } start(); tell('Task accepted: a path to ' + (places[st.task] ? places[st.task].name : 'the end')); }
+    else if (name === 'decline') { if (hud) { hud.dismiss(); } st.said = 'Task declined. Tap the star icon when you are ready.'; bubble('pre', st.said); render(); }
     else if (name === 'start') { start(); }
     else if (name === 'follow') { follow(); tell('Follow the path'); }
     else if (name === 'left') { screen(-1, 0, T); }
