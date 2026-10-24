@@ -34,8 +34,10 @@
 // v106: signed creation import is explicit and local to the rack.
 // v107 (2026-10-24): "/" pasa a ser la cara nueva (chat + joystick, encargo Norte 5);
 // entran sus tres pieles, su hoja, su guion y las nueve piezas de la lengua.
-const Cache = "preceptoros-armazon-v107";
-const Armazon = ["/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/core.js",
+// v108 (2026-10-24): la cara camina el mapa vivo: entra face_world.js y
+// cambian face.js, face.css y las tres pieles (tres distribuciones).
+const Cache = "preceptoros-armazon-v108";
+const Armazon = ["/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face_world.js", "/face/face.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/core.js",
                  "/dashboard.html", "/dashboard.css?v=58", "/dashboard.js?v=49",
                  "/app.html", "/app.css?v=3", "/app.js?v=5", "/creation_publish.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",

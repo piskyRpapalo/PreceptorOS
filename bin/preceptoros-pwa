@@ -263,6 +263,7 @@ CARA_LENGUA = ("tabla_semantica", "comic_tokens", "comic_accents", "valores", "g
 for _piel in CARA_PIELES:
     ESTATICOS[f"/face/{_piel}.html"] = (f"face/{_piel}.html", "text/html; charset=utf-8")
 ESTATICOS["/face/face.js"] = ("face/face.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_world.js"] = ("face/face_world.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face.css"] = ("face/face.css", "text/css; charset=utf-8")
 for _pieza in CARA_LENGUA:
     _url = "/face/bubble/" + _pieza.replace("tokens", "%74okens") + ".js"

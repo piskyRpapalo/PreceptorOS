@@ -3,43 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Preceptor · Zombie</title>
-<meta name="description" content="Talk to the Preceptor and walk the crab to a star. Every screen is also a small machine-readable frame, so a voice app can read it aloud and drive it.">
+<title>Preceptor · Zombie terminal</title>
+<meta name="description" content="Talk to the Preceptor and walk the crab across the living map. Every screen is also a small machine-readable frame, so a voice app can read it aloud and drive it.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/face/face.css">
-<script type="application/json" id="skin">{"name":"zombie","sea":"NO_DATA.contorno","land":"STALE.sombra","path":"NO_DATA.brillo","face":"STALE.brillo","star":"NO_DATA.sombra","lit":"STALE.brillo","body":"STALE.base","ui":{"bg":"NO_DATA.contorno","fg":"STALE.brillo","panel":"NO_DATA.contorno","accent":"STALE.base","onAccent":"ink","edge":"STALE.base"}}</script>
+<script type="application/json" id="skin">{"name":"zombie","layout":"terminal","sea":"SIMULATED.contorno","grid":"SIMULATED.sombra","land":"STALE.sombra","deep":"ink","coral":"SIMULATED.base","star":"NO_DATA.base","lit":"STALE.brillo","fog":"STALE.sombra","path":"STALE.brillo","face":"STALE.brillo","body":"SIMULATED.base","label":"STALE.brillo","halo":"ink","ui":{"bg":"SIMULATED.contorno","fg":"STALE.brillo","panel":"ink","accent":"STALE.base","onAccent":"ink","edge":"SIMULATED.base"}}</script>
 </head>
-<body>
+<body data-layout="terminal">
 <main class="face">
-<header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div><h1>Walk the crab to a star</h1><p class="how">Push the joystick, or tap a star. The Preceptor answers in the chat.</p></div></header>
-<section class="art card" aria-label="The island"><canvas id="scene" role="img" aria-label="Island scene" aria-describedby="say"></canvas></section>
+<header class="hello card"><canvas id="head" role="img" aria-label="The Preceptor, a round smiling face"></canvas><div><h1>The living map</h1><p class="how">You are the crab. Start a task, tap the dashed path, and walk.</p></div></header>
+<section class="map card" aria-label="The living map"><canvas id="map" role="img" aria-label="The living map" aria-describedby="say"></canvas><button type="button" id="whole" class="mini" data-act="whole" aria-pressed="false">Whole map</button></section>
+<section class="task card" aria-label="Your task">
+<button type="button" id="start" class="go" data-act="start"><span aria-hidden="true">▶ </span><span>Start task</span></button>
+<button type="button" id="follow" data-act="follow" disabled>Follow the path</button>
+<dl id="counter" class="counter" hidden><div><dt>Distance left</dt><dd id="c-dist"></dd></div><div><dt>Time left</dt><dd id="c-time"></dd></div><div class="wide"><dt>Real time</dt><dd id="c-real"></dd></div><p id="c-yard" class="small"></p></dl>
+<ol id="tasks" class="tasks" aria-label="Tutorial tasks"><li><span>The beacon</span> · <span></span></li><li><span>The Reef</span> · <span></span></li><li><span>The rift</span> · <span></span></li></ol>
+</section>
+<section class="pad card" aria-label="Joystick"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Push to walk the crab across the map. Arrow keys work too." aria-describedby="say"></canvas></section>
 <section class="chat card" aria-label="Chat with the Preceptor"><ol id="log" class="log"></ol><p id="say" class="say" role="status" aria-live="polite"></p></section>
-<section class="pad card" aria-label="Controls"><div class="stick"><canvas id="joy" tabindex="0" role="application" aria-label="Joystick. Left and right walk the crab. Up asks the star. Down goes home." aria-describedby="say"></canvas><p class="small">Arrow keys work too.</p></div>
-<nav class="stars" aria-label="Star shortcuts">
-<button type="button" data-act="star1"><span aria-hidden="true">1</span>Rack status</button>
-<button type="button" data-act="star2"><span aria-hidden="true">2</span>Energy budget</button>
-<button type="button" data-act="star3"><span aria-hidden="true">3</span>Node measures</button>
-<button type="button" data-act="star4"><span aria-hidden="true">4</span>Study laws</button>
-</nav></section>
 <section class="more card" aria-label="Write, listen and learn more">
 <form id="ask" class="ask"><label for="reply">Write to the Preceptor</label><div><input id="reply" autocomplete="off" maxlength="280"><button type="submit">Send</button></div></form>
-<div class="tools"><button type="button" id="sound" data-act="sound" aria-pressed="false"><span aria-hidden="true">♪ </span><span>Sound off</span></button><button type="button" data-act="read">Read aloud</button><button type="button" data-act="home">Go home</button></div>
+<div class="tools"><button type="button" id="sound" data-act="sound" aria-pressed="false"><span aria-hidden="true">♪ </span><span>Sound off</span></button><button type="button" data-act="read">Read aloud</button></div>
 <p id="readout" class="small" aria-live="polite"></p>
-<nav class="skins" aria-label="Skins: same face, other colours"><a href="/face/basic.html">Basic</a><a href="/face/atlantis.html">Atlantis</a><a href="/face/zombie.html">Zombie</a></nav>
+<nav class="skins" aria-label="Three layouts of the same face"><a href="/face/basic.html">Neutral</a><a href="/face/atlantis.html">Atlantis for children</a><a href="/face/zombie.html">Zombie terminal</a></nav>
 <details>
 <summary>Technical details</summary>
 <ul>
-<li>One product: the web and the app load the same face.js and draw the same frames.</li>
-<li>Every screen is one <code>preceptoros.bubble/1</code> frame under 1,024 bytes: deterministic, no network, no clock. It sits in this page as JSON (<code>#packet</code>) and in the Machine view.</li>
-<li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: left, right, ask, home, star1 to star4, sound, read, say.</li>
+<li>One product: the web and the app load the same face.js and face_world.js and draw the same frames.</li>
+<li>The map is one <code>preceptoros.bubble/1</code> frame and your state is another, each under 1,024 bytes: deterministic, no network, no clock. The state sits in this page as JSON (<code>#packet</code>).</li>
+<li>Distance and time are counted in tiles and steps, never minutes: real time is NO_DATA because no clock is read. The walk advances one step every few screen frames.</li>
+<li>For agents: <code>window.preceptorFace.state()</code> reads the screen; <code>act(name)</code> drives it. Actions: start, follow, up, down, left, right, whole, sound, read, say.</li>
 <li>Vibration: <span id="touch">NO_DATA</span>.</li>
-<li>Benchmarks and server deployment live in the repositories: the deployment guide of the web and the lab. Nothing on this page is measured live: what is not measured says NO_DATA.</li>
+<li>Benchmarks and server deployment live in the repositories: the deployment guide of the web and the lab. Nothing on this page is measured live.</li>
 </ul>
 </details>
-<details><summary>Machine view · <span id="bytes"></span></summary><pre id="machine"></pre></details>
+<details><summary>Machine view · <span id="bytes"></span></summary><pre id="machine"></pre><pre id="machine-map"></pre></details>
 </section>
 </main>
 <script type="application/json" id="packet"></script>
-<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/core.js"></script><script src="/face/face.js"></script>
+<script src="/face/bubble/tabla_semantica.js"></script><script src="/face/bubble/comic_%74okens.js"></script><script src="/face/bubble/comic_accents.js"></script><script src="/face/bubble/valores.js"></script><script src="/face/bubble/gacha.js"></script><script src="/face/bubble/comic_atoms.js"></script><script src="/face/bubble/bubble_light.js"></script><script src="/face/bubble/bubble_language.js"></script><script src="/face/bubble/core.js"></script><script src="/face/face_world.js"></script><script src="/face/face.js"></script>
 </body>
 </html>

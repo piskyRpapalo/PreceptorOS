@@ -488,6 +488,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # bandas de sello STALE y NO_DATA de tabla_semantica: colores con su
         # significado literal (dormido, sin medir), tampoco politicas.
         INTRINSECOS |= {"NO_DATA", "STALE"}
+        # La terminal zombie oxida su metal con la banda SIMULATED: el mapa de
+        # la cara ES una simulacion, asi que el color dice la verdad literal.
+        INTRINSECOS |= {"SIMULATED"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

@@ -1104,6 +1104,6 @@ class ExportacionNodoContracto(unittest.TestCase):
         self.assertIn('id="nodo-export-form"', html)
         self.assertIn('/app.js?v=5', html)
         self.assertIn('"/app.js?v=5"', sw)
-        self.assertIn('preceptoros-armazon-v107', sw)
+        self.assertIn('preceptoros-armazon-v108', sw)
         self.assertIn('if ruta == "/api/creaciones"', server)
         self.assertIn('/creation_publish.js?v=1', html)
