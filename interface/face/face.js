@@ -12,7 +12,7 @@
     free: 'No model is connected to this preview, so I cannot answer free text yet: NO_DATA. The tasks work without one.',
     tail: 'Shortcuts: Start task, Follow the path, Whole map, Sound, Read aloud.'
   };
-  var st = { at: Wd.homeAt.slice(), trail: [], moves: 0, dir: -1, met: null, task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
+  var st = { won: false, at: Wd.homeAt.slice(), trail: [], moves: 0, dir: -1, met: null, task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
   var map = $('map'), win = $('mapwin'), joy = $('joy'), log = $('log'), say = $('say'), painter = null;
   var touch = typeof root.navigator.vibrate === 'function' ? 'vibrate' : 'NO_DATA: this device has no vibration';
   var timer = 0, held = null, queued = 0, focusAt = null, extraPaint = null, extraFrame = null, panel = null;
@@ -30,15 +30,20 @@
     P.paint(ctx, B.compile(frame));
   }
 
+  function crabNow() {
+    var CJ = root.AtlasCangrejo, cs = Wd.crabState(st.task, st.won);
+    return CJ ? { forma: CJ.forma(cs.army, cs.node, null), cuerpo: CJ.cuerpo({ army: cs.army, nucleo: cs.core }), dir: st.dir, army: cs.army, node: cs.node } : null;
+  }
   function frameNow() {
-    return Wd.stateFrame(skin, { at: st.at, trail: st.trail, dir: st.dir, step: st.step, task: st.task, path: st.path, change: st.change, sound: st.sound, walking: st.walking });
+    var cr = crabNow();
+    return Wd.stateFrame(skin, { forma: cr && { escala: Math.round(cr.forma.escala * 100) / 100, clase: cr.forma.clase }, won: st.won, at: st.at, trail: st.trail, dir: st.dir, step: st.step, task: st.task, path: st.path, change: st.change, sound: st.sound, walking: st.walking });
   }
   function castNow() {
     return Wd.castFrame(skin, { at: st.at, moves: st.moves, step: st.step, change: st.change });
   }
 
   function paintMap(f) {
-    painter.paint({ at: focusAt || st.at, frame: f, cast: castNow(), extra: extraPaint, circles: Wd.clears({ at: st.at, task: st.task, trail: st.trail }) }, st.whole);
+    painter.paint({ crab: crabNow(), at: focusAt || st.at, frame: f, cast: castNow(), extra: extraPaint, circles: Wd.clears({ at: st.at, task: st.task, trail: st.trail }) }, st.whole);
   }
   function soon() { if (!queued) { queued = root.requestAnimationFrame(function () { queued = 0; paintMap(frameNow()); }); } }
 
@@ -117,6 +122,8 @@
     st.change = 'arrived';
     st.said = place.done;
     bubble('pre', place.done);
+    var grown = crabNow();
+    if (grown) { bubble('pre', 'Your crab grows to size ' + Math.round(grown.forma.escala * 100) / 100 + (grown.node ? ' and turns coral: the colour of a crab that holds a node (EMULADO in this preview).' : '.')); }
     bubble('pre', st.task < places.length ? places[st.task].task + ' Press Start task.' : words.end);
     buzz([30, 40, 30]); voice(st.task);
     return true;
@@ -206,7 +213,7 @@
   function state() {
     var f = frameNow();
     return { skin: skin.name, layout: skin.layout, at: st.at.slice(), task: st.task < places.length ? places[st.task].id : null, done: st.task, walking: st.walking,
-      path: !!st.path, counter: count(), said: st.said, bytes: Wd.bytes(f), frame: f, actions: actionList.slice(),
+      crab: (function (c) { return c && { clase: c.forma.clase, escala: c.forma.escala, army: c.army, node: c.node, rule: Wd.crabRule }; })(crabNow()), path: !!st.path, counter: count(), said: st.said, bytes: Wd.bytes(f), frame: f, actions: actionList.slice(),
       channels: { eye: 'canvas', text: 'aria-live and packet', ear: st.sound ? 'core.js FM' : 'NO_DATA: sound is off', touch: touch } };
   }
 
@@ -258,6 +265,7 @@
     sound: function () { return st.sound; },
     buzz: buzz,
     focus: function (at) { focusAt = at; st.whole = false; render(); },
+    won: function () { if (!st.won) { st.won = true; bubble('pre', 'Your crab grows: a battle won counts in its army.'); } render(); },
     extra: function (paintFn, frameFn) { extraPaint = paintFn; extraFrame = frameFn; },
     panel: null
   };

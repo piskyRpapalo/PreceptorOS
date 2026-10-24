@@ -53,6 +53,10 @@ CLAVADAS = {
     "wave_render.js": "c26d3d78b3ea27c449c9fa6b6a8692647e954b72c99a6f4e5f4025eab3adb1d6",
     "atlas-coord.js": "144278777fabd5e5cea40b468a9686764bf57c6a9d87b2c67260b71844282cf6",
     "worm_transition.js": "ebe5f45de93bce9c9f34ae04fd4377a96f7ed39e02c370de0eec93d721a6363f",
+    "escena.js": "d2763adc92124644fe66c87041d9f7ec9b958f84f4ce0e9b82a887a1c770cb50",
+    "sea-floor.js": "4b48588e105ffed7a3bb03a474b84d30b0240f855bbc5575e6067e885d7de334",
+    "gdpr-art25-ephemeral-crab.js": "79e5b0d14cb7d99a32a8c2f1cc978ae14be336e66bd0b35256e98f9c49857620",
+    "crab_render_hd.js": "75150cfa6bbcc8fc9e00bd85011707b91f80288ebcde950f11700066bb1eae16",
 }
 
 

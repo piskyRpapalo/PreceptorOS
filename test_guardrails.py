@@ -497,6 +497,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # Las cabeceras del panel de la cara llevan su sello como el marco de
         # la terminal canon (LIVE, STALE o NO_DATA): estado, no politica.
         INTRINSECOS |= {"LIVE"}
+        # EMULADO es el sello honesto de lo heuristico (CLAUDE.md de la web):
+        # la regla de crecimiento del cangrejo de la cara lo lleva escrito.
+        INTRINSECOS |= {"EMULADO"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

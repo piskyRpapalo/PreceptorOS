@@ -92,9 +92,15 @@
   }
 
   function seaFrame(skin) {
-    return { v: V, id: 'sea', t: 0, cv: [worldSize, worldSize], style: 'clear', atoms: [
-      { k: 'tiles', r: 'the deep sea, in diamond tiles', i: [{ o: 'field', kind: 'halftone', x: [0, worldSize], y: [0, worldSize], r: '3|3|2|2', step: 50, a: 0, f: skin.tide }] }],
-      bands: [skin.tide], change: ['rest'], sound: 'NO_DATA', soundCause: 'the sea is silent', motion: 'NO_DATA' };
+    return { v: V, id: 'sea', t: 0, cv: [worldSize, worldSize], atoms: [
+      { k: 'shelves', r: 'shelves on the shared seabed', i: isles.map(function (q) { return { o: 'blob', x: q.x + 4, y: q.y + 4, rx: Math.round(q.rx * 1.38), ry: Math.round(q.ry * 1.38), f: skin.shelf }; }) }],
+      bands: [skin.shelf], change: ['rest'], sound: 'NO_DATA', soundCause: 'the sea is silent', motion: 'NO_DATA' };
+  }
+
+  var crabRule = 'EMULADO: army = 2 per place measured + 4 for a battle won; core = 3 per place; coral once the tutorial is done stands for a paired node; legs and eyes NO_DATA';
+  function crabState(task, won) {
+    var army = 2 * Math.min(task, places.length) + (won ? 4 : 0), node = task >= places.length;
+    return { army: army, node: node, core: 3 * Math.min(task, places.length) };
   }
 
   var groups = [['home', 'beacon'], ['reef', 'rift'], ['west', 'east', 'peak'], ['wood', 'islet']];
@@ -149,7 +155,8 @@
       atoms.push({ k: 'goal', r: 'task: ' + places[done].name, i: [{ o: 'arcs', x: p[0], y: p[1] - 8, r: [44, 44], n: 4, arc: 50, ph: -25, s: skin.path, lw: 6 }] });
     }
     atoms.push({ k: 'brume', r: 'mist clears: home, ' + Math.min(done, places.length) + ' places, ' + (st.trail || []).length + ' trail marks', i: [] });
-    atoms.push({ k: 'crab', r: 'you at ' + st.at[0] + ',' + st.at[1], i: [{ o: 'crab', x: x, y: y - 14, rr: 32, dir: st.dir === 1 ? 1 : -1, eye: (st.step || 0) % 2 ? 'up' : 'open' }] });
+    var cs = crabState(done, st.won), fo = st.forma || { escala: 1, clase: 'mar' };
+    atoms.push({ k: 'crab', r: 'you, a ' + fo.clase + ' crab, size ' + fo.escala + ' (army ' + cs.army + '), at ' + st.at[0] + ',' + st.at[1], i: [] });
     return { v: V, id: 'you', t: st.step || 0, cv: [1420, 1420], atoms: atoms,
       bands: uniq([done ? skin.lit : skin.star, skin.path, 'cyan', 'ink']),
       change: [st.change || 'rest'], sound: st.sound ? 'arrival voice' : 'NO_DATA', soundCause: st.sound ? 'vozDe star h' : 'sound off', motion: st.walking ? 'walking' : 'on input' };
@@ -231,7 +238,7 @@
   }
 
   var World = { worldSize: worldSize, tile: tile, homeAt: homeAt, places: places, isles: isles, starH: starH, iso: iso, route: route, walk: walk, counter: counter, clamp: clamp, clears: clears,
-    seaFrame: seaFrame, islesFrame: islesFrame, groups: groups, standFrame: standFrame, namesFrame: namesFrame, stateFrame: stateFrame,
+    seaFrame: seaFrame, crabState: crabState, crabRule: crabRule, islesFrame: islesFrame, groups: groups, standFrame: standFrame, namesFrame: namesFrame, stateFrame: stateFrame,
     castFrame: castFrame, castMeet: castMeet, wanderAt: wanderAt, canon: canon, codexScale: codexScale, headFrame: headFrame, joyFrame: joyFrame, bytes: bytes };
   if (typeof module === 'object' && module.exports) { module.exports = World; } else { root.PreceptorWorld = World; }
 })(typeof module === 'object' && module.exports ? this : window);

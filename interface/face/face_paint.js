@@ -6,7 +6,7 @@
   function create(canvas, win, skin) {
     var terrain = null, standing = null, names = null, fog = null, fogKey = '', zoom = Z ? Z.crea(win) : { factor: function () { return 1; } };
     var view = { e: 0, f: 0, z: 1, W: 0, H: 0, k: 1 };
-    var minis = {}, nminis = 0, composite = { crab: 1, wanderer: 1 };
+    var minis = {}, nminis = 0, composite = { crab: 1, wanderer: 1 }, floor = root.AtlasMarFondo && root.AtlasEscena ? root.AtlasMarFondo.pintor() : null;
     function dpr() { return Math.min(2, root.devicePixelRatio || 1); }
     function band(n) { return B.band(n); }
     function compileAll() {
@@ -17,7 +17,7 @@
 
     function frameView(at, whole) {
       var W = root.innerWidth, H = root.innerHeight, r = win.getBoundingClientRect(), z, cam;
-      var base = whole ? Math.min(r.width / 1110, r.height / 640) : r.width / 330;
+      var base = whole ? Math.min(r.width / 1110, r.height / 640) : r.width / 640;
       z = base * (whole ? 1 : zoom.factor());
       cam = whole ? { x: Wd.worldSize / 2, y: Wd.worldSize / 2 } : { x: at[0], y: at[1] };
       var o = C.aPantalla(cam, W, H, z, 0, 0);
@@ -97,6 +97,7 @@
       ctx.setTransform(d, 0, 0, d, 0, 0);
       ctx.fillStyle = band(skin.sea);
       ctx.fillRect(0, 0, v.W, v.H);
+      if (floor) { ctx.save(); floor.tierra(ctx, v.cam, d * (v.W + 2 * v.ox), d * (v.H + 2 * v.oy), d * v.z); ctx.restore(); }
       ctx.lineJoin = 'round'; ctx.lineCap = 'round';
       ctx.setTransform(d * m[0], d * m[1], d * m[2], d * m[3], d * v.e, d * v.f);
       for (i = 0; i < terrain.length; i++) { P.paint(ctx, terrain[i]); }
@@ -105,6 +106,11 @@
       upright(ctx, names, d, false);
       brume(ctx, state.circles, d);
       upright(ctx, state.frame, d, true);
+      if (state.crab && root.AtlasToon) {
+        var c = toScreen(state.at[0], state.at[1]);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        root.AtlasToon.cangrejo(ctx, c[0] * d, c[1] * d + 12 * d, 40 * d, { forma: state.crab.forma, cuerpo: state.crab.cuerpo, dir: state.crab.dir, dpr: d, quieto: true, id: 'yo' });
+      }
       if (state.extra) { ctx.setTransform(d, 0, 0, d, 0, 0); state.extra(ctx, toScreen, v.k); }
       return v;
     }

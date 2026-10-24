@@ -115,3 +115,6 @@ body[data-layout=terminal]{--joy:min(28vh,110px)}
 @media (prefers-contrast:more){.card,button,.log li{border-width:4px}}
 @media (forced-colors:active){button[aria-pressed=true],.go{outline:3px solid CanvasText}.card{box-shadow:none;background:Canvas}}
 .side{position:relative}
+.side .say{order:-1}
+@media (max-height:560px){.side .say{font-size:.8rem;line-height:1.25;padding:4px 8px;max-height:4em;overflow:hidden}.sheet-head .small{display:none}.tabs [role=tab]{min-height:44px;padding:2px 6px;font-size:.85rem}.side{gap:4px}}
+@media (orientation:landscape) and (max-height:560px){[data-layout=zones] .hello,[data-layout=quiet] .hello{display:none}[data-layout=zones] .face{grid-template-areas:"map side pad" "map side pad" "task task pad"}[data-layout=quiet] .face{grid-template-areas:"side map pad" "side map pad" "task task pad"}}

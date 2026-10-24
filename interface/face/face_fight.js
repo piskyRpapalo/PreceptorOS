@@ -26,6 +26,7 @@
     H.bubble('Battle over: ' + verdict(s.result.gana) + ' after ' + s.result.rondas + ' ticks (life per mille ' + s.result.vida_por_mil.join(' vs ') + '). Receipt, ' + s.receipt.length + ' B: ' + s.receipt + ' Replayed from tick 0: ' + (s.verified.ok ? 'verified.' : 'NO_DATA, ' + s.verified.motivo + '.'));
     H.say('Battle over: ' + verdict(s.result.gana) + '. The receipt is in the chat and verified by replay.');
     H.buzz([40, 30, 40]);
+    if (s.result.gana === 'defensa' && H.won) { H.won(); }
   }
 
   function start() {
