@@ -63,6 +63,7 @@ CLAVADAS = {
     "summon-wave-card.js": "043f277c835573d8a7cb3e87af315722b580fe1df34e2ba55ba64f1094af007e",
     "summon_reveal.js": "457e10687dfb12e44adaa092ab777e5558b66b2859e612711f224736ad64cbc4",
     "auth.js": "c8170b51e6c86328736356cb6319c0cd0bba11b991e8a7442255e26e208075e1",
+    "taller.js": "ec756f1afd9b6b0917424f5bf6afdc74d1454bce620361f0a21ce0c27c245fd6",
 }
 
 
