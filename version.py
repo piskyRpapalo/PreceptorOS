@@ -38,6 +38,7 @@ ARMAZON = (
     "interface/manifest.json", "assets/compass.svg",
     "interface/consola.css", "interface/consola.js",
     "interface/creation_publish.js",
+    "interface/node_registration.js",
 )
 
 
