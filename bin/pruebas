@@ -191,6 +191,8 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # web; una cedula tocada no pasa, y su autenticidad es NO_DATA porque
           # no va firmada. Incluye el cruce con la cedula real del rack.
           test_nodo_app
+          # Local synthetic account coverage; no key generation or persistence.
+          test_cuenta_cangrejo
           # test_nodo_export: la salida requiere cédula ya firmada y gesto
           # humano; la prueba inyecta transporte y no contacta la red.
           test_nodo_export
