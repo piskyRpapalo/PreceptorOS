@@ -164,6 +164,23 @@
       </form>
       <p class="pie" id="nodo-export-estado" role="status" aria-live="polite" data-i18n="nodo_export_espera">Sin cédula seleccionada. No se ha enviado nada.</p>
     </section>
+    <section class="tarjeta" aria-labelledby="node-registration-title">
+      <h3 id="node-registration-title" data-i18n="node_registration_title">Create a node (proposal)</h3>
+      <p data-i18n="node_registration_help">The rack keeps firma:null. This submission remains pending and untrusted; it is not a verified catalog entry until the Sovereign's rack ceremony and trust-anchor review.</p>
+      <form id="node-registration-form">
+        <label for="node-registration-name" data-i18n="node_registration_name">Proposed node name</label>
+        <input id="node-registration-name" name="node" required maxlength="48" pattern="nodo\.[0-9]{1,6}\.[a-z0-9][a-z0-9-]{0,30}" autocomplete="off">
+        <button type="submit" class="probar" data-i18n="node_registration_preview">Preview canonical credential</button>
+        <label class="fila-switch" for="node-registration-consent">
+          <input type="checkbox" id="node-registration-consent" disabled>
+          <span data-i18n="node_registration_consent">I explicitly consent to submit this unsigned pending cédula. It may create a pending intake record, but it does not prove trust or create a verified catalog entry.</span>
+        </label>
+        <button type="button" class="probar" id="node-registration-submit" disabled data-i18n="node_registration_submit">Submit pending cédula</button>
+      </form>
+      <p id="node-registration-signer" role="status" aria-live="polite" data-i18n="node_registration_signer_pending">Signer pending. The phone never signs; the Sovereign must be present at the rack ceremony.</p>
+      <p id="node-registration-status" role="status" aria-live="polite" data-i18n="node_registration_draft">Draft only. Nothing has been sent.</p>
+      <pre id="node-registration-preview" data-i18n-aria="node_registration_preview_aria" aria-label="Canonical pending credential preview"></pre>
+    </section>
     <section class="tarjeta" aria-labelledby="creation-publish-title">
       <h3 id="creation-publish-title">Publicar una creación firmada</h3>
       <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
@@ -182,9 +199,11 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=5"></script>
+<script src="/app.js?v=6"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
+<script src="/node_registration.js?v=1"></script>
+<script>PreceptorNodeRegistration.mount(document);</script>
 </body>
 </html>

@@ -7,8 +7,9 @@ import urllib.request
 
 import nodo_app
 
-# PROVISIONAL: WEB piece 1 fixes the final route within /aduana/*.
-ENDPOINT = "https://api.preceptoros.org/aduana/cedulas"
+# Sovereign ruling (2026-10-25): Door 1 is the apex registration endpoint.
+# The public receiver is the web lane's separate piece; no live request is made here.
+ENDPOINT = "https://api.preceptoros.org/api/v1/cedulas"
 TIMEOUT_S = 15
 CAUSAS_ADUANA = {
     "clave_publica_no_configurada", "plan_firmado_no_configurado",

@@ -32,6 +32,7 @@ LO QUE NO HACE
 from __future__ import annotations
 
 import json
+import ipaddress
 import os
 import re
 import sqlite3
@@ -63,6 +64,7 @@ import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
+import node_registration as _node_registration              # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -239,6 +241,7 @@ ESTATICOS = {
     "/creation_publish.js": ("creation_publish.js", "application/javascript; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
     "/llms.txt": (os.path.join(AQUI, "llms.txt"), "text/plain; charset=utf-8"),
     "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
@@ -541,7 +544,29 @@ class PWA(BaseHTTPRequestHandler):
             resultado = _nodo_export.enviar(datos)
             codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
             return self._json(codigo, resultado)
+        if ruta == "/api/nodo/door1/preview":
+            return self._nodo_door1_preview(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+
+    @staticmethod
+    def _es_loopback(ip):
+        try:
+            return ipaddress.ip_address(ip).is_loopback
+        except ValueError:
+            return False
+
+    def _nodo_door1_preview(self, datos):
+        """Loopback-only dry-run adapter; never reaches the public receiver."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"state": "rejected", "cause": "loopback_only"})
+        try:
+            raw_size = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            raw_size = 0
+        if raw_size <= 0 or raw_size > _node_registration.MAX_BYTES:
+            return self._json(413, {"state": "rejected", "cause": "request_too_large"})
+        codigo, resultado = _node_registration.receive_preview(datos)
+        return self._json(codigo, resultado)
 
     def _creacion_voz(self):
         origen = self.headers.get("Origin")
