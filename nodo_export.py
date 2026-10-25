@@ -7,14 +7,15 @@ import urllib.request
 
 import nodo_app
 
-# Sovereign ruling (2026-10-25): Door 1 is the apex registration endpoint.
-# The public receiver is the web lane's separate piece; no live request is made here.
+# Ruling of the Sovereign (buzon#30, 2026-10-25): the registration route is /api/v1/cedulas.
 ENDPOINT = "https://api.preceptoros.org/api/v1/cedulas"
+ESTADOS_ADUANA = {"pendiente", "verificado"}
 TIMEOUT_S = 15
 CAUSAS_ADUANA = {
     "clave_publica_no_configurada", "plan_firmado_no_configurado",
     "plan_no_coincide", "firma_cedula_rechazada", "cedula_mal_formada",
     "registro_no_disponible", "cuerpo_invalido", "cuerpo_fuera_de_rango",
+    "hash_no_coincide", "plan_firmado_invalido", "plan_firmado_rechazado",
 }
 
 
@@ -77,5 +78,9 @@ def enviar(datos, *, transport=None, signers=None) -> dict:
             or not isinstance(paquete.get("pares"), list)
             or len(paquete["pares"]) != 1):
         return _rechazo("paquete_invalido", 502)
-    return {"estado": "encolado", "codigo": "recibido",
-            "recibidos": respuesta.get("recibidos")}
+    # The aduana answers pendiente (no verifiable anchor) or verificado. The exporter repeats
+    # that state and its cause as they are; it never upgrades a pending cedula to trusted.
+    if respuesta.get("estado") not in ESTADOS_ADUANA:
+        return _rechazo("recibo_invalido", 502)
+    return {"estado": respuesta["estado"], "codigo": "recibido",
+            "causa": respuesta.get("causa"), "recibidos": respuesta.get("recibidos")}
