@@ -263,7 +263,7 @@ CARA_LENGUA = ("tabla_semantica", "comic_tokens", "comic_accents", "valores", "g
                "isometric_floor_projection", "world_camera", "map_zoom", "fog_of_war",
                "atlas-coord", "canon", "combate_ticks", "escuadron", "wave_render", "worm_transition",
                "escena", "sea-floor", "gdpr-art25-ephemeral-crab", "crab_render_hd",
-               "bubble_icons", "db", "army-wave-panel", "summon-wave-card", "summon_reveal", "auth")
+               "bubble_icons", "db", "army-wave-panel", "summon-wave-card", "summon_reveal", "auth", "taller")
 for _piel in CARA_PIELES:
     ESTATICOS[f"/face/{_piel}.html"] = (f"face/{_piel}.html", "text/html; charset=utf-8")
 ESTATICOS["/face/face.js"] = ("face/face.js", "application/javascript; charset=utf-8")
@@ -275,6 +275,10 @@ ESTATICOS["/face/face_fight.js"] = ("face/face_fight.js", "application/javascrip
 ESTATICOS["/face/face_hud.js"] = ("face/face_hud.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_hero.js"] = ("face/face_hero.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_army.js"] = ("face/face_army.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_eggs.js"] = ("face/face_eggs.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_workshop.js"] = ("face/face_workshop.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_tutorial.js"] = ("face/face_tutorial.js", "application/javascript; charset=utf-8")
+ESTATICOS["/face/face_views.css"] = ("face/face_views.css", "text/css; charset=utf-8")
 ESTATICOS["/face/face_canon.css"] = ("face/face_canon.css", "text/css; charset=utf-8")
 ESTATICOS["/face/face.css"] = ("face/face.css", "text/css; charset=utf-8")
 for _pieza in CARA_LENGUA:
