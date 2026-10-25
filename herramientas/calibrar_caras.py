@@ -95,6 +95,7 @@ Firmado q95 el 2026-09-02. `CALIDAD = 0` vuelve a sin perdida.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -114,9 +115,8 @@ RANGO_PLANO = 90        # recorrido de color por debajo del cual una isla se
                         # el fondo da 60-63 y el marmol 155-251, asi que 90 cae
                         # en el hueco y no en el borde de ninguno de los dos.
 
-ORIGEN = Path.home() / "p0x" / "Alejandria" / "Images-preceptorOS-head"
-NUEVAS = Path.home() / "p0x" / "Alejandria" / "ssssss"
-MARCA = Path.home() / "p0x" / "Alejandria" / "marca"
+# Group source keys are resolved only from explicit CLI/environment settings.
+ORIGEN, NUEVAS, MARCA = "origen", "nuevas", "marca"
 
 # Los dos encuadres de la tanda nueva, medidos, no estimados.
 CARA_CLARA = (320, 40, 715, 600)    # busto sobre damero claro, con orbe al lado
@@ -663,7 +663,15 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="calibra caras a una caja identica")
     ap.add_argument("--grupo", action="append", choices=sorted(GRUPOS),
                     help="repetible. Sin ninguno, los hace todos")
-    ap.add_argument("--origen", type=Path, default=ORIGEN)
+    ap.add_argument("--origen", type=Path,
+                    default=Path(os.environ["PRECEPTOROS_CARA_ORIGEN"])
+                    if os.environ.get("PRECEPTOROS_CARA_ORIGEN") else None)
+    ap.add_argument("--nuevas", type=Path,
+                    default=Path(os.environ["PRECEPTOROS_CARA_NUEVAS"])
+                    if os.environ.get("PRECEPTOROS_CARA_NUEVAS") else None)
+    ap.add_argument("--marca", type=Path,
+                    default=Path(os.environ["PRECEPTOROS_CARA_MARCA"])
+                    if os.environ.get("PRECEPTOROS_CARA_MARCA") else None)
     ap.add_argument("--destino", type=Path, action="append", required=True,
                     help="repetible: una carpeta por capa (app y web)")
     ap.add_argument("--lado", type=int, action="append",
@@ -699,13 +707,21 @@ def main(argv=None):
     calidad = a.calidad
     grupos = a.grupo or sorted(GRUPOS)
 
+    def raiz_grupo(g):
+        clave = g.get("origen", ORIGEN)
+        return getattr(a, clave, None) if isinstance(clave, str) else clave
+
     if a.barrido:
         print("[barrido] fraccion que se lleva el relleno por tolerancia")
         for g in grupos:
+            raiz = raiz_grupo(GRUPOS[g])
+            if raiz is None:
+                print(f"  NO_DATA grupo {g} · source path not configured")
+                continue
             for f in GRUPOS[g]["fuentes"]:
                 fila = []
                 for t in (42, 80, 120, 160, 200):
-                    _, q = alfa_por_perimetro(Image.open(a.origen / f), t)
+                    _, q = alfa_por_perimetro(Image.open(raiz / f), t)
                     fila.append(f"{t:3d}:{q:5.1%}")
                 print(f"  {f[:44]:46s} " + " ".join(fila))
         return 0
@@ -718,7 +734,11 @@ def main(argv=None):
     escritos, saltados = 0, 0
     for nombre in grupos:
         g = GRUPOS[nombre]
-        raiz = g.get("origen", a.origen)
+        raiz = raiz_grupo(g)
+        if raiz is None:
+            print(f"  NO_DATA grupo {nombre} · source path not configured")
+            saltados += 1
+            continue
         faltan = [f for f in g["fuentes"] if not (raiz / f).is_file()]
         if faltan:
             print(f"  NO_DATA grupo {nombre} · no estan: {faltan}")

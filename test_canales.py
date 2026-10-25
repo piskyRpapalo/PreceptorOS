@@ -176,7 +176,7 @@ class TestConcurrencia(Base):
 class TestRedaccion(Base):
 
     def test_nada_de_casa_ni_ips_al_disco(self):
-        K.di("app", "app", f"mira /home/otro/secreto.txt y {self.home}/p0x en 192.168.1.20",  # guardia:permitir fixture de redaccion: debe salir tachado
+        K.di("app", "app", f"mira /home/otro/secreto.txt y {self.home}/reference en 192.168.1.20",  # guardia:permitir fixture de redaccion: debe salir tachado
              rol=f"desde {self.home}", maquina={"ruta": "/home/otro/x", "lista": ["10.0.0.7"]},  # guardia:permitir fixture de redaccion: debe salir tachado
              base=self.casa)
         K.di_soberano("app", "lo dejé en /home/fulanita/notas", base=self.casa)  # guardia:permitir fixture de redaccion: debe salir tachado
@@ -198,17 +198,17 @@ class TestRedaccion(Base):
         self.assertEqual(self.filas(), [])
 
 
-REAL = os.path.join(__import__("pwd").getpwuid(os.getuid()).pw_dir, "p0x", "registro", "registro.py")
+FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures", "registry", "registro.py")
 
 
-@unittest.skipUnless(os.path.isfile(REAL), "NO_DATA · el Registro Único no está en esta máquina")
+@unittest.skipUnless(os.path.isfile(FIXTURE), "NO_DATA · local adapter fixture missing")
 class TestPorElRegistro(Base):
     """Con el registro presente, el mensaje entra por `Registro.anexar_evento`:
     el mismo saneo que el resto de agentes. Y la app no crea la base de autoridad."""
 
     def setUp(self):
         super().setUp()
-        self.env2 = mock.patch.dict(os.environ, {"PRECEPTOROS_REGISTRO_PY": REAL})
+        self.env2 = mock.patch.dict(os.environ, {"PRECEPTOROS_REGISTRO_PY": FIXTURE})
         self.env2.start()
         K._REGISTRO.clear()
 
@@ -229,7 +229,7 @@ class TestPorElRegistro(Base):
         with self.assertRaises(K.CanalRechazado):
             K.di("lab", "soberano", "hola", base=self.casa)
 
-    def test_los_patrones_privados_son_los_del_registro(self):
+    def test_fixture_patterns_match_the_app_filter(self):
         reg = K._registro()
         self.assertIsNotNone(reg)
         self.assertEqual([(p.pattern, q) for p, q in K.PRIVADO],

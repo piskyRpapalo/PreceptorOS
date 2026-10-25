@@ -71,21 +71,15 @@ class Cedula(unittest.TestCase):
         finally:
             shutil.rmtree(d)
 
-    def test_la_cedula_del_rack_de_verdad_se_lee_aqui(self):
-        """Cruce entre repos: la cedula que escribe `nodos.py` la lee esta app (mismo hash, mismo codigo)."""
-        nexo = Path(__file__).resolve().parent.parent / "hexelion-nexo"
-        if not (nexo / "nodos.py").exists():
-            self.skipTest("NO_DATA · no hay hexelion-nexo al lado de la app")
-        import subprocess
-        d = tempfile.mkdtemp()
-        try:
-            db = os.path.join(d, "n.db")
-            subprocess.run(["python3", str(nexo / "nodos.py"), "--db", db, "crear", "nodo.3.cruce"], check=True, capture_output=True)
-            r = subprocess.run(["python3", str(nexo / "nodos.py"), "--db", db, "cedula", "nodo.3.cruce"], capture_output=True, text=True)
-            ced = json.loads(r.stdout)
-            self.assertEqual(NA.lee(ced, soberano.codigo_de(MIA))["estado"], "OK", "la app no entiende la cedula del rack")
-        finally:
-            shutil.rmtree(d)
+    def test_external_declaration_source_status_is_explicit(self):
+        """Do not claim cross-repository compatibility without a T1 source."""
+        status_path = (Path(__file__).resolve().parent / "tests" / "fixtures"
+                       / "private-source-status.json")
+        with status_path.open(encoding="utf-8") as f:
+            source = json.load(f)
+        if source["state"] == "NO_DATA":
+            self.skipTest("NO_DATA: " + source["cause"])
+        self.fail("A measured local declaration fixture must replace this status fixture")
 
 
 

@@ -1,0 +1,10 @@
+{
+  "schema": "preceptoros.private-source-status.v1",
+  "state": "NO_DATA",
+  "cause": "T1 GitHub lookup returned not found; no external source or hash was read.",
+  "sources": {
+    "web_contracts": "NO_DATA",
+    "node_emitter": "NO_DATA",
+    "registry_adapter": "NO_DATA"
+  }
+}

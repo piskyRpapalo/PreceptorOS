@@ -260,7 +260,7 @@ cuanto la persona lo descubre deja de creerse el resto de la pantalla (D76).
 ### La condición de entrada
 
 **Este acta está firmada** (Soberano, 2026-08-16), así que esa condición está
-cumplida. Quedan las otras dos que el Soberano puso al firmar: `p0x` en jetson,
+cumplida. Quedan las otras dos que el Soberano puso al firmar: `<private-repo>` en jetson,
 y la deuda técnica de arriba cerrada. Abrir un frente nuevo con el
 anterior sin acta es lo que este proyecto lleva un mes evitando: código sin
 acta, y después nadie sabe qué se decidió ni por qué.

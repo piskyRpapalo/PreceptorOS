@@ -29,7 +29,7 @@ Revisa el texto antes de pegarlo. El filtro reduce el trabajo; no lo sustituye.
 
 Ollama de este nodo escucha en http://[REDACTED:PRIVATE_IP]:11434, no en localhost
 Trampa de configuracion: un `ollama list` pelado falla con «could not connect» y parece que el servicio esta caido. Esta vivo.
-OLLAMA_HOST vive en ~/.config/environment.d/50-p0x.conf, no en .bashrc (que las shells no interactivas no leen). Medido: 8 modelos, 6.02 ms, backend vulkan (OLLAMA_IGPU_ENABLE=1 en la unidad).
+OLLAMA_HOST vive en `<private-ref>/50-<private-repo>.conf` `sha256=NO_DATA scope_not_signed`, no en .bashrc (que las shells no interactivas no leen). Medido: 8 modelos, 6.02 ms, backend vulkan (OLLAMA_IGPU_ENABLE=1 en la unidad).
 
 ### recuerdo 4
 

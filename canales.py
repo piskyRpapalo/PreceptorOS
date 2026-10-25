@@ -94,10 +94,14 @@ _REGISTRO = {}
 
 
 def _registro():
-    """El módulo del Registro Único, si esta máquina lo tiene y ya conoce el tipo
-    `mensaje`. Vive fuera de este repo público: se busca en PRECEPTOROS_REGISTRO_PY
-    o en su sitio del rack. Sin él, el adaptador anexa con el mismo esquema."""
-    ruta = os.environ.get("PRECEPTOROS_REGISTRO_PY") or str(Path.home() / "p0x" / "registro" / "registro.py")
+    """Load the optional registry only from an explicit setting.
+
+    Without PRECEPTOROS_REGISTRO_PY, this module uses its local append-only
+    adapter; it does not probe an implicit location outside the repository.
+    """
+    ruta = os.environ.get("PRECEPTOROS_REGISTRO_PY")
+    if not ruta:
+        return None
     if ruta in _REGISTRO:
         return _REGISTRO[ruta]
     mod = None

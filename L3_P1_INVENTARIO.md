@@ -25,9 +25,9 @@ Inventario de solo lectura medido el 2026-10-16 desde loopback. No cambia la int
 
 ## Procedencia de código
 
-- Ojo: `~/p0x/Alejandria/ojo/ojo.py:1279-1284` (`/api/arranque` y `rack_ahora`); `:979-1044` (carga y glosario).
-- Nexo: `~/p0x/hexelion-nexo/servidor.py:69-76` (`/api/salud` y `/api/timers`); `~/p0x/hexelion-nexo/sensores/timers.py:57-96` (filas y causas).
-- Rack: `~/p0x/hexelion/laboratorio/rack_instantanea.py:11-12,48-51,202-212,296-318` (archivo, caducidad, campos y validación).
-- Puente Ollama: `~/p0x/deploy/soberano/ollama-puente.py:31-34` (lista blanca y destino loopback).
+- Ojo: `<private-ref>/ojo.py` `sha256=NO_DATA scope_not_signed`:1279-1284 (`/api/arranque` y `rack_ahora`); :979-1044 (carga y glosario).
+- Nexo: `<private-ref>/servidor.py` `sha256=NO_DATA scope_not_signed`:69-76 (`/api/salud` y `/api/timers`); `<private-ref>/timers.py` `sha256=NO_DATA scope_not_signed`:57-96 (filas y causas).
+- Rack: `<private-ref>/rack_instantanea.py` `sha256=NO_DATA scope_not_signed`:11-12,48-51,202-212,296-318 (archivo, caducidad, campos y validación).
+- Puente Ollama: `<private-ref>/ollama-puente.py` `sha256=NO_DATA scope_not_signed`:31-34 (lista blanca y destino loopback).
 - App: `bin/preceptoros-pwa:264-291,439-462,621` (endpoints de puerta y Lab); `:976` (frontera); `:1108-1133` (captura); `lab.py:24-37` (contrato del Lab y tubería); `empieza_aqui.py:213` (documento de entrada).
-- Sala: `~/p0x/hexelion/laboratorio/sala/sala.py:1-19,49` (alcance y dependencia loopback).
+- Sala: `<private-ref>/sala.py` `sha256=NO_DATA scope_not_signed`:1-19,49 (alcance y dependencia loopback).

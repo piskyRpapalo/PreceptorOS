@@ -59,8 +59,8 @@ def corpus():
         for r in c.execute("select what, why, where_ref, learned from engrams"):
             textos += [x for x in (r["what"], r["why"], r["where_ref"],
                                    r["learned"]) if x]
-    ojo = os.path.expanduser("~/p0x/Alejandria/ojo/glosario.json")
-    if os.path.exists(ojo):
+    ojo = os.environ.get("PRECEPTOROS_GLOSARIO_JSON")
+    if ojo and os.path.exists(ojo):
         with open(ojo, encoding="utf-8") as f:
             textos += [t for t in hojas(json.load(f)) if len(t) > 20]
     return textos

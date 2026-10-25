@@ -104,6 +104,6 @@ decoración: cambia de color solo cuando la tanda se pone roja, y uno guardado
 en el repo diría «verde» para siempre. Un badge que no puede ponerse rojo es
 peor que no tener badge.
 
-**Y una nota sobre la copia local:** `~/p0x/github-profile/README.md` está
+**Y una nota sobre la copia local:** `<private-ref>/README.md` `sha256=NO_DATA scope_not_signed` está
 desfasado — no tiene ninguna de estas imágenes. Lo que está publicado y lo que
 tienes en disco no son lo mismo.
