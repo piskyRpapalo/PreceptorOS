@@ -39,12 +39,20 @@ class ExportacionNodo(unittest.TestCase):
         paquete = {"esquema": "preceptoros/cedula-nodo/1", "pares": [cedula()], "firma": None}
         def transport(url, body):
             recibida.append((url, json.loads(body)))
-            return {"estado": "encolado", "recibidos": 1, "paquete": paquete}
+            return {"estado": "pendiente", "causa": "ancla_ausente", "recibidos": 1, "paquete": paquete}
         with patch("nodo_export.nodo_app.autenticidad", return_value=("OK", "verificada")):
             r = nodo_export.enviar({"cedula": cedula()}, transport=transport)
-        self.assertEqual(r, {"estado": "encolado", "codigo": "recibido", "recibidos": 1})
+        self.assertEqual(r, {"estado": "pendiente", "codigo": "recibido", "causa": "ancla_ausente", "recibidos": 1})
         self.assertEqual(recibida[0][0], nodo_export.ENDPOINT)
+        self.assertTrue(nodo_export.ENDPOINT.endswith("/api/v1/cedulas"))
         self.assertEqual(recibida[0][1], {"cedula": cedula()})
+
+    def test_un_estado_desconocido_no_se_repite_como_recibido(self):
+        paquete = {"esquema": "preceptoros/cedula-nodo/1", "pares": [cedula()], "firma": None}
+        with patch("nodo_export.nodo_app.autenticidad", return_value=("OK", "verificada")):
+            r = nodo_export.enviar({"cedula": cedula()}, transport=lambda *_: {
+                "estado": "confiable", "recibidos": 1, "paquete": paquete})
+        self.assertEqual(r["codigo"], "recibo_invalido")
 
     def test_silicio_no_puede_devolver_paquete_firmado(self):
         with patch("nodo_export.nodo_app.autenticidad", return_value=("OK", "verificada")):
