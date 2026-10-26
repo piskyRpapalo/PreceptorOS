@@ -169,6 +169,10 @@ the vocabulary.
 - Shows you **the border**: the filter that removes keys, paths and addresses
   from any text before it leaves your machine. You can read what it removed.
 - Measures models and keeps the measurements with their date.
+- Installs itself with `install.sh` (Linux: tested on the development
+  node; macOS: not tested) or `install.ps1` (Windows: not tested) — it
+  clones the repository for you, checks for `python3` and `git`, and never
+  asks for an administrator password.
 
 ## What it does not do yet
 
@@ -177,9 +181,10 @@ the vocabulary.
   binary this code actually calls is `llama-completion`; it is named here on
   purpose, because a page that promises one engine and runs another sends
   you to install the wrong thing.
-- **There is no single-click installer.** You clone the repository and start
-  it yourself. Nothing asks for a password and nothing downloads behind your
-  back.
+- **The installers are young.** v1.3 ships `install.sh` (tested on the
+  development node) and `install.ps1` (untested: no Windows machine here).
+  Their messages are in Spanish, and nobody has timed an install from
+  scratch: five minutes is NO_DATA.
 
 ## Requirements
 
