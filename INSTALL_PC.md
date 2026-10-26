@@ -1,136 +1,149 @@
-# Installing PreceptorOS on a computer
+# Download and start PreceptorOS
 
-Two paths. The first is for using PreceptorOS; the second, for taking it apart.
+[Open the published v1.3 release](https://github.com/piskyRpapalo/PreceptorOS/releases/tag/v1.3).
 
-*Versión en español: [INSTALACION_PC.md](INSTALACION_PC.md).*
+**Measured on 2026-10-26:** this release has installation scripts and model data.
+It has no attached desktop executable or Android APK. The earlier version of
+this guide described a 14 MB executable; that is not an available v1.3 download.
+A build recipe does not establish that an executable has been published.
 
----
+The checklist below is a five-minute reading and setup guide, not a measured
+installation time. Download time, missing prerequisites, and a fresh installation
+on your computer remain `NO_DATA` until exercised there.
 
-## Path 1 · the file you open with a double click
+## Choose the download
 
-**One file, 14 MB. No Python to install, nothing else either.**
-
-1. Download `preceptoros`.
-2. Open it with a double click.
-3. Your browser opens on PreceptorOS. That is all.
-
-To close it, close the black window that opened with it.
-
-### What it does and what it does not, said before you find out
-
-**It does:** creates your memory, asks you the first-run questions, keeps your
-memories, and shows you the border — the filter that blanks out keys, paths and
-addresses before any text leaves your machine.
-
-**It does not, yet:** converse. That needs two large pieces that do not fit
-inside and **are not downloaded without your say-so**:
-
-| Piece | Size | Why it is outside |
+| Platform | Published asset | What is measured |
 |---|---|---|
-| The engine | ~10 MB | It is somebody else's executable. This project signs data, not programs. |
-| The brain | **2.3 GB** | It is offered with its licence and its fingerprint in front of you, and you accept it. |
+| Linux | [install.sh](https://github.com/piskyRpapalo/PreceptorOS/releases/download/v1.3/install.sh) | 4,529 bytes; downloaded and SHA-256 checked on 2026-10-26. The release records a historical Linux installation test dated 2026-08-31. A new clean installation was not run for this guide. |
+| macOS | The same `install.sh` | The asset exists; macOS execution is `NO_DATA: not exercised`. |
+| Windows | [install.ps1](https://github.com/piskyRpapalo/PreceptorOS/releases/download/v1.3/install.ps1) | 2,638 bytes; downloaded and SHA-256 checked on 2026-10-26. Windows execution is `NO_DATA: not exercised`. |
+| Android | [Published Termux guide](https://github.com/piskyRpapalo/PreceptorOS/releases/download/v1.3/INSTALACION_ANDROID.md), or [the current English guide](INSTALL_ANDROID.md) | A guide is attached. No APK is attached. A current physical installation was not exercised for this guide. |
 
-Without them, **PreceptorOS asks and remembers but does not converse**. That is the
-honest description, and this file does not promise more than it carries.
+There are 13 attached assets: two installation scripts, one Android guide,
+five model files, and five companion model checksum files. The small model
+files are optional data; they are not an application executable or a requirement
+to replace an AI you already run locally.
 
-### Where your things live
+## First-run checklist on Linux
 
-In `~/.preceptoros/memory.db`. **One file.** Copy it, carry it on a USB stick, or
-delete it. Nothing leaves your machine unless you export it.
+1. Check the prerequisites in a terminal:
 
----
+   ```sh
+   python3 --version
+   git --version
+   ```
 
-## Closed everything and cannot get back in?
+   The current source requires Python 3.10 or newer. If a prerequisite is
+   missing, install it through your operating system's normal package tools.
+   The release installer checks prerequisites; it does not obtain administrator
+   privileges or install system packages for you.
 
-It happened to the author. It is not your fault: until today there was no way
-to reopen it without remembering a command.
+2. Download `install.sh` using the link above. In the download directory, verify
+   the exact published asset:
 
-1. Look for **PreceptorOS** in your applications menu. If it is there, click it.
-2. If it is not, open a terminal:
+   ```sh
+   printf '%s  install.sh\n' '2bd8666979a67ea1ec8b01a01aac240acfc2cef6165b93e558d0b836d3df6e74' | sha256sum -c -
+   ```
 
+   Continue only if the result is `OK`. Read the script before running it:
+
+   ```sh
+   less install.sh
+   bash install.sh
+   ```
+
+   The script clones the repository's current default branch into your user
+   directory. It does **not** pin the application source to the v1.3 tag. Record
+   the cloned commit when reporting an installation result. This mutable source
+   dependency is an outstanding release-packaging issue.
+
+3. Use the destination reported by the installer. With its default destination:
+
+   ```sh
+   cd "$HOME/preceptoros"
+   git rev-parse HEAD
+   bin/preceptoros-servicio arranca
+   bin/preceptoros-servicio estado
+   ```
+
+4. Open [the local application](http://localhost:8740) in your browser. Keep the
+   service running while using it. To stop it from that repository:
+
+   ```sh
+   bin/preceptoros-servicio para
+   ```
+
+5. If the service reports a busy port, use `estado` to identify the existing
+   instance before stopping or replacing anything. A web page answering does
+   not establish which application version is serving it.
+
+Opening the local interface does not establish model compatibility. The release
+installer checks whether Ollama is present but does not install or validate a
+model engine for you. Reuse of an existing local AI is `NO_DATA` until its engine
+and model are configured and exercised with the application. No model download is requested by this checklist.
+
+## Windows and macOS limits
+
+For Windows, download and inspect `install.ps1`. Its measured SHA-256 is:
+
+```text
+b10d7b8ade7ea0f301fd325336ae97dba6fd954786956703a3c1c6a80641f19b
 ```
-cd ~/preceptoros && bin/preceptoros-servicio arranca
-```
 
-It will say `arrancado · http://127.0.0.1:8740`. Open that address in your
-browser.
+Compare the result of `Get-FileHash .\install.ps1 -Algorithm SHA256` with that
+value. Follow the script's prerequisite checks and your operating system's
+execution policy. This guide does not claim that the Windows installation has
+passed a clean-machine test.
 
-### If it says the port is busy
+The macOS branch of the shell installer is also unverified. Use the source
+instructions below if you want to inspect the application first, and report the
+platform and exact failure rather than treating an untested path as working.
 
-An earlier copy is still running. **Watch out here**, because there is a trap:
-the server can be called two different things depending on how you started it.
+## Install from the current source
 
-```
-bin/preceptoros-servicio para      # the clean way: stops whatever is there
-```
-
-And if it is still busy, what is left is the packaged executable, which has a
-different name:
-
-```
-pkill -f preceptoros-pwa           # the server launched from the repository
-pkill -f 'dist/preceptoros'        # the single-file executable
-```
-
-**A plain `pkill -f preceptoros-pwa` does not catch the executable.** It happened
-four times during development: the old process kept answering, the new one died
-at birth, and everything looked fine while the wrong version was being measured.
-
-### How to tell whether it is alive
-
-```
-bin/preceptoros-servicio estado
-```
-
-It gives the pid and whether it answers. If it says `parado`, start it.
-
----
-
-## The icon in your applications menu
-
-If you cloned the repository, one line puts PreceptorOS in the menu:
-
-```
-bin/instalar-pc
-```
-
-It creates the icon and tells you how to get back in if something hangs. It
-covers both paths: with the repository, the icon starts from it; with only the
-downloaded file, it starts that.
-
-To remove it: `bin/instalar-pc --desinstalar`. It **does not touch your
-memory** or the product — only the icon.
-
----
-
-## Path 2 · from the source
-
-For anyone who wants to read it, change it or audit it.
-
-```
-git clone https://github.com/piskyRpapalo/PreceptorOS
+```sh
+git clone --depth 1 https://github.com/piskyRpapalo/PreceptorOS
 cd PreceptorOS
-python3 preceptoros.py             # create your memory
-python3 preceptoros.py --charla    # talk, if a brain is installed
-bin/preceptoros-servicio arranca   # the web face
+python3 preceptoros.py
+bin/preceptoros-servicio arranca
 ```
 
-Python 3.10 or newer. **No dependencies**: the standard library only. That is
-not an abstract virtue — it is what makes the file in path 1 fit in 14 MB
-instead of 400.
+This is a source installation, not a packaged desktop application. Record
+`git rev-parse HEAD` with any result. The local service state is reported by
+`bin/preceptoros-servicio estado`.
 
----
+If you want an applications-menu entry, run `bin/instalar-pc` from the installed
+repository. `bin/instalar-pc --desinstalar` removes that entry and preserves the
+local memory. Neither command was executed as part of this documentation audit.
 
-## How the file in path 1 is built
+## Creating a node on the public website
 
-```
-uv pip install pyinstaller
-bash empaquetado/construir_pc.sh
-```
+**The inspected application does not yet complete public node creation.**
+Its Settings flow prepares an unsigned charter and asks for local consent.
+The signer is explicitly a stub. The local preview receiver returns
+`persisted: false` and a synthetic catalog count; that is not a registered public
+node. See [the implemented receiver](node_registration.py),
+[the browser adapter](interface/node_registration.js), and
+[the registration sequence](docs/node-registration-sequence.md).
 
-It lands in `dist/preceptoros`. The script declares the pieces the packager cannot
-see on its own — see the comment in `empaquetado/lanzador.py`, which exists
-because the first version built a binary that died with
-`No module named 'json'`.
+A pending, unsigned, or untrusted result must stay labeled that way. Opening the
+app or accepting a preview does not replace the signing ceremony, a pinned trust
+anchor, or acceptance by the public receiver and catalog.
 
-**If anything fails, it stops.** No half-installed house that looks whole.
+## Measured gaps and proposed next pieces
+
+| Piece | Evidence on 2026-10-26 | Reviewable next action |
+|---|---|---|
+| Release packaging | v1.3 was published on 2026-08-31. No desktop executable or APK is attached; its installers clone unpinned current source. | Publish only reproducible builds that passed a fresh-install check, with platform, source commit, size, and checksum manifest. Until then expose the scripts as source installers. |
+| Web download door | No app release/installer URL was found in the inspected public HTML/JavaScript source; the fetched apex HTML had no explicit app download link. Dynamic browser rendering was not exercised. | A separate web-lane piece should add a visible Download app link to this guide and the release, with platform and node-registration limits visible before download. |
+| Five-minute onboarding | The existing guide promised an unattached executable. This file now links the assets that exist and supplies a bounded first-run checklist. | Measure a clean Linux installation; test each other platform before changing its `NO_DATA` status. Setup duration and existing-model compatibility must be measured separately. |
+| Public registration | `node_registration.py` is a nonpersistent test receiver with an explicit stub signer. Public route HEAD and OPTIONS both returned 404; POST behavior was not measured and cannot be inferred from those methods. | Complete the receiver, ceremony, anchor, and catalog pieces under their own review boundaries, then exercise a real consent-to-catalog sequence without presenting a stub as a created node. |
+
+The release asset inventory came from the GitHub release API. Both installer
+files were downloaded without executing them, and their bytes matched the API's
+SHA-256 digests. Source observations use app main `08e6374` and web main
+`c03228c4cf5f`; release metadata, static source inspection, and HTTP observations
+are separate evidence. The public page was fetched; browser rendering, service
+worker delivery, a physical fresh install, and completed public registration
+remain `NO_DATA` with the causes above.
