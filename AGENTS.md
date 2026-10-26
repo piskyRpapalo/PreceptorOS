@@ -31,3 +31,9 @@ This file is the canonical instruction set for agents working in this repository
 - Python yardstick: `python3 -m unittest discover -p "test_*.py"`.
 - Repository gate: `./bin/pruebas`. Report its total, suite count, skips, and sabotage results separately from directed tests and any model benchmark. Use two full runs when the piece's order requires gate `n=2`.
 - When changing served assets, align `interface/app.html`, `interface/sw.js`, the PWA static route, and `version.py` as applicable; test the alignment before claiming the service worker can deliver the change.
+
+## Single signing book (FIRMO 2026-10-26)
+
+- The single source of truth for decrees, pre-signatures, and fulfilled signatures is the private `firmas` repository → `LIBRO_DE_FIRMAS.md`. Consult it before proposing; never contradict a live decree.
+- Every FIRMA transcription cites the decree that authorizes it. Every merge updates the book with its receipt (agents publish the receipt in the PR; the Mesa appends it to the book).
+- House ceiling applies (piece < 16,384 B): when the book reaches the ceiling, new material goes to NEW files in the `firmas` repository, linked from the book. Nothing is deleted; entries are only re-classified.
