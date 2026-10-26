@@ -265,7 +265,7 @@ class TestRutas(Base):
         _rack(self.casa, AHORA.isoformat(),
               nodos=[{"nodo": "soberano", "estado": "ONLINE",
                       "nota": f"log en {self.home}/.preceptoros/x.log"}],
-              fuente=f"leido de {self.home}/p0x")
+              fuente=f"leido de {self.home}/reference")
         crudo = json.dumps(self.vista(), ensure_ascii=False)
         self.assertNotIn(self.home, crudo)
         self.assertNotIn("fulanita", crudo)

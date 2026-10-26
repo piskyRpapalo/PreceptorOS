@@ -18,7 +18,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import medidas as MD                             # noqa: E402
 import metricas as MT                            # noqa: E402
 
-WEB = os.path.expanduser("~/p0x/preceptoros-web/public/medidas.json")
+WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "tests", "fixtures", "web-contract", "medidas.json")
+WEB_SOURCE_STATUS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "tests", "fixtures", "private-source-status.json")
+
+
+def _require_web_source(testcase):
+    with open(WEB_SOURCE_STATUS, encoding="utf-8") as f:
+        source = json.load(f)
+    if source["state"] == "NO_DATA":
+        testcase.skipTest("NO_DATA: " + source["cause"])
 
 
 def paquete_con(**valores):
@@ -37,8 +47,7 @@ class TestMedidas(unittest.TestCase):
     # --- el contrato del otro lado ----------------------------------------
 
     def test_estan_TODOS_los_campos_que_la_web_declara_obligatorios(self):
-        if not os.path.isfile(WEB):
-            self.skipTest("el repo de la web no esta a mano")
+        _require_web_source(self)
         contrato = json.loads(open(WEB, encoding="utf-8").read())["contrato"]
         d = MD.desde_paquete(paquete_con(modelo_nombre="Qwen"))
         for campo in contrato["obligatorio"]:

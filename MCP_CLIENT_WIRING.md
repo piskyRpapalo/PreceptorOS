@@ -37,7 +37,7 @@ joins `bin/pruebas` in this change.
 This measures one short-lived APP stdio process. External model-client
 attachment, a resident service, browser-to-MCP transport, and transfer of a
 Bubble frame to a validator remain `NO_DATA`: the APP server has no declared
-frame tool, as shown by the rejected probe. The separate p0x server and its
+frame tool, as shown by the rejected probe. The separate `<private-repo>` server and its
 web inspection tools are not conflated with this APP process.
 
 Run `python3 -m unittest -v test_mcp_stdio_receipt` for the focused judge and

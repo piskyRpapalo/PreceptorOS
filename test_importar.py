@@ -22,7 +22,17 @@ import captura                                   # noqa: E402
 import importar as I                             # noqa: E402
 import memory as M                               # noqa: E402
 
-WEB = os.path.expanduser("~/p0x/preceptoros-web/public/assets")
+WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures", "web-contract")
+WEB_SOURCE_STATUS = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures",
+    "private-source-status.json")
+
+
+def _require_web_source(testcase):
+    with open(WEB_SOURCE_STATUS, encoding="utf-8") as f:
+        source = json.load(f)
+    if source["state"] == "NO_DATA":
+        testcase.skipTest("NO_DATA: " + source["cause"])
 
 
 def par(prompt="que es un LoRA", respuesta="mal", correccion="bien",
@@ -116,10 +126,9 @@ class TestImportar(unittest.TestCase):
         de poder compararse -- y nadie lo notaria, porque cada lado seguiria
         siendo coherente consigo mismo.
         """
+        _require_web_source(self)
         import json
         f = os.path.normpath(os.path.join(WEB, "..", "servicios.json"))
-        if not os.path.isfile(f):
-            self.skipTest("el repo de la web no esta a mano")
         d = json.loads(open(f, encoding="utf-8").read())
         web = {s["comando"].lstrip("/") for s in d["servicios"]}
         self.assertEqual(web, set(captura.TAREAS) - {"libre"})
@@ -377,9 +386,8 @@ class TestImportar(unittest.TestCase):
                 self._campos_de(nombre)
 
     def _campos_de(self, nombre):
+        _require_web_source(self)
         js = os.path.join(WEB, nombre)
-        if not os.path.isfile(js):
-            self.skipTest("el repo de la web no esta a mano")
         texto = open(js, encoding="utf-8").read()
         # El objeto que la web firma y guarda.
         cuerpo = texto.split("var reg = {", 1)[1].split("};", 1)[0]
@@ -420,9 +428,8 @@ class TestImportar(unittest.TestCase):
             "esquemas que decian ser el mismo")
 
     def test_el_paquete_de_la_web_declara_el_esquema_que_aqui_se_acepta(self):
+        _require_web_source(self)
         js = os.path.join(WEB, "taller.js")
-        if not os.path.isfile(js):
-            self.skipTest("el repo de la web no esta a mano")
         texto = open(js, encoding="utf-8").read()
         self.assertIn("esquema: ap.esquema_paquete || 1", texto,
                       "el paquete de la web ya no declara esquema 1; revisar "

@@ -18,7 +18,7 @@ llame a ``proponer()`` correrá código WASM — y siempre dentro de la jaula:
   propuestas — la celda se demuele y se reconstruye cada vez.
 
 Requiere ``wasmtime`` (ver ``requirements.txt``; en soberano vive en el
-venv de usuario ``~/.venvs/p0x``, sin sudo).
+venv de usuario, sin privilegios elevados).
 """
 
 from __future__ import annotations

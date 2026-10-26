@@ -46,13 +46,12 @@ CAMPOS = {
 # y responde. Por encima no hay medida, asi que no hay norma.
 VENTANA_MEDIDA = 32768
 
-# El enchufe medidor del rack (Nous A1T con Tasmota). Se deja en una constante
-# y no incrustado en la funcion porque es una direccion de LAN: el dia que
-# cambie de IP se cambia aqui, y quien corra esto en otra red la sobreescribe
-# sin editar el codigo.
-ENCHUFE = os.environ.get("P0X_ENCHUFE", "http://192.168.50.162")
+# The local meter endpoint is explicit configuration. The default marker keeps
+# an unconfigured endpoint from causing a network request.
+ENCHUFE_NO_CONFIGURADO = "<private-ip>"
+ENCHUFE = os.environ.get("PRECEPTOROS_ENCHUFE") or ENCHUFE_NO_CONFIGURADO
 # Solo la parte que un humano reconoce, para la frase del hueco: «no responde
-# en http://192.168.50.162» se lee peor que «no responde en 192.168.50.162».
+# en http://<private-ip>» se lee peor que «no responde en <private-ip>».
 ENCHUFE_IP = ENCHUFE.split("//")[-1].rstrip("/")
 
 
@@ -125,6 +124,8 @@ def _consumo_w():
     maquinas, y el vatiaje de un enchufe describe el rack, no el modelo. Ver
     la nota de `paquete()`.
     """
+    if ENCHUFE == ENCHUFE_NO_CONFIGURADO:
+        return sin_dato("consumo_w", "meter endpoint not configured", "W")
     url = f"{ENCHUFE}/cm?cmnd=Status+8"
     try:
         with urllib.request.urlopen(url, timeout=2) as r:

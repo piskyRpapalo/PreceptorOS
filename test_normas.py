@@ -9,6 +9,7 @@ no esta anclado se sepa que no lo esta.
 from __future__ import annotations
 
 import os
+import json
 import pathlib
 import re
 import sys
@@ -137,10 +138,13 @@ class TestNormas(unittest.TestCase):
         Se mira el castellano, que es donde se decide el nombre; las otras siete
         son su traduccion y ya tienen su propio guardian en la web.
         """
-        ruta = os.path.expanduser("~/p0x/preceptoros-web/public/taller-es.json")
-        if not os.path.isfile(ruta):
-            self.skipTest("el repo de la web no esta a mano")
-        import json
+        status_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "tests", "fixtures", "private-source-status.json")
+        with open(status_path, encoding="utf-8") as f:
+            source = json.load(f)
+        if source["state"] == "NO_DATA":
+            self.skipTest("NO_DATA: " + source["cause"])
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures", "web-contract", "taller-es.json")
         bloques = json.load(open(ruta, encoding="utf-8"))["bloques"]
         # Terminos que salen de un texto legal, con su articulo. No son nombres
         # de la casa y por eso se declaran: cada uno es una cita, no un invento.

@@ -207,7 +207,7 @@ class TestPreceptorDeLoras(unittest.TestCase):
         """
         import json
         ruta = os.path.expanduser(
-            "~/p0x/preceptoros-web/public/servicios.json")
+            "~/example-site/public/servicios.json")
         if not os.path.exists(ruta):
             self.skipTest("la web no esta en este arbol")
         with open(ruta, encoding="utf-8") as f:

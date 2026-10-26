@@ -5,7 +5,7 @@ tipo: doctrina
 clase: doctrina
 version: 1.0.0
 sistema: PRECEPTOR
-destino_propuesto: p0x/preceptor/El_Temple.md
+destino_propuesto: <private-ref>/El_Temple.md sha256=NO_DATA scope_not_signed
 no_viaja_al_MVP: true
 actualizado: 2026-08-12
 ---
