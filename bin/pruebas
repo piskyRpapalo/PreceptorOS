@@ -266,7 +266,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # la vez no repiten n ni parten lineas; nada llega al disco sin
           # guardrails; «firmado» en un texto no cambia el estado. Con su
           # `--sabotaje`.
-          test_canales
+          test_canales test_aiact_art14_motor
           test_contratos_decision
           # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
           # cerrado; el orquestador contesta con su voz y por tuberia; registro

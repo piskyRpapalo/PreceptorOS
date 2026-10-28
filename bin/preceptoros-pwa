@@ -63,6 +63,7 @@ import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
+import aiact_art14_motor as _motor_local                    # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 
 BIND = os.environ.get("PRECEPTOROS_PWA_BIND") or os.environ.get("PRECEPTOROS_PWA_BIND", "127.0.0.1")
@@ -463,7 +464,8 @@ class PWA(BaseHTTPRequestHandler):
         try:
             resultado = _orquestador.enrutar(
                 raw, consultar_rag=lambda consulta: _lab.consultar_rag(
-                    consulta, _casa.raiz()))
+                    consulta, _casa.raiz(),
+                    motor=getattr(self.server, "motor_orquestador", None)))
         except _orquestador.PeticionRechazada as exc:
             return self._json(400, {"estado": "NO_DATA", "causa": str(exc)})
         return self._json(200, resultado)
@@ -1274,11 +1276,24 @@ def main(argv=None):
     ap.add_argument("--db", default=str(_casa.raiz() / "memory.db"))
     ap.add_argument("--modelo", default=os.path.join(
         str(_casa.raiz()), "modelos/qwen3-4b-instruct-2507-Q4_K_M.gguf"))
+    ap.add_argument("--mini-local", help="modelo local ya instalado; activa VT11 explícitamente")
+    ap.add_argument("--mini-sha256", help="SHA-256 del GGUF autorizado, sin descargar ni copiar")
     a = ap.parse_args(argv)
+
+    motor_orquestador = None
+    if a.mini_local is not None or a.mini_sha256 is not None:
+        if BIND != "127.0.0.1":
+            ap.error("el mini residente requiere escucha exclusiva en loopback IPv4")
+        try:
+            motor_orquestador = _motor_local.MotorLocal(a.mini_local, a.mini_sha256)
+        except _motor_local.MotorNoDisponible as exc:
+            ap.error(exc.causa)
+        print(json.dumps(motor_orquestador.activar(), ensure_ascii=False))
 
     servidor = ThreadingHTTPServer((BIND, PUERTO), PWA)
     servidor.ruta_db = a.db
     servidor.modelo = a.modelo
+    servidor.motor_orquestador = motor_orquestador
     print(f"[pwa] escuchando en {BIND}:{PUERTO} · memoria: {a.db}")
     if BIND not in ("127.0.0.1", "::1", "localhost"):
         print("[pwa] AVISO: no estás en loopback. Esto escucha fuera de esta "

@@ -43,6 +43,7 @@ import canales as _canales
 import consola as _consola
 import decisor as _decisor
 import guardrails as G
+from aiact_art14_motor import MotorNoDisponible
 
 ESQUEMA = "preceptoros.lab/1"
 VOCES = ("claude-app", "claude-lab", "claude-web", "hexelion", "orquestador", "soberano")
@@ -424,6 +425,8 @@ def consultar_rag(texto, base, motor=None, raiz_ollama=None,
               "\n---\n".join(contexto) + "\n\nConsulta:\n" + texto.strip())
     try:
         respuesta = motor(prompt)
+    except MotorNoDisponible as exc:
+        return nd(exc.causa)
     except Exception as exc:
         return nd("inferencia local falló: " + type(exc).__name__)
     if type(respuesta) is not str or not respuesta.strip():
