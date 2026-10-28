@@ -13,11 +13,11 @@
 - Rosetta: Study `origin/main` `379981243031f0bcdaf808cbe1989a4e42a66f11`, blob `09e8ecf5d5ffb038ca118d17bd3dab9002d4b339`.
 - Collision law: same Study revision, `10-collisions.md` blob `326b769ce55b836b85831518d543c078133b7fe6`.
 
-Search expressions/commands: `git show origin/main:bin/preceptoros-pwa | rg -n 'ESTATICOS|/api/'`; `git show origin/main:interface/manifest.json`; `git show origin/main:textos.py | rg -n 'DEFECTO|IDIOMAS|TEXTOS'`; `python3 bin/auditar_nombres_publicos.py`. The command loads the pinned checkout's route table, records each static route, extracts literal `/api/...` paths, executable names under `bin/`, and title/heading/accessibility names from served HTML plus manifest name fields. The exact allowlist is `app-public-names-allowlist.json`.
+Search expressions/commands: `git show origin/main:bin/preceptoros-pwa | rg -n 'ESTATICOS|/api/'`; `git show origin/main:interface/manifest.json`; `git show origin/main:textos.py | rg -n 'DEFECTO|IDIOMAS|TEXTOS'`; `python3 bin/auditar_nombres_publicos.py`. The command loads the pinned checkout's route table, records each static route, extracts literal `/api/...` paths, executable names under `bin/`, and title/heading/button/label/accessibility names from served HTML plus manifest name fields. Every collected name is bound to its source file in the catalog. The exact allowlist is `app-public-names-allowlist.json`.
 
 ## Measured coverage and limits
 
-On this checkout, 2026-10-28, the inventory found **68 static routes**, **26 literal API path strings**, **13 executable command files**, and **68 title/heading/accessibility/manifest labels**. These counts are from `python3 bin/auditar_nombres_publicos.py`; they are not counts of all runtime strings.
+On this checkout, 2026-10-28, the inventory found **68 static routes**, **26 literal API path strings**, **13 executable command files**, and **253 source-bound title/heading/button/label/accessibility/manifest entries**. These counts are from `python3 bin/auditar_nombres_publicos.py`; they are not counts of all runtime strings.
 
 The gate fails closed if a static route, literal API path, executable name, or collected name-bearing label is added, removed, or changed without updating the allowlist. The two sabotage cases inject a new label and a new route; both must be detected. It does not translate or rewrite content.
 

@@ -24,9 +24,9 @@ class Rotulos(HTMLParser):
 
     def handle_starttag(self, etiqueta, atributos):
         attrs = dict(atributos)
-        if etiqueta in {"title", "h1", "h2", "h3"}:
+        if etiqueta in {"title", "h1", "h2", "h3", "h4", "button", "summary", "label"}:
             self.activos.append(etiqueta)
-        for clave in ("aria-label", "alt"):
+        for clave in ("aria-label", "alt", "title", "placeholder"):
             valor = attrs.get(clave, "").strip()
             if valor:
                 self.valores.add(valor)
@@ -46,27 +46,28 @@ def rutas_servidas():
     spec = spec_from_loader("pwa_nombres", loader)
     modulo = module_from_spec(spec)
     loader.exec_module(modulo)
-    salida = []
+    salida = {}
     for ruta, (fichero, mime) in sorted(modulo.ESTATICOS.items()):
         local = Path(fichero)
         if local.is_absolute():
             local = local.resolve().relative_to(RAIZ)
         else:
             local = Path("interface") / local
-        salida.append({"route": ruta, "source": local.as_posix(), "mime": mime})
+        salida[ruta] = local.as_posix()
     return salida
 
 
 def nombres_servidos():
-    fuentes = sorted({fila["source"] for fila in rutas_servidas() if fila["source"].endswith(".html")})
-    valores = set()
+    fuentes = sorted({fuente for fuente in rutas_servidas().values() if fuente.endswith(".html")})
+    valores = {}
     for fuente in fuentes:
         parser = Rotulos()
         parser.feed((RAIZ / fuente).read_text(encoding="utf-8"))
-        valores.update(parser.valores)
+        valores[fuente] = sorted(parser.valores, key=str.casefold)
     manifiesto = json.loads((RAIZ / "interface/manifest.json").read_text(encoding="utf-8"))
-    valores.update(x for x in (manifiesto.get("name"), manifiesto.get("short_name")) if x)
-    return sorted(valores, key=str.casefold)
+    valores["interface/manifest.json"] = sorted(
+        (x for x in (manifiesto.get("name"), manifiesto.get("short_name")) if x), key=str.casefold)
+    return dict(sorted(valores.items()))
 
 
 def observado():
@@ -77,7 +78,7 @@ def observado():
         "routes": rutas_servidas(),
         "api_routes": api_routes,
         "commands": commands,
-        "names": nombres_servidos(),
+        "names_by_source": nombres_servidos(),
     }
 
 
@@ -91,7 +92,8 @@ def main():
     if not coincide(esperado, actual):
         print("RED · la superficie pública cambió; clasifica cada ruta o nombre nuevo en el catálogo")
         return 1
-    print(f"PASS · {len(actual['routes'])} routes · {len(actual['names'])} name-bearing labels")
+    count = sum(len(v) for v in actual["names_by_source"].values())
+    print(f"PASS · {len(actual['routes'])} routes · {count} source-bound name entries")
     return 0
 
 
