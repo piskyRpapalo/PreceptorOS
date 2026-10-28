@@ -20,7 +20,8 @@ This file is the canonical instruction set for agents working in this repository
 
 ## Privacy and local-first operation
 
-- Never copy private rack identifiers into source, tests, branch names, commits, PR titles/bodies, logs, or public artifacts. Receipts may give counts and paths, never the values.
+- Never copy private rack identifiers into source, tests, branch names, commits, PR titles/bodies, logs, or public artifacts. Receipts may give counts a
+nd paths, never the values.
 - `test_privacidad_arbol.py` reads `PRECEPTOROS_PRIVATE_SCAN_TOKENS` from the CI environment. Do not create, print, or commit that secret. If absent, the tree scan is `NO_DATA` with cause; do not convert the skip into a pass.
 - Preserve human review, local-first behavior, and zero telemetry. Do not add network reporting or send prompts, responses, or machine state off-device unless a separately signed contract explicitly requires it.
 - Keep credentials, private keys, personal data, and private model data out of diffs and test fixtures.
@@ -37,3 +38,11 @@ This file is the canonical instruction set for agents working in this repository
 - The single source of truth for decrees, pre-signatures, and fulfilled signatures is the private `firmas` repository → `LIBRO_DE_FIRMAS.md`. Consult it before proposing; never contradict a live decree.
 - Every FIRMA transcription cites the decree that authorizes it. Every merge updates the book with its receipt (agents publish the receipt in the PR; the Mesa appends it to the book).
 - House ceiling applies (piece < 16,384 B): when the book reaches the ceiling, new material goes to NEW files in the `firmas` repository, linked from the book. Nothing is deleted; entries are only re-classified.
+
+
+## ODD — the workflow law (amendment · 2026-10-28 · amends the workflow sections of this file)
+
+- ODD is law: explore, implement, check — every piece of work. One feature per feature document (odd/tasks/<feature>.md), one work unit per commit, one slice per PR.
+- The signature gates the MERGE, never the BUILDING. Work never halts for a signature: register the question in the feature document's log, take the lawful default (NO_DATA with cause, honest measurement), and continue.
+- Docs-only PRs merge under the standing ODD FIRMO, cited in the receipt. Pieces of value are signed by the Sovereign per piece and per exact head; batches expire.
+- The Desk's status board (the two readers' harness) lives in odd/STATUS.md of the web repository; read it at the start of a watch cycle.
