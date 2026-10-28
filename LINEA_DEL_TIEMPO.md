@@ -27,6 +27,22 @@
 - APP = BUILDER DE NODO (norte): los usuarios componen su nodo desde la app y despliegan su lab; estructura verificable primero, construir encima después.
 - Referencias de técnica: Bot Crossing (primera) y Starnet (segunda). MIT cubre solo código; nombre, logo, sprites y arte OFF LIMITS: técnica sí, identidad nunca.
 
+## 2026-10-28 (tarde) · VARA DEL OJO — decreto standing (aviso de ojos, NO de focus)
+
+No desplaza la cola ni NORTE 7: es la vara de sensibilidad para TODA pieza 2D que se funde de aquí en adelante (mapa, edificios, interactivos, personajes del chatbot, cangrejo, escenas bubble). Referencia técnica PRIMERA: Bot Crossing; Starnet segunda. Técnica sí, identidad NUNCA — nombre, logo, sprites y arte OFF LIMITS (TRADEMARKS).
+
+- [1] PROPORCIÓN habitante/entorno: un cuerpo se lee pequeño pero nunca perdido; su edificio lo abraza. Medir habitante vs edificio vs tile en la misma captura.
+- [2] CRECER ES ALTURA, NO ANCHURA: lo más importante crece hacia arriba (escala log), nunca deforma al vecino.
+- [3] RADIO DE RESPETO (keep-out) por pieza: nada se solapa sin intención; el ojo detecta un solape sucio antes que el juez.
+- [4] LO QUE EL OJO SIGUE NO ENCOGE: el zoom encoge terreno y caminos; habitantes, nombres y sellos mantienen tamaño en pantalla.
+- [5] SIEMPRE LEGIBLE: nameplates y sellos de estado se leen a cualquier zoom y densidad (hit-test de pantalla).
+
+AUTORIZACIÓN DEL SOBERANO: los preceptores quedan autorizados a REESCRIBIR los 2D hacia la SHAPE PERFECTA — re-trazar proporciones, siluetas y tamaños de los assets actuales (cangrejo, habitantes, edificios, terminales the Risen/Atlantis, interactivos, nameplates) para que el ojo humano lea «está bien puesto». Fixture primero; producción solo tras ojos del Soberano. Toda reescritura = propuesta visual → veredicto EN el PR → ojos del Soberano → FIRMO por pieza, con capturas antes/después junto a la referencia y declaración de qué regla [1-5] cierra.
+
+LEYES ÍNTEGRAMENTE VIGENTES durante la reescritura: bubble/1 (todo calculado, nada dibujado a mano) · presupuesto D2 (25 MiB por bloque; 1.024 B para frames, paquetes y llms.txt) · determinismo (sin azar ni reloj; dispersión por hash con rango acotado, campo de densidad, y-ordering) · one state, many renders — colony-projection/1 ES el contrato de la shape (isométrico 2:1) · 3 colores de paleta · reduced-motion · EN 301 549 / 4 canales · SCRUB · sensores honestos: NO_DATA con causa, fixture ≠ despliegue, capturas idénticas con huella antes de afirmar forma.
+
+Ancla medida: la colonia caminante (#130→#133) y sus propios PRs miden el gap («mucho más simple y menos denso que la referencia») — el gap es de SENSACIÓN y se corrige reescribiendo la SHAPE, no añadiendo piezas.
+
 ## 2026-10-27 · canon cosechado
 - Canon matemático del juego cosechado y verificado (32/32 joyas con cita fichero:línea, TABLA_JOYAS + joyas.jsonl). Detalle: canon-matematicas (registro interno de la Mesa) y el libro de firmas.
 - Pre-firmas y papeles antiguos asentados: firmas/PRE_FIRMAS_Y_JOYAS_PAPELES_ANTIGUOS_20261026.md. NO_DATA: eventos del 27 con cita puntual — registro en el libro de firmas.
