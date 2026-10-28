@@ -1,0 +1,12 @@
+const assert = require('node:assert/strict');
+const { frame } = require('./walking_frames.js');
+const unit = {kind:'unit',id:'guide',q:0,r:0,seed:4};
+const scene = ['tutorial','atlantis','risen'].map(style => frame(unit, 1, style));
+assert.deepEqual(scene.map(f => f.atoms[0].i[0].x), [-24,-24,-24]);
+assert.deepEqual(scene.map(f => f.atoms[0].i[0].y), [-12,-12,-12]);
+assert.ok(scene.every(f => Buffer.byteLength(JSON.stringify(f)) < 1024 && f.sound.startsWith('NO_DATA')));
+assert.notDeepEqual(frame(unit, 0, 'tutorial'), frame(unit, 1, 'tutorial'));
+assert.throws(() => frame(unit, 0, 'unknown'));
+assert.throws(() => frame({...unit,id:'x'.repeat(40)}, 0, 'tutorial'));
+assert.equal(JSON.stringify(scene), JSON.stringify(['tutorial','atlantis','risen'].map(style => frame(unit, 1, style))));
+console.log(JSON.stringify(scene));
