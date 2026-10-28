@@ -1,0 +1,7 @@
+# Colony inhabitants: axial route proposal
+
+The [decree](https://github.com/piskyRpapalo/preceptoros-web/pull/387#issuecomment-6470182302) requests walking inhabitants, conversation and three node styles. This slice proposes only a pure route primitive: a unit row's axial origin and integer seed select a seven-cycle loop through its six neighboring cells and back home. It does not use a clock or random source, mutate the row, render an agent, choose traversable terrain, or provide conversation. The node-only first landing and separate building signature remain in force.
+
+The prior app view is captured in [the app visual audit](https://github.com/piskyRpapalo/PreceptorOS/pull/120); after screenshot is NO_DATA because this slice has no render. The route is a synthetic proposal, not a measured inhabitant or a safe path through a terrain map. Obstacles, workplace assignment, signed or ephemeral interaction, per-frame sound, shared catalog and web/app parity are NO_DATA until implemented and measured.
+
+2026-10-28: the requested reference video could not be downloaded or watched: two yt-dlp attempts, including a Node runtime retry, received HTTP 403 for the media. The available local reference repository and the decree support only a proposed translation: hex terrain as native field/blob/wall, inhabitants as native wave/blob/ribbon/arcs, labels as text, and growth through existing neck; visual equivalence to the video is NO_DATA until it can be viewed. Three skins consume the same state and shared catalog; terminal theme remains a separate layer.

@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const { state } = require('./core.js');
+const { position } = require('./inhabitant.js');
+const unit = { kind: 'unit', id: 'fixture', q: 2, r: -1, seed: 4 };
+const saved = state([unit]);
+const distance = (a, b) => (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(a.q + a.r - b.q - b.r)) / 2;
+const trace = Array.from({ length: 15 }, (_, t) => position(saved.rows[0], t));
+assert.deepEqual(trace.slice(0, 7), trace.slice(7, 14));
+assert.ok(trace.slice(1).every((p, i) => distance(p, trace[i]) === 1));
+assert.deepEqual(position(unit, 0), { q: 2, r: -1 });
+assert.deepEqual(position(unit, 3), position(unit, 3));
+assert.notDeepEqual(position(unit, 1), position({ ...unit, seed: 5 }, 1));
+assert.throws(() => position(unit, -1));
+assert.throws(() => position({ ...unit, seed: 0.5 }, 1));
+assert.throws(() => position({ ...unit, q: Number.MAX_SAFE_INTEGER, seed: 0 }, 1));
+assert.equal(JSON.stringify(saved), JSON.stringify(state([unit])));
+console.log(JSON.stringify(trace));
