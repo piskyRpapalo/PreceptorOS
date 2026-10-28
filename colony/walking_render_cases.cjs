@@ -14,7 +14,7 @@ assert.doesNotMatch(js, /Math\.random|Date\.now/);
 assert.doesNotMatch(css, /gradient|blur\(|@keyframes/i);
 assert.match(css, /prefers-reduced-motion:reduce/);
 vm.runInNewContext(js, { document, ColonyWalkingFrames: frames });
-assert.equal(elements.length, 3);
+assert.equal(elements.length, 9);
 const before = elements.map(el => el.style.transform);
 button.step();
 const after = elements.map(el => el.style.transform);
