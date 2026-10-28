@@ -176,6 +176,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # comprobarse en cuanto viven en un guion aparte.
           test_apretar
           test_public_names
+          test_colony_web_fixture
           test_colony_services
           test_colony_liveness
           # test_clases: la clase de una direccion (LOOPBACK/ANY/LAN/TAILNET/
