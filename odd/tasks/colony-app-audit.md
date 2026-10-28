@@ -29,3 +29,15 @@ After screenshot: NO_DATA, cause: the replacement has not been implemented or ca
 ## Log
 
 - 2026-10-28: old app graphics observed in a local browser; after, shared renderer, live-node source and cross-surface byte parity are NO_DATA for the causes above. No poll or rendered replacement has been claimed.
+
+## Reference and preservation
+
+The reference was cloned on 2026-10-28 at commit `8cd9d76b3bf5eddaec7d4ba88f0d1c0547a312dc`. Its visual-check documentation describes 42 synthetic threads and seeded movement; its render-check documents frozen-frame and camera-motion checks. These are reference descriptions, not measurements by this audit. Cite the reference without copying its assets or code.
+
+![Risen app face before replacement](../../docs/evidence/colony-app-risen-before.webp)
+
+This local screenshot uses the same browser settings at `/face/zombie.html`, compressed to an 800-pixel WebP (12,270 bytes). It shows the friendly wanderer, space-soldier avatar and terminal styling on the old island world. The Atlantis capture above shows its palette and layout; its initial viewport does not show the entire cast.
+
+Catalog handoff: `interface/face/face_world.js` defines an octopus, starfish and snail, proximity reactions and phrases for Atlantis; the Risen has a friendly wanderer, move-driven patrol and proximity phrase. `interface/face/skins.json` and page skin data define clothing and soldier accessories; Atlantis has its own palette and zones layout. These are source findings, not verified shared catalog entries. Preserve them in the shared catalog; web/app byte parity remains NO_DATA until measured.
+
+The existing world module combines geometry and skin-driven paint. The new map state and projection stay pure; a separate layer consumes that same state for terminal colors and transitions and respects reduced motion. It does not decide node existence. Poll sources and freshness policy remain NO_DATA until established. The node-only first landing still precedes the separately gated buildings.
