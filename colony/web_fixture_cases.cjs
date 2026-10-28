@@ -1,0 +1,14 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const map = require('./web_global_map.js');
+const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+assert.equal(digest(__dirname + '/web_global_map.js'), 'c7769e8c7858211ea18f64c37c29ec6dd2e2652ecab1ab1e4674e0d142ef7191');
+assert.equal(digest(__dirname + '/isometric_floor_projection.js'), '56bec1e57cbc68d9e3803139e9a49ff55a487147f0dd6d4113c5d029669e16f7');
+const input = { t: 0, nodes: [{ id: 'atlantis' }, { id: 'risen' }] };
+const scene = map.mapa(input);
+assert.deepEqual(scene.nodes.map(n => n.id), ['cabin', 'atlantis', 'risen']);
+assert.equal(map.mapa({ t: 0, nodes: [] }).nodes.length, 1);
+assert.ok(scene.nodes.every(n => map.valida(n.frame).length === 0));
+assert.equal(JSON.stringify(scene), JSON.stringify(map.mapa(input)));
+console.log(crypto.createHash('sha256').update(JSON.stringify(scene)).digest('hex'));

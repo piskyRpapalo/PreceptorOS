@@ -8,3 +8,4 @@ The app's current `colony/projection.js` maps axial `(q,r)` to `(48q+24r,12r)`. 
 
 - 2026-10-28: NO_DATA: a common pixel fixture, actual polling source, weakest-live-device ranking, three shared skins, and after screenshot do not yet exist in this slice. Current web core is recorded as a pinned comparison fixture; it is not a served app render.
 - 2026-10-28: authoring proposals app #122 and #123 remain open. Their signatures and landing are not inferred. Further work may be built as proposals without merging them.
+- 2026-10-28: reference sources pinned from web main `26433860537588cf11c8236cb78d2bde937061b8`: `global_map.js` SHA-256 `c7769e8c7858211ea18f64c37c29ec6dd2e2652ecab1ab1e4674e0d142ef7191`; `isometric_floor_projection.js` SHA-256 `56bec1e57cbc68d9e3803139e9a49ff55a487147f0dd6d4113c5d029669e16f7`. The fixture judge checks source bytes, frame ceilings and repeatable scene serialization. It does not test pixels, retirement or actual liveness.
