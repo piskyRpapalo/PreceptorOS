@@ -144,6 +144,34 @@ class TestQuienHabla(Base):
 
 class TestModelos(Base):
 
+    def test_two_blobs_remain_cached_and_changed_bytes_are_rejected(self):
+        contents = [b"first synthetic blob", b"second synthetic blob"]
+        hashes = [hashlib.sha256(data).hexdigest() for data in contents]
+        store = self.ollama / "blobs"
+        store.mkdir(parents=True)
+        for sha, data in zip(hashes, contents):
+            (store / ("sha256-" + sha)).write_bytes(data)
+        L._consola._SHA256_BLOB_CACHE.clear()
+        real = hashlib.sha256
+        with mock.patch.object(L._consola.hashlib, "sha256", wraps=real) as hasher:
+            for sha in (hashes[0], hashes[1], hashes[0]):
+                self.assertEqual(L._consola.verificar_blob(sha, raiz=self.ollama)["estado"], "MEDIDO")
+            self.assertEqual(hasher.call_count, 2)
+            (store / ("sha256-" + hashes[0])).write_bytes(b"changed synthetic blob")
+            self.assertEqual(L._consola.verificar_blob(hashes[0], raiz=self.ollama)["estado"], "ERROR")
+            self.assertEqual(hasher.call_count, 3)
+
+    def test_digest_cache_is_bounded(self):
+        store = self.ollama / "blobs"
+        store.mkdir(parents=True)
+        L._consola._SHA256_BLOB_CACHE.clear()
+        for i in range(12):
+            data = ("synthetic-" + str(i)).encode()
+            sha = hashlib.sha256(data).hexdigest()
+            (store / ("sha256-" + sha)).write_bytes(data)
+            self.assertEqual(L._consola.verificar_blob(sha, raiz=self.ollama)["estado"], "MEDIDO")
+        self.assertLessEqual(len(L._consola._SHA256_BLOB_CACHE), 8)
+
     def test_verificar_blob_mide_hash_correcto(self):
         contenido = b"blob de prueba fijado"
         sha = hashlib.sha256(contenido).hexdigest()
