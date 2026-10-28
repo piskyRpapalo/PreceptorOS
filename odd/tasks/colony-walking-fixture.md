@@ -1,0 +1,5 @@
+# Walking inhabitant fixture
+
+This synthetic fixture composes the existing `colony/inhabitant.js` seeded route with `colony/shared_projection.js` (`colony-projection/1`). Each unit produces a small bubble-language frame with one phrase and a wave; it declares sound NO_DATA because this fixture does not synthesize audio. The three style identifiers are carried as data, outside the projection and route. The map-above/chatbot-below panel law is an integration requirement, not implemented by this fixture.
+
+The route uses the existing deterministic ring; it does not invent a new PRNG or terrain collision rules. These frames are fixtures, not live agents, verified node terminals, conversations, rewards or a deployed render. Screenshot before: [app #120](https://github.com/piskyRpapalo/PreceptorOS/pull/120). After, browser bitmap parity, eye fidelity, reduced-motion behavior and first motion on the weakest live device are NO_DATA: no page or renderer is changed here. Render claims require actual same-state same-viewport browser measurements.
