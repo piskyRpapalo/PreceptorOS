@@ -1,0 +1,457 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "source": "interface/face/basic.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/app.css",
+      "source": "interface/app.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/app.html",
+      "source": "interface/app.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/app.js",
+      "source": "interface/app.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/compass.js",
+      "source": "interface/compass.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/consola.css",
+      "source": "interface/consola.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/consola.js",
+      "source": "interface/consola.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/creation_publish.js",
+      "source": "interface/creation_publish.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/dashboard.css",
+      "source": "interface/desnuda.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/dashboard.html",
+      "source": "interface/dashboard.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/dashboard.js",
+      "source": "interface/dashboard.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/atlantis.html",
+      "source": "interface/face/atlantis.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/face/basic.html",
+      "source": "interface/face/basic.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/army-wave-panel.js",
+      "source": "interface/face/bubble/army-wave-panel.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/atlas-coord.js",
+      "source": "interface/face/bubble/atlas-coord.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/auth.js",
+      "source": "interface/face/bubble/auth.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/bubble_bestiary.js",
+      "source": "interface/face/bubble/bubble_bestiary.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/bubble_icons.js",
+      "source": "interface/face/bubble/bubble_icons.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/bubble_language.js",
+      "source": "interface/face/bubble/bubble_language.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/bubble_light.js",
+      "source": "interface/face/bubble/bubble_light.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/bubble_world.js",
+      "source": "interface/face/bubble/bubble_world.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/canon.js",
+      "source": "interface/face/bubble/canon.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/combate_ticks.js",
+      "source": "interface/face/bubble/combate_ticks.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/comic_%74okens.js",
+      "source": "interface/face/bubble/comic_tokens.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/comic_accents.js",
+      "source": "interface/face/bubble/comic_accents.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/comic_atoms.js",
+      "source": "interface/face/bubble/comic_atoms.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/core.js",
+      "source": "interface/face/bubble/core.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/crab_render_hd.js",
+      "source": "interface/face/bubble/crab_render_hd.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/db.js",
+      "source": "interface/face/bubble/db.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/escena.js",
+      "source": "interface/face/bubble/escena.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/escuadron.js",
+      "source": "interface/face/bubble/escuadron.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/fog_of_war.js",
+      "source": "interface/face/bubble/fog_of_war.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/gacha.js",
+      "source": "interface/face/bubble/gacha.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/gdpr-art25-ephemeral-crab.js",
+      "source": "interface/face/bubble/gdpr-art25-ephemeral-crab.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/isometric_floor_projection.js",
+      "source": "interface/face/bubble/isometric_floor_projection.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/map_zoom.js",
+      "source": "interface/face/bubble/map_zoom.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/sea-floor.js",
+      "source": "interface/face/bubble/sea-floor.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/summon-wave-card.js",
+      "source": "interface/face/bubble/summon-wave-card.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/summon_reveal.js",
+      "source": "interface/face/bubble/summon_reveal.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/tabla_semantica.js",
+      "source": "interface/face/bubble/tabla_semantica.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/taller.js",
+      "source": "interface/face/bubble/taller.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/valores.js",
+      "source": "interface/face/bubble/valores.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/wave_render.js",
+      "source": "interface/face/bubble/wave_render.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/world_camera.js",
+      "source": "interface/face/bubble/world_camera.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/bubble/worm_transition.js",
+      "source": "interface/face/bubble/worm_transition.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face.css",
+      "source": "interface/face/face.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/face/face.js",
+      "source": "interface/face/face.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_army.js",
+      "source": "interface/face/face_army.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_battle.js",
+      "source": "interface/face/face_battle.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_canon.css",
+      "source": "interface/face/face_canon.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/face/face_eggs.js",
+      "source": "interface/face/face_eggs.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_fight.js",
+      "source": "interface/face/face_fight.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_hero.js",
+      "source": "interface/face/face_hero.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_hud.js",
+      "source": "interface/face/face_hud.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_paint.js",
+      "source": "interface/face/face_paint.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_panel.js",
+      "source": "interface/face/face_panel.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_tutorial.js",
+      "source": "interface/face/face_tutorial.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_views.css",
+      "source": "interface/face/face_views.css",
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "route": "/face/face_workshop.js",
+      "source": "interface/face/face_workshop.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/face_world.js",
+      "source": "interface/face/face_world.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/face/zombie.html",
+      "source": "interface/face/zombie.html",
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "route": "/llms.txt",
+      "source": "llms.txt",
+      "mime": "text/plain; charset=utf-8"
+    },
+    {
+      "route": "/manifest.json",
+      "source": "interface/manifest.json",
+      "mime": "application/manifest+json"
+    },
+    {
+      "route": "/node_registration.js",
+      "source": "interface/node_registration.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/sting.js",
+      "source": "interface/sting.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/sw.js",
+      "source": "interface/sw.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/transicion.js",
+      "source": "interface/transicion.js",
+      "mime": "application/javascript; charset=utf-8"
+    },
+    {
+      "route": "/zonas.js",
+      "source": "interface/zonas.js",
+      "mime": "application/javascript; charset=utf-8"
+    }
+  ],
+  "api_routes": [
+    "/api/anidar",
+    "/api/camino",
+    "/api/canales",
+    "/api/captura",
+    "/api/cerebro",
+    "/api/charla",
+    "/api/consola",
+    "/api/creaciones",
+    "/api/creaciones/",
+    "/api/creaciones/voz",
+    "/api/decisor",
+    "/api/empieza-aqui",
+    "/api/estado",
+    "/api/frontera",
+    "/api/harness",
+    "/api/lab",
+    "/api/manifiesto",
+    "/api/medidas",
+    "/api/metricas",
+    "/api/nodo/door1/preview",
+    "/api/nodo/export",
+    "/api/orquestador",
+    "/api/perfil",
+    "/api/proyectos",
+    "/api/soberano",
+    "/api/voz"
+  ],
+  "commands": [
+    "crear-acceso-directo-android",
+    "detectar-termux-boot",
+    "eco-remoto",
+    "instalar-android",
+    "instalar-pc",
+    "instalar-pc-voz",
+    "preceptoros-puente",
+    "preceptoros-pwa",
+    "preceptoros-servicio",
+    "preceptoros-servicio-pc",
+    "pruebas",
+    "sellar-reglas",
+    "traer-motor"
+  ],
+  "names": [
+    "Ajustes",
+    "Battle",
+    "Battle in progress",
+    "Busto de mármol con un ojo encendido",
+    "Canales recientes",
+    "Canonical pending credential preview",
+    "Cerrar",
+    "Chat with the Preceptor",
+    "Choose a wave for the Workshop",
+    "Choose your node",
+    "Consola soberana",
+    "Create a node (proposal)",
+    "Creation voice",
+    "Cuaderno",
+    "Dilo",
+    "Documento que lee la IA",
+    "Eggs",
+    "Eggs incubating",
+    "El Camino",
+    "Escribe un recuerdo",
+    "Formation",
+    "Formation: how your squad stands",
+    "Frontera",
+    "Frontera del nodo",
+    "Hablar",
+    "Harness",
+    "Identidad del nodo",
+    "Info",
+    "Ir a la portada",
+    "Joystick. Push to walk the crab across the map. Arrow keys work too.",
+    "La frontera",
+    "Lab",
+    "Llave de entrada",
+    "Mando personal",
+    "Map",
+    "Map actions",
+    "Medición",
+    "Memoria",
+    "Modelos",
+    "Modelos locales",
+    "Opponents",
+    "OS",
+    "Patrols you can fight",
+    "Perfil",
+    "Preceptor",
+    "Preceptor · Atlantis for children",
+    "Preceptor · Neutral",
+    "Preceptor · Zombie terminal",
+    "PreceptorOS",
+    "Profile",
+    "Proyectos",
+    "Publicar una creación firmada",
+    "Puerta pública",
+    "Radio: the screen read aloud",
+    "Redacción",
+    "The living map",
+    "The Preceptor, a round smiling face",
+    "Three layouts of the same face",
+    "Tools of this product",
+    "Tu memoria",
+    "Tutorial",
+    "Tutorial tasks",
+    "What the top of the screen shows",
+    "Workshop",
+    "You",
+    "Your Army",
+    "Your Army: adopted waves",
+    "Zonas"
+  ]
+}

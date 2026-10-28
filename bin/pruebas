@@ -175,6 +175,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # garantia --nada de la salida se invento-- es de las que dejan de
           # comprobarse en cuanto viven en un guion aparte.
           test_apretar
+          test_public_names
           # test_clases: la clase de una direccion (LOOPBACK/ANY/LAN/TAILNET/
           # PUBLIC) con un solo dueno. El doctor del rack la importa de aqui;
           # la tabla fijada ya encontro que su copia vieja clasificaba mal
@@ -243,7 +244,7 @@ echo "  ${TOTAL} pruebas · $(( ${#UNITTEST[@]} + ${#PROPIAS[@]} )) suites · 6 
 if [ "$RAPIDO" = "0" ]; then
   echo
   echo "── SABOTAJES · se exige rojo ───────────────────────────────────"
-  for s in idioma fuga consola decisor canales lab; do
+  for s in idioma fuga consola decisor canales lab public_names; do
     salida="$(timeout 900 python3 "test_${s}.py" --sabotaje 2>&1)"
     linea="$(printf '%s' "$salida" | grep -E '^RESULTADO SABOTAJE:' | tail -1)"
     det="$(printf '%s' "$linea" | sed -n 's#^RESULTADO SABOTAJE: \([0-9]*\)/\([0-9]*\).*#\1#p')"
