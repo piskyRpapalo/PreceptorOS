@@ -1,0 +1,22 @@
+const assert = require('node:assert/strict');
+const { resolve } = require('./services.js');
+const rows = [{ kind: 'node', id: 'n1', q: 0, r: 0 },
+  { kind: 'building', id: 'b1', node: 'n1', q: 1, r: 0 }];
+const item = { node: 'n1', building: 'b1', id: 'talk', source: 'fixture', digest: 'a'.repeat(64), seal: 'DECLARADO', cause: 'fixture only' };
+const query = { node: 'n1', building: 'b1', service: 'talk' };
+const good = resolve(rows, [item], query);
+assert.deepEqual(good, { seal: 'DECLARADO', cause: 'fixture only', node: 'n1', building: 'b1', service: 'talk', source: 'fixture', digest: 'a'.repeat(64), cell: { q: 1, r: 0 }, screen: { x: 48, y: 0 } });
+assert.equal(resolve(rows, [], query).cause, 'service_missing');
+assert.equal(resolve(rows, [item, item], query).cause, 'service_ambiguous');
+assert.equal(resolve(rows.slice(0, 1), [item], query).cause, 'building_missing');
+assert.equal(resolve(rows.map(r => r.kind === 'building' ? { ...r, node: 'other' } : r), [item], query).cause, 'building_node_mismatch');
+assert.equal(resolve(rows, [{ ...item, digest: 'bad' }], query).cause, 'source_invalid');
+assert.equal(resolve(rows, [{ ...item, cause: '' }], query).cause, 'source_invalid');
+assert.equal(resolve(rows, [{ ...item, seal: 'MEDIDO' }], query).cause, 'source_invalid');
+assert.equal(resolve(rows, [{ ...item, seal: 'NO_DATA', cause: 'source unavailable', digest: null }], query).cause, 'source unavailable');
+assert.equal(resolve(rows, [{ ...item, cause: 'x'.repeat(1024) }], query).cause, 'source_invalid');
+assert.equal(resolve(rows.concat(rows[0]), [item], query).cause, 'state_invalid');
+assert.equal(resolve(rows, [item], { ...query, node: 'missing' }).cause, 'node_missing');
+assert.equal(resolve(rows, [item], { ...query, service: '../bad' }).cause, 'query_invalid');
+assert.equal(JSON.stringify(resolve(rows, [item], query)), JSON.stringify(good));
+console.log(JSON.stringify(good));

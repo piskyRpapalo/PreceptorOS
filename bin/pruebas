@@ -176,6 +176,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # comprobarse en cuanto viven en un guion aparte.
           test_apretar
           test_public_names
+          test_colony_services
           # test_clases: la clase de una direccion (LOOPBACK/ANY/LAN/TAILNET/
           # PUBLIC) con un solo dueno. El doctor del rack la importa de aqui;
           # la tabla fijada ya encontro que su copia vieja clasificaba mal
