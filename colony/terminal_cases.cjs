@@ -1,0 +1,16 @@
+const assert = require('node:assert/strict');
+const { assess } = require('./terminal_contract.js');
+const rows = [{kind:'node',id:'atlantis',q:0,r:0},{kind:'building',id:'b',node:'atlantis',q:1,r:0}];
+const service = {node:'atlantis',building:'b',id:'talk',source:'fixture',digest:'a'.repeat(64),seal:'DECLARADO',cause:'fixture'};
+const verified = {verified:true,cause:'fixture verification'};
+const reachable = {reachable:true,cause:'fixture reachability'};
+const query = {node:'atlantis',building:'b',service:'talk'};
+assert.equal(assess('atlantis', verified, reachable, rows, [service], query).seal, 'DECLARADO');
+assert.equal(assess('risen', null, reachable, rows, [service], query).cause, 'card_unverified');
+assert.equal(assess('atlantis', {verified:false,cause:'missing'}, reachable, rows, [service], query).cause, 'missing');
+assert.equal(assess('atlantis', verified, null, rows, [service], query).cause, 'terminal_unmeasured');
+assert.equal(assess('atlantis', verified, {reachable:false,cause:'offline'}, rows, [service], query).cause, 'offline');
+assert.equal(assess('atlantis', verified, reachable, rows, [], query).cause, 'service_missing');
+assert.equal(assess('risen', verified, reachable, rows, [service], query).cause, 'node_mismatch');
+assert.equal(assess('other', verified, reachable, rows, [service], query).cause, 'unknown_node');
+console.log(JSON.stringify(assess('atlantis', verified, reachable, rows, [service], query)));
