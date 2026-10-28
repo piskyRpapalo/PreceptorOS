@@ -5,6 +5,8 @@ h1{font-size:1.2rem}
 .terrain{position:absolute;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
 .shore{inset:14px 9%;background:#348ea2}.land{inset:25px 12%;background:#6eb75d}
 .floor{position:absolute;inset:42px 17%;background:#d8be78;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);border:0}
+.ground-patch{position:absolute;inset:0;width:100%;height:100%}
+.ground-prop{position:absolute;width:32px;height:38px;transform:translate(-50%,-95%);pointer-events:none}
 .path{position:absolute;left:12%;right:12%;top:46%;height:12%;background:#c19964;border-radius:50%}
 .grove,.rock{position:absolute;border:2px solid #11283a;box-sizing:border-box}
 .grove{width:34px;height:34px;border-radius:50%;background:#478f52;box-shadow:22px 7px #559d58,-15px 9px #367c49}
