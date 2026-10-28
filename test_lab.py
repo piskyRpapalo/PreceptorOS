@@ -256,6 +256,39 @@ class TestModelos(Base):
         self.assertEqual(L.modelos_lab(self.casa)["mini"]["adaptador"]["estado"], "NO_DATA")
 
 
+class TestMiniIntegrity(Base):
+    def test_verified_blob_starts_engine_and_missing_blob_does_not(self):
+        import conversacion
+        import hashlib
+        payload = b"synthetic model bytes"
+        sha = hashlib.sha256(payload).hexdigest()
+        path = self.ollama / "blobs" / ("sha256-" + sha)
+        path.parent.mkdir(parents=True)
+        path.write_bytes(payload)
+        ficha = {"disponible": True, "sha256": sha}
+        engine = lambda prompt: "synthetic"
+        with mock.patch.object(conversacion, "motor_llama", return_value=engine) as start:
+            actual, cause = L._motor_mini(ficha, self.ollama)
+            self.assertIs(actual, engine)
+            self.assertIsNone(cause)
+            start.assert_called_once_with(str(path), cache=None)
+        path.unlink()
+        with mock.patch.object(conversacion, "motor_llama") as start:
+            actual, cause = L._motor_mini(ficha, self.ollama)
+            self.assertIsNone(actual)
+            self.assertTrue(cause)
+            start.assert_not_called()
+
+    def test_corrupt_blob_never_starts_local_engine(self):
+        import conversacion
+        _blob(self.ollama, "qwen2.5", "1.5b-instruct-q4_K_M", SHA_MINI)
+        with mock.patch.object(conversacion, "motor_llama") as start:
+            result = L.responder("hello", self.casa)
+        self.assertEqual(result["respuesta"]["estado"], "NO_DATA")
+        self.assertIn("SHA-256", result["respuesta"]["causa"])
+        start.assert_not_called()
+
+
 class TestResponder(Base):
 
     def test_contesta_el_orquestador_con_su_voz(self):
