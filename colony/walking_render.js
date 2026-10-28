@@ -12,6 +12,7 @@
     { row: {kind:'unit',id:'visitor',q:1,r:3,seed:0}, style:'risen' }
   ];
   const map = document.getElementById('floor'), status = document.getElementById('status');
+  ColonyGround.mount(map, document);
   let cycle = 0;
   const figures = units.map(item => {
     const el = document.createElement('div');
@@ -23,6 +24,7 @@
       const frame = ColonyWalkingFrames.frame(item.row, cycle, item.style);
       const atom = frame.atoms[0], wave = atom.i[0];
       figures[index].style.transform = 'translate(' + (wave.x - 20) + 'px,' + (wave.y - 20) + 'px)';
+      figures[index].style.zIndex = String(Math.round((138 + wave.y) * 100));
       figures[index].setAttribute('aria-label', atom.r);
     });
     status.textContent = 'Synthetic fixture · cycle ' + cycle + ' · sound NO_DATA';

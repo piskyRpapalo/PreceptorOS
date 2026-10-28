@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const ground = require('./ground_layers.js');
+const rect = {left:180,top:88,right:460,bottom:188,margin:18};
+const a = ground.scatter(640, 276, rect), b = ground.scatter(640, 276, rect);
+assert.deepEqual(a, b);
+assert.ok(a.length > 0);
+assert.ok(a.every(p => !(p.x >= 162 && p.x <= 478 && p.y >= 70 && p.y <= 206)));
+assert.ok(a.every(p => Number.isInteger(p.x) && Number.isInteger(p.y)));
+assert.notEqual(ground.field(10, 10), ground.field(300, 200));
+assert.notDeepEqual(ground.scatter(640, 276, rect), ground.scatter(640, 276, { ...rect, left: 0, right: 640, top: 0, bottom: 276 }));
+assert.deepEqual(ground.scatter(320, 276, rect, 320, 0), a.filter(p => p.x >= 320).map(p => ({ x: p.x - 320, y: p.y })));
+assert.throws(() => ground.scatter(50000, 50000, rect));
+console.log(JSON.stringify({ count: a.length, field: [ground.field(10,10), ground.field(300,200)] }));
