@@ -1,0 +1,15 @@
+const assert = require('node:assert/strict');
+const { draft, stamp } = require('./authoring.js');
+const nodes = [{ id: 'a', q: 0, r: 0 }, { id: 'b', q: 1, r: 0 }];
+const saved = draft(nodes, [['b', 'a']]);
+assert.deepEqual(saved.links, [['a', 'b']]);
+nodes[0].q = 4;
+assert.equal(saved.rows[0].q, 0);
+assert.throws(() => draft(saved.rows, [['a', 'missing']]));
+assert.throws(() => draft(saved.rows, [['a', 'b'], ['b', 'a']]));
+assert.throws(() => draft([{ id: 'a', q: 0, r: 0 }, { id: 'b', q: 0, r: 0 }], []));
+assert.throws(() => draft([{ id: 'x'.repeat(1024), q: 0, r: 0 }], []));
+assert.deepEqual(stamp('a', { ok: true, cause: 'poll succeeded' }), { id: 'a', seal: 'LIVE', cause: 'poll succeeded' });
+assert.deepEqual(stamp('a', { ok: false, cause: 'poll failed' }), { id: 'a', seal: 'STALE', cause: 'poll failed' });
+assert.throws(() => stamp('a', { ok: true, cause: '' }));
+console.log(JSON.stringify(saved));
