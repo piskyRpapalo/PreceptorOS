@@ -43,6 +43,38 @@ LEYES ÍNTEGRAMENTE VIGENTES durante la reescritura: bubble/1 (todo calculado, n
 
 Ancla medida: la colonia caminante (#130→#133) y sus propios PRs miden el gap («mucho más simple y menos denso que la referencia») — el gap es de SENSACIÓN y se corrige reescribiendo la SHAPE, no añadiendo piezas.
 
+## 2026-10-28 (noche) · NORTE 7 all-in — la ley de lo verde y el canon vivo
+
+**Fusiones bajo FIRMO (líneas en el buzón, recibos en el libro de firmas)**
+- web#394 (corte D) → d321842: la puerta Tutorial MUERE en la intro (solo OpenWorld + Tools); juego viejo retirado físicamente; la aduana de partidas se retira CON su workflow (ningún check que no verifica queda verde). LIVE medido en producción la misma noche.
+- web#395 (tarjetas T1-T4) → 8397283 · web#397 (T1 medida + T2 derivación, docs) → ba4e843.
+- lab#109 (B1 benchmark) → 2bf0e68: baseline honesta del único endpoint con muestreador utilizable (rAF p05 57.471-57.803 Hz, reduced-motion on/off); rack NO_DATA por pérdida de visibilidad; el dispositivo más débil de la flota NO_DATA con causa.
+- app#135 (evidencia before-state de la pantalla de inicio) → 78364da: registro preservado en historia; la reparación viva ya ocurrió con D.
+- web#399 (bb-canon) → 33ad24c: registro del canon (hash espacial, cosecha, vectores EJECUTANDO las fuentes originales, tabla visual aditiva) + Radio V2 fase 1; sello abkm.
+
+**Leyes nuevas (decretadas por el carbono)**
+- TODO LO VERDE SE PUSHEA: absolutamente toda pieza verde va a la web; ninguna pieza queda en el aire. Siguen vigentes: public/ intacto hasta el pase de cableado; disciplina FIRMO por pieza.
+- Lección del cerco de fecha: la FECHA de toda línea de firma se toma del reloj UTC del día en curso (una línea con fecha futura fue rechazada por fecha_fuera_de_rango — la guardia funcionó).
+- Lección del 405 behind: si main avanzó mientras un PR vive, actualizar la rama PRIMERO y servir la línea DESPUÉS, para la cabeza nueva.
+- Ley 5.260 reforzada: ningún sha se escribe jamás sin lectura viva del PR (la Mesa cazó su propia línea con sha reconstruido y la rectificó bajo el mismo dictado, declarándolo en el propio comentario).
+
+**Decretos de la noche**
+- El HEXÁGONO es la forma del preceptor — aprobado por ojos del Soberano sobre el preview del fixture caminante (ciclo 4).
+- NIEBLA DE GUERRA: la niebla es el estado NO_DATA de la misma tabla (causa «celda no visitada»); el hexágono es lo que el usuario ENCUENTRA al levantar la niebla; regla de levantar PROPUESTA; niebla y «?» HITL son estados distintos, declarado en el panel.
+- Modelos de chat en la web (PR #396 en marcha): cerebros.json es la fuente de verdad registrada; la pestaña Tools pinta cada modelo con sus campos medidos.
+- Canal de firma externa opt-in (PR #396, propuesta medido-primero): hoy NO existe canal (medido: la web es offline y 0 peticiones por ley; counters cuenta contenido, no personas); propuesta de publicación explícita y consentida; el test exterior del Soberano es el caso de aceptación. Comisión espejo servida a codex (lado app: medir cédulas/R-NODO y proponer registro opt-in).
+- «The Sunken Forest» queda guardado como código antiguo en beelink — cantera de piezas para adaptar al bubble nuevo (audios, radio, matemáticas). «Say Hi»: reconstrucción como semilla S2. Orquestador mini: qwen3:1.7b confirmado.
+
+**Hallazgos medidos de NORTE 7**
+- T1: radio 1.0 CONFIRMADO (9 % bloqueado, cero atascos BFS determinista, cobertura 21-27; 1.5 falsificado al 66 %).
+- T2: h0=27 px ref y k=0.325 (ratio 2.5, regla [1]), derivados por medición; salto 0→10 = +78 % — juzgado por ojos.
+- El lexicon gate cazó dos ramas (palabras nuevas sin registrar: fuera/sello en el canon; superviviente en la tabla de cerebros) — cura por registro con procedencia; el guardián trabaja.
+- Walking render: preview/index.html (5 paneles, niebla incluida) commiteado en la rama del fixture — esperando rebase sobre el canon fusionado (PR #398).
+
+**En marcha (al corte de esta entrada)**
+- PR #396 (Tools, sello abkn): cura aplicada y verde; espera rebase sobre main 33ad24c (conflicto en la línea de VERSION entre sellos abkn/abkm — la versión se conserva declarada, jamás en silencio).
+- PR #398 (fixture + walking render): rebase sobre main tras la fusión del canon.
+
 ## 2026-10-27 · canon cosechado
 - Canon matemático del juego cosechado y verificado (32/32 joyas con cita fichero:línea, TABLA_JOYAS + joyas.jsonl). Detalle: canon-matematicas (registro interno de la Mesa) y el libro de firmas.
 - Pre-firmas y papeles antiguos asentados: firmas/PRE_FIRMAS_Y_JOYAS_PAPELES_ANTIGUOS_20261026.md. NO_DATA: eventos del 27 con cita puntual — registro en el libro de firmas.
