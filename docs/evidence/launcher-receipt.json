@@ -1,0 +1,19 @@
+{
+  "install_exit": 0,
+  "launcher_exit": 0,
+  "isolated_home": true,
+  "pid_namespace": true,
+  "signature_files": 0,
+  "http_status": "200",
+  "browser": "Google Chrome headless via instrumented xdg-open",
+  "requested_url": "http://127.0.0.1:18893/",
+  "screenshot": true,
+  "response_title_present": true,
+  "desktop_shell_integration": "NO_DATA: xdg-open was instrumented for headless capture",
+  "date": "2026-10-28",
+  "app_commit": "9184ad50bfaf419e08907cdb54a42b7dee14ac2c",
+  "surface_title": "Preceptor \u00b7 Neutral",
+  "observed_surface": "old island map and tutorial/chat panel",
+  "service_lifetime": "isolated process namespace; stopped when namespace exited",
+  "bitmap_parity": "NO_DATA: one browser capture only"
+}
