@@ -15,7 +15,7 @@
   var st = { won: false, at: Wd.homeAt.slice(), trail: [], moves: 0, dir: -1, met: null, task: 0, step: 0, path: null, route: null, walking: false, sound: false, change: 'rest', said: words.how, whole: false };
   var map = $('map'), win = $('mapwin'), joy = $('joy'), log = $('log'), say = $('say'), painter = null;
   var touch = typeof root.navigator.vibrate === 'function' ? 'vibrate' : 'NO_DATA: this device has no vibration';
-  var hud = null, timer = 0, held = null, queued = 0, focusAt = null, extraPaint = null, extraFrame = null, panel = null;
+  var hud = null, timer = 0, held = null, queued = 0, focusAt = null, extraPaint = null, extraFrame = null, panel = null, trustedSoundAction = false;
 
   function band(n) { return B.band(n); }
   function theme() { var r = doc.documentElement.style, u = skin.ui, k; for (k in u) { if (Object.prototype.hasOwnProperty.call(u, k)) { r.setProperty('--' + k, band(u[k])); } } }
@@ -200,8 +200,8 @@
     else if (name === 'up') { screen(0, -1, T); }
     else if (name === 'down') { screen(0, 1, T); }
     else if (name === 'whole') { st.whole = !st.whole; st.change = st.whole ? 'whole map' : 'near view'; render(); tell(st.whole ? 'Whole map' : 'Near view'); }
-    else if (name === 'sound') { st.sound = !st.sound; st.change = st.sound ? 'sound on' : 'sound off'; render(); }
-    else if (name === 'read') { read(); }
+    else if (name === 'sound' && trustedSoundAction === true) { st.sound = !st.sound; st.change = st.sound ? 'sound on' : 'sound off'; render(); }
+    else if (name === 'read' && trustedSoundAction === true) { read(); }
     else if (name === 'say' && arg) { bubble('me', String(arg).slice(0, 280)); st.said = words.free; bubble('pre', words.free); st.change = 'free text'; render(); }
     return state();
   }
@@ -254,7 +254,7 @@
   root.addEventListener('resize', soon);
   win.addEventListener('wheel', soon, { passive: true });
   win.addEventListener('pointermove', soon);
-  doc.addEventListener('click', function (e) { var b = e.target.closest('[data-act]'); if (b && !b.disabled) { act(b.getAttribute('data-act')); } });
+  doc.addEventListener('click', function (e) { var b = e.target.closest('[data-act]'); if (b && !b.disabled) { trustedSoundAction = e.isTrusted === true; try { act(b.getAttribute('data-act')); } finally { trustedSoundAction = false; } } });
   $('ask').addEventListener('submit', function (e) { e.preventDefault(); var i = $('reply'); if (i.value.trim()) { act('say', i.value.trim()); i.value = ''; } });
 
   root.PreceptorFaceHooks = {

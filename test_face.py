@@ -83,7 +83,34 @@ def _rutas_de(html):
     return re.findall(r'(?:src|href)="(/face/[^"]+)"', html)
 
 
+def _consentimiento_explicito(codigo):
+    return (
+        "name === 'sound' && trustedSoundAction === true" in codigo
+        and "name === 'read' && trustedSoundAction === true" in codigo
+        and "trustedSoundAction = e.isTrusted === true; try { act" in codigo
+        and "function act(name, arg)" in codigo
+    )
+
+
 class TestLaCaraEsLaPuerta(unittest.TestCase):
+
+    def test_audio_requiere_gesto_y_radio_anunciable(self):
+        codigo = (CARA / "face.js").read_text(encoding="utf-8")
+        hud = (CARA / "face_hud.js").read_text(encoding="utf-8")
+        self.assertTrue(_consentimiento_explicito(codigo))
+        self.assertIn("e.isTrusted === true) { setOn(!on); }", hud)
+        self.assertIn("e.isTrusted === true && on", hud)
+        for piel in PIELES:
+            html = (CARA / f"{piel}.html").read_text(encoding="utf-8")
+            self.assertIn('id="speaker" class="icon speak" aria-pressed="false"', html)
+            self.assertIn('id="radio-line" class="radio-line" role="status" aria-live="polite"', html)
+            self.assertIn("Narration off", html)
+
+    def test_sabotaje_de_consenso_se_detecta(self):
+        codigo = (CARA / "face.js").read_text(encoding="utf-8")
+        self.assertTrue(_consentimiento_explicito(codigo))
+        saboteado = codigo.replace("trustedSoundAction === true", "trustedSoundAction === false")
+        self.assertFalse(_consentimiento_explicito(saboteado))
 
     def test_la_raiz_sirve_la_cara_basic(self):
         codigo, cuerpo = _get("/")
