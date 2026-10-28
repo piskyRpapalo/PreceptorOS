@@ -1,0 +1,5 @@
+# Walking colony density iteration
+
+This fixture-only iteration starts at app #130 head `3dbd24cd0a3cb58ac7fe9130e8ee4f69f4514511`; it stays outside the production app route. Layered flat terrain and additional inhabitants use only native CSS and existing seeded `colony/inhabitant.js` and `colony-projection/1`. Every position comes from the same frame data. No identity, character, artwork or asset from the external reference enters the fixture. Reduced motion retains the full resting information.
+
+The available connected device has not been established as the weakest live device in the fleet ring. Therefore the required first motion measurement, 30/60 fps budgets and device motion remain NO_DATA; no other device is substituted and no fluidity claim is made. Web/app bitmap parity is NO_DATA: the web counterpart has not consumed this fixture. Local same-browser bitmap repeatability is a separate measurement, never cross-surface parity. Before and after captures and reference comparison belong in the PR.
