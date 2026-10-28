@@ -140,12 +140,12 @@ def validar(estado):
 
 
 def serializar(estado):
-    """Serializa JSON UTF-8 canónico con límite duro de 1024 bytes."""
+    """Serializa JSON UTF-8 canónico estrictamente menor de 1024 bytes."""
     validar(estado)
     datos = json.dumps(estado, ensure_ascii=False, sort_keys=True,
                        separators=(",", ":"), allow_nan=False).encode("utf-8")
-    if len(datos) > MAX_BYTES:
-        raise ValueError("superficie supera 1024 bytes")
+    if len(datos) >= MAX_BYTES:
+        raise ValueError("superficie requiere menos de 1024 bytes")
     return datos
 
 
@@ -160,7 +160,7 @@ def _objeto_sin_duplicados(pares):
 
 def deserializar(datos):
     """Acepta solo bytes canónicos del contrato y devuelve su objeto validado."""
-    if type(datos) is not bytes or len(datos) > MAX_BYTES:
+    if type(datos) is not bytes or len(datos) >= MAX_BYTES:
         raise ValueError("paquete de superficie fuera de tamaño o tipo")
     try:
         texto = datos.decode("utf-8", errors="strict")

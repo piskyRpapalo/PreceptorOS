@@ -43,7 +43,7 @@ FUENTE = open(RUTA, encoding="utf-8").read()
 import estado as E                                          # noqa: E402
 
 PERMITIDOS = {"__future__", "argparse", "datetime", "fcntl", "json", "os", "re", "sys",
-              "unicodedata", "pathlib", "casa", "guardrails", "sqlite3",
+              "unicodedata", "pathlib", "casa", "guardrails", "sqlite3", "aiact_art12_canal",
               # importlib carga el Registro Unico de la maquina, para anexar por
               # SU puerta. De ese modulo solo se llama `anexar_evento`.
               "importlib"}

@@ -43,6 +43,7 @@ from pathlib import Path
 
 import casa as _casa
 import guardrails as G
+import aiact_art12_canal as contrato_canal
 
 try:
     import fcntl
@@ -175,7 +176,10 @@ def _anexar(canal, actor, texto, sello, rol, maquina, base):
     cuerpo = {"hilo": hilo, "texto": _limpio(texto, casa),
               "rol": _limpio(str(rol or ""), casa)[:120], "sello": sello,
               "maquina": _limpia_maquina(maquina, casa)}
-    crudo = json.dumps(cuerpo, ensure_ascii=False, sort_keys=True)
+    try:
+        crudo = contrato_canal.serializar(cuerpo)
+    except ValueError as exc:
+        raise CanalRechazado(str(exc)) from None
     for patron, que in PRIVADO:                       # segunda puerta, la del registro
         if patron.search(crudo):
             raise CanalRechazado(f"lleva {que}: el canal no guarda lo privado")
@@ -260,7 +264,10 @@ def lee(canal, desde=0, base=None, tope=TOPE_LECTURA):
     mensajes, corruptas, ultimo = [], 0, 0
     for n, ts, actor, cj in filas:
         try:
+            if not isinstance(cj, str) or len(cj.encode("utf-8")) >= contrato_canal.MAX_BYTES:
+                raise ValueError("cuerpo fuera del molde")
             c = json.loads(cj)
+            contrato_canal.serializar(c)
         except ValueError:
             corruptas += 1
             continue
@@ -272,6 +279,7 @@ def lee(canal, desde=0, base=None, tope=TOPE_LECTURA):
                              "rol": c.get("rol", ""), "texto": c.get("texto", ""),
                              "maquina": c.get("maquina") or {}, "sello": c.get("sello")})
     return {"canal": hilo, "estado": "MEDIDO", "mensajes": mensajes[-tope:],
+            "causa": "cuerpos fuera de contrato omitidos; historial intacto" if corruptas else None,
             "recortados": max(0, len(mensajes) - tope), "corruptas": corruptas, "ultimo": ultimo}
 
 

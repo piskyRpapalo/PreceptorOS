@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "canal": {
+      "oneOf": [
+        {
+          "const": "MEDIDO",
+          "x-destino": null
+        },
+        {
+          "const": "EMULADO",
+          "x-destino": null
+        },
+        {
+          "const": "NO_DATA",
+          "x-destino": "NO_DATA"
+        },
+        {
+          "const": "PROPUESTA",
+          "x-destino": "PROPUESTA"
+        },
+        {
+          "const": "REQUIERE_FIRMA",
+          "x-destino": null
+        },
+        {
+          "const": "DECLARADO",
+          "x-destino": null
+        }
+      ]
+    },
+    "p02": {
+      "oneOf": [
+        {
+          "const": "LIVE",
+          "x-destino": "LIVE"
+        },
+        {
+          "const": "STALE",
+          "x-destino": "STALE"
+        },
+        {
+          "const": "STATIC",
+          "x-destino": "STATIC"
+        },
+        {
+          "const": "SIMULATED",
+          "x-destino": "SIMULATED"
+        },
+        {
+          "const": "NO_DATA",
+          "x-destino": "NO_DATA"
+        },
+        {
+          "const": "ERROR",
+          "x-destino": "ERROR"
+        }
+      ]
+    },
+    "web": {
+      "oneOf": [
+        {
+          "const": "LIVE",
+          "x-destino": "LIVE"
+        },
+        {
+          "const": "PROPUESTA",
+          "x-destino": "PROPUESTA"
+        },
+        {
+          "const": "FIRMADO",
+          "x-destino": "FIRMADO"
+        },
+        {
+          "const": "ERROR",
+          "x-destino": "ERROR"
+        },
+        {
+          "const": "NO_DATA",
+          "x-destino": "NO_DATA"
+        },
+        {
+          "const": "SIMULATED",
+          "x-destino": "SIMULATED"
+        },
+        {
+          "const": "STALE",
+          "x-destino": "STALE"
+        }
+      ]
+    }
+  }
+}

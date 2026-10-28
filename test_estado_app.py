@@ -32,7 +32,7 @@ class ContratoSuperficie(unittest.TestCase):
         a = serializar(estado)
         b = serializar(copy.deepcopy(estado))
         self.assertEqual(a, b)
-        self.assertLessEqual(len(a), MAX_BYTES)
+        self.assertLess(len(a), MAX_BYTES)
         self.assertEqual(deserializar(a), estado)
         self.assertTrue(validar(estado))
 
