@@ -24,10 +24,10 @@ def cedula(dispositivos, nodo="nodo.0.hexelion"):
 
 
 class Cedula(unittest.TestCase):
-    def test_linkeado_es_cuenta_nodo(self):
+    def test_linkeado_sin_firma_no_es_cuenta_nodo(self):
         r = NA.lee(cedula([(MIA, "linkeado"), (OTRA, "solicitado")]), soberano.codigo_de(MIA))
-        self.assertEqual((r["estado"], r["nivel"]), ("OK", 3))
-        self.assertTrue(r["autenticidad"].startswith("NO_DATA"), "finge una firma que no hay")
+        self.assertEqual((r["estado"], r["nivel"]), ("NO_DATA", None))
+        self.assertIn("sin firma", r["causa"])
 
     def test_solicitado_o_revocado_no_es_cuenta_nodo(self):
         for e in ("solicitado", "revocado"):
@@ -45,7 +45,7 @@ class Cedula(unittest.TestCase):
 
     def test_el_codigo_escrito_a_mano_tambien_vale(self):
         cod = soberano.codigo_de(MIA).replace("-", "").lower()
-        self.assertEqual(NA.lee(cedula([(MIA, "linkeado")]), cod)["nivel"], 3)
+        self.assertIsNone(NA.lee(cedula([(MIA, "linkeado")]), cod)["nivel"])
 
     def test_una_cedula_tocada_no_pasa(self):
         c = cedula([(OTRA, "linkeado")])
@@ -64,9 +64,9 @@ class Cedula(unittest.TestCase):
             f = Path(d) / "c.json"
             f.write_text(json.dumps(cedula([(MIA, "linkeado")])))
             r = NA.importar(f, soberano.codigo_de(MIA), destino=Path(d) / "nodo.json")
-            self.assertEqual(r["nivel"], 3)
+            self.assertIsNone(r["nivel"])
             self.assertEqual(oct((Path(d) / "nodo.json").stat().st_mode)[-3:], "600")
-            self.assertEqual(NA.estado(soberano.codigo_de(MIA), origen=Path(d) / "nodo.json")["nivel"], 3)
+            self.assertIsNone(NA.estado(soberano.codigo_de(MIA), origen=Path(d) / "nodo.json")["nivel"])
             self.assertEqual(NA.estado(None, origen=Path(d) / "nada.json")["estado"], "NO_DATA")
         finally:
             shutil.rmtree(d)
@@ -172,6 +172,7 @@ class CedulaFirmada(unittest.TestCase):
     def test_firmada_por_el_soberano_autenticidad_ok(self):
         r = NA.lee(self.firmada(cedula([(MIA, "linkeado")])), soberano.codigo_de(MIA), signers=self.d / "signers")
         self.assertTrue(r["autenticidad"].startswith("OK"), r["autenticidad"])
+        self.assertEqual((r["estado"], r["nivel"]), ("OK", 3))
 
     def test_firmada_por_otra_clave_rechazada(self):
         r = NA.lee(self.firmada(cedula([(MIA, "linkeado")]), "otra"), soberano.codigo_de(MIA), signers=self.d / "signers")
@@ -188,10 +189,14 @@ class CedulaFirmada(unittest.TestCase):
     def test_sin_firma_sigue_no_data_sin_fingir(self):
         r = NA.lee(cedula([(MIA, "linkeado")]), soberano.codigo_de(MIA), signers=self.d / "signers")
         self.assertTrue(r["autenticidad"].startswith("NO_DATA"))
+        self.assertEqual((r["estado"], r["nivel"]), ("NO_DATA", None))
+        self.assertEqual(r["causa"], r["autenticidad"])
 
     def test_sin_signers_no_data_con_causa(self):
         r = NA.lee(self.firmada(cedula([(MIA, "linkeado")])), soberano.codigo_de(MIA), signers=self.d / "no-existe")
         self.assertTrue(r["autenticidad"].startswith("NO_DATA")); self.assertIn("allowed_signers", r["autenticidad"])
+        self.assertEqual((r["estado"], r["nivel"]), ("NO_DATA", None))
+        self.assertEqual(r["causa"], r["autenticidad"])
 
 
 @unittest.skipUnless(shutil.which("ssh-keygen"), "NO_DATA: ssh-keygen unavailable")

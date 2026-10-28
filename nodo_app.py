@@ -118,6 +118,8 @@ def lee(cedula, codigo_soberano, signers=None):
         return dict(base, estado="OK", nivel=2, es=NIVELES[2], codigo=cod,
                     causa="el codigo de este aparato no esta en la cedula de ese nodo")
     e = mio[0]["estado"]
+    if e == "linkeado" and est != "OK":
+        return dict(base, estado="NO_DATA", nivel=None, codigo=cod, dispositivo=e, causa=aut)
     n = 3 if e == "linkeado" else 2
     return dict(base, estado="OK", nivel=n, es=NIVELES[n], codigo=cod, dispositivo=e)
 
