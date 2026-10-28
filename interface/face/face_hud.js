@@ -86,13 +86,13 @@
     function setOn(v) {
       on = v;
       spk.setAttribute('aria-pressed', String(on));
-      spk.lastChild.textContent = on ? 'Screen reader on' : 'Screen reader off';
+      spk.lastChild.textContent = on ? 'Narration on' : 'Narration off';
       paintIcon(spk.firstChild, iconFrame(on ? 'speaker-on' : 'speaker', skin));
       radio.hidden = !on;
       if (on) { lastSaid = doc.getElementById('say').textContent; broadcast(screen()); } else if (root.speechSynthesis) { root.speechSynthesis.cancel(); }
     }
-    spk.addEventListener('click', function () { setOn(!on); });
-    doc.getElementById('radio-again').addEventListener('click', function () { broadcast(screen()); });
+    spk.addEventListener('click', function (e) { if (e.isTrusted === true) { setOn(!on); } });
+    doc.getElementById('radio-again').addEventListener('click', function (e) { if (e.isTrusted === true && on) { broadcast(screen()); } });
     new root.MutationObserver(function () {
       var now = doc.getElementById('say').textContent;
       if (on && now && now !== lastSaid) { lastSaid = now; broadcast([now]); }

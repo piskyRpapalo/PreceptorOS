@@ -1,0 +1,14 @@
+{
+  "status": "PROPOSAL",
+  "app_base": "5b6c24f129c2f651b16190c45ac3c57d99c51aea",
+  "web_lexicon_commit": "07df88e7e1195bc95a1f61dfd8bcc4b15359a695",
+  "web_lexicon_blob": "4b1952925b7d5bb7583ec12cc611bc50f7674afc",
+  "study_main": "379981243031f0bcdaf808cbe1989a4e42a66f11",
+  "study_rosetta_blob": "09e8ecf5d5ffb038ca118d17bd3dab9002d4b339",
+  "study_collision_blob": "326b769ce55b836b85831518d543c078133b7fe6",
+  "study_contracts_blob": "fc55f19f3f4808e68de8ea236cf8a8f34125b640",
+  "app_bubble_surface_blob": "ef0800803448299ff824401be9d41bde7c13b637",
+  "app_bubble_test_blob": "2fc6fdecd378ac4edb8da9a2eb1c76777e8ae601",
+  "odds_tree": "NO_DATA · absent from origin/main; feature card added before implementation",
+  "canon_change": "none; proposal and measurable test only"
+}
