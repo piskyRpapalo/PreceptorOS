@@ -179,6 +179,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           test_colony_web_fixture
           test_colony_services
           test_colony_liveness
+          test_colony_shared_projection
           # test_clases: la clase de una direccion (LOOPBACK/ANY/LAN/TAILNET/
           # PUBLIC) con un solo dueno. El doctor del rack la importa de aqui;
           # la tabla fijada ya encontro que su copia vieja clasificaba mal
