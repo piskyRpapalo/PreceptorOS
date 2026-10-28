@@ -1,0 +1,24 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const frames = require('./walking_frames.js');
+const elements = [];
+const floor = { appendChild(el) { elements.push(el); } };
+const status = { textContent: '' };
+const button = { addEventListener(_event, fn) { this.step = fn; } };
+const document = { getElementById(id) { return { floor, status, step: button }[id]; },
+  createElement() { return { dataset: {}, style: {}, setAttribute(k, v) { this[k] = v; } }; } };
+const js = fs.readFileSync(__dirname + '/walking_render.js', 'utf8');
+const css = fs.readFileSync(__dirname + '/walking_render.css', 'utf8');
+assert.doesNotMatch(js, /Math\.random|Date\.now/);
+assert.doesNotMatch(css, /gradient|blur\(|@keyframes/i);
+assert.match(css, /prefers-reduced-motion:reduce/);
+vm.runInNewContext(js, { document, ColonyWalkingFrames: frames });
+assert.equal(elements.length, 3);
+const before = elements.map(el => el.style.transform);
+button.step();
+const after = elements.map(el => el.style.transform);
+assert.notDeepEqual(after, before);
+assert.match(status.textContent, /cycle 1/);
+assert.ok(elements.every(el => el['aria-label']));
+console.log(JSON.stringify({before, after, status:status.textContent}));
