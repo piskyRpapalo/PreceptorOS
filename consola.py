@@ -37,6 +37,7 @@ import json
 import os
 import pathlib
 import re
+import threading
 
 import decisor as _decisor
 import estado as _estado
@@ -158,6 +159,8 @@ def _blob(raiz, digest):
 
 
 _SHA256_BLOB_CACHE = {}
+_SHA256_BLOB_LOCK = threading.Lock()
+_SHA256_BLOB_LIMIT = 8
 
 
 def verificar_blob(sha256, raiz=None):
@@ -178,15 +181,21 @@ def verificar_blob(sha256, raiz=None):
             return {"estado": "NO_DATA", "causa": "el blob no es un fichero", "ruta": visible}
         clave = (str(blob), stat.st_dev, stat.st_ino, stat.st_size,
                  stat.st_mtime_ns, stat.st_ctime_ns)
-        medido = _SHA256_BLOB_CACHE.get(clave)
+        with _SHA256_BLOB_LOCK:
+            medido = _SHA256_BLOB_CACHE.get(clave)
         if medido is None:
             h = hashlib.sha256()
             with blob.open("rb") as fh:
                 for trozo in iter(lambda: fh.read(1 << 20), b""):
                     h.update(trozo)
             medido = h.hexdigest()
-            _SHA256_BLOB_CACHE.clear()
-            _SHA256_BLOB_CACHE[clave] = medido
+            with _SHA256_BLOB_LOCK:
+                for anterior in list(_SHA256_BLOB_CACHE):
+                    if anterior[0] == str(blob) and anterior != clave:
+                        _SHA256_BLOB_CACHE.pop(anterior, None)
+                while len(_SHA256_BLOB_CACHE) >= _SHA256_BLOB_LIMIT and clave not in _SHA256_BLOB_CACHE:
+                    _SHA256_BLOB_CACHE.pop(next(iter(_SHA256_BLOB_CACHE)))
+                _SHA256_BLOB_CACHE[clave] = medido
     except FileNotFoundError:
         return {"estado": "NO_DATA", "causa": "el blob fijado no existe en el almacén visible", "ruta": visible}
     except OSError as e:
