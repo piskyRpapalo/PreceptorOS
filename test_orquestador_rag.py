@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import estado_compacto
@@ -48,6 +49,20 @@ class ConsultaRAGTests(unittest.TestCase):
                                    motor=lambda _: self.fail("no debe inferir sin fuente"))
         self.assertEqual(result["estado"], "NO_DATA")
         self.assertIn("no encontró", result["causa"])
+
+    def test_corrupt_model_never_starts_rag_engine(self):
+        import conversacion
+        store = Path(self.root) / "models"
+        blob = store / "blobs" / ("sha256-" + "a" * 64)
+        blob.parent.mkdir(parents=True)
+        blob.write_bytes(b"synthetic different bytes")
+        ficha = {"mini": {"disponible": True, "sha256": "a" * 64}}
+        with mock.patch.object(lab, "modelos_lab", return_value=ficha), \
+             mock.patch.object(conversacion, "motor_llama") as start:
+            result = lab.consultar_rag("Atlantis rounds", self.root, raiz_ollama=store)
+        self.assertEqual(result["estado"], "NO_DATA")
+        self.assertIn("SHA-256", result["causa"])
+        start.assert_not_called()
 
     def test_router_sella_respuesta_por_origen_y_respeta_el_sobre(self):
         request = {"esquema": ESQUEMA, "intent": "QUERY_STATE",

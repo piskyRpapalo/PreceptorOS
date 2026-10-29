@@ -331,18 +331,28 @@ def prompt_de(texto, historia, tope=2400):
     return f"{PAPEL}\n\nÚltimos mensajes del Lab:\n{cuerpo}\n\nLa persona dice: {texto}"
 
 
+def _motor_mini(ficha, raiz_ollama=None):
+    """Check the selected blob before constructing a local subprocess engine."""
+    if not ficha.get("disponible"):
+        return None, str(ficha.get("causa") or "modelo local no disponible")
+    raiz = _consola.raiz_ollama() if raiz_ollama is None else pathlib.Path(raiz_ollama)
+    verificacion = _consola.verificar_blob(ficha.get("sha256"), raiz=raiz)
+    if verificacion.get("estado") != "MEDIDO":
+        return None, str(verificacion.get("causa") or "integridad del modelo NO_DATA")
+    import conversacion as _conv
+    modelo = raiz / "blobs" / ("sha256-" + ficha["sha256"])
+    motor = _conv.motor_llama(str(modelo), cache=None)
+    return (motor, None) if motor else (None, "no hay motor llama-completion en este aparato")
+
+
 def responder(texto, base, motor=None, raiz_ollama=None):
     """Escribe lo de la persona y, si hay motor, la respuesta del orquestador."""
     suyo = _canales.di_soberano("orquesta", texto, base=base)
     mini = modelos_lab(base, raiz_ollama)["mini"]
     if motor is None:
-        if not mini.get("disponible"):
-            return {"persona": suyo, "respuesta": nd(mini.get("causa"))}
-        import conversacion as _conv
-        blob = _consola.raiz_ollama() if raiz_ollama is None else pathlib.Path(raiz_ollama)
-        motor = _conv.motor_llama(str(blob / "blobs" / f"sha256-{mini['sha256']}"), cache=None)
+        motor, causa = _motor_mini(mini, raiz_ollama)
         if motor is None:
-            return {"persona": suyo, "respuesta": nd("no hay motor llama-completion en este aparato")}
+            return {"persona": suyo, "respuesta": nd(causa)}
     historia = conversacion(base, tope=12)["mensajes"]
     t0 = time.monotonic()
     try:
@@ -400,13 +410,9 @@ def consultar_rag(texto, base, motor=None, raiz_ollama=None,
 
     if motor is None:
         ficha = modelos_lab(base, raiz_ollama)["mini"]
-        if not ficha.get("disponible"):
-            return nd("mini-modelo local no disponible: " + str(ficha.get("causa") or "NO_DATA"))
-        import conversacion as _conv
-        blob_root = (_consola.raiz_ollama() if raiz_ollama is None
-                     else pathlib.Path(raiz_ollama))
-        modelo = blob_root / "blobs" / ("sha256-" + str(ficha.get("sha256")))
-        motor = _conv.motor_llama(str(modelo), cache=None)
+        motor, causa = _motor_mini(ficha, raiz_ollama)
+        if motor is None:
+            return nd(causa)
     if motor is None:
         return nd("motor de inferencia local no disponible")
 
