@@ -7,6 +7,8 @@ body{margin:0;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif
 .face{position:relative;z-index:1;height:100vh;height:100dvh;max-width:1280px;margin:0 auto;padding:var(--gap);display:grid;gap:var(--gap);overflow:hidden}
 .card{border:var(--bw) solid var(--edge);border-radius:var(--r);padding:12px;background:var(--panel);min-width:0;min-height:0}
 .hello{grid-area:hello;display:flex;align-items:center;gap:10px;padding:8px 12px}
+.terminal-link{margin-left:auto;border:var(--bw) solid var(--edge);border-radius:999px;padding:8px 12px;color:var(--fg);font-weight:650;text-decoration:none;white-space:nowrap}
+.terminal-link:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .map{grid-area:map;padding:0;background:transparent;border:0;min-height:0}
 #mapwin{width:100%;height:100%;min-height:80px;border-radius:var(--r);touch-action:none;cursor:pointer;box-shadow:inset 0 0 0 2px var(--edge)}
 .side{grid-area:side;display:flex;flex-direction:column;gap:6px;overflow:hidden;min-height:0;min-width:0}
