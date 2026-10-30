@@ -191,7 +191,7 @@ const adapter = flow.doorOneAdapter((url, options) => {
         self.assertIn('"/node_registration.js": ("node_registration.js"', PWA_PATH.read_text())
         self.assertIn('/node_registration.js?v=1', html)
         self.assertIn('"/node_registration.js?v=1"', sw)
-        self.assertIn('preceptoros-armazon-v118', sw)
+        self.assertIn('preceptoros-armazon-v119', sw)
         self.assertIn("interface/node_registration.js", version.ARMAZON)
 
 
