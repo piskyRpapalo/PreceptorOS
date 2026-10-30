@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cabin building review fixture · PreceptorOS</title>
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,sans-serif;background:#1e1826;color:#f2f5f7}
+body{margin:0;padding:24px;max-width:900px;margin-inline:auto}
+main{display:grid;gap:18px}
+h1,h2,p{margin:0}
+.note,.services{padding:14px;border:2px solid currentColor;border-radius:12px}
+svg{width:100%;min-height:260px;background:#f2f5f7;border-radius:12px}
+.controls{display:flex;flex-wrap:wrap;gap:10px}
+button{min-height:48px;min-width:44px;padding:8px 14px;border:2px solid currentColor;border-radius:10px;background:#1e1826;color:#f2f5f7;font:inherit}
+button:disabled{opacity:.55}
+.small{font-size:.92rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Cabin building review fixture / Vista de revisión</h1>
+<p class="note">Proposal only · Web snapshot source: <code>preceptoros-web/main 0977f4c</code>, 2026-10-30. The public map marks cabin LIVE and includes building <code>b-cabin</code>. This does not measure this app's poll or deployment. / Solo propuesta · La app no tiene una medida propia de sondeo ni despliegue.</p>
+<svg id="scene" viewBox="0 0 720 390" role="img" aria-labelledby="scene-title scene-desc">
+<title id="scene-title">One measured web node and its proposed app building render</title>
+<desc id="scene-desc">A single cabin hex and one deterministic building frame. Other nodes marked NO_DATA are not drawn.</desc>
+<g id="layers"></g>
+</svg>
+<p id="status" role="status" aria-live="polite"></p>
+<div class="controls" role="group" aria-label="Building growth controls / Controles de crecimiento">
+<button id="reset" type="button">Restart growth / Reiniciar crecimiento</button>
+<button id="step" type="button">Grow one step / Crecer un paso</button>
+<button id="reduced" type="button" aria-pressed="false">Reduced motion / Movimiento reducido: off</button>
+</div>
+<section class="services" aria-labelledby="services-title">
+<h2 id="services-title">Building services / Servicios del edificio</h2>
+<p>NO_DATA: no local service source or receipt is attached to this building. No action is available. / NO_DATA: este edificio no tiene fuente ni recibo local de servicio. No hay acciones disponibles.</p>
+</section>
+<p class="small">The app poll and physical app view remain NO_DATA. This fixture is not loaded by the PWA and makes no network requests. / El sondeo de la app y su vista física siguen en NO_DATA. Esta prueba visual no la carga la PWA ni hace solicitudes de red.</p>
+</main>
+<script src="../interface/face/bubble/tabla_semantica.js"></script>
+<script src="../interface/face/bubble/comic_tokens.js"></script>
+<script src="../interface/face/bubble/comic_accents.js"></script>
+<script src="../interface/face/bubble/gacha.js"></script>
+<script src="../interface/face/bubble/bubble_language.js"></script>
+<script src="../interface/face/bubble/comic_atoms.js"></script>
+<script src="core.js"></script>
+<script src="projection.js"></script>
+<script src="buildings.js"></script>
+<script>
+(function () {
+  'use strict';
+  var filas = [
+    {kind:'node',id:'cabin',q:-1,r:0},
+    {kind:'node',id:'node-a',q:0,r:0},
+    {kind:'node',id:'node-b',q:2,r:0},
+    {kind:'node',id:'node-c',q:2,r:-1},
+    {kind:'building',id:'b-cabin',node:'cabin',q:-1,r:0},
+    {kind:'building',id:'b-node-b',node:'node-b',q:2,r:0},
+    {kind:'building',id:'b-node-c',node:'node-c',q:2,r:-1}
+  ];
+  var sellos = {cabin:'LIVE','node-a':'NO_DATA','node-b':'NO_DATA','node-c':'NO_DATA'};
+  var capas = document.getElementById('layers'), estado = document.getElementById('status');
+  var reset = document.getElementById('reset'), step = document.getElementById('step'), reduced = document.getElementById('reduced');
+  var paso = 6, quieto = false, neutral = AtlasComicTokens.NEUTRAL;
+  function elemento(frame, x, y, escala) {
+    var B = window.AtlasBubble, P = window.AtlasComicAtoms, group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('transform', 'translate(' + (x - 60 * escala) + ' ' + (y - 84 * escala) + ') scale(' + escala + ')');
+    var canvas = document.createElement('canvas'); canvas.width = 120; canvas.height = 110;
+    P.paint(canvas.getContext('2d'), B.compile(frame));
+    var png = canvas.toDataURL('image/png'), image = document.createElementNS('http://www.w3.org/2000/svg','image');
+    image.setAttribute('href', png); image.setAttribute('width','120'); image.setAttribute('height','110');
+    group.appendChild(image); return group;
+  }
+  function dibuja() {
+    var progreso = paso / ColonyBuildings.PASOS;
+    var world = ColonyBuildings.escena(filas, sellos, progreso, quieto);
+    capas.replaceChildren();
+    document.getElementById('scene').style.background = neutral.paper;
+    world.tiles.forEach(function (tile) { capas.appendChild(elemento(tile.frame, 360 + tile.x * 1.8, 230 + tile.y * 1.8, 3.3)); });
+    world.buildings.forEach(function (building) { capas.appendChild(elemento(building.frame, 360 + building.x * 1.8, 230 + building.y * 1.8, 3.3)); });
+    var building = world.buildings[0];
+    estado.textContent = building
+      ? building.frame.atoms[0].r + ' · app poll NO_DATA (the LIVE seal belongs to the pinned web snapshot).'
+      : world.availability.seal + ': ' + world.availability.cause;
+    step.disabled = paso >= ColonyBuildings.PASOS || quieto;
+  }
+  reset.addEventListener('click', function () { paso = 1; quieto = false; reduced.setAttribute('aria-pressed','false'); reduced.textContent = 'Reduced motion / Movimiento reducido: off'; dibuja(); });
+  step.addEventListener('click', function () { if (paso < ColonyBuildings.PASOS) paso++; dibuja(); });
+  reduced.addEventListener('click', function () { quieto = !quieto; if (quieto) paso = ColonyBuildings.PASOS; reduced.setAttribute('aria-pressed',String(quieto)); reduced.textContent = 'Reduced motion / Movimiento reducido: ' + (quieto ? 'on' : 'off'); dibuja(); });
+  dibuja();
+})();
+</script>
+</body>
+</html>
