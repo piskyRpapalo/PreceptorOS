@@ -4,4 +4,4 @@
 
 The manifest and trusted key are **NO_DATA**: no production signature, trusted key, chunk catalogue or model response was supplied or generated. Existing five SHA-256 sidecars alone are not a signed chunk manifest. This change does not publish a key or connect a UI, download models, or make a claim that an adapter is a working mini-orchestrator. A later integration must present identity, size, origin, and consent, provision the trust anchor independently, and bind the accepted adapter to an authenticated release.
 
-Local checks: `python3 -m unittest test_lora_signed_download`. Tests use a mocked verifier and transport; real signature verification uses the existing OpenSSL verifier in `creacion_import.py` and remains separately unverified here. A network error propagates to the caller, leaving any previous destination intact.
+Local checks: `python3 -m unittest test_lora_signed_download`. Tests use synthetic transport and include a real, ephemeral Ed25519 key and signature via OpenSSL; tampering is refused. The production trust anchor and signature are not verified here. A network error propagates to the caller, leaving any previous destination intact.

@@ -1,4 +1,4 @@
-import hashlib, io, json, tempfile, unittest
+import hashlib, io, json, tempfile, unittest, subprocess, shutil
 from pathlib import Path
 from unittest.mock import patch
 import lora_signed_download as m
@@ -28,6 +28,18 @@ class Tests(unittest.TestCase):
     @patch('lora_signed_download._verify_signature', side_effect=ValueError('invalid'))
     def test_bad_signature(self, verifier):
         with self.assertRaises(m.Refused): m.verify_manifest(self.raw, b's'*64, b'k'*32)
+    @unittest.skipUnless(shutil.which('openssl'), 'OpenSSL unavailable')
+    def test_real_ed25519_signature_and_tampering(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); private = root / 'key.pem'; public = root / 'key.der'
+            message = root / 'manifest'; signature = root / 'signature'
+            subprocess.run(['openssl', 'genpkey', '-algorithm', 'ED25519', '-out', str(private)], check=True, capture_output=True)
+            subprocess.run(['openssl', 'pkey', '-in', str(private), '-pubout', '-outform', 'DER', '-out', str(public)], check=True, capture_output=True)
+            message.write_bytes(self.raw)
+            subprocess.run(['openssl', 'pkeyutl', '-sign', '-inkey', str(private), '-rawin', '-in', str(message), '-out', str(signature)], check=True, capture_output=True)
+            key, sig = public.read_bytes()[-32:], signature.read_bytes()
+            self.assertEqual(len(m.verify_manifest(self.raw, sig, key)['adapters']), 5)
+            with self.assertRaises(m.Refused): m.verify_manifest(self.raw + b' ', sig, key)
     @patch('lora_signed_download._verify_signature')
     def test_foreign_url_rejected(self, verifier):
         self.items[0]['url'] = 'https://evil.invalid/a'
