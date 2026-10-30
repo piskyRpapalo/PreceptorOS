@@ -157,7 +157,7 @@ UNITTEST=(test_herencia_web test_app_una_pestana test_transicion_app test_estado
           # Recorre el grafo de imports desde las tres puertas del producto y
           # exige que el camino por defecto sea stdlib puro. Entra aqui en su
           # mismo commit por la misma razon: un candado que no corre no cierra.
-          test_superficie test_atlas_riesgo test_pwa_bind
+          test_superficie test_atlas_riesgo test_pwa_bind test_lora_signed_download
           # Every suite is counted separately; test_superficie catches omissions.
           test_huella test_metricas test_herramientas test_empieza_aqui test_soberano
           test_importar test_medidas test_cifras test_compliance
