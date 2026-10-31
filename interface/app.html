@@ -181,6 +181,29 @@
       <p id="node-registration-status" role="status" aria-live="polite" data-i18n="node_registration_draft">Draft only. Nothing has been sent.</p>
       <pre id="node-registration-preview" data-i18n-aria="node_registration_preview_aria" aria-label="Canonical pending credential preview"></pre>
     </section>
+    <section class="tarjeta" aria-labelledby="node-building-title">
+      <h3 id="node-building-title" data-i18n="node_building_title">Identidad local y edificio del nodo</h3>
+      <p id="node-building-help" data-i18n="node_building_help">La identidad pública se guarda solo en esta puerta. La llave del latido nunca llega al navegador. La declaración se envía a Aduana únicamente al confirmar.</p>
+      <button type="button" id="node-identity-read" class="probar" data-i18n="node_building_read">Leer identidad local</button>
+      <form id="node-identity-form">
+        <label id="node-identity-label" for="node-identity-id" data-i18n="node_building_node_id">ID canónico del nodo (flota/2)</label>
+        <input id="node-identity-id" name="node_id" required maxlength="64" pattern="[a-z0-9][a-z0-9._-]{0,63}" autocomplete="off">
+        <label class="fila-switch" for="node-identity-consent">
+          <input type="checkbox" id="node-identity-consent">
+          <span data-i18n="node_building_provision_consent">Guardar este ID en la configuración local de esta PWA.</span>
+        </label>
+        <button type="submit" id="node-identity-save" class="probar" data-i18n="node_building_provision">Provisionar identidad local</button>
+      </form>
+      <p id="node-identity-status" role="status" aria-live="polite" data-i18n="node_building_unread">La identidad local no se ha leído todavía.</p>
+      <form id="node-building-form">
+        <label class="fila-switch" for="node-building-consent">
+          <input type="checkbox" id="node-building-consent" disabled>
+          <span data-i18n="node_building_declare_consent">Confirmo que quiero declarar el edificio ya asignado al nodo configurado. Se enviará una petición a Aduana.</span>
+        </label>
+        <button type="submit" id="node-building-submit" class="probar" disabled data-i18n="node_building_declare">Declarar edificio asignado</button>
+      </form>
+      <p id="node-building-status" role="status" aria-live="polite" data-i18n="node_building_none">No se ha declarado ningún edificio desde esta pantalla.</p>
+    </section>
     <section class="tarjeta" aria-labelledby="creation-publish-title">
       <h3 id="creation-publish-title">Publicar una creación firmada</h3>
       <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
@@ -203,6 +226,7 @@
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
+<script src="/node_building.js?v=1"></script>
 <script src="/node_registration.js?v=1"></script>
 <script>PreceptorNodeRegistration.mount(document);</script>
 </body>

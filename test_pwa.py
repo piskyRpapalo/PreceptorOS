@@ -1104,6 +1104,70 @@ class ExportacionNodoContracto(unittest.TestCase):
         self.assertIn('id="nodo-export-form"', html)
         self.assertIn('/app.js?v=6', html)
         self.assertIn('"/app.js?v=6"', sw)
-        self.assertIn('preceptoros-armazon-v119', sw)
+        self.assertIn('if ruta == "/api/nodo/edificio"', server)
+        self.assertIn('id="node-building-form"', html)
+        self.assertIn('/node_building.js?v=1', html)
+        self.assertIn('"/node_building.js?v=1"', sw)
+        self.assertIn('preceptoros-armazon-v120', sw)
         self.assertIn('if ruta == "/api/creaciones"', server)
         self.assertIn('/creation_publish.js?v=1', html)
+
+
+class PwaNodeBuildingBoundary(unittest.TestCase):
+    def test_sensitive_node_routes_require_loopback_and_same_origin(self):
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.client_address = ("127.0.0.1", 1234)
+        handler.headers = {"Origin": "https://pwa.example", "Host": "pwa.example"}
+        self.assertTrue(handler._nodo_local_autorizado())
+        handler.headers = {"Origin": "https://evil.example", "Host": "pwa.example"}
+        self.assertFalse(handler._nodo_local_autorizado())
+        handler.headers = {"Origin": "https://pwa.example", "Host": "pwa.example"}
+        handler.client_address = ("192.0.2.9", 1234)
+        self.assertFalse(handler._nodo_local_autorizado())
+
+    def test_identity_route_provisions_only_the_public_id_locally(self):
+        import io
+        with tempfile.TemporaryDirectory(prefix="pwa-node-route-") as temp:
+            handler = PWA.PWA.__new__(PWA.PWA)
+            handler.path = "/api/nodo/identity"
+            handler.client_address = ("127.0.0.1", 1234)
+            handler.headers = {"Origin": "http://127.0.0.1:8740", "Host": "127.0.0.1:8740",
+                               "Content-Length": "75", "Content-Type": "application/json"}
+            payload = json.dumps({"esquema": "preceptoros.pwa-node-identity/1",
+                                  "node_id": "primer-ancla"}).encode()
+            handler.headers["Content-Length"] = str(len(payload))
+            handler.rfile = io.BytesIO(payload)
+            replies = []
+            handler._json = lambda code, body: replies.append((code, body)) or body
+            with mock.patch.object(PWA._casa, "raiz", return_value=pathlib.Path(temp)):
+                result = handler._despachar_post()
+            self.assertEqual(result["estado"], "provisionada")
+            saved = pathlib.Path(temp, "node-identity.json")
+            self.assertTrue(saved.is_file())
+            self.assertNotIn("heartbeat", saved.read_text(encoding="utf-8"))
+
+    def test_building_route_requires_explicit_consent_and_missing_key_fails_closed(self):
+        import io
+        with tempfile.TemporaryDirectory(prefix="pwa-node-building-route-") as temp:
+            root = pathlib.Path(temp)
+            import node_building
+            self.assertEqual(node_building.provisionar_identidad(root, "primer-ancla")["estado"], "provisionada")
+
+            def request(body):
+                handler = PWA.PWA.__new__(PWA.PWA)
+                handler.path = "/api/nodo/edificio"
+                handler.client_address = ("127.0.0.1", 1234)
+                payload = json.dumps(body).encode()
+                handler.headers = {"Origin": "http://127.0.0.1:8740", "Host": "127.0.0.1:8740",
+                                   "Content-Length": str(len(payload)), "Content-Type": "application/json"}
+                handler.rfile = io.BytesIO(payload)
+                handler._json = lambda code, data: (code, data)
+                return handler._despachar_post()
+
+            with mock.patch.object(PWA._casa, "raiz", return_value=root):
+                status, refused = request({"esquema": "preceptoros.pwa-edificio-accion/1", "confirmar": False})
+                self.assertEqual(status, 422)
+                self.assertEqual(refused["causa"], "consentimiento_requerido")
+                status, no_key = request({"esquema": "preceptoros.pwa-edificio-accion/1", "confirmar": True})
+            self.assertEqual(status, 503)
+            self.assertEqual(no_key["causa"], "credencial_no_provisionada")

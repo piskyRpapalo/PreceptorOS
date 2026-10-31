@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:pwa-edificio-accion:1",
+  "title": "Explicit local PWA consent to declare the assigned building",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "confirmar"],
+  "properties": {
+    "esquema": {"const": "preceptoros.pwa-edificio-accion/1"},
+    "confirmar": {"const": true}
+  }
+}

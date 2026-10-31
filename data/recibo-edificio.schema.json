@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:recibo-edificio:1",
+  "title": "Aduana building declaration receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "estado", "causa"],
+  "properties": {
+    "esquema": {"const": "preceptoros.recibo-edificio/1"},
+    "estado": {"enum": ["recibido", "NO_DATA"]},
+    "causa": {"type": ["string", "null"]},
+    "nodo": {"type": ["string", "null"]},
+    "edificio": {"type": ["string", "null"]},
+    "payload_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "recibido_en": {"type": ["string", "null"], "format": "date-time"},
+    "procedencia": {"type": ["string", "null"]},
+    "recibo_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [{
+    "if": {"properties": {"estado": {"const": "recibido"}}},
+    "then": {"required": ["nodo", "edificio", "payload_sha256", "recibido_en", "procedencia", "recibo_sha256"]}
+  }]
+}
