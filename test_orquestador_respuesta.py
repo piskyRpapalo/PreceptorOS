@@ -39,6 +39,7 @@ class ContratoRespuestaTests(unittest.TestCase):
                 "fuentes": 1, "tokens_rag_aprox": 4, "rag_completo": True}),
             enrutar(request("QUERY_STATE", {"consulta": "estado"})),
             enrutar(request("UPDATE_RAG", {"consulta": "texto"})),
+            enrutar(request("MAP_BRAIN_STATUS", {})),
         ]
         for response in responses:
             with self.subTest(intent=response["intent"], state=response["estado"]):
@@ -59,6 +60,22 @@ class ContratoRespuestaTests(unittest.TestCase):
         base = {"esquema": ESQUEMA, "intent": "UPDATE_RAG", "estado": "NO_DATA", "causa": None}
         self.assertTrue(list(validator.iter_errors(base)))
         self.assertTrue(list(validator.iter_errors({**base, "causa": "blocked", "habla": "invented"})))
+
+
+    def test_relay_veredicto_tipado_falla_cerrado_y_no_acepta_payload(self):
+        def request(payload):
+            return json.dumps({"esquema": ESQUEMA, "intent": "MAP_BRAIN_STATUS",
+                               "payload": payload}, separators=(",", ":")).encode()
+        answer = enrutar(request({}))
+        self.assertEqual(answer["dato"], {
+            "choice": None, "score": None, "no_data": True,
+            "causa": "runtime_integrity_unavailable",
+        })
+        self.assertEqual(answer["estado"], "NO_DATA")
+        self.assertEqual(answer["causa"], "runtime_integrity_unavailable")
+        refused = enrutar(request({"node": "invented"}))
+        self.assertTrue(refused["dato"]["no_data"])
+        self.assertEqual(refused["dato"]["causa"], "map_brain_status_payload_invalid")
 
 
 class ProyeccionAcusticaTests(unittest.TestCase):
