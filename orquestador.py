@@ -13,7 +13,7 @@ import estado_compacto
 import ficha_cartucho
 
 ESQUEMA = "preceptoros.orquestador/1"
-INTENTS = frozenset({"DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG"})
+INTENTS = frozenset({"DEPLOY_BUILDING", "QUERY_STATE", "UPDATE_RAG", "MAP_BRAIN_STATUS"})
 ESTADOS = frozenset({"PROPOSED", "MEASURED", "STALE", "NO_DATA"})
 TOPE_B = 1024  # exclusivo: caben como máximo 1.023 bytes UTF-8
 ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}$")
@@ -121,6 +121,16 @@ def enrutar(raw, *, raiz=None, leer_estado=None, consultar_rag=None, desde_chat=
             return _respuesta(intent, "NO_DATA", causa)
         return _respuesta(intent, "PROPOSED", None, requiere="FIRMO DESPLIEGUE",
                           efecto="none until signed", manifiesto=manifest)
+    if intent == "MAP_BRAIN_STATUS":
+        if payload:
+            return _respuesta(intent, "NO_DATA", "map_brain_status_payload_invalid",
+                             dato={"choice": None, "score": None, "no_data": True,
+                                   "causa": "map_brain_status_payload_invalid"})
+        # No local runtime-integrity adapter is attached to this relay yet.
+        # Keep the public #512 typed verdict and do not infer a healthy model.
+        return _respuesta(intent, "NO_DATA", "runtime_integrity_unavailable",
+                          dato={"choice": None, "score": None, "no_data": True,
+                                "causa": "runtime_integrity_unavailable"})
     if intent == "UPDATE_RAG":
         causa = ("UPDATE_RAG is unavailable from chat; no RAG write is performed"
                  if desde_chat else
