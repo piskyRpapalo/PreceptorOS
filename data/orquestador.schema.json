@@ -19,7 +19,6 @@
         "DEPLOY_BUILDING",
         "QUERY_STATE",
         "UPDATE_RAG",
-        "MAP_BRAIN_STATUS",
         "MAP_BRAIN_STATUS"
       ]
     },
