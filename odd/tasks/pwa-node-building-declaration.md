@@ -1,6 +1,6 @@
 # PWA node identity provisioning and building declaration
 
-Status: PROPOSAL · propose-only · 2026-11-01.
+Status: PROPOSAL · propose-only · 2026-10-31.
 
 ## Objective and boundary
 
@@ -33,6 +33,6 @@ Tests must prove absent/malformed identity or key, insecure/symlink credential, 
 
 ## Evidence log
 
-- Base: clean `origin/main` at `a5ab7bfa987c18cfce2c661b38748e4ae9dbd0ee`; branch `mistral/pwa-node-building-declaration-20261101`.
+- Base: clean `origin/main` at `a5ab7bfa987c18cfce2c661b38748e4ae9dbd0ee`; branch `mistral/pwa-node-building-declaration-20261031`.
 - Assignment and request contract read from the signed writer specification in Aduana; no production key, network request, service restart, or database write was used while preparing this piece.
 - **Open question:** this local checkout does not establish that the PWA service has `PRECEPTOROS_HEARTBEAT_CREDENTIAL_FILE` configured or that the default key file exists. Until the rack supplies the already provisioned key through one of those paths, declaration must return `NO_DATA` and make no network request.
