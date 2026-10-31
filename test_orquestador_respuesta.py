@@ -9,6 +9,14 @@ from test_ficha_cartucho import manifiesto
 
 
 class ContratoRespuestaTests(unittest.TestCase):
+    def test_enum_de_peticion_es_unico_y_contiene_el_relay(self):
+        raiz = os.path.dirname(__file__)
+        with open(os.path.join(raiz, "data", "orquestador.schema.json"), encoding="utf-8") as f:
+            schema = json.load(f)
+        intents = schema["properties"]["intent"]["enum"]
+        self.assertEqual(len(intents), len(set(intents)))
+        self.assertIn("MAP_BRAIN_STATUS", intents)
+
     def test_respuestas_del_router_validan_el_contrato_publico_y_quedan_bajo_1k(self):
         try:
             import jsonschema
