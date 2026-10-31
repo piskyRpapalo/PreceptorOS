@@ -1,6 +1,6 @@
 # PWA node identity and live presence
 
-Status: PROPOSAL · propose-only · no runtime or service changes in this slice.
+Status: PROPOSAL · propose-only. PWA tree refresh measured; identity reader runtime remains unimplemented.
 
 ## Objective
 
@@ -8,7 +8,7 @@ Let the local PWA show which canonical fleet node this installation represents a
 
 ## Authority and scope
 
-- Canonical identity source: `piskyRpapalo/lab` `main`, `flota.json`, `preceptoros.flota/2`; its `map_heartbeat_snapshot` is descriptive history, not runtime presence.
+- Canonical identity catalog: `piskyRpapalo/lab` `main`, `flota.json`, `preceptoros.flota/2`; resolve aliases/cells only from `map_heartbeat_snapshot.nodes[]`. Do not use private `nodes[]` hardware rows or infer a physical join. This snapshot is identity catalog input only, never presence/liveness.
 - Runtime presence source: `https://api.preceptoros.org/api/v1/latidos`, schema `preceptoros.openworld-estado/2`; accept only a valid response row matching the configured canonical identity and its unique cell.
 - Local identity source: an operator-provisioned, untracked config file under the app data root, proposed as `node-identity.json`. It contains only the public fleet node ID. It must not contain a credential, private address, model identifier, API token, signing material, or sender sequence.
 - This PWA is a reader. It does not POST heartbeats, add a D7 sender, change Aduana bindings, or infer a physical device/model/credential join.
@@ -27,10 +27,10 @@ Let the local PWA show which canonical fleet node this installation represents a
 ## Contract and failure behavior
 
 - `node-identity.json` must be a regular local file with exactly `{ "schema": "preceptoros.pwa-node-identity/1", "node_id": "..." }`. It is ignored by Git and never served as a static file.
-- Resolve the configured `node_id` against the canonical `nodes[].id` entries in the measured `flota/2` artifact. Require one exact match and a unique `(q,r)` cell. Missing file, invalid shape, unknown or duplicate ID/cell returns `NO_DATA` with a stable cause; no default node is chosen.
+- Resolve the configured `node_id` against exactly one `map_heartbeat_snapshot.nodes[].id` in the fetched `flota/2` artifact. Require one exact match and a unique `(q,r)` cell. Missing file, invalid shape, unknown or duplicate ID/cell returns `NO_DATA` with a stable cause; no default node is chosen. Ignore `map_heartbeat_snapshot.measured_at`, node `alive`, and `seal` for runtime presence.
 - On a declared poll only, make one bounded same-origin-independent HTTPS GET to the fixed D7 URL. Require HTTP success, expected schema, typed MEDIDO coverage and one unambiguous matching row. Respect the source's `LIVE`/`STALE` status at response time; do not persist it or revive it from the fleet snapshot.
 - Timeout, TLS/HTTP error, oversized body, invalid JSON/schema, missing row, duplicate matching row, alias/cell mismatch, or expired/STALE observation returns `NO_DATA` or `STALE` with an explicit cause. No exception text, local path, private address, or credentials are returned.
-- Response size and timeout are constants selected only after measuring the current API payload and app runtime constraints; values remain `NO_DATA` until that measurement. Do not invent them in implementation.
+- Measured 2026-10-31 from the rack app host using `curl --max-time 8`: raw `flota.json` HTTP 200, 7,005 B, 0.301 s; D7 HTTP 200, 324 B, 0.081 s, 2 node rows, coverage `MEDIDO`. Proposal caps: fleet response 16,384 B, D7 response 1,024 B, timeout 3 s per request. These allow >2× the measured payload and >9× the measured latency; implementation must retain injection points and fails closed at each cap. Fleet fetch URL is fixed to `https://raw.githubusercontent.com/piskyRpapalo/lab/main/flota.json`; D7 URL remains fixed above. No cache fallback.
 - Keep coverage semantics separate: public D7 presence does not prove the local computer, model, or credential is that node.
 
 ## Checks and acceptance
@@ -43,6 +43,7 @@ Let the local PWA show which canonical fleet node this installation represents a
 
 ## Open questions and log
 
-- The exact current `flota/2` canonical source SHA and freshness policy for reading the lab contract at runtime must be fixed by the implementation piece. A stale checked-in copy cannot silently become authoritative.
+- Measured fleet file GitHub blob SHA: `21be439d4682e5c4b90bbb8f488ed4771f6609b5` (GitHub file SHA returned by the lab connector) on 2026-10-31. The reader fetches `main` on the explicit refresh gesture rather than pinning an old catalog; HTTP/TLS/size/schema errors become NO_DATA, never stale-cache liveness.
 - A public D7 `LIVE` row binds only the configured public alias/cell to current receiver state. A physical node or local model binding remains `NO_DATA` without separate measured evidence.
-- 2026-10-31: Mesa commission ·6547694162 authorizes a minimal PWA proposal: identity from local gate config, fleet from the public D7 route, identity catalog from `flota/2`; no secret or new channel. This document records the design only.
+- 2026-10-31: Mesa commission ·6547694162 authorizes a minimal PWA proposal: identity from local gate config, fleet from the public D7 route, identity catalog from `flota/2`; no secret or new channel.
+- 2026-10-31 rack refresh, same proposal work slice: The checkout served by the port 8740 service advanced from `44cf577f452a48bce49fe3dfd07e7a2e8ea04dac` to PreceptorOS `1292a212e19a406bfac74671c1b94389f4d5f9be`; user service restarted once under the explicit refresh commission. Measurement: `systemctl --user is-active` = active, `NRestarts=0`; `GET http://127.0.0.1:8740/api/estado` = HTTP 200, 479 B, version hash `e59872bc124b`; no config or identity file was provisioned. PWA node identity/presence rendering and physical device join remain NO_DATA until implementation and rack UI exercise. This document records the design only.
