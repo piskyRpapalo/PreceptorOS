@@ -65,6 +65,7 @@ import canales as _canales                                  # noqa: E402
 import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
 import node_registration as _node_registration              # noqa: E402
+import node_building as _node_building                      # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -242,6 +243,7 @@ ESTATICOS = {
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
+    "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
     "/llms.txt": (os.path.join(AQUI, "llms.txt"), "text/plain; charset=utf-8"),
     "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
@@ -306,6 +308,8 @@ class PWA(BaseHTTPRequestHandler):
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(crudo)))
+        if self.path.split("?")[0].startswith("/api/nodo/"):
+            self.send_header("Cache-Control", "no-store")
         if (self.path.split("?")[0] == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
             self.send_header("Access-Control-Allow-Origin", ORIGEN_WEB_ORQUESTADOR)
@@ -388,6 +392,9 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta == "/api/nodo/identity":
+            identidad = _node_building.leer_identidad(_casa.raiz())
+            return self._json(200 if identidad.get("estado") == "configurada" else 404, identidad)
         if ruta.startswith("/api/creaciones/"):
             return self._creacion_leer(ruta)
         if ruta.startswith("/creaciones/"):
@@ -508,6 +515,14 @@ class PWA(BaseHTTPRequestHandler):
 
     def _despachar_post(self):
         ruta = self.path.split("?")[0]
+        if ruta in ("/api/nodo/identity", "/api/nodo/edificio"):
+            try:
+                tamano = int(self.headers.get("Content-Length") or 0)
+            except (TypeError, ValueError):
+                tamano = 0
+            if tamano <= 0 or tamano > 1024:
+                self.close_connection = True
+                return self._json(413, {"estado": "NO_DATA", "causa": "cuerpo_fuera_de_rango"})
         if ruta == "/api/creaciones":
             return self._creacion_publicar()
         if ruta == "/api/creaciones/voz":
@@ -518,6 +533,9 @@ class PWA(BaseHTTPRequestHandler):
         if datos is None:
             return self._json(400, {"estado": "bloqueado",
                                     "motivo": "cuerpo ilegible o fuera de rango"})
+        if (ruta in ("/api/nodo/identity", "/api/nodo/edificio")
+                and self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json"):
+            return self._json(415, {"estado": "NO_DATA", "causa": "tipo_de_contenido_invalido"})
         if ruta == "/api/frontera":
             return self._frontera(datos)
         if ruta == "/api/anidar":
@@ -544,6 +562,26 @@ class PWA(BaseHTTPRequestHandler):
             resultado = _nodo_export.enviar(datos)
             codigo = resultado.pop("http", 200 if resultado.get("estado") == "encolado" else 409)
             return self._json(codigo, resultado)
+        if ruta == "/api/nodo/identity":
+            if not self._nodo_local_autorizado():
+                return self._json(403, {"estado": "NO_DATA", "causa": "origen_local_no_autorizado"})
+            if (not isinstance(datos, dict) or set(datos) != {"esquema", "node_id"}
+                    or datos.get("esquema") != _node_building.IDENTITY_SCHEMA):
+                return self._json(422, {"estado": "NO_DATA", "causa": "identidad_local_invalida"})
+            resultado = _node_building.provisionar_identidad(_casa.raiz(), datos.get("node_id"))
+            return self._json(200 if resultado.get("estado") == "provisionada" else 409, resultado)
+        if ruta == "/api/nodo/edificio":
+            if not self._nodo_local_autorizado():
+                return self._json(403, {"estado": "NO_DATA", "causa": "origen_local_no_autorizado"})
+            if (not isinstance(datos, dict) or set(datos) != {"esquema", "confirmar"}
+                    or datos.get("esquema") != "preceptoros.pwa-edificio-accion/1"
+                    or datos.get("confirmar") is not True):
+                return self._json(422, {"estado": "NO_DATA", "causa": "consentimiento_requerido"})
+            credential_file = os.environ.get(_node_building.KEY_FILE_ENV) or None
+            resultado = _node_building.declarar_edificio(
+                _casa.raiz(), key_path=credential_file)
+            codigo = int(resultado.get("http", 202)) if resultado.get("estado") == "recibido" else 503
+            return self._json(codigo, resultado)
         if ruta == "/api/nodo/door1/preview":
             return self._nodo_door1_preview(datos)
         return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
@@ -552,6 +590,24 @@ class PWA(BaseHTTPRequestHandler):
     def _es_loopback(ip):
         try:
             return ipaddress.ip_address(ip).is_loopback
+        except ValueError:
+            return False
+
+    def _nodo_local_autorizado(self):
+        """Protect local identity/credential actions from remote and cross-site calls."""
+        if not self._es_loopback(self.client_address[0]):
+            return False
+        origin = self.headers.get("Origin")
+        host = self.headers.get("Host")
+        if not origin or not host:
+            return False
+        try:
+            from urllib.parse import urlsplit
+            parsed = urlsplit(origin)
+            return (parsed.scheme in ("http", "https") and bool(parsed.hostname)
+                    and not parsed.username and not parsed.password
+                    and not parsed.path and not parsed.query and not parsed.fragment
+                    and parsed.netloc.casefold() == host.casefold())
         except ValueError:
             return False
 

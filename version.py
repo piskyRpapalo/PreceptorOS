@@ -39,6 +39,7 @@ ARMAZON = (
     "interface/consola.css", "interface/consola.js",
     "interface/creation_publish.js",
     "interface/node_registration.js",
+    "interface/node_building.js",
     "interface/face/basic.html", "interface/face/atlantis.html",
     "interface/face/zombie.html", "interface/face/face.js",
     "interface/face/face_hud.js", "interface/face/face.css",

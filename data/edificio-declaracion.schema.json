@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:edificio-declaracion:1",
+  "title": "Fixed node building declaration sent to Aduana",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "edificio"],
+  "properties": {
+    "esquema": {"const": "preceptoros.edificio-declaracion/1"},
+    "edificio": {"const": "observatorio-primer-ancla"}
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:preceptoros:pwa-node-identity:1",
+  "title": "Local PreceptorOS PWA node identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["esquema", "node_id"],
+  "properties": {
+    "esquema": {"const": "preceptoros.pwa-node-identity/1"},
+    "node_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"}
+  }
+}
