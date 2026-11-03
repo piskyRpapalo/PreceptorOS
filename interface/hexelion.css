@@ -7,3 +7,7 @@
 .brand,.eyebrow,.badge{text-transform:uppercase}
 
 #voice-source{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px;font:inherit;font-size:.8rem}#voice-source:focus-visible{outline:3px solid var(--warm);outline-offset:3px}
+
+#install-state{font-size:.75rem;color:var(--muted);line-height:1.7}#install-app{font-size:.75rem}.mast>div{display:flex;align-items:center;gap:10px}.mast .badge{white-space:nowrap}
+
+.mast{flex-wrap:wrap}

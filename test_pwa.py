@@ -1214,3 +1214,16 @@ class TestNativeReadingBoundary(unittest.TestCase):
         with mock.patch.object(PWA._voz_lectura,'synthesize') as synth:
             h._lectura_nativa()
             self.assertEqual(h._json.call_args.args[0],400);synth.assert_not_called()
+
+
+class TestPwaInstallPath(unittest.TestCase):
+    def test_install_lifecycle_and_existing_manifest_identity(self):
+        import subprocess
+        from pathlib import Path
+        root=Path(__file__).resolve().parent
+        result=subprocess.run(['node','--test','tests/install_cases.cjs'],cwd=root,capture_output=True,text=True,timeout=15)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        manifest=json.loads((root/'interface/manifest.json').read_text())
+        self.assertEqual(manifest['id'],'/')
+        self.assertEqual(manifest['scope'],'/')
+        self.assertEqual(manifest['start_url'],'/hexelion.html')

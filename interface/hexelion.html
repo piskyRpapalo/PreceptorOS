@@ -8,6 +8,7 @@
 <link rel="icon" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/hexelion.css">
+<script defer src="/install.js"></script>
 <script defer src="/hexelion.js"></script>
 </head>
 <body>
@@ -19,7 +20,8 @@
   <div class="rail-note"><span class="eyebrow">The door</span><p>Your text stays on the existing local app path. A model answer grants no authority.</p></div>
 </aside>
 <main>
-  <header class="mast"><p class="eyebrow">Session / conversation</p><span class="badge">Local app</span></header>
+  <header class="mast"><p class="eyebrow">Session / conversation</p><div><span class="badge">Local app</span> <button id="install-app" type="button" disabled>Install Hexelion</button></div></header>
+  <p id="install-state" role="status" aria-live="polite">Install eligibility has not been measured.</p>
   <section class="intro" aria-labelledby="title"><p class="eyebrow">A place to continue</p><h1 id="title">Speak. Keep the thread.</h1><p>Hexelion brings the work into one room.<br>Who answered, and what happened, stay visible.</p></section>
   <div class="workspace">
     <section id="conversation" class="conversation" aria-labelledby="conversation-title" tabindex="-1">
