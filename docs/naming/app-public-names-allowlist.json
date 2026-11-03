@@ -66,6 +66,7 @@
     "/hexelion.js": "interface/hexelion.js",
     "/llms.txt": "llms.txt",
     "/manifest.json": "interface/manifest.json",
+    "/native_voice.js": "interface/native_voice.js",
     "/node_building.js": "interface/node_building.js",
     "/node_registration.js": "interface/node_registration.js",
     "/sting.js": "interface/sting.js",
@@ -102,7 +103,8 @@
     "/api/perfil",
     "/api/proyectos",
     "/api/soberano",
-    "/api/voz"
+    "/api/voz",
+    "/api/voz/lectura"
   ],
   "commands": [
     "crear-acceso-directo-android",
@@ -396,6 +398,7 @@
       "Hexelion · Session",
       "Read last answer",
       "Read local thread",
+      "Read using",
       "Send message",
       "Session evidence",
       "Session navigation",
