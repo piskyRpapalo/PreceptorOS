@@ -61,11 +61,13 @@
   $('stop-reading').addEventListener('click', function () {
     if (voice) voice.stop(); $('voice-state').textContent = 'Reading stopped.';
   });
-  doc.addEventListener('focusin', function (e) {
-    if (!e.target.getBoundingClientRect) return;
-    var r = e.target.getBoundingClientRect();
-    $('position').textContent = 'Position: ' + (e.target.getAttribute('aria-label') || e.target.textContent || e.target.id).trim().slice(0, 64) + '; x ' + Math.round(r.x + r.width / 2) + ', y ' + Math.round(r.y + r.height / 2) + ' CSS px.';
-  });
+  function describePosition(target) {
+    if (!target || !target.getBoundingClientRect || target === doc.body) return;
+    var r = target.getBoundingClientRect();
+    $('position').textContent = 'Position: ' + (target.getAttribute('aria-label') || target.textContent || target.id).trim().slice(0, 64) + '; x ' + Math.round(r.x + r.width / 2) + ', y ' + Math.round(r.y + r.height / 2) + ' CSS px.';
+  }
+  doc.addEventListener('focusin', function (e) { describePosition(e.target); });
+  root.addEventListener('resize', function () { describePosition(doc.activeElement); });
   if (['localhost', '127.0.0.1', '[::1]'].includes(root.location.hostname)) {
     $('aula-link').hidden = false; $('aula-state').textContent = 'Separate authenticated aula. Availability is not inferred.';
   }

@@ -34,11 +34,14 @@ const assert = require('node:assert/strict');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile horizontal overflow');
   await page.locator('#refresh').focus();
   assert.match(await page.locator('#position').innerText(),/x \d+, y \d+ CSS px/);
+  await page.setViewportSize({width:800,height:900});
+  await page.waitForFunction(()=>{const r=document.querySelector('#refresh').getBoundingClientRect();return document.querySelector('#position').textContent.includes('x '+Math.round(r.x+r.width/2)+', y '+Math.round(r.y+r.height/2));});
+  await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:process.env.MOBILE_SHOT || '/tmp/hexelion-mobile.png',fullPage:true});
   for(const skin of ['basic','atlantis','zombie']) {
     await page.goto(origin+'/face/'+skin+'.html');
     assert.equal(await page.locator('a[href="/hexelion.html"]').count(),1);
   }
-  console.log(JSON.stringify({kind:'synthetic_browser_checks',checks:['routes','no_external_startup','duplicate_send','dom_injection','attribution','missing_voice','44px','mobile_overflow','focus_coordinate','three_skin_links'],passed:10,physical_phone:'NO_DATA'}));
+  console.log(JSON.stringify({kind:'synthetic_browser_checks',checks:['routes','no_external_startup','duplicate_send','dom_injection','attribution','missing_voice','44px','mobile_overflow','focus_coordinate','resize_coordinate','three_skin_links'],passed:11,physical_phone:'NO_DATA'}));
   await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
