@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 .brand,.eyebrow,.badge{text-transform:uppercase}
+
+#voice-source{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px;font:inherit;font-size:.8rem}#voice-source:focus-visible{outline:3px solid var(--warm);outline-offset:3px}
