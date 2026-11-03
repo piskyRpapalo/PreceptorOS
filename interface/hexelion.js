@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
   var doc = root.document, $ = function (id) { return doc.getElementById(id); };
-  var pending = false, lastAnswer = '', voice = null;
+  var pending = false, lastAnswer = '', voice = null, readGeneration = 0;
   function status(text) { $('connection').textContent = text; }
   function turn(who, text, person) {
     var li = doc.createElement('li'), speaker = doc.createElement('span'), body = doc.createElement('p');
@@ -51,15 +51,17 @@
   });
   $('read-last').addEventListener('click', async function () {
     if (!lastAnswer) return;
+    var generation = ++readGeneration, text = lastAnswer, source = $('voice-source').value;
     try {
       if (!root.HexelionNativeVoice) await import('/native_voice.js');
+      if (generation !== readGeneration) return;
       voice = root.HexelionNativeVoice;
       if (!voice) throw new Error('reader unavailable');
-      voice.read(lastAnswer, doc.documentElement.lang, function (s) { $('voice-state').textContent = s; });
-    } catch (_) { $('voice-state').textContent = 'NO_DATA · local native reader is unavailable.'; }
+      voice.read(text, doc.documentElement.lang, function (s) { if (generation === readGeneration) $('voice-state').textContent = s; }, source);
+    } catch (_) { if (generation === readGeneration) $('voice-state').textContent = 'NO_DATA · local native reader is unavailable.'; }
   });
   $('stop-reading').addEventListener('click', function () {
-    if (voice) voice.stop(); $('voice-state').textContent = 'Reading stopped.';
+    readGeneration++; if (voice) voice.stop(); $('voice-state').textContent = 'Reading stopped.';
   });
   function describePosition(target) {
     if (!target || !target.getBoundingClientRect || target === doc.body) return;
@@ -71,6 +73,6 @@
   if (['localhost', '127.0.0.1', '[::1]'].includes(root.location.hostname)) {
     $('aula-link').hidden = false; $('aula-state').textContent = 'Separate authenticated aula. Availability is not inferred.';
   }
-  root.addEventListener('pagehide', function () { if (voice) voice.stop(); });
+  root.addEventListener('pagehide', function () { readGeneration++; if (voice) voice.stop(); });
   if ('serviceWorker' in root.navigator) root.navigator.serviceWorker.register('/sw.js').catch(function () {});
 })(globalThis);

@@ -1,0 +1,32 @@
+// Real model and native synthesis measurement; no request interception.
+const {chromium}=require('playwright-core');
+const fs=require('node:fs');
+const crypto=require('node:crypto');
+const assert=require('node:assert/strict');
+(async()=>{
+  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,headless:true,args:['--no-sandbox']});
+  const page=await browser.newPage({viewport:{width:1440,height:1000}});
+  const origin=process.env.PREVIEW_ORIGIN||'http://127.0.0.1:18741';
+  await page.goto(origin+'/hexelion.html');
+  await page.locator('#message').fill('Interface voice diagnostic only, not a mission. Reply in one short English sentence confirming this is a local model answer. Do not use tools.');
+  const answer=page.waitForResponse(r=>r.url()===origin+'/api/lab'&&r.request().method()==='POST',{timeout:180000});
+  await page.locator('#send').click();
+  const response=await answer, payload=await response.json(), turn=payload.respuesta;
+  assert.equal(response.status(),200);assert.equal(turn.voz,'orquestador');assert(turn.texto&&Number.isSafeInteger(turn.n));
+  await page.waitForFunction(()=>!document.querySelector('#read-last').disabled);
+  await page.locator('#voice-source').selectOption('host-espeak-ng');
+  const audioResponse=page.waitForResponse(r=>r.url()===origin+'/api/voz/lectura',{timeout:30000});
+  await page.locator('#read-last').click();
+  const audio=await audioResponse;
+  assert.equal(audio.status(),200);
+  const receipt=JSON.parse(audio.headers()['x-voice-receipt']), bytes=await audio.body();
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),receipt.audio_sha256);
+  await page.waitForFunction(()=>document.querySelector('#voice-state').textContent.includes('Software playback ended'),{timeout:60000});
+  const result={kind:'real_local_model_and_native_reading',speaker:turn.voz,channel:turn.canal,sequence:turn.n,model_reply_sha256:crypto.createHash('sha256').update(turn.texto).digest('hex'),reply_bytes:Buffer.byteLength(turn.texto),voice:receipt,browser_audio_ended:true,physical_audibility:'NO_DATA',authenticated_aula:'NO_DATA',tower_attribution:false};
+  fs.writeFileSync('/tmp/hexelion-live-reading-receipt.json',JSON.stringify(result,null,2));
+  fs.writeFileSync('/tmp/hexelion-live-reading.wav',bytes);
+  await page.screenshot({path:'/tmp/hexelion-live-reading-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:'/tmp/hexelion-live-reading-mobile.png',fullPage:true});
+  console.log(JSON.stringify(result));await browser.close();
+})().catch(e=>{console.error(e);process.exit(1);});

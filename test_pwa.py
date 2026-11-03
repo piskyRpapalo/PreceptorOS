@@ -1188,3 +1188,29 @@ class TestHexelionSessionRoutes(unittest.TestCase):
             self.assertEqual(h.send_response.call_args.args[0], 200)
             self.assertIn(marker, h.wfile.getvalue())
             self.assertTrue(any(a.args[0] == 'Content-Type' and a.args[1].startswith(mime) for a in h.send_header.call_args_list))
+
+
+class TestNativeReadingBoundary(unittest.TestCase):
+    def handler(self, headers, client='127.0.0.1'):
+        import io
+        h = PWA.PWA.__new__(PWA.PWA)
+        h.headers, h.client_address = headers, (client, 42)
+        h.rfile, h.wfile = io.BytesIO(b'{}'), io.BytesIO()
+        h._json = mock.Mock()
+        return h
+
+    def test_host_voice_denies_cross_origin_and_remote_clients(self):
+        for headers, client in (({'Origin':'http://other.test','Host':'127.0.0.1:8740'},'127.0.0.1'), ({'Origin':'http://127.0.0.1:8740','Host':'127.0.0.1:8740'},'192.0.2.1'), ({'Host':'127.0.0.1:8740'},'127.0.0.1')):
+            h=self.handler(headers,client)
+            with mock.patch.object(PWA._voz_lectura,'synthesize') as synth:
+                h._lectura_nativa()
+                self.assertEqual(h._json.call_args.args[0],403);synth.assert_not_called()
+
+    def test_duplicate_json_fields_deny_before_synthesis(self):
+        import io
+        body=b'{"text":"first","text":"second","engine":"host-espeak-ng"}'
+        h=self.handler({'Origin':'http://127.0.0.1:8740','Host':'127.0.0.1:8740','Content-Type':'application/json','Content-Length':str(len(body))})
+        h.rfile=io.BytesIO(body)
+        with mock.patch.object(PWA._voz_lectura,'synthesize') as synth:
+            h._lectura_nativa()
+            self.assertEqual(h._json.call_args.args[0],400);synth.assert_not_called()
