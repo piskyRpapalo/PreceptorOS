@@ -46,3 +46,9 @@ nd paths, never the values.
 - The signature gates the MERGE, never the BUILDING. Work never halts for a signature: register the question in the feature document's log, take the lawful default (NO_DATA with cause, honest measurement), and continue.
 - Docs-only PRs merge under the standing ODD FIRMO, cited in the receipt. Pieces of value are signed by the Sovereign per piece and per exact head; batches expire.
 - The Desk's status board (the two readers' harness) lives in odd/STATUS.md of the web repository; read it at the start of a watch cycle.
+## Retiro terminológico · propuesta MESA VIGÍA · 2026-11-03
+
+Por orden comunicada en la sesión MESA VIGÍA (O2), se propone llamar a
+ODD «LA MARCHA». Las referencias anteriores se conservan como historia;
+esta nota no altera por sí misma ningún decreto ni acredita una firma.
+Consulta del libro de firmas: NO_DATA, acceso a GitHub no disponible en esta sesión.
