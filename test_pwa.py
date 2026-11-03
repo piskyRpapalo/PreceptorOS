@@ -840,6 +840,25 @@ class TestHojasActivas(unittest.TestCase):
         self.assertIn('"/dashboard.css?v=58"', sw, "la cache debe usar la URL exacta de la hoja")
         self.assertNotIn("compass.css", sw, "la hoja ornamental apartada no debe seguir en la cache")
 
+    def test_todos_los_scripts_enlazados_resuelven_a_ficheros_servidos(self):
+        # Medido 2026-11-03: app.html pedía /creation_voice.js?v=1 desde 110df84 (2026-10-23) y la tabla no lo
+        # tenía: 404 en cada carga, la voz de creación nunca llegaba. Cada <script src> local tiene handler y fichero.
+        import re
+        from urllib.parse import urlsplit
+
+        interfaz = os.path.join(AQUI, "interface")
+        for nombre in ("dashboard.html", "app.html", "hexelion.html"):
+            html = pathlib.Path(interfaz, nombre).read_text(encoding="utf-8")
+            for src in re.findall(r'<script[^>]+src="([^"]+)"', html):
+                partes = urlsplit(src)
+                if partes.scheme or partes.netloc:
+                    continue
+                with self.subTest(pagina=nombre, ruta=partes.path):
+                    self.assertIn(partes.path, PWA.ESTATICOS, "el script no tiene handler: daría 404")
+                    fichero = PWA.ESTATICOS[partes.path][0]
+                    self.assertTrue(os.path.isfile(os.path.join(interfaz, fichero)),
+                                    f"el handler enlaza a un script ausente: {fichero}")
+
     def test_handler_de_dashboard_css_entrega_la_hoja_minima(self):
         import io
 
