@@ -31,3 +31,45 @@ test('STOP ignores a late host response without creating audio',async()=>{
   reader.read('Synthetic test text','en',()=>{},'host-espeak-ng');
   reader.stop();finish({ok:true});await new Promise(r=>setImmediate(r));assert.equal(created,0);
 });
+// Bugfix 3 (2026-11-03): the Doogee read «no local browser voice» with 0 voices and no cause. Chrome hands an empty
+// list until `voiceschanged`; a device may have no TTS engine at all. Each case now says WHICH NO_DATA it is.
+function setupLate(initial, later, opts={}) {
+  const spoken=[],timers=[];let listener=null,voices=initial;
+  const synth=opts.noSynth?undefined:{getVoices:()=>voices,cancel(){},speak:u=>spoken.push(u),
+    addEventListener:(t,h)=>{if(t==='voiceschanged')listener=h;},removeEventListener:()=>{listener=null;}};
+  const scope={TextEncoder,AbortController,Blob,crypto:require('node:crypto').webcrypto,URL,speechSynthesis:synth,
+    SpeechSynthesisUtterance:function(text){this.text=text;},addEventListener(){},
+    setTimeout:(f,ms)=>{timers.push(f);return timers.length;},clearTimeout:()=>{}};
+  vm.runInNewContext(fs.readFileSync('interface/native_voice.js','utf8'),scope);
+  return {reader:scope.HexelionNativeVoice,spoken,arrive:()=>{voices=later;listener&&listener();},expire:()=>timers.splice(0).forEach(f=>f())};
+}
+test('voices that arrive late (voiceschanged) are waited for and used',()=>{
+  const t=setupLate([],[{localService:true,lang:'en-US'}]);let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');
+  assert.equal(t.spoken.length,0);t.arrive();assert.equal(t.spoken.length,1);assert.match(status,/part 1\/1/);
+});
+test('a device with zero voices says so, with the count and what to do',()=>{
+  const t=setupLate([],[]);let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');t.expire();
+  assert.match(status,/^NO_DATA · this device has no installed voices \(0\)/);assert.equal(t.spoken.length,0);
+});
+test('no speech synthesis at all is its own cause',()=>{
+  const t=setupLate([],[],{noSynth:true});let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');
+  assert.match(status,/^NO_DATA · this browser has no speech synthesis/);
+});
+test('only network voices: said as such, text never leaves',()=>{
+  const t=setupLate([{localService:false,lang:'en-US'}],[]);let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');
+  assert.match(status,/only network voices/);assert.equal(t.spoken.length,0);
+});
+test('local voices in other languages: the count is given',()=>{
+  const t=setupLate([{localService:true,lang:'es-ES'},{localService:true,lang:'fr-FR'}],[]);let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');
+  assert.match(status,/no local voice for en \(2 local voices in other languages\)/);
+});
+test('STOP while waiting for voices: nothing is spoken when they arrive',()=>{
+  const t=setupLate([],[{localService:true,lang:'en-US'}]);
+  t.reader.read('Synthetic test text','en',()=>{},'browser');t.reader.stop();t.arrive();t.expire();
+  assert.equal(t.spoken.length,0);
+});

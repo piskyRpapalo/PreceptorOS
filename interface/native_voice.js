@@ -28,9 +28,35 @@
     try { parts = chunks(text); } catch (_) { notify('NO_DATA · text is outside the reading budget.'); return; }
     var synth = root.speechSynthesis, selected;
     if (engine !== 'host-espeak-ng') {
-      var voices = synth ? synth.getVoices().filter(v => v.localService === true && v.lang.split('-')[0] === language.split('-')[0]) : [];
-      if (!voices.length || !root.SpeechSynthesisUtterance) { notify('NO_DATA · no local browser voice for this language.'); return; }
-      selected = voices[0];
+      if (!synth || !root.SpeechSynthesisUtterance) { notify('NO_DATA · this browser has no speech synthesis.'); return; }
+      var pick = function (all) {
+        var base = language.split('-')[0], local = all.filter(v => v.localService === true);
+        var mine = local.filter(v => v.lang.split('-')[0] === base);
+        if (mine.length) return { voice: mine[0] };
+        if (!all.length) return { cause: 'NO_DATA · this device has no installed voices (0). Install a text-to-speech voice in the system settings.' };
+        if (!local.length) return { cause: 'NO_DATA · only network voices here (' + all.length + '); local reading never sends your text out.' };
+        return { cause: 'NO_DATA · no local voice for ' + base + ' (' + local.length + ' local voices in other languages).' };
+      };
+      var first = synth.getVoices() || [];
+      if (!first.length && synth.addEventListener && root.setTimeout) {
+        // Chrome hands an empty list until `voiceschanged`: wait once, at most 1.5 s, then say which NO_DATA it is.
+        var settled = false, timer = null;
+        var settle = function () {
+          if (settled) return; settled = true;
+          synth.removeEventListener && synth.removeEventListener('voiceschanged', settle);
+          if (timer && root.clearTimeout) root.clearTimeout(timer);
+          if (serial !== run) return;
+          var got = pick(synth.getVoices() || []);
+          if (got.cause) { notify(got.cause); return; }
+          selected = got.voice; next(0);
+        };
+        synth.addEventListener('voiceschanged', settle); timer = root.setTimeout(settle, 1500);
+        notify('Looking for a local browser voice…');
+        return;
+      }
+      var got0 = pick(first);
+      if (got0.cause) { notify(got0.cause); return; }
+      selected = got0.voice;
     }
     async function next(i) {
       if (serial !== run) return;
