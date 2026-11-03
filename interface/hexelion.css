@@ -3,3 +3,5 @@
 @media(max-width:1000px){.shell{grid-template-columns:200px 1fr}.rail{padding:28px 20px}main{padding:28px}.workspace{grid-template-columns:1fr}.context{border-left:0;border-top:1px solid var(--line);padding:24px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:24px}.context section+section{margin-top:0}.intro{margin-top:44px}}
 @media(max-width:600px){.shell{display:block}.rail{padding:18px 20px;border-right:0;border-bottom:1px solid var(--line);gap:20px}.rail nav{display:flex;gap:16px;flex-wrap:wrap}.rail nav a{font-size:.75rem;border:0;padding:6px 0;gap:8px}.rail-note{display:none}main{padding:20px}.intro{margin:36px 0 30px}.intro h1{max-width:300px}.workspace{gap:26px}.context{grid-template-columns:1fr 1fr;gap:20px}.context h2{font-size:1.25rem}.mast{gap:8px}.compose-foot{align-items:flex-start}.compose-foot>span{max-width:120px;line-height:1.6}footer{display:block}#thread{min-height:80px}.section-head{gap:8px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.brand,.eyebrow,.badge{text-transform:uppercase}
