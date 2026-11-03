@@ -64,6 +64,7 @@
     "/hexelion.css": "interface/hexelion.css",
     "/hexelion.html": "interface/hexelion.html",
     "/hexelion.js": "interface/hexelion.js",
+    "/install.js": "interface/install.js",
     "/llms.txt": "llms.txt",
     "/manifest.json": "interface/manifest.json",
     "/native_voice.js": "interface/native_voice.js",
@@ -396,6 +397,7 @@
       "Conversation",
       "Existing app rooms",
       "Hexelion · Session",
+      "Install Hexelion",
       "Read last answer",
       "Read local thread",
       "Read using",
@@ -409,8 +411,8 @@
       "↗"
     ],
     "interface/manifest.json": [
-      "PreceptorOS",
-      "PreceptorOS"
+      "Hexelion",
+      "Hexelion · PreceptorOS"
     ]
   }
 }

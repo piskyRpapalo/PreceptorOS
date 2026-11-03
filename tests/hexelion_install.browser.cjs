@@ -2,9 +2,11 @@
 const {chromium}=require('playwright-core');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const os=require('node:os'),path=require('node:path');
 (async()=>{
-  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,headless:true,args:['--no-sandbox']});
-  const page=await browser.newPage({viewport:{width:390,height:844}});
+  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'hexelion-install-browser-'));
+  const browser=await chromium.launchPersistentContext(profile,{executablePath:process.env.CHROME_PATH,headless:true,args:['--no-sandbox'],viewport:{width:390,height:844}});
+  const page=await browser.newPage();
   await page.addInitScript(()=>{window.nativeInstallEventSeen=false;addEventListener('beforeinstallprompt',()=>window.nativeInstallEventSeen=true);});
   const origin=process.env.PREVIEW_ORIGIN||'http://127.0.0.1:18742';
   await page.goto(origin+'/hexelion.html');
@@ -22,5 +24,5 @@ const fs=require('node:fs');
   const result={kind:'real_browser_install_metadata',secureContext:await page.evaluate(()=>isSecureContext),manifestErrors:manifest.errors,installabilityErrors:diagnostics.installabilityErrors,nativePromptEvent:await page.evaluate(()=>nativeInstallEventSeen),cache,physicalPhoneInstall:'NO_DATA',osInstallation:'NOT_EXECUTED'};
   fs.writeFileSync('/tmp/hexelion-install-browser-receipt.json',JSON.stringify(result,null,2));
   await page.screenshot({path:'/tmp/hexelion-install-mobile.png',fullPage:true});
-  console.log(JSON.stringify(result));await browser.close();
+  console.log(JSON.stringify(result));await browser.close();fs.rmSync(profile,{recursive:true,force:true});
 })().catch(e=>{console.error(e);process.exit(1);});
