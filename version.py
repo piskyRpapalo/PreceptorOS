@@ -30,6 +30,7 @@ AUSENTE = "NO_DATA"
 # viejo. Si algún día `sw.js` cachea otra cosa, esta lista se queda corta y hay
 # que ampliarla — por eso `sw.js` está dentro: al tocarlo, la huella cambia.
 ARMAZON = (
+    "interface/hexelion.html", "interface/hexelion.css", "interface/hexelion.js",
     "interface/dashboard.html", "interface/desnuda.css", "interface/dashboard.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
     "interface/transicion.js",

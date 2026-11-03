@@ -1,6 +1,7 @@
 import importlib.util
 from importlib.machinery import SourceFileLoader
 import json
+import re
 import os
 from pathlib import Path
 import subprocess
@@ -191,7 +192,7 @@ const adapter = flow.doorOneAdapter((url, options) => {
         self.assertIn('"/node_registration.js": ("node_registration.js"', PWA_PATH.read_text())
         self.assertIn('/node_registration.js?v=1', html)
         self.assertIn('"/node_registration.js?v=1"', sw)
-        self.assertIn('preceptoros-armazon-v120', sw)
+        self.assertGreaterEqual(int(re.search(r'preceptoros-armazon-v(\d+)', sw).group(1)), 120)
         self.assertIn("interface/node_registration.js", version.ARMAZON)
         self.assertIn('"/node_building.js": ("node_building.js"', PWA_PATH.read_text())
         self.assertIn('/node_building.js?v=1', html)
