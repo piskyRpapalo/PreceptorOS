@@ -73,3 +73,10 @@ test('STOP while waiting for voices: nothing is spoken when they arrive',()=>{
   t.reader.read('Synthetic test text','en',()=>{},'browser');t.reader.stop();t.arrive();t.expire();
   assert.equal(t.spoken.length,0);
 });
+// Measured on the Doogee (2026-11-03): Chrome for Android tags voices «en_US», with an underscore. 87 local voices,
+// 5 of them English, and the reader saw none: split('-') kept «en_US» whole. BCP 47 says '-'; Android says '_'.
+test('an Android voice tag with an underscore (en_US) is the same language as en',()=>{
+  const t=setupLate([{localService:true,lang:'es_ES'},{localService:true,lang:'en_US'}],[]);let status;
+  t.reader.read('Synthetic test text','en',s=>status=s,'browser');
+  assert.equal(t.spoken.length,1);assert.equal(t.spoken[0].lang,'en_US');assert.match(status,/part 1\/1/);
+});
