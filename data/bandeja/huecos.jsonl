@@ -1,0 +1,15 @@
+{"id":"B1","campo":"cerca hitl_cerco.py","causa":"decide() devuelve bool + sin_firma; 4 estados sin modelar","origen":"app/atlas","estado":"MEASURED","nota":"regex medida 2026-11-03: HITL: <sha40> <slug> <AAAA-MM-DD>"}
+{"id":"B2","campo":"bandeja NO_DATA","causa":"data/ del app solo 7 schemas del 23-oct","origen":"app/data","estado":"PROPOSED","nota":"este PR crea data/bandeja/"}
+{"id":"B3","campo":"babel 6 terminos sin acunar","causa":"Preceptor-Sweep, coverage, the fence, truccion, la marcha, countersign","origen":"babel","estado":"DECLARED"}
+{"id":"B4","campo":"study 12-schema.md cuarteto sin casa","causa":"4 items sin repo asignado","origen":"study","estado":"DECLARED"}
+{"id":"B5","campo":"lab#31 denominador sin existencia","causa":"denominador citado sin medir","origen":"lab","estado":"DECLARED"}
+{"id":"B6","campo":"3 huecos del Soberano","causa":"semilla genesis, firma del st, mapa FIRMO<->chunk","origen":"soberano","estado":"DECLARED"}
+{"id":"B7","campo":"web #618/#619/#620 DIRTY","causa":"J3 #614 movio el sello vs base 592a754a","origen":"web","estado":"MEASURED","nota":"curadas: ab546ca6/cf58da03/90d86886; hitl re-ejecutando tras registro ·6611781028"}
+{"id":"R1","campo":"clon app atrasado","causa":"46 commits de atrasaje","origen":"rack","estado":"CERRADA","nota":"ff a e655f68; luego e371d5fa; hoy cdb575b1"}
+{"id":"R2","campo":"memory.py fugitivo","causa":"se citaba memoria.py; el archivo es memory.py","origen":"app","estado":"CERRADA","nota":"67.633 B, sha256 7662387ab7e5eb3da930da9b625972b2feda8998c46ac38cdf8fa8e399a8327c"}
+{"id":"R3","campo":"radio_message_log.js","causa":"ubicacion NO_DATA","origen":"web","estado":"CERRADA","nota":"vive en public/assets de la web"}
+{"id":"R4","campo":"piece_inspector.js","causa":"find no lo halla","origen":"web","estado":"NO_DATA","causa_no_data":"busqueda sin resultado, por re-medir"}
+{"id":"R5","campo":"3 repos privados inaccesibles al token del rack","causa":"preceptor-internal, cinek-automatico, codice-emancipacion-atomica no en gh repo list","origen":"rack/cofre","estado":"DECLARED"}
+{"id":"R6","campo":"clones duplicados rancios","causa":"web-deploy 2177, preceptoros-coder 1769, deploys 402 atraso","origen":"rack","estado":"PROPOSED","nota":"bandeja doc servida en PR #162 (fundido cdb575b1)"}
+{"id":"R7","campo":"mapa-registro ahead 31","causa":"clon de hexelion-nexo con 31 commits unicos","origen":"rack","estado":"DECLARED"}
+{"id":"R8","campo":"censo ODD app 16 vs 17","causa":"unidades distintas: archivos vs menciones","origen":"app","estado":"DECLARED"}

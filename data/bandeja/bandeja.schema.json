@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "bandeja",
+  "type": "object",
+  "required": [
+    "id",
+    "campo",
+    "causa",
+    "origen",
+    "estado"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[BR][0-9]+$"
+    },
+    "campo": {
+      "type": "string"
+    },
+    "causa": {
+      "type": "string"
+    },
+    "origen": {
+      "type": "string"
+    },
+    "estado": {
+      "enum": [
+        "DECLARED",
+        "PROPOSED",
+        "MEASURED",
+        "NO_DATA",
+        "CERRADA"
+      ]
+    },
+    "nota": {
+      "type": "string"
+    },
+    "causa_no_data": {
+      "type": "string"
+    }
+  }
+}
