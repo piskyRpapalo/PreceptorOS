@@ -249,3 +249,19 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
   position: fixed; inset: 0; z-index: 20; width: 100vw; height: 100vh;
   pointer-events: none;
 }
+
+/* Dial de Mando (2026-11-03). Su hoja se archivó en legacy/ y nada activo pintaba el SVG: sectores y rótulos caían
+   al negro por defecto, ilegibles (medido en el Beelink y el Doogee). Las placas usan los degradados del propio SVG;
+   cada rótulo lleva un halo oscuro bajo su relleno claro, así se lee igual sobre oro, verde, violeta o pizarra. */
+#compass-svg-hueco svg { width: 100%; height: auto; display: block; }
+#compass-svg-hueco .sector { stroke: #5b4720; stroke-width: .8; }
+#compass-svg-hueco .sector.completado { fill: url(#gema-oro); }
+#compass-svg-hueco .sector.en_progreso { fill: url(#gema-verde); }
+#compass-svg-hueco .sector.bloqueado { fill: url(#pizarra); }
+#compass-svg-hueco .sector.activo { fill: url(#gema-violeta); }
+#compass-svg-hueco .sector.no_medible { fill: url(#pizarra); opacity: .45; stroke: var(--ink-soft); stroke-dasharray: 3 2.5; }
+#compass-svg-hueco .etiqueta, #compass-svg-hueco .simbolo {
+  fill: #f4e6c4; stroke: #16181d; stroke-width: 2px; paint-order: stroke fill; stroke-linejoin: round;
+  font-family: Georgia, "Times New Roman", serif; pointer-events: none;
+}
+#compass-svg-hueco .etiqueta { font-size: 8.5px; }
