@@ -8,6 +8,7 @@
     "/consola.css": "interface/consola.css",
     "/consola.js": "interface/consola.js",
     "/creation_publish.js": "interface/creation_publish.js",
+    "/creation_voice.js": "interface/creation_voice.js",
     "/dashboard.css": "interface/desnuda.css",
     "/dashboard.html": "interface/dashboard.html",
     "/dashboard.js": "interface/dashboard.js",
