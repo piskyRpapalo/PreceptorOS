@@ -30,8 +30,8 @@
     if (engine !== 'host-espeak-ng') {
       if (!synth || !root.SpeechSynthesisUtterance) { notify('NO_DATA · this browser has no speech synthesis.'); return; }
       var pick = function (all) {
-        var base = language.split('-')[0], local = all.filter(v => v.localService === true);
-        var mine = local.filter(v => v.lang.split('-')[0] === base);
+        var base = language.split(/[-_]/)[0].toLowerCase(), local = all.filter(v => v.localService === true);
+        var mine = local.filter(v => String(v.lang).split(/[-_]/)[0].toLowerCase() === base);
         if (mine.length) return { voice: mine[0] };
         if (!all.length) return { cause: 'NO_DATA · this device has no installed voices (0). Install a text-to-speech voice in the system settings.' };
         if (!local.length) return { cause: 'NO_DATA · only network voices here (' + all.length + '); local reading never sends your text out.' };
@@ -69,7 +69,7 @@
         notify('Reading visible text · local browser voice · part ' + (i + 1) + '/' + parts.length + '.');
         synth.speak(utterance); return;
       }
-      if (language.split('-')[0] !== 'en') { notify('NO_DATA · host reader currently supports English only.'); return; }
+      if (language.split(/[-_]/)[0].toLowerCase() !== 'en') { notify('NO_DATA · host reader currently supports English only.'); return; }
       try {
         abort = new AbortController();
         var response = await root.fetch('/api/voz/lectura', {method:'POST',cache:'no-store',redirect:'error',signal:abort.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({text:parts[i],engine:'host-espeak-ng'})});
