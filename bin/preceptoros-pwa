@@ -228,6 +228,9 @@ def _cerebro_paquete(modelo):
 
 
 ESTATICOS = {
+    "/hexelion.html": ("hexelion.html", "text/html; charset=utf-8"),
+    "/hexelion.css": ("hexelion.css", "text/css; charset=utf-8"),
+    "/hexelion.js": ("hexelion.js", "application/javascript; charset=utf-8"),
     # La puerta es la cara nueva (NORTE 5, 2026-10-24): chat + joystick, la
     # misma que la web, en `interface/face/`. El tablero sigue en
     # /dashboard.html porque el chat con modelo, la voz y la consola viven ahi;

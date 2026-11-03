@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101e24">
+<title>Hexelion · Session</title>
+<link rel="icon" href="/assets/icono-192.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/hexelion.css">
+<script defer src="/hexelion.js"></script>
+</head>
+<body>
+<a class="skip" href="#conversation">Skip to conversation</a>
+<div class="shell">
+<aside class="rail" aria-label="Session navigation">
+  <a class="brand" href="/hexelion.html"><span class="sigil" aria-hidden="true">H</span><span>HEXELION<small>One session. Every voice attributed.</small></span></a>
+  <nav aria-label="Existing app rooms"><a href="/">Living map <span>↗</span></a><a href="/app.html">App rooms <span>↗</span></a><a href="/dashboard.html">Local dashboard <span>↗</span></a></nav>
+  <div class="rail-note"><span class="eyebrow">THE DOOR</span><p>Your text stays on the existing local app path. A model answer grants no authority.</p></div>
+</aside>
+<main>
+  <header class="mast"><p class="eyebrow">SESSION / CONVERSATION</p><span class="badge">LOCAL APP</span></header>
+  <section class="intro" aria-labelledby="title"><p class="eyebrow">A PLACE TO CONTINUE</p><h1 id="title">Speak. Keep the thread.</h1><p>Hexelion brings the work into one room.<br>Who answered, and what happened, stay visible.</p></section>
+  <div class="workspace">
+    <section id="conversation" class="conversation" aria-labelledby="conversation-title" tabindex="-1">
+      <div class="section-head"><h2 id="conversation-title">Conversation</h2><button id="refresh" type="button">Read local thread</button></div>
+      <p id="connection" role="status" aria-live="polite">Not read yet. Choose Read local thread or send a message.</p>
+      <ol id="thread" aria-label="Attributed conversation" aria-live="polite"></ol>
+      <form id="message-form"><label for="message">Your message to the local orchestrator</label><textarea id="message" name="message" rows="3" maxlength="4000" required placeholder="What shall we work on?"></textarea><div class="compose-foot"><span>Local pipe model · explicit send</span><button type="submit" id="send">Send message <span aria-hidden="true">↗</span></button></div></form>
+    </section>
+    <aside class="context" aria-label="Session evidence">
+      <section><p class="eyebrow">THE VOICE</p><h2>Attribution comes first.</h2><p>The app's local orchestrator answers here. Tower and aula answers are not implied.</p><button id="read-last" type="button" disabled>Read last answer</button><button id="stop-reading" type="button">Stop reading</button><p id="voice-state" role="status" aria-live="polite">NO_DATA · native voice not measured.</p></section>
+      <section><p class="eyebrow">THE RECEIPT</p><output id="receipt">No request sent in this page.</output></section>
+      <section><p class="eyebrow">THE AULA</p><a id="aula-link" hidden href="http://127.0.0.1:8080/" rel="noreferrer">Open aula on this device ↗</a><p id="aula-state">NO_DATA · this browser's route to the aula is not configured.</p></section>
+    </aside>
+  </div>
+  <footer><p id="position" role="status">Position: session / conversation.</p><span>Human STOP always comes first.</span></footer>
+</main>
+</div>
+</body>
+</html>

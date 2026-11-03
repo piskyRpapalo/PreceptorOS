@@ -1108,7 +1108,7 @@ class ExportacionNodoContracto(unittest.TestCase):
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
         self.assertIn('"/node_building.js?v=1"', sw)
-        self.assertIn('preceptoros-armazon-v120', sw)
+        self.assertGreaterEqual(int(__import__('re').search(r'preceptoros-armazon-v(\d+)', sw).group(1)), 121)
         self.assertIn('if ruta == "/api/creaciones"', server)
         self.assertIn('/creation_publish.js?v=1', html)
 
@@ -1171,3 +1171,20 @@ class PwaNodeBuildingBoundary(unittest.TestCase):
                 status, no_key = request({"esquema": "preceptoros.pwa-edificio-accion/1", "confirmar": True})
             self.assertEqual(status, 503)
             self.assertEqual(no_key["causa"], "credencial_no_provisionada")
+
+
+class TestHexelionSessionRoutes(unittest.TestCase):
+    def test_session_assets_are_served_with_their_declared_content_type(self):
+        import io
+        for path, marker, mime in (
+            ('/hexelion.html', b'Hexelion', 'text/html'),
+            ('/hexelion.js', b'/api/lab', 'application/javascript'),
+            ('/hexelion.css', b'44px', 'text/css'),
+        ):
+            h = PWA.PWA.__new__(PWA.PWA)
+            h.path, h.headers, h.wfile = path, {}, io.BytesIO()
+            h.send_response, h.send_header, h.end_headers = mock.Mock(), mock.Mock(), mock.Mock()
+            PWA.PWA.do_GET(h)
+            self.assertEqual(h.send_response.call_args.args[0], 200)
+            self.assertIn(marker, h.wfile.getvalue())
+            self.assertTrue(any(a.args[0] == 'Content-Type' and a.args[1].startswith(mime) for a in h.send_header.call_args_list))

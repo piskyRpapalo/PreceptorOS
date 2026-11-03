@@ -3,7 +3,7 @@
 ## Explore · plan before code
 
 Authority: Sovereign FIRMA in buzon#30 comment 6592198560, 2026-11-03;
-fir­mas book and DECISIONES_MAIN consulted. Reading scope: PWA static routes,
+firmas book and DECISIONES_MAIN consulted. Reading scope: PWA static routes,
 HTML, conversation handler, SW/version, native voice and install entry points.
 Baseline app main c32e88f9; live checkout is older 0900d858. This is a proposal,
 not a deployment. No service, credential, aula setting or phone installation.
