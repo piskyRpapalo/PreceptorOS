@@ -44,8 +44,8 @@ The result belongs to you and never leaves the machine unless you send it.
 The second half is quieter and matters more. Everything you tell it goes into
 a **local database** on your own disk — plain files you can open with any text
 editor. Over weeks that becomes a record of what you were working on, what you
-kept getting wrong, and what you already solved. The application reads it back
-  to you when it is relevant.
+you kept getting wrong, and what you already solved. The application reads it back
+to you when it is relevant.
 
 This is the part that is normally sold as a subscription and stored on someone
 else's server. Here it is a folder.
@@ -196,8 +196,8 @@ the vocabulary.
     bin/pruebas
 
 The suite is large on purpose. Anything that reports a number is checked
-against the case where the number is missing, because a meter that invents
-a reading is worse than no meter.
+against the case where the number is missing, because a meter that invents a
+reading is worse than no meter.
 
 ## A note on names
 
