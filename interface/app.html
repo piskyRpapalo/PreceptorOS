@@ -217,6 +217,9 @@
     </section>
   </section>
 
+<section aria-labelledby="tray-heading"><h2 id="tray-heading">Bandeja</h2>
+<button type="button" id="tray-read">Leer bandeja local</button>
+<pre id="tray-result" role="status" aria-live="polite">Sin consultar.</pre></section>
 </main>
 
 <p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Zona activa: Mando.</p>
@@ -230,5 +233,13 @@
 <script src="/node_building.js?v=1"></script>
 <script src="/node_registration.js?v=1"></script>
 <script>PreceptorNodeRegistration.mount(document);</script>
+<script>
+document.getElementById('tray-read').addEventListener('click', async function () {
+  const out = document.getElementById('tray-result');
+  try { const r = await fetch('/api/bandeja', {cache:'no-store'}); const data = await r.json();
+    out.textContent = r.ok ? JSON.stringify(data, null, 2) : 'NO_DATA: lectura no autorizada';
+  } catch (_) { out.textContent = 'NO_DATA: bandeja local no disponible'; }
+});
+</script>
 </body>
 </html>

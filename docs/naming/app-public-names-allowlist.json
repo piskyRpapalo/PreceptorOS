@@ -78,6 +78,7 @@
   },
   "api_routes": [
     "/api/anidar",
+    "/api/bandeja",
     "/api/camino",
     "/api/canales",
     "/api/captura",
@@ -129,6 +130,7 @@
     "interface/app.html": [
       "Ajustes",
       "Anidar esto en tu memoria",
+      "Bandeja",
       "Canales recientes",
       "Canonical pending credential preview",
       "Confirmo que quiero declarar el edificio ya asignado al nodo configurado. Se enviará una petición a Aduana.",
@@ -157,6 +159,7 @@
       "Identidad local y edificio del nodo",
       "Ir a la portada",
       "Lab",
+      "Leer bandeja local",
       "Leer identidad local",
       "Llave de entrada",
       "Lo que dices",

@@ -44,6 +44,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 AQUI = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, AQUI)
 
+import bandeja_lectura as _bandeja
 import medidas as MED
 import metricas as MET
 
@@ -316,7 +317,7 @@ class PWA(BaseHTTPRequestHandler):
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(crudo)))
-        if self.path.split("?")[0].startswith("/api/nodo/"):
+        if self.path.split("?")[0].startswith("/api/nodo/") or self.path.split("?")[0] == "/api/bandeja":
             self.send_header("Cache-Control", "no-store")
         if (self.path.split("?")[0] == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -400,6 +401,14 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta == "/api/bandeja":
+            origin = self.headers.get("Origin")
+            site = self.headers.get("Sec-Fetch-Site")
+            host = self.headers.get("Host", "")
+            local_host = host in ("localhost:" + str(self.server.server_port), "127.0.0.1:" + str(self.server.server_port), "[::1]:" + str(self.server.server_port))
+            if not self._es_loopback(self.client_address[0]) or not local_host or not (self._nodo_local_autorizado() if origin else site == "same-origin"):
+                return self._json(403, {"estado": "NO_DATA", "causa": "origen_local_no_autorizado"})
+            return self._json(200, _bandeja.leer(AQUI))
         if ruta == "/api/nodo/identity":
             identidad = _node_building.leer_identidad(_casa.raiz())
             return self._json(200 if identidad.get("estado") == "configurada" else 404, identidad)
