@@ -63,6 +63,7 @@ import voz as _voz                                        # noqa: E402
 import consola as _consola                                  # noqa: E402
 import decisor as _decisor                                  # noqa: E402
 import canales as _canales                                  # noqa: E402
+import memory_lookup as _memory_lookup
 import lab as _lab                                          # noqa: E402
 import nodo_export as _nodo_export                         # noqa: E402
 import node_registration as _node_registration              # noqa: E402
@@ -303,7 +304,7 @@ class PWA(BaseHTTPRequestHandler):
     server_version = "preceptoros-pwa"
 
     def _json(self, codigo, cuerpo):
-        if self.path.split("?")[0] == "/api/orquestador":
+        if self.path.split("?")[0] in ("/api/orquestador", "/api/hexelion/search", "/api/hexelion/decision"):
             try:
                 crudo = _estado_compacto.serializar_objeto(cuerpo)
             except ValueError:
@@ -536,6 +537,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._creacion_publicar()
         if ruta == "/api/creaciones/voz":
             return self._creacion_voz()
+        if ruta in ("/api/hexelion/search", "/api/hexelion/decision"):
+            return self._hexelion_consulta(ruta)
         if ruta == "/api/orquestador":
             return self._orquestador()
         datos = self._leer()
@@ -800,6 +803,39 @@ class PWA(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(raw)
+
+    def _hexelion_consulta(self, ruta):
+        """Explicit same-origin local lookup; optional advice never executes actions."""
+        if not self._nodo_local_autorizado():
+            return self._json(403, _memory_lookup.unavailable("local_origin_required"))
+        if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+            return self._json(415, _memory_lookup.unavailable("json_required"))
+        try:
+            size = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            size = 0
+        if not 0 < size < 1024:
+            self.close_connection = True
+            return self._json(413, _memory_lookup.unavailable("request_too_large"))
+        raw = self.rfile.read(size)
+        try:
+            def unique(items):
+                value = {}
+                for key, item in items:
+                    if key in value:
+                        raise ValueError("duplicate")
+                    value[key] = item
+                return value
+            data = json.loads(raw.decode("utf-8"), object_pairs_hook=unique)
+            if len(raw) != size or type(data) is not dict or set(data) != {"consulta"}:
+                raise ValueError("shape")
+        except (UnicodeError, ValueError):
+            return self._json(400, _memory_lookup.unavailable("request_invalid"))
+        evidence = _memory_lookup.buscar(data["consulta"], self.server.ruta_db)
+        if ruta == "/api/hexelion/decision":
+            from hexelion_decision import decidir
+            evidence = decidir(data["consulta"], evidence)
+        return self._json(200, evidence)
 
     def _orquestador(self):
         """Local signed-verb contract: bounded bytes, no writes or network."""
