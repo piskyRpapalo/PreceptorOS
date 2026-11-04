@@ -10,7 +10,7 @@
     if (!person) { lastAnswer = who + '. ' + text; $('read-last').disabled = false; }
   }
   function responseTurn(reply) {
-    if (!reply || reply.estado === 'NO_DATA' || typeof reply.texto !== 'string' || !reply.texto.trim() || typeof reply.voz !== 'string') {
+    if (!reply || reply.estado === 'NO_DATA' || typeof reply.texto !== 'string' || !reply.texto.trim() || typeof reply.voz !== 'string' || !reply.voz.trim()) {
       throw new Error('No attributed model answer was returned');
     }
     turn(reply.voz + ' · local app', reply.texto, false);
