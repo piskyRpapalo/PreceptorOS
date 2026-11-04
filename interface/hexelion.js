@@ -49,6 +49,51 @@
       $('receipt').textContent = 'UNKNOWN · request was dispatched, result not confirmed. Check the local thread before sending again.';
     } finally { pending = false; $('send').disabled = false; $('refresh').disabled = false; }
   });
+  var memoryPending = false;
+  function validSource(source) {
+    return source && Number.isSafeInteger(source.id) && source.id > 0 &&
+      typeof source.updated_at === 'string' && source.updated_at.trim() &&
+      typeof source.sha256 === 'string' && /^[a-f0-9]{64}$/.test(source.sha256) &&
+      typeof source.texto === 'string' && source.texto.trim();
+  }
+  function showSources(sources) {
+    $('memory-results').replaceChildren();
+    sources.forEach(function (source) {
+      var row = doc.createElement('li'), citation = doc.createElement('p'), text = doc.createElement('p');
+      citation.textContent = 'Memory #' + source.id + ' · ' + source.updated_at + ' · SHA-256 ' + source.sha256;
+      text.textContent = source.texto; text.className = 'turn-text';
+      row.append(citation, text); $('memory-results').append(row);
+    });
+  }
+  async function memoryRequest(path) {
+    var query = $('memory-query').value.trim();
+    if (memoryPending || !query || query.length > 600) return null;
+    memoryPending = true; $('memory-search').disabled = true; $('memory-decision').disabled = true;
+    try {
+      var response = await root.fetch(path, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consulta: query }) });
+      var raw = await response.text();
+      if (new TextEncoder().encode(raw).length >= 1024) throw new Error('Response exceeds the byte limit');
+      var data = JSON.parse(raw);
+      if (!response.ok || !data || typeof data !== 'object') throw new Error('Local request denied');
+      return data;
+    } finally { memoryPending = false; $('memory-search').disabled = false; $('memory-decision').disabled = false; }
+  }
+  $('memory-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (memoryPending || !$('memory-query').value.trim()) return;
+    $('memory-status').textContent = 'Searching local memory…'; showSources([]);
+    try {
+      var data = await memoryRequest('/api/hexelion/search');
+      if (!data || data.esquema !== 'preceptoros.memory-search/1') throw new Error('Invalid search response');
+      if (data.estado === 'NO_DATA' && typeof data.causa === 'string' && data.causa.trim()) {
+        $('memory-status').textContent = 'NO_DATA · ' + data.causa; return;
+      }
+      if (data.estado !== 'MEASURED' || !Array.isArray(data.fuentes) || !data.fuentes.length ||
+          !data.fuentes.every(validSource) || !Number.isSafeInteger(data.fuera) || data.fuera < 0 || typeof data.completo !== 'boolean') throw new Error('Invalid source metadata');
+      showSources(data.fuentes);
+      $('memory-status').textContent = data.fuentes.length + ' local source(s). ' + (data.completo ? 'Complete within this search.' : 'Partial results: ' + data.fuera + ' outside the budget.') + ' No model called.';
+    } catch (_) { $('memory-status').textContent = 'NO_DATA · local memory search could not be verified.'; showSources([]); }
+  });
   $('read-last').addEventListener('click', async function () {
     if (!lastAnswer) return;
     var generation = ++readGeneration, text = lastAnswer, source = $('voice-source').value;

@@ -29,6 +29,15 @@
       <p id="connection" role="status" aria-live="polite">Not read yet. Choose Read local thread or send a message.</p>
       <ol id="thread" aria-label="Attributed conversation" aria-live="polite"></ol>
       <form id="message-form"><label for="message">Your message to the local orchestrator</label><textarea id="message" name="message" rows="3" maxlength="4000" required placeholder="What shall we work on?"></textarea><div class="compose-foot"><span>Local pipe model · explicit send</span><button type="submit" id="send">Send message <span aria-hidden="true">↗</span></button></div></form>
+      <section aria-labelledby="memory-title">
+        <h2 id="memory-title">Find a memory</h2>
+        <p>Search saved fragments before asking the model. Results keep their source.</p>
+        <form id="memory-form"><label for="memory-query">Search your local memory</label><textarea id="memory-query" rows="2" maxlength="600" required></textarea><div class="compose-foot"><button id="memory-search" type="submit">Quick search</button><button id="memory-decision" type="button">Ask Hexelion for a decision</button></div></form>
+        <p id="memory-status" role="status" aria-live="polite">No search sent. Quick search does not call a model.</p>
+        <ol id="memory-results" aria-label="Memory sources"></ol>
+        <p id="decision-status" role="status" aria-live="polite">No decision requested. Proposals do not execute actions.</p>
+        <output id="decision-result"></output>
+      </section>
     </section>
     <aside class="context" aria-label="Session evidence">
       <section><p class="eyebrow">The voice</p><h2>Attribution comes first.</h2><p>The app's local orchestrator answers here. Tower and aula answers are not implied.</p><label for="voice-source">Read using</label><select id="voice-source"><option value="browser">Local browser voice</option><option value="host-espeak-ng">App host · espeak-ng (English)</option></select><button id="read-last" type="button" disabled>Read last answer</button><button id="stop-reading" type="button">Stop reading</button><p id="voice-state" role="status" aria-live="polite">NO_DATA · native voice not measured.</p></section>
