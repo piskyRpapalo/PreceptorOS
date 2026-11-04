@@ -196,8 +196,8 @@ the vocabulary.
     bin/pruebas
 
 The suite is large on purpose. Anything that reports a number is checked
-against the case where the number is missing, because a meter that invents
-a reading is worse than no meter.
+against the case where the number is missing, because a meter that invents a
+reading is worse than no meter.
 
 ## A note on names
 
