@@ -105,6 +105,14 @@ stays in one head is knowledge that dies there, and most of the barrier to
 running your own AI is not intelligence — it is vocabulary, and vocabulary is
 the cheapest thing in the world to give away.
 
+## The floor is hexagons
+
+Everything this ecosystem builds — the web, this application, the doors — is
+being built on one hexagonal floor: the same cells, the same light, the same
+law (`preceptoros.floor/1`). A chunk of the map is a hexagon; a hexagon is a
+signed frame under 1,024 bytes; nothing floats without a tube down to the
+floor.
+
 ## Where this is going
 
 Two goals, stated plainly so anyone — or anything — reading this repository
@@ -195,10 +203,15 @@ reading is worse than no meter.
 
 The product is **PreceptorOS**. You will still meet the older internal name
 **preceptoros** in a few technical places: environment variables that start with
-`PRECEPTOROS_` and the data folder `~/.preceptoros`, which is a link to
-`~/.preceptoros`. They are legacy names, kept on purpose so that nothing
-already running breaks. They will move only with a migration that keeps both
-names working, never with a blind rename.
+`PRECEPTOROS_` and the data folder `~/.preceptoros` — a real directory on your
+own disk that holds the memory, the measurements and the runs. It is not a
+link (measured 2026-11-04). They are legacy names, kept on purpose so that
+nothing already running breaks. They will move only with a migration that
+keeps both names working, never with a blind rename.
+
+**This repository is the APP.** The companion is a separate repository
+([preceptoros-companion](https://github.com/piskyRpapalo/preceptoros-companion))
+and describes itself in its own README. This README covers the meter only.
 
 ## Licence
 
