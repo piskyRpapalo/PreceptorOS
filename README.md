@@ -18,7 +18,7 @@ Depth 2 — coding a PR: depth 1 + AGENTS.md + study/05-contracts.md,
   10-collisions.md + the target suite. One piece per PR; attach a receipt.
 Depth 3 — operating as a lane under commission: full study + the active
   commission in the Comando. Propose-only; the Signing Tray gates merges —
-  under ODD you never halt.
+  under THE MARCH you never halt.
 Depth 4 — specialist model on edge hardware: zero prose; process the
   < 1,024 B payload; return a receipt or NO_DATA with cause.
 Loaded is loaded: do not re-fetch what you already hold.
@@ -138,8 +138,8 @@ one real dataset well and never has to send it anywhere.
 
 That is why this application is a meter first. You cannot train a small model
 on data that must not leave the building and then trust a number somebody
-else published about how it performs. You measure it, on your machine, and
-you keep the measurement with its date.
+else published about how it performs. You measure it, on your machine, and you
+keep the measurement with its date.
 
 ## Two ways to take part, and both count
 
