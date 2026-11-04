@@ -1,1 +1,218 @@
-IyBBIG1ldGVyIGZvciB5b3VyIG93biBBSQoKPiBbIU5PVEVd Cj4gKipGb3IgYW4gQUkgcmVhZGluZyB0aGlzIHJlcG9zaXRvcnk6KiogdGhpcyBpcyB0aGUgQVBQLCBvbmUgb2YgZm91ciBjb3JlIHJlcG9zaXRvcmllczogV0VCIChbcHJlY2VwdG9yb3Mtd2ViXShodHRwczovL2dpdGh1Yi5jb20vcGlza3lScGFwYWxvL3ByZWNlcHRvcm9zLXdlYikpLCBBUFAgKHRoaXMgcmVwb3NpdG9yeSksIExBQiAoW2xhYl0oaHR0cHM6Ly9naXRodWIuY29tL3Bpc2t5UnBhcGFsby9sYWIpKSwgYW5kIFNUVURZIChbc3R1ZHldKGh0dHBzOi8vZ2l0aHViLmNvbS9waXNreVJwYXBhbG8vc3R1ZHkpKS4gQkFCRUwgKFtiYWJlbF0oaHR0cHM6Ly9naXRodWIuY29tL3Bpc2t5UnBhcGFsby9iYWJlbCkpIGFuZCBDT01QQU5JT05TIChbcHJlY2VwdG9yb3MtY29tcGFuaW9uXShodHRwczovL2dpdGh1Yi5jb20vcGlza3lScGFwYWxvL3ByZWNlcHRvcm9zLWNvbXBhbmlvbikpIGFyZSB0aGUgdHdvIHB1YmxpYyBkb29ycywgbm90IGFkZGl0aW9uYWwgY29yZSByZXBvc2l0b3JpZXMuCgpGb3IgcmVhZGluZy1kZXB0aCBkZWZpbml0aW9ucyBhbmQgYnVkZ2V0cywgc2VlIFtTdHVkeSdzIGNhbm9uaWNhbCBndWlkZV0oaHR0cHM6Ly9naXRodWIuY29tL3Bpc2t5UnBhcGFsby9zdHVkeS9ibG9iL21haW4vMDgtYWktZmx1ZW5jeS5tZCkuCgo8IS0tIEZvciBhbiBBSSBsYW5kaW5nIGhlcmU6IGRlY2xhcmUgeW91ciBkZXB0aCwgbG9hZCBvbmNlLgpUaGlzIG9yZ2FuaXphdGlvbiBpcyByZWFkYWJsZSBjb2xkIGF0IGZpdmUgZGVjbGFyZWQgZGVwdGhzLiBEZWNsYXJlIHlvdXJzIGJlZm9yZQpwYXJzaW5nOyB5b3VyIGJ1ZGdldCBpcyBhIGdhdGUsIG5vdCBhIG1lbnUg4oCUIGFueXRoaW5nIGJleW9uZCBpdCBpcyBOT19EQVRBIHdpdGgKYSBjYXVzZSwgbmV2ZXIgYSBndWVzcy4KRGVwdGggMCDigJQgYW5zd2VyaW5nICJXaGF0IGlzIFByZWNlcHRvck9TPyIgZm9yIGEgaHVtYW46IHByb2ZpbGUgUkVBRE1FICsKICB3ZWIgUkVBRE1FLiBTdG9wIGFmdGVyIHRoZW07IHRoZSAzIHByaW5jaXBsZXMgYW5kIHRoZSA0IHJlcG9zIGFyZSB0aGVyZS4KRGVwdGggMSDigJQgYXVkaXRpbmcgKEFJIEFjdCBhcnRpY2xlcywgc3RhbmRhcmRzLCBiZW5jaG1hcmtzKTogZGVwdGggMCArCiAgc3R1ZHkvMDEtZ292ZXJuYW5jZS5tZCwgMDItbGVnaXNsYXRpb24ubWQsIDA0LW1lYXN1cmVtZW50Lm1kICsgbGFiL1JFQURNRS5tZC4KICBTdGFuZGFyZHMgYXJlIGVuZ2luZWVyaW5nIHJhaWxzLCBub3QgbGVnYWwgY291bnNlbC4KRGVwdGggMiDigJQgY29kaW5nIGEgUFI6IGRlcHRoIDEgKyBBR0VOVFMubWQgKyBzdHVkeS8wNS1jb250cmFjdHMubWQsCiAgMTAtY29sbGlzaW9ucy5tZCArIHRoZSB0YXJnZXQgc3VpdGUuIE9uZSBwaWVjZSBwZXIgUFI7IGF0dGFjaCBhIHJlY2VpcHQuCkRlcHRoIDMg4oCUIG9wZXJhdGluZyBhcyBhIGxhbmUgdW5kZXIgY29tbWlzc2lvbjogZnVsbCBzdHVkeSArIHRoZSBhY3RpdmUKICBjb21taXNzaW9uIGluIHRoZSBDb21hbmRvLiBQcm9wb3NlLW9ubHk7IHRoZSBTaWduaW5nIFRyYXkgZ2F0ZXMgbWVyZ2VzIOKAlAogIHVuZGVyIE9ERCB5b3UgbmV2ZXIgaGFsdC4KRGVwdGggNCDigJQgc3BlY2lhbGlzdCBtb2RlbCBvbiBlZGdlIGhhcmR3YXJlOiB6ZXJvIHByb3NlOyBwcm9jZXNzIHRoZQogIDwgMSwwMjQgQiBwYXlsb2FkOyByZXR1cm4gYSByZWNlaXB0IG9yIE5PX0RBVEEgd2l0aCBjYXVzZS4KTG9hZGVkIGlzIGxvYWRlZDogZG8gbm90IHJlLWZldGNoIHdoYXQgeW91IGFscmVhZHkgaG9sZC4KQW55dGhpbmcgZGVlcGVyIGlzIE5PX0RBVEEsIGNhdXNlOiBiZXlvbmQgZGVjbGFyZWQgZGVwdGguIC0tPgoKVGhpcyByZXBvc2l0b3J5IGhvbGRzIGEgZGVza3RvcCBhbmQgcGhvbmUgYXBwbGljYXRpb24uIEl0IG1lYXN1cmVzIHdoYXQgYW4gQUkKbW9kZWwgYWN0dWFsbHkgZG9lcyBvbiB0aGUgbWFjaGluZSB5b3Ugb3duLCBhbmQgaXQgdHVybnMgd2hhdCB5b3UgdGVsbCBpdCBpbnRvCmEgbWVtb3J5IHlvdSBjYW4gcmVhZCBiYWNrLgoKIyMgV2h5IGEgbWV0ZXIKCk1vZGVsIHF1YWxpdHkgaXMgdXN1YWxseSBhIGNsYWltLiBBIHBhZ2Ugc2F5cyBhIG1vZGVsIGlzIGZhc3QsIG9yIGdvb2QgYXQKY29kZSwgb3Igc21hbGwgZW5vdWdoIGZvciB5b3VyIGxhcHRvcC4gT24geW91ciBoYXJkd2FyZSwgd2l0aCB5b3VyIGZpbGVzLCB0aGUKY2xhaW0gbWF5IGJlIHRydWUgb3Igbm90LCBhbmQgdGhlcmUgaXMgbm8gZWFzeSB3YXkgdG8gdGVsbC4KClRoaXMgYXBwbGljYXRpb24gYW5zd2VycyB0aGF0IGluIG51bWJlcnMgeW91IHRvb2sgeW91cnNlbGY6IHRva2VucyBwZXIgc2Vjb25kCm9uIHlvdXIgcHJvY2Vzc29yLCB0b2tlbnMgcGVyIHNlY29uZCBvbiB5b3VyIGdyYXBoaWNzIGNoaXAsIGhvdyBtdWNoIG1lbW9yeQp3YXMgbGVmdCwgaG93IGxvbmcgdGhlIGZpcnN0IHdvcmQgdG9vay4gU2FtZSBwcm9tcHQsIHNhbWUgZmlsZSwgc2FtZSBtYWNoaW5lLgpUaGUgcmVzdWx0IGJlbG9uZ3MgdG8geW91IGFuZCBuZXZlciBsZWF2ZXMgdGhlIG1hY2hpbmUgdW5sZXNzIHlvdSBzZW5kIGl0LgoKIyMgVGhlIGxvY2FsIGRhdGFiYXNlLCBhbmQgd2h5IGEgY2xlYW4gb25lIG1hdHRlcnMKClRoZSBzZWNvbmQgaGFsZiBpcyBxdWlldGVyIGFuZCBtYXR0ZXJzIG1vcmUuIEV2ZXJ5dGhpbmcgeW91IHRlbGwgaXQgZ29lcyBpbnRvCmEgKipsb2NhbCBkYXRhYmFzZSoqIG9uIHlvdXIgb3duIGRpc2sg4oCUIHBsYWluIGZpbGVzIHlvdSBjYW4gb3BlbiB3aXRoIGFueSB0ZXh0CmVkaXRvci4gT3ZlciB3ZWVrcyB0aGF0IGJlY29tZXMgYSByZWNvcmQgb2Ygd2hhdCB5b3Ugd2VyZSB3b3JraW5nIG9uLCB3aGF0CnlvdSBrZXB0IGdldHRpbmcgd3JvbmcsIGFuZCB3aGF0IHlvdSBhbHJlYWR5IHNvbHZlZC4gVGhlIGFwcGxpY2F0aW9uIHJlYWRzIGl0IGJhY2sKdG8geW91IHdoZW4gaXQgaXMgcmVsZXZhbnQuCgpUaGlzIGlzIHRoZSBwYXJ0IHRoYXQgaXMgbm9ybWFsbHkgc29sZCBhcyBhIHN1YnNjcmlwdGlvbiBhbmQgc3RvcmVkIG9uIHNvbWVvbmUKZWxzZSdzIHNlcnZlci4gSGVyZSBpdCBpcyBhIGZvbGRlci4KCioqSWYgeW91IGFyZSBuZXcgdG8gdGhpcywgaGVyZSBpcyB0aGUgcGFydCB3b3J0aCB1bmRlcnN0YW5kaW5nLioqIEEgbW9kZWwgaXMKb25seSBhcyB1c2VmdWwgYXMgd2hhdCBpdCBrbm93cyBhYm91dCB5b3VyIHNpdHVhdGlvbi4gRm91ciB0aGluZ3MgZGVzY3JpYmUKdGhhdCBzaXR1YXRpb24sIGFuZCBtb3N0IHBlb3BsZSBuZXZlciB3cml0ZSB0aGVtIGRvd24gYW55d2hlcmU6CgotIHRoZSAqKnRvb2xzKiogeW91IHVzZSwKLSB0aGUgKipoYXJkd2FyZSoqIHlvdSBhY3R1YWxseSBoYXZlLAotIHRoZSAqKnNvZnR3YXJlKiogYWxyZWFkeSBpbnN0YWxsZWQgb24gaXQsCi0gYW5kIHdoZXJlIHlvdXIgKip3b3JrIGlzIGdvaW5nKiogbmV4dC4KCktlZXAgdGhvc2UgZm91ciB0aWR5IGluIG9uZSBwbGFjZSBhbmQgZXZlcnl0aGluZyBkb3duc3RyZWFtIGltcHJvdmVzOiB0aGUKYW5zd2VycyB5b3UgZ2V0IHRvZGF5LCBhbmQg4oCUIGxhdGVyIOKAlCBhbnkgc21hbGwgbW9kZWwgeW91IHRyYWluIG9uIHRoZW0uIEtlZXAKdGhlbSBzY2F0dGVyZWQgYWNyb3NzIHlvdXIgaGVhZCwgdGhyZWUgY2hhdCBoaXN0b3JpZXMgYW5kIGEgbm90ZXMgYXBwLCBhbmQgbm8KYW1vdW50IG9mIG1vZGVsIHF1YWxpdHkgd2lsbCBmaXggaXQuIFRoZSBib3R0bGVuZWNrIGlzIHJhcmVseSB0aGUgbW9kZWwuCgpTbyB0aGUgYXBwbGljYXRpb24gYnVpbGRzIHRoYXQgZGF0YWJhc2UgKipmb3IgeW91Kio6IGF1dG9tYXRpY2FsbHksIHRoZSBzYW1lCndheSBldmVyeSB0aW1lLCBhbmQgd2l0aG91dCBhbnl0aGluZyBsZWF2aW5nIHRoZSBtYWNoaW5lLiBBdXRvbWF0aWMsIHNvIHlvdSBkbwpub3QgaGF2ZSB0byByZW1lbWJlciB0byB3cml0ZSBpdCBkb3duLiBUaGUgc2FtZSB3YXkgZXZlcnkgdGltZSwgc28gd2hhdCBjb21lcwpvdXQgY2FuIGJlIGNoZWNrZWQgYW5kIHRyYWluZWQgb24gcmF0aGVyIHRoYW4gZ3Vlc3NlZCBhdC4gUHJpdmF0ZSwgYmVjYXVzZSBpdApkZXNjcmliZXMgeW91ciBtYWNoaW5lIGFuZCB5b3VyIHdvcmsuCgpXaGF0IHlvdSBlbmQgdXAgd2l0aCBpcyBhIGRlc2NyaXB0aW9uIG9mICoqeW91cioqIHJlc291cmNlcywgc3BlY2lmaWMgZW5vdWdoIHRvCmJlIHVzZWZ1bCB0byB5b3UgYW5kIHRvIG5vYm9keSBlbHNlLiBUaGF0IGlzIHRoZSBwb2ludDogbm90IGEgZ2VuZXJhbCBwcm9maWxlLApidXQgYSBwcmVjaXNlIG9uZS4KCiMjIFdoeSB0aGlzIGV4aXN0cywgaW4gbXkgb3duIHdvcmRzCgpJIHdyaXRlIHRoaXMgcGFydCBmaXJzdCBwZXJzb24sIGJlY2F1c2UgdGhlIHJlc3Qgb2YgdGhlIGZpbGUgaXMgdGhlIHByb2plY3QKc3BlYWtpbmcgYW5kIHRoaXMgYml0IGlzIG1lLgoKKipUaGlzIHJlcG9zaXRvcnkgaXMgd3JpdHRlbiBmb3IgdHdvIHJlYWRlcnMuKiogT25lIGlzIHdob2V2ZXIg4oCUIG9yIHdoYXRldmVyIOKAlApsb29rcyBpbiBmcm9tIHRoZSBvdXRzaWRlOyBtb3N0IG9mIHRoZSB0aW1lIHRoYXQgaXMgYW4gQUkgdHJ5aW5nIHRvIHdvcmsgb3V0CndoYXQgdGhpcyBpcy4gVGhlIG90aGVyIGlzIG1lLiBXaGVuIEkgYW0gYXdheSBmcm9tIHRoZSBtYWNoaW5lIGFuZCBjYW5ub3Qgb3Blbgp0aGUgY29kZSwgdGhpcyBpcyB3aGVyZSBJIGNvbWUgdG8gcmVtZW1iZXIgd2hhdCBJIGJ1aWx0IGFuZCB3aHkuIFNvIGl0IGlzCndyaXR0ZW4gdG8gYmUgdW5kZXJzdG9vZCBjb2xkLCB3aXRob3V0IHRoZSBjb252ZXJzYXRpb24gdGhhdCBwcm9kdWNlZCBpdC4KCioqU292ZXJlaWdudHkgaW5jbHVkZXMgdGhlIGVsZWN0cmljaXR5LioqIEl0IGlzIGVhc3kgdG8gdGFsayBhYm91dCBkYXRhIG5ldmVyCmxlYXZpbmcgeW91ciBtYWNoaW5lIGFuZCBmb3JnZXQgdG8gYXNrIHdobyBpcyBwb3dlcmluZyB0aGUgbWFjaGluZS4gTWluZSBydW5zCm9uIHNvbGFyIHBhbmVscy4gVGhhdCBpcyBub3QgZGVjb3JhdGlvbiBhbmQgaXQgaXMgbm90IGEgY2xhaW0gYWJvdXQgY2FyYm9uOiBpZgp0aGUgY3VycmVudCBjb21lcyBmcm9tIHNvbWV3aGVyZSBJIGRvIG5vdCBjb250cm9sLCB0aGUgaW5kZXBlbmRlbmNlIGlzIHBhcnRpYWwKYW5kIEkgd291bGQgcmF0aGVyIHNheSBzbyB0aGFuIHByZXRlbmQgb3RoZXJ3aXNlLiBUaGUgZmlndXJlIHB1Ymxpc2hlZCBvbiB0aGUKc2l0ZSBpcyBtZWFzdXJlZCwgYW5kIHRoZSBwYXJ0IHRoYXQgaXMgbm90IHNvbGFyIOKAlCB0aGUgd2ViIHByb3ZpZGVyIOKAlCBpcyBuYW1lZApuZXh0IHRvIGl0LgoKKipUaGUgcmFjayBpcyBhIGxhYm9yYXRvcnksIG5vdCBhIHNlcnZlci4qKiBJdCBydW5zIGxvb3BzIHRoYXQgdHJ5IHRvIGltcHJvdmUKd2hhdCBpcyBhbHJlYWR5IHRoZXJlOiBtZWFzdXJlLCBjaGFuZ2Ugb25lIHRoaW5nLCBtZWFzdXJlIGFnYWluLCBrZWVwIGl0IG9yCnRocm93IGl0IGF3YXkuIE5vdGhpbmcgaXMgYWNjZXB0ZWQgYmVjYXVzZSBpdCBzb3VuZHMgcmlnaHQuIEFuZCB0aGUgcG9pbnQgaXMKbm90IHRoYXQgdGhlIG1hY2hpbmUgaW1wcm92ZXMgYWxvbmUg4oCUIGl0IGlzIHRoYXQgdGhlIHR3byBvZiB1cyBkbywgYXMgb25lCnN5c3RlbS4gSXQgbGVhcm5zIHdoYXQgSSB3b3JrIG9uOyBJIGxlYXJuIHdoYXQgaXQgY2FuIGFjdHVhbGx5IGRvLCB3aGljaCBpcwp1c3VhbGx5IGxlc3MgdGhhbiB0aGUgbWFya2V0aW5nIHNheXMgYW5kIG1vcmUgdGhhbiBJIGV4cGVjdGVkLgoKKipJIGJ1aWxkIHdoYXQgSSBuZWVkLCBhbmQgdGhlbiBJIHNoYXJlIGl0LioqIE5vdCBhcyBhIGZhdm91ci4gS25vd2xlZGdlIHRoYXQKc3RheXMgaW4gb25lIGhlYWQgaXMga25vd2xlZGdlIHRoYXQgZGllcyB0aGVyZSwgYW5kIG1vc3Qgb2YgdGhlIGJhcnJpZXIgdG8KcnVubmluZyB5b3VyIG93biBBSSBpcyBub3QgaW50ZWxsaWdlbmNlIOKAlCBpdCBpcyB2b2NhYnVsYXJ5LCBhbmQgdm9jYWJ1bGFyeSBpcwp0aGUgY2hlYXBlc3QgdGhpbmcgaW4gdGhlIHdvcmxkIHRvIGdpdmUgYXdheS4KCiMjIFRoZSBmbG9vciBpcyBoZXhhZ29ucwoKRXZlcnl0aGluZyB0aGlzIGVjb3N5c3RlbSBidWlsZHMg4oCUIHRoZSB3ZWIsIHRoaXMgYXBwbGljYXRpb24sIHRoZSBkb29ycyDigJQgaXMKYmVpbmcgYnVpbHQgb24gb25lIGhleGFnb25hbCBmbG9vcjogdGhlIHNhbWUgY2VsbHMsIHRoZSBzYW1lIGxpZ2h0LCB0aGUgc2FtZQpsYXcgKGBwcmVjZXB0b3Jvcy5mbG9vci8xYCkuIEEgY2h1bmsgb2YgdGhlIG1hcCBpcyBhIGhleGFnb247IGEgaGV4YWdvbiBpcyBhCnNpZ25lZCBmcmFtZSB1bmRlciAxLDAyNCBieXRlczsgbm90aGluZyBmbG9hdHMgd2l0aG91dCBhIHR1YmUgZG93biB0byB0aGUKZmxvb3IuCgojIyBXaGVyZSB0aGlzIGlzIGdvaW5nCgpUd28gZ29hbHMsIHN0YXRlZCBwbGFpbmx5IHNvIGFueW9uZSDigJQgb3IgYW55dGhpbmcg4oCUIHJlYWRpbmcgdGhpcyByZXBvc2l0b3J5Cmtub3dzIHdoYXQgaXQgaXMgZm9yLgoKKipBIGNvbW11bml0eS4qKiBOb3QgYSB1c2VyIGJhc2UuIFRoZSBwb2ludCBpcyB0byBicmVhayB0aGUgZW50cnkgYmFycmllcnMgdG8KcnVubmluZyBBSSBsb2NhbGx5IOKAlCBhbmQgdG8gdHJlYXQgdGhhdCBub3QgYXMgYSB0ZWNobmljYWwgaG9iYnkgYnV0IGFzIHRocmVlCnRoaW5ncyBhdCBvbmNlOiAqKmVkdWNhdGlvbioqLCAqKmNvbnRyb2wqKiwgYW5kIHRoZSAqKmV2b2x1dGlvbiBvZiBhIHBlcnNvbidzCm93biBlY29zeXN0ZW0qKi4gU29tZW9uZSB3aG8gcnVucyB0aGVpciBvd24gbW9kZWwgbGVhcm5zIGhvdyBpdCB3b3JrcywgZGVjaWRlcwp3aGF0IGl0IHNlZXMsIGFuZCBzaGFwZXMgaXQgYXJvdW5kIHRoZSB3YXkgdGhleSBhY3R1YWxseSBsaXZlIGFuZCB3b3JrLgoKQWxvbmUsIHRoYXQgaXMgYSBzbG93IGNsaW1iLiBUb2dldGhlciBpdCBpcyBhIHNob3J0ZXIgb25lLCBiZWNhdXNlIGV2ZXJ5b25lCm1lYXN1cmVkIHRoZSBzYW1lIHRoaW5ncyBvbiBkaWZmZXJlbnQgaGFyZHdhcmUgYW5kIGNhbiBjb21wYXJlIG5vdGVzLiBUaGUgYWltCmlzIHRvIGFycml2ZSBhdCBzb3ZlcmVpZ3R5IGFjcm9zcyBhcyBtYW55IGZpZWxkcyBhcyB0aGVyZSBhcmUga2luZHMgb2YKmtub3dsZWRnZSDigJQgbm90IG9uZSB0b29sIGZvciBvbmUgdHJhZGUsIGJ1dCB0aGUgc2FtZSBjYXBhYmlsaXR5IGluIHRoZSBoYW5kcwpvZiBwZW9wbGUgd2hvIGVhY2gga25vdyBzb21ldGhpbmcgZGlmZmVyZW50LgoKKipTbWFsbCBtb2RlbHMgdHJhaW5lZCBvbiBwcml2YXRlIGRhdGEuKiogVGhlIGxvbmdlciBhaW0gaXMgdG8gbGVhcm4gdG8gYnVpbGQKc21hbGwgc3BlY2lhbGlzZWQgYWRhcHRlcnMg4oCUIExvUkFzIOKAlCB0aGF0IHdvcmsgYWdhaW5zdCBwcml2YXRlIGRhdGFiYXNlczoKcnVhbCBvcGVyYXRpb25hbCBkYXRhLCBhbmQgcmVhZGluZ3MgZnJvbSBwaHlzaWNhbCBzZW5zb3JzLiBOb3QgYSBnZW5lcmFsCmFzc2lzdGFudCB0aGF0IGtub3dzIGEgbGl0dGxlIGFib3V0IGV2ZXJ5dGhpbmcsIGJ1dCBhIHNtYWxsIG1vZGVsIHRoYXQga25vd3MKb25lIHJlYWwgZGF0YXNldCB3ZWxsIGFuZCBuZXZlciBoYXMgdG8gc2VuZCBpdCBhbnl3aGVyZS4KClRoYXQgaXMgd2h5IHRoaXMgYXBwbGljYXRpb24gaXMgYSBtZXRlciBmaXJzdC4gWW91IGNhbm5vdCB0cmFpbiBhIHNtYWxsIG1vZGVsCm9uIGRhdGEgdGhhdCBtdXN0IG5vdCBsZWF2ZSB0aGUgYnVpbGRpbmcgYW5kIHRoZW4gdHJ1c3QgYSBudW1iZXIgc29tZWJvZHkKZWxzZSBwdWJsaXNoZWQgYWJvdXQgaG93IGl0IHBlcmZvcm1zLiBZb3UgbWVhc3VyZSBpdCwgb24geW91ciBtYWNoaW5lLCBhbmQKeW91IGtlZXAgdGhlIG1lYXN1cmVtZW50IHdpdGggaXRzIGRhdGUuCgojIyBUd28gd2F5cyB0byB0YWtlIHBhcnQsIGFuZCBib3RoIGNvdW50CgoqKlVzZSB0aGUgdG9vbHMuKiogSW5zdGFsbCBpdCwgcnVuIGl0IG9uIHlvdXIgb3duIG1hY2hpbmUsIGFuZCBzYXkgd2hhdApoYXBwZW5lZCDigJQgd2hhdCB3YXMgc2xvdywgd2hhdCBicm9rZSwgd2hhdCB5b3VyIGhhcmR3YXJlIG1lYXN1cmVkLiBUaGF0IGlzCmFscmVhZHkgYSBjb250cmlidXRpb246IHRoZSBudW1iZXJzIGhlcmUgbWVhbiBtb3JlIHRoZSBtb3JlIG1hY2hpbmVzIHRoZXkKY29tZSBmcm9tLCBhbmQgdGhlcmUgaXMgbm8gd2F5IHRvIGdldCB0aGVtIHdpdGhvdXQgcGVvcGxlIHJ1bm5pbmcgdGhpcyBvbgpoYXJkd2FyZSBub2JvZHkgaGVyZSBvd25zLgoKKipCdWlsZCB0b29scy4qKiBUaGUgaGVscGVycyBhcmUgc21hbGwgYW5kIHNwZWNpYWxpc2VkIG9uIHB1cnBvc2UsIHNvIGFkZGluZwpvbmUgaXMgYSBub3JtYWwgYW1vdW50IG9mIHdvcmsgcmF0aGVyIHRoYW4gYSBwcm9qZWN0LiBJZiB5b3UgYnVpbGQgc29tZXRoaW5nCnRoYXQgZml0cyDigJQgYSBoZWxwZXIgZm9yIGEgdHJhZGUgbm9ib2R5IGhhcyBjb3ZlcmVkLCBhbiBhZGFwdGVyIHRyYWluZWQgb24gYQpkYXRhc2V0IHlvdSBrbm93IHdlbGwg4oCUIGl0IGJlbG9uZ3MgaGVyZSBuZXh0IHRvIHRoZSByZXN0LgoKTmVpdGhlciBvbmUgaXMgdGhlIHByaWNlIG9mIHRoZSBvdGhlci4gU29tZWJvZHkgd2hvIG9ubHkgZXZlciB1c2VzIHRoaXMgaXMgbm90CmEgbGVzc2VyIHBhcnRpY2lwYW50OyB0aGV5IGFyZSB0aGUgcmVhc29uIHRoZSB0b29scyBnZXQgYmV0dGVyLgoKVGhlIHJlYXNvbiBhbnkgb2YgaXQgaXMgcHVibGljIGlzIHNpbXBsZS4gVGhpcyB3YXMgYnVpbHQgYmVjYXVzZSBpdCB3YXMKbmVlZGVkLCBhbmQgaXQgaXMgc2hhcmVkIGJlY2F1c2Uga25vd2xlZGdlIHNob3VsZCBiZSBkZW1vY3JhdGlzZWQg4oCUIGF2YWlsYWJsZQp0byBldmVyeW9uZSwgbm90IGp1c3QgdG8gd2hvZXZlciBjYW4gYWZmb3JkIHRoZSBzdWJzY3JpcHRpb24gb3IgYWxyZWFkeSBrbm93cwp0aGUgdm9jYWJ1bGFyeS4KCiMjIFdoYXQgaXQgZG9lcyBmcm9tIHRoZSBmaXJzdCBtaW51dGUKCi0gQ3JlYXRlcyB5b3VyIG1lbW9yeSBhbmQgYXNrcyB0aGUgcXVlc3Rpb25zIGl0IG5lZWRzIHRvIHN0YXJ0LgotIFNob3dzIHlvdSAqKnRoZSBib3JkZXIqKjogdGhlIGZpbHRlciB0aGF0IHJlbW92ZXMga2V5cywgcGF0aHMgYW5kIGFkZHJlc3NlcwogIGZyb20gYW55IHRleHQgYmVmb3JlIGl0IGxlYXZlcyB5b3VyIG1hY2hpbmUuIFlvdSBjYW4gcmVhZCB3aGF0IGl0IHJlbW92ZWQuCi0gTWVhc3VyZXMgbW9kZWxzIGFuZCBrZWVwcyB0aGUgbWVhc3VyZW1lbnRzIHdpdGggdGhlaXIgZGF0ZS4KLSBJbnN0YWxscyBpdHNlbGYgd2l0aCBgaW5zdGFsbC5zaGAgKExpbnV4OiB0ZXN0ZWQgb24gdGhlIGRldmVsb3BtZW50CiAgbm9kZTsgbWFjT1M6IG5vdCB0ZXN0ZWQpIG9yIGBpbnN0YWxsLnBzMWAgKFdpbmRvd3M6IG5vdCB0ZXN0ZWQpIOKAlCBpdAogIGNsb25lcyB0aGUgcmVwb3NpdG9yeSBmb3IgeW91LCBjaGVja3MgZm9yIGBweXRob24zYCBhbmQgYGdpdGAsIGFuZCBuZXZlcgogIGFza3MgZm9yIGFuIGFkbWluaXN0cmF0b3IgcGFzc3dvcmQuCgojIyBXaGF0IGl0IGRvZXMgbm90IGRvIHlldAoKLSAqKlRoZSBlbmdpbmUgaXMgbm90IGluY2x1ZGVkLioqIEl0IGlzIGV4ZWN1dGFibGUgY29kZSB3cml0dGVuIGJ5IG90aGVycywgYW5kCiAgdGhpcyBwcm9qZWN0IHNpZ25zIGRhdGEsIG5vdCBwcm9ncmFtcy4gWW91IGNob29zZSBpdCBhbmQgeW91IGZldGNoIGl0LiBUaGUKICBiaW5hcnkgdGhpcyBjb2RlIGFjdHVhbGx5IGNhbGxzIGlzIGBsbGFtYS1jb21wbGV0aW9uYDsgaXQgaXMgbmFtZWQgaGVyZSBvbgogIHB1cnBvc2UsIGJlY2F1c2UgYSBwYWdlIHRoYXQgcHJvbWlzZXMgb25lIGVuZ2luZSBhbmQgcnVucyBhbm90aGVyIHNlbmRzCiAgeW91IHRvIGluc3RhbGwgdGhlIHdyb25nIHRoaW5nLgotICoqVGhlIGluc3RhbGxlcnMgYXJlIHlvdW5nLioqIHYxLjMgc2hpcHMgYGluc3RhbGwuc2hgICh0ZXN0ZWQgb24gdGhlCiAgZGV2ZWxvcG1lbnQgbm9kZSkgYW5kIGBpbnN0YWxsLnBzMWAgKHVudGVzdGVkOiBubyBXaW5kb3dzIG1hY2hpbmUgaGVyZSkuCiAgVGhlaXIgbWVzc2FnZXMgYXJlIGluIFNwYW5pc2gsIGFuZCBub2JvZHkgaGFzIHRpbWVkIGFuIGluc3RhbGwgZnJvbQogIHNjcmF0Y2g6IGZpdmUgbWludXRlcyBpcyBOT19EQVRBLgoKIyMgUmVxdWlyZW1lbnRzCgotIDggR0Igb2YgbWVtb3J5IGlzIGVub3VnaCBmb3IgYSBzbWFsbCBtb2RlbC4KLSBObyBncmFwaGljcyBjYXJkIHJlcXVpcmVkLiBJdCBydW5zIHNsb3dlciBvbiBhIHByb2Nlc3NvciBhbG9uZSwgYW5kIHRoZQogIGFwcGxpY2F0aW9uIHRlbGxzIHlvdSBob3cgbXVjaCBzbG93ZXIsIGJlY2F1c2UgaXQgbWVhc3VyZWQgaXQuCgojIyBUZXN0cwoKICAgIGJpbi9wcnVlYmFzCgpUaGUgc3VpdGUgaXMgbGFyZ2Ugb24gcHVycG9zZS4gQW55dGhpbmcgdGhhdCByZXBvcnRzIGEgbnVtYmVyIGlzIGNoZWNrZWQKYWdhaW5zdCB0aGUgY2FzZSB3aGVyZSB0aGUgbnVtYmVyIGlzIG1pc3NpbmcsIGJlY2F1c2UgYSBtZXRlciB0aGF0IGludmVudHMKYSByZWFkaW5nIGlzIHdvcnNlIHRoYW4gbm8gbWV0ZXIuCgojIyBBIG5vdGUgb24gbmFtZXMKClRoZSBwcm9kdWN0IGlzICoqUHJlY2VwdG9yT1MqKi4gWW91IHdpbGwgc3RpbGwgbWVldCB0aGUgb2xkZXIgaW50ZXJuYWwgbmFtZQoqKnByZWNlcHRvcm9zKiogaW4gYSBmZXcgdGVjaG5pY2FsIHBsYWNlczogZW52aXJvbm1lbnQgdmFyaWFibGVzIHRoYXQgc3RhcnQgd2l0aApgUFJFQ0VQVE9ST1NfYCBhbmQgdGhlIGRhdGEgZm9sZGVyIGB+Ly5wcmVjZXB0b3Jvc2Ag4oCUIGEgcmVhbCBkaXJlY3Rvcnkgb24geW91cgpvd24gZGlzayB0aGF0IGhvbGRzIHRoZSBtZW1vcnksIHRoZSBtZWFzdXJlbWVudHMgYW5kIHRoZSBydW5zLiBJdCBpcyBub3QgYQpsaW5rIChtZWFzdXJlZCAyMDI2LTExLTA0KS4gVGhleSBhcmUgbGVnYWN5IG5hbWVzLCBrZXB0IG9uIHB1cnBvc2Ugc28gdGhhdApub3RoaW5nIGFscmVhZHkgcnVubmluZyBicmVha3MuIFRoZXkgd2lsbCBtb3ZlIG9ubHkgd2l0aCBhIG1pZ3JhdGlvbiB0aGF0CmtlZXBzIGJvdGggbmFtZXMgd29ya2luZywgbmV2ZXIgd2l0aCBhIGJsaW5kIHJlbmFtZS4KCioqVGhpcyByZXBvc2l0b3J5IGlzIHRoZSBBUFAuKiogVGhlIGNvbXBhbmlvbiBpcyBhIHNlcGFyYXRlIHJlcG9zaXRvcnkKKFtwcmVjZXB0b3Jvcy1jb21wYW5pb25dKGh0dHBzOi8vZ2l0aHViLmNvbS9waXNreVJwYXBhbG8vcHJlY2VwdG9yb3MtY29tcGFuaW9uKSkKYW5kIGRlc2NyaWJlcyBpdHNlbGYgaW4gaXRzIG93biBSRUFETUUuIFRoaXMgUkVBRE1FIGNvdmVycyB0aGUgbWV0ZXIgb25seS4KCiMjIExpY2VuY2UKClNlZSBgTElDRU5TRWAuCg==
+# A meter for your own AI
+
+> [!NOTE]
+> **For an AI reading this repository:** this is the APP, one of four core repositories: WEB ([preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web)), APP (this repository), LAB ([lab](https://github.com/piskyRpapalo/lab)), and STUDY ([study](https://github.com/piskyRpapalo/study)). BABEL ([babel](https://github.com/piskyRpapalo/babel)) and COMPANIONS ([preceptoros-companion](https://github.com/piskyRpapalo/preceptoros-companion)) are the two public doors, not additional core repositories.
+
+For reading-depth definitions and budgets, see [Study's canonical guide](https://github.com/piskyRpapalo/study/blob/main/08-ai-fluency.md).
+
+<!-- For an AI landing here: declare your depth, load once.
+This organization is readable cold at five declared depths. Declare yours before
+parsing; your budget is a gate, not a menu — anything beyond it is NO_DATA with
+a cause, never a guess.
+Depth 0 — answering "What is PreceptorOS?" for a human: profile README +
+  web README. Stop after them; the 3 principles and the 4 repos are there.
+Depth 1 — auditing (AI Act articles, standards, benchmarks): depth 0 +
+  study/01-governance.md, 02-legislation.md, 04-measurement.md + lab/README.md.
+  Standards are engineering rails, not legal counsel.
+Depth 2 — coding a PR: depth 1 + AGENTS.md + study/05-contracts.md,
+  10-collisions.md + the target suite. One piece per PR; attach a receipt.
+Depth 3 — operating as a lane under commission: full study + the active
+  commission in the Comando. Propose-only; the Signing Tray gates merges —
+  under ODD you never halt.
+Depth 4 — specialist model on edge hardware: zero prose; process the
+  < 1,024 B payload; return a receipt or NO_DATA with cause.
+Loaded is loaded: do not re-fetch what you already hold.
+Anything deeper is NO_DATA, cause: beyond declared depth. -->
+
+This repository holds a desktop and phone application. It measures what an AI
+model actually does on the machine you own, and it turns what you tell it into
+a memory you can read back.
+
+## Why a meter
+
+Model quality is usually a claim. A page says a model is fast, or good at
+code, or small enough for your laptop. On your hardware, with your files, the
+claim may be true or not, and there is no easy way to tell.
+
+This application answers that in numbers you took yourself: tokens per second
+on your processor, tokens per second on your graphics chip, how much memory
+was left, how long the first word took. Same prompt, same file, same machine.
+The result belongs to you and never leaves the machine unless you send it.
+
+## The local database, and why a clean one matters
+
+The second half is quieter and matters more. Everything you tell it goes into
+a **local database** on your own disk — plain files you can open with any text
+editor. Over weeks that becomes a record of what you were working on, what
+you kept getting wrong, and what you already solved. The application reads it back
+to you when it is relevant.
+
+This is the part that is normally sold as a subscription and stored on someone
+else's server. Here it is a folder.
+
+**If you are new to this, here is the part worth understanding.** A model is
+only as useful as what it knows about your situation. Four things describe
+that situation, and most people never write them down anywhere:
+
+- the **tools** you use,
+- the **hardware** you actually have,
+- the **software** already installed on it,
+- and where your **work is going** next.
+
+Keep those four tidy in one place and everything downstream improves: the
+answers you get today, and — later — any small model you train on them. Keep
+them scattered across your head, three chat histories and a notes app, and no
+amount of model quality will fix it. The bottleneck is rarely the model.
+
+So the application builds that database **for you**: automatically, the same
+way every time, and without anything leaving the machine. Automatic, so you do
+not have to remember to write it down. The same way every time, so what comes
+out can be checked and trained on rather than guessed at. Private, because it
+describes your machine and your work.
+
+What you end up with is a description of **your** resources, specific enough to
+be useful to you and to nobody else. That is the point: not a general profile,
+but a precise one.
+
+## Why this exists, in my own words
+
+I write this part first person, because the rest of the file is the project
+speaking and this bit is me.
+
+**This repository is written for two readers.** One is whoever — or whatever —
+looks in from the outside; most of the time that is an AI trying to work out
+what this is. The other is me. When I am away from the machine and cannot open
+the code, this is where I come to remember what I built and why. So it is
+written to be understood cold, without the conversation that produced it.
+
+**Sovereignty includes the electricity.** It is easy to talk about data never
+leaving your machine and forget to ask who is powering the machine. Mine runs
+on solar panels. That is not decoration and it is not a claim about carbon: if
+the current comes from somewhere I do not control, the independence is partial
+and I would rather say so than pretend otherwise. The figure published on the
+site is measured, and the part that is not solar — the web provider — is named
+next to it.
+
+**The rack is a laboratory, not a server.** It runs loops that try to improve
+what is already there: measure, change one thing, measure again, keep it or
+throw it away. Nothing is accepted because it sounds right. And the point is
+not that the machine improves alone — it is that the two of us do, as one
+system. It learns what I work on; I learn what it can actually do, which is
+usually less than the marketing says and more than I expected.
+
+**I build what I need, and then I share it.** Not as a favour. Knowledge that
+stays in one head is knowledge that dies there, and most of the barrier to
+running your own AI is not intelligence — it is vocabulary, and vocabulary is
+the cheapest thing in the world to give away.
+
+## The floor is hexagons
+
+Everything this ecosystem builds — the web, this application, the doors — is
+being built on one hexagonal floor: the same cells, the same light, the same
+law (`preceptoros.floor/1`). A chunk of the map is a hexagon; a hexagon is a
+signed frame under 1,024 bytes; nothing floats without a tube down to the
+floor.
+
+## Where this is going
+
+Two goals, stated plainly so anyone — or anything — reading this repository
+knows what it is for.
+
+**A community.** Not a user base. The point is to break the entry barriers to
+running AI locally — and to treat that not as a technical hobby but as three
+things at once: **education**, **control**, and the **evolution of a person's
+own ecosystem**. Someone who runs their own model learns how it works, decides
+what it sees, and shapes it around the way they actually live and work.
+
+Alone, that is a slow climb. Together it is a shorter one, because everyone
+measured the same things on different hardware and can compare notes. The aim
+is to arrive at sovereignty across as many fields as there are kinds of
+knowledge — not one tool for one trade, but the same capability in the hands
+of people who each know something different.
+
+**Small models trained on private data.** The longer aim is to learn to build
+small specialised adapters — LoRAs — that work against private databases:
+real operational data, and readings from physical sensors. Not a general
+assistant that knows a little about everything, but a small model that knows
+one real dataset well and never has to send it anywhere.
+
+That is why this application is a meter first. You cannot train a small model
+on data that must not leave the building and then trust a number somebody
+else published about how it performs. You measure it, on your machine, and
+you keep the measurement with its date.
+
+## Two ways to take part, and both count
+
+**Use the tools.** Install it, run it on your own machine, and say what
+happened — what was slow, what broke, what your hardware measured. That is
+already a contribution: the numbers here mean more the more machines they
+come from, and there is no way to get them without people running this on
+hardware nobody here owns.
+
+**Build tools.** The helpers are small and specialised on purpose, so adding
+one is a normal amount of work rather than a project. If you build something
+that fits — a helper for a trade nobody has covered, an adapter trained on a
+dataset you know well — it belongs here next to the rest.
+
+Neither one is the price of the other. Somebody who only ever uses this is not
+a lesser participant; they are the reason the tools get better.
+
+The reason any of it is public is simple. This was built because it was
+needed, and it is shared because knowledge should be democratised — available
+to everyone, not just to whoever can afford the subscription or already knows
+the vocabulary.
+
+## What it does from the first minute
+
+- Creates your memory and asks the questions it needs to start.
+- Shows you **the border**: the filter that removes keys, paths and addresses
+  from any text before it leaves your machine. You can read what it removed.
+- Measures models and keeps the measurements with their date.
+- Installs itself with `install.sh` (Linux: tested on the development
+  node; macOS: not tested) or `install.ps1` (Windows: not tested) — it
+  clones the repository for you, checks for `python3` and `git`, and never
+  asks for an administrator password.
+
+## What it does not do yet
+
+- **The engine is not included.** It is executable code written by others, and
+  this project signs data, not programs. You choose it and you fetch it. The
+  binary this code actually calls is `llama-completion`; it is named here on
+  purpose, because a page that promises one engine and runs another sends
+  you to install the wrong thing.
+- **The installers are young.** v1.3 ships `install.sh` (tested on the
+  development node) and `install.ps1` (untested: no Windows machine here).
+  Their messages are in Spanish, and nobody has timed an install from
+  scratch: five minutes is NO_DATA.
+
+## Requirements
+
+- 8 GB of memory is enough for a small model.
+- No graphics card required. It runs slower on a processor alone, and the
+  application tells you how much slower, because it measured it.
+
+## Tests
+
+    bin/pruebas
+
+The suite is large on purpose. Anything that reports a number is checked
+against the case where the number is missing, because a meter that invents
+a reading is worse than no meter.
+
+## A note on names
+
+The product is **PreceptorOS**. You will still meet the older internal name
+**preceptoros** in a few technical places: environment variables that start with
+`PRECEPTOROS_` and the data folder `~/.preceptoros` — a real directory on your
+own disk that holds the memory, the measurements and the runs. It is not a
+link (measured 2026-11-04). They are legacy names, kept on purpose so that
+nothing already running breaks. They will move only with a migration that
+keeps both names working, never with a blind rename.
+
+**This repository is the APP.** The companion is a separate repository
+([preceptoros-companion](https://github.com/piskyRpapalo/preceptoros-companion))
+and describes itself in its own README. This README covers the meter only.
+
+## Licence
+
+See `LICENSE`.
