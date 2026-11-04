@@ -487,7 +487,7 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # la casa, no un nombre de politica -- y la piel zombie pinta con las
         # bandas de sello STALE y NO_DATA de tabla_semantica: colores con su
         # significado literal (dormido, sin medir), tampoco politicas.
-        INTRINSECOS |= {"NO_DATA", "STALE", "UNKNOWN", "STOP", "HTTPS"}  # UNKNOWN is dispatched-without-result, not a policy.
+        INTRINSECOS |= {"NO_DATA", "STALE", "MEASURED", "UNKNOWN", "STOP", "HTTPS"}  # These are data/status values, not policies.
         # La terminal zombie oxida su metal con la banda SIMULATED: el mapa de
         # la cara ES una simulacion, asi que el color dice la verdad literal.
         INTRINSECOS |= {"SIMULATED"}

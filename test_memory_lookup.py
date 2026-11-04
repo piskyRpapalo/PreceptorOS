@@ -63,3 +63,10 @@ class LookupTests(unittest.TestCase):
     def test_invalid_inputs_never_reach_database(self):
         for query in ('', None, 'a' * 601, '漢' * 500):
             self.assertEqual(memory_lookup.buscar(query, self.db)['estado'], 'NO_DATA')
+
+    def test_decision_without_a_local_adapter_is_no_data(self):
+        result = memory_lookup.decision_unavailable()
+        self.assertEqual(result['estado'], 'NO_DATA')
+        self.assertEqual(result['causa'], 'no_local_decision_adapter')
+        self.assertEqual(result['fuentes'], [])
+        self.assertLess(len(memory_lookup.encoded(result)), 1024)
