@@ -1,3 +1,5 @@
+> RE-CLASSIFIED · RECORD (2026-11-04, ps de texto): the F0→F3 mandate was fully merged (LIBRO_DE_FIRMAS §4, repo firmas). This operator runbook no longer commands the roadmap; it remains citable operating history. Superseded by: LIBRO_DE_FIRMAS and DECISIONES_MAIN.
+
 # F3 · Rack creation and LIVE evidence runbook
 
 This is an operator procedure for the first signed creation. Run it on the

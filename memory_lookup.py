@@ -19,6 +19,11 @@ def unavailable(cause):
             'fuentes': [], 'fuera': 0, 'completo': False}
 
 
+def decision_unavailable():
+    """Memory evidence alone has no local decision adapter; fail closed."""
+    return unavailable('no_local_decision_adapter')
+
+
 def buscar(consulta, database):
     """Return whole source fields and citations under the complete JSON byte ceiling.
 

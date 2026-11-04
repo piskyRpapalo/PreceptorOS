@@ -831,10 +831,11 @@ class PWA(BaseHTTPRequestHandler):
                 raise ValueError("shape")
         except (UnicodeError, ValueError):
             return self._json(400, _memory_lookup.unavailable("request_invalid"))
-        evidence = _memory_lookup.buscar(data["consulta"], self.server.ruta_db)
         if ruta == "/api/hexelion/decision":
-            from hexelion_decision import decidir
-            evidence = decidir(data["consulta"], evidence)
+            # Retrieved memory is evidence, not an authority to decide. No
+            # local decision adapter is present, so this route fails closed.
+            return self._json(200, _memory_lookup.decision_unavailable())
+        evidence = _memory_lookup.buscar(data["consulta"], self.server.ruta_db)
         return self._json(200, evidence)
 
     def _orquestador(self):

@@ -1,3 +1,5 @@
+> RE-CLASSIFIED · CLOSED (2026-11-04, ps de texto): the F0→F3 mandate was fully merged (LIBRO_DE_FIRMAS §4, repo firmas). This signed closure acta no longer commands the roadmap; it stays as citable history. Superseded by: LIBRO_DE_FIRMAS and DECISIONES_MAIN.
+
 # CIERRE DE M3 · HEGEMONIKON
 
 Acta de cierre de la tercera misión: **La Fuga del Museo**. Qué se construyó,
