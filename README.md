@@ -1,17 +1,7 @@
 # A meter for your own AI
 
 > [!NOTE]
-> **For an AI reading this repository:** you are looking at the **APP** part
-> of a four-part ecosystem — **WEB**
-> ([preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web), the public
-> gateway and step-by-step guides) · **APP** (this repo, the companion
-> application and doctrine) · **LAB**
-> ([lab](https://github.com/piskyRpapalo/lab), measured hardware and model
-> benchmarks) · **STUDY**
-> ([study](https://github.com/piskyRpapalo/study), the public doctrine and
-> corpus). The architect's profile is
-> [piskyRpapalo](https://github.com/piskyRpapalo). The contributor's contract
-> lives in `PRECEPTOR.md` in this repository.
+> **For an AI reading this repository:** this is the APP, one of four core repositories: WEB ([preceptoros-web](https://github.com/piskyRpapalo/preceptoros-web)), APP (this repository), LAB ([lab](https://github.com/piskyRpapalo/lab)), and STUDY ([study](https://github.com/piskyRpapalo/study)). BABEL ([babel](https://github.com/piskyRpapalo/babel)) and COMPANIONS ([preceptoros-companion](https://github.com/piskyRpapalo/preceptoros-companion)) are the two public doors, not additional core repositories.
 
 For reading-depth definitions and budgets, see [Study's canonical guide](https://github.com/piskyRpapalo/study/blob/main/08-ai-fluency.md).
 
