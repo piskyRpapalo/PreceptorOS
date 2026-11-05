@@ -76,3 +76,12 @@ This candidate is incomplete and not ready for deployment or signature.
 
 2026-11-05: the unknown-status label now follows the app language across all nine
 declared languages. Local PWA and guardrail suites: 104 passed, 1 skipped.
+
+2026-11-05 · Mesa completion (the assignment this card asked for): the service-worker seal
+is served — the sheet moves to ?v=60, dashboard.js to ?v=50, and the armazon cache name to
+preceptoros-armazon-v129 (the HTML is precached by its URL, so its change rides the cache
+name). Jail gates on this exact tree: test_pwa 66/66; naming audit 75 routes / 284 entries
+PASS; guardrails identical to pristine main (only the jail's no-git lexicon check, which is
+green in CI); the full tanda shows the six known jail-environment runners, zero new red.
+The open questions (authoritative sources for the unmeasured states, device FPS,
+independent accessibility review) stay open with the commission — one piece, this pull.

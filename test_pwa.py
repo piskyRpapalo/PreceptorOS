@@ -837,7 +837,7 @@ class TestHojasActivas(unittest.TestCase):
                                     f"el handler enlaza a un CSS ausente: {fichero}")
 
         sw = pathlib.Path(interfaz, "sw.js").read_text(encoding="utf-8")
-        self.assertIn('"/dashboard.css?v=59"', sw, "la cache debe usar la URL exacta de la hoja")
+        self.assertIn('"/dashboard.css?v=60"', sw, "la cache debe usar la URL exacta de la hoja")
         self.assertNotIn("compass.css", sw, "la hoja ornamental apartada no debe seguir en la cache")
 
     def test_todos_los_scripts_enlazados_resuelven_a_ficheros_servidos(self):
@@ -863,7 +863,7 @@ class TestHojasActivas(unittest.TestCase):
         import io
 
         handler = PWA.PWA.__new__(PWA.PWA)
-        handler.path = "/dashboard.css?v=59"
+        handler.path = "/dashboard.css?v=60"
         handler.send_response = mock.Mock()
         handler.send_header = mock.Mock()
         handler.end_headers = mock.Mock()
