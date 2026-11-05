@@ -67,3 +67,50 @@ input, textarea, select { background: Canvas; border: 1px solid GrayText;
 .cajon > * { max-width: 48rem; margin-left: auto; margin-right: auto; }
 .dato { display: flex; justify-content: space-between; gap: .5rem; }
 .nota { font-size: .85rem; }
+
+/* --- Carril A, pieza primera: el panel y su acento -------------------------
+   Referencia medida, jamas copiada (Gentleman-Programming/gentle-dot, MIT):
+   panel 420x640, cabezal de vidrio (opacidad 0.82, desenfoque 12px), acento
+   por nodo. Los valores de esta casa se re-derivan de la familia oscura medida de
+   esta casa (#1a1225, la del <meta name="theme-color">): fondo #17131f,
+   panel #1e1929, tinta #ece9f5, tinta suave #a79fbe, linea #392f4d.
+   Geometria declarada: la referencia mide 420x640; nuestra columna medida es
+   de 48rem con el chat a 60vh --re-derivada para esta superficie, movil
+   primero--, y se declara en la tarjeta odd de la pieza. Las leyes de la
+   hoja minima siguen mandando: sin url(), sin imagen, sin animacion; en claro
+   el sistema manda. */
+:root {
+  --acento-cian: #00d2ff;   /* ui.accent de basic, comic_tokens.js */
+  --acento-sol: #ffb702;    /* comic yellow.base de atlantis, comic_accents.js */
+  --acento-stale: hsl(60 70% 55%);  /* STALE.base de zombie, tabla_semantica.js */
+  --acento: var(--acento-cian);
+}
+:root[data-acento="sol"] { --acento: var(--acento-sol); }
+:root[data-acento="stale"] { --acento: var(--acento-stale); }
+/* Los tokens oscuros re-derivados, solo bajo la piel oscura elegida. Con
+   fallback al color del sistema: quien borre esto no se queda sin pagina. */
+:root[data-tema="oscuro"] {
+  --fondo: #17131f; --panel: #1e1929; --tinta: #ece9f5;
+  --tinta-suave: #a79fbe; --linea: #392f4d;
+}
+:root[data-tema="oscuro"] body {
+  background: var(--fondo, Canvas); color: var(--tinta, CanvasText);
+}
+/* El cabezal de vidrio: pegado arriba y translucido sobre lo que pasa por
+   debajo. El color sale del Canvas del tema --no hay una banda fija que
+   desentone en claro--, y el desenfoque es el de la referencia re-declarado.
+   Sin soporte de desenfoque la banda es solida: la legibilidad nunca depende
+   del filtro. */
+.cabezal { position: sticky; top: 0; z-index: 2;
+  background: color-mix(in srgb, Canvas 82%, transparent);
+  backdrop-filter: blur(12px); }
+@supports not (backdrop-filter: blur(1px)) { .cabezal { background: Canvas; } }
+/* Donde el acento pinta: los anillos del teclado en oscuro y la marca del
+   interruptor elegido. Nunca color solo: `aria-checked` es el estado, el
+   color es el eco. En claro el acento no toca el foco --sobre fondo claro el
+   cian no contrasta--, el anillo del sistema ya es correcto alli. */
+:root[data-tema="oscuro"] :focus-visible { outline-color: var(--acento); }
+[role="radio"][aria-checked="true"] { border-color: var(--acento); }
+/* El boton de mandar lleva el acento en su borde y su icono: es el unico
+   mando del terminal que siempre pide la vista. */
+#mandar { border-color: var(--acento); color: var(--acento); }
