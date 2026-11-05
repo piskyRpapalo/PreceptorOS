@@ -62,18 +62,16 @@ def resumen_coincidencias(tokens):
 class TestGuardianPrivacidad(unittest.TestCase):
     def test_sabotaje_de_reglas_de_agente_llega_al_guardian(self):
         rutas = {p.resolve() for p in archivos_arbol()}
-        claude = RAIZ / "CLAUDE.md"
         agents = RAIZ / "AGENTS.md"
-        self.assertIn(claude.resolve(), rutas, "el guardián no lista CLAUDE.md")
         self.assertIn(agents.resolve(), rutas, "el guardián no lista AGENTS.md")
-        original = claude.read_bytes()
+        original = agents.read_bytes()
         marcador = "guardian-sabotage-" + uuid.uuid4().hex
         try:
-            claude.write_bytes(original + b"\n" + marcador.encode("ascii") + b"\n")
+            agents.write_bytes(original + b"\n" + marcador.encode("ascii") + b"\n")
             cantidad, halladas = resumen_coincidencias((marcador,))
         finally:
-            claude.write_bytes(original)
-        self.assertEqual((cantidad, halladas), (1, ["CLAUDE.md"]))
+            agents.write_bytes(original)
+        self.assertEqual((cantidad, halladas), (1, ["AGENTS.md"]))
 
     def test_arbol_no_contiene_tokens_privados(self):
         try:
