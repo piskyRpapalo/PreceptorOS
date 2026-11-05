@@ -295,10 +295,10 @@
   <div class="campo"><span id="et-tema"></span>
     <div class="interruptor" id="p-tema" role="radiogroup"></div></div>
 
-  <!-- Carril A · pieza A1: el acento del terminal. Tres colores medidos en
-       las pieles de esta casa --cian de basic, sol de atlantis, stale de
-       zombie--; la eleccion vive en la maquina del carbono, sin cuentas
-       (decreto LA TERMINAL). -->
+  <!-- El acento del terminal, primera pieza del carril nativo A. Tres
+       colores medidos en las pieles de esta casa --cian de basic, sol de
+       atlantis, stale de zombie--; la eleccion vive en la maquina del
+       carbono, sin cuentas. -->
   <div class="campo"><span id="et-acento"></span>
     <div class="interruptor" id="p-acento" role="radiogroup"></div></div>
 
@@ -357,8 +357,8 @@
 <script src="/compass.js?v=39"></script>
 <script src="/consola.js?v=4"></script>
 
-<!-- Carril A · pieza A1 · el acento del terminal. Vive aqui y no en
-     dashboard.js, que ya pasa de 140 KB; y no pide fichero propio porque la
+<!-- El acento del terminal, primera pieza del carril nativo A. Vive aqui
+     y no en dashboard.js, que ya pasa de 140 KB; y no pide fichero propio porque la
      tabla de rutas del servidor vive en un ejecutable que la API de
      contenidos no escribe sin perder el bit de ejecucion -- yerba medida en
      la otra casa, evitada aqui. Sin javascript la hoja ya trae el cian de
@@ -377,7 +377,7 @@
     el: ["Τόνωση", "Κυανό", "Ήλιος", "Παλιό κεχριμπάρι"],
     ar: ["اللون المميز", "سماوي", "الشمس", "عنبر قديم"]
   };
-  var VALORES = ["cian", "sol", "stale"];
+  var opciones = ["cian", "sol", "stale"];
   function cadenas() {
     var lg = document.documentElement.lang || "es";
     return ET[lg] || ET[lg.split("-")[0]] || ET.es;
@@ -398,7 +398,7 @@
     var t = cadenas(), puesto = guardado();
     et.textContent = t[0];
     caja.textContent = "";
-    for (var i = 0; i < VALORES.length; i++) {
+    for (var i = 0; i < opciones.length; i++) {
       (function (valor, rotulo) {
         var b = document.createElement("button");
         b.type = "button";
@@ -411,7 +411,7 @@
           pinta();
         });
         caja.appendChild(b);
-      })(VALORES[i], t[i + 1]);
+      })(opciones[i], t[i + 1]);
     }
   }
   aplica(guardado());

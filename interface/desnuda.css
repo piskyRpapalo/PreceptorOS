@@ -68,10 +68,10 @@ input, textarea, select { background: Canvas; border: 1px solid GrayText;
 .dato { display: flex; justify-content: space-between; gap: .5rem; }
 .nota { font-size: .85rem; }
 
-/* --- Carril A · pieza A1: el panel y su acento ----------------------------
+/* --- Carril A, pieza primera: el panel y su acento -------------------------
    Referencia medida, jamas copiada (Gentleman-Programming/gentle-dot, MIT):
    panel 420x640, cabezal de vidrio (opacidad 0.82, desenfoque 12px), acento
-   por nodo. Los valores de AQUI se re-derivan de la familia oscura medida de
+   por nodo. Los valores de esta casa se re-derivan de la familia oscura medida de
    esta casa (#1a1225, la del <meta name="theme-color">): fondo #17131f,
    panel #1e1929, tinta #ece9f5, tinta suave #a79fbe, linea #392f4d.
    Geometria declarada: la referencia mide 420x640; nuestra columna medida es

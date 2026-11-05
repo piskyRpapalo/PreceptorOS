@@ -35,3 +35,4 @@ Propose-only; FIRMA over the exact head at merge. No build, no assets, no networ
 
 ## Log
 - 2026-11-05: cooked by mesa-web under the vector claim (buzon#53 ·6648830330); FIRMA pending on the exact head of this PR.
+- 2026-11-05: guardrail cure, measured: the interface files must not carry rule-id-like marks (\b[A-Z]\d\b) or unnamed policy words (\b[A-Z][A-Z_]{3,}\b) — 'A1', 'TERMINAL', 'VALORES', 'AQUI' rewritten out of the served files (test_guardrails G2 green against pristine main: only the pre-existing git-history lexicon check remains red in the jail, green in CI).
