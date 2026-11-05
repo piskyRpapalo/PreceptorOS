@@ -1582,12 +1582,21 @@ function botonGuardar(texto) {
   return b;
 }
 
+function anchorStatus(state, label) {
+  const anchor = $("busto"), status = $("anchor-status");
+  if (!anchor || !status) return;
+  anchor.dataset.state = state;
+  anchor.setAttribute("aria-label", label);
+  status.textContent = label;
+}
+
 async function turno(texto) {
   if (!texto.trim()) return;
   linea(texto, "mio");
   $("hablar").disabled = true;
   $("mandar").disabled = true;
   $("busto").classList.add("piensa");
+  anchorStatus("working", t("pensando"));
   // DOS Avisos, y el orden importa. El primero sale YA: el modelo tarda porque
   // hay que subir 2,3 GiB de disco a memoria, y eso es fisica, no un fallo.
   // Decirlo Antes de que la persona se impaciente es la diferencia entre
@@ -1623,11 +1632,12 @@ async function turno(texto) {
     const d = await r.json();
     limpiar();
     marcarFusionVista();
-    if (r.ok) linea(d.texto);
-    else linea(d.estado === "tarde" ? t("tarde") : t("fallo"), "malo");
+    if (r.ok) { linea(d.texto); anchorStatus("unknown", "Preceptor"); }
+    else { linea(d.estado === "tarde" ? t("tarde") : t("fallo"), "malo"); anchorStatus("error", t("fallo")); }
   } catch {
     limpiar();
     linea(t("sin_red"), "malo");
+    anchorStatus("error", t("sin_red"));
   }
   /* Pensar termina y empieza a hablar. La respuesta llega entera --no hay
    * streaming-- asi que la boca se mueve mientras el texto acaba de aparecer y
