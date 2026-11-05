@@ -70,6 +70,9 @@ in the dashboard. Existing chat submission reports pending and error through a
 visible live status; idle does not claim a model is running. No animation or
 external graphics. Local `python3 -m unittest test_pwa`: 66 passed;
 `python3 -m unittest test_guardrails`: 38 passed, 1 skipped. Remaining:
-localization of the initial status, independent accessibility review, authoritative
+independent accessibility review, authoritative
 sources for the other states, physical FPS, and Mesa-assigned service-worker seal.
 This candidate is incomplete and not ready for deployment or signature.
+
+2026-11-05: the unknown-status label now follows the app language across all nine
+declared languages. Local PWA and guardrail suites: 104 passed, 1 skipped.

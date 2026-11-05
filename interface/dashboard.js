@@ -1582,6 +1582,14 @@ function botonGuardar(texto) {
   return b;
 }
 
+function anchorUnknown() {
+  const labels = { es: "Estado del modelo no medido", en: "Model status not measured",
+    pt: "Estado do modelo não medido", fr: "État du modèle non mesuré",
+    it: "Stato del modello non misurato", de: "Modellstatus nicht gemessen",
+    ru: "Состояние модели не измерено", el: "Η κατάσταση του μοντέλου δεν έχει μετρηθεί",
+    ar: "حالة النموذج غير مقاسة" };
+  return "Preceptor · " + (labels[idioma] || labels.es);
+}
 function anchorStatus(state, label) {
   const anchor = $("busto"), status = $("anchor-status");
   if (!anchor || !status) return;
@@ -1632,7 +1640,7 @@ async function turno(texto) {
     const d = await r.json();
     limpiar();
     marcarFusionVista();
-    if (r.ok) { linea(d.texto); anchorStatus("unknown", "Preceptor"); }
+    if (r.ok) { linea(d.texto); anchorStatus("unknown", anchorUnknown()); }
     else { linea(d.estado === "tarde" ? t("tarde") : t("fallo"), "malo"); anchorStatus("error", t("fallo")); }
   } catch {
     limpiar();
@@ -1775,6 +1783,12 @@ function marcarFusionVista() {
    duracion cambie en el css, un numero repetido aqui se queda viejo y nadie
    se entera. Se filtra por nombre porque `respirar` tambien termina... nunca,
    pero `hablar` y `latir` si podrian llegar aqui. */
+const anchorLanguage = new MutationObserver(() => {
+  if ($("busto").dataset.state === "unknown") anchorStatus("unknown", anchorUnknown());
+});
+anchorLanguage.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+anchorStatus("unknown", anchorUnknown());
+
 const bustoEl = $("busto");
 if (bustoEl) {
   /* Antes esto esperaba al `animationend` de `despertar` para encender el ciclo
