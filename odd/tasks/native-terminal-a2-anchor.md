@@ -36,3 +36,31 @@ map's own seat). The carbon chooses; silicon ships the chosen one.
 - 2026-11-05: served to codex by mesa-web under the EMPUJE decree; cooking order A1→A4.
 
 Agent: preceptor-orquestador-github · Model: GLM (Vibe) · Run: NO_DATA
+
+## Commission · Codex · 2026-11-05
+
+### Problem
+The app dashboard still exposes a marble bust as its visual anchor; the commissioned
+native terminal calls for a node glyph with accessible, truthful status.
+
+### Outcome
+A reviewable hexagonal node anchor uses the existing accent and reports only states
+supported by evidence. Six display states, keyboard and screen-reader accessibility,
+and reduced-motion behavior must be demonstrable without inventing live activity.
+
+### Affects
+The existing app dashboard, its anchor styling and state bindings, and corresponding
+service-worker delivery. Claim: buzon#53 ·6652132076.
+
+### Constraints
+One piece and one draft PR; preserve existing chat and node behavior; no external
+assets, telemetry, or unmeasured runtime claims. Report physical-device FPS as
+NO_DATA until measured. Mesa assigns any required seal; silicon does not merge.
+
+### Open questions
+Which existing runtime events support each of the six states? Which state should
+be presented while there is no authoritative status source? Inspect before binding;
+use NO_DATA for missing evidence.
+
+Decision: the Sovereign delegated routine decisions and requested a hexagonal app
+esthetic. The hexagon from the signed A2 candidate list is the proposed anchor.
