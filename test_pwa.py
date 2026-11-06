@@ -1300,4 +1300,114 @@ class PortadaContract(unittest.TestCase):
         self.assertIn('NO_DATA: generation duration not returned', js)
         self.assertIn('root.performance.now()', js)
         self.assertIn('envelope && envelope.respuesta', js)
-        self.assertIn("turn('orquestador · local app', reply.texto, false)", js)
+        self.assertIn("turn('hexelion · local station', reply.texto, false)", js)
+
+
+class HexelionStationContract(unittest.TestCase):
+    def test_endpoint_ausente_devuelve_no_data_sin_tocar_red(self):
+        import hexelion_proxy
+        with mock.patch.dict(os.environ, {hexelion_proxy.ENDPOINT_ENV: ""}):
+            opener = mock.Mock()
+            result = hexelion_proxy.ask("hola", opener=opener)
+        self.assertEqual(result, {"estado": "NO_DATA", "causa": "station_endpoint_not_configured"})
+        opener.assert_not_called()
+
+    def test_config_solo_acepta_loopback_literal(self):
+        import hexelion_proxy
+        self.assertEqual(hexelion_proxy._base("http://127.0.0.1:11434"),
+                         ("http://127.0.0.1:11434", None))
+        self.assertEqual(hexelion_proxy._base("http://[::1]:11434"),
+                         ("http://[::1]:11434", None))
+        for endpoint in ("http://station.example:11434", "https://127.0.0.1:11434",
+                         "http://127.0.0.1:11434/path", "http://user@127.0.0.1:11434"):
+            with self.subTest(endpoint=endpoint):
+                base, cause = hexelion_proxy._base(endpoint)
+                self.assertIsNone(base)
+                self.assertIn(cause, {"station_loopback_required", "station_endpoint_invalid"})
+
+    def test_probes_model_y_envia_think_false_una_vez(self):
+        import hexelion_proxy
+        class Response:
+            def __init__(self, body): self.body = body
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self, limit): return self.body
+        opener = mock.Mock(side_effect=[
+            Response(b'{"models":[{"name":"hexelion:latest"}]}'),
+            Response(b'{"model":"hexelion:latest","response":"respuesta medida","total_duration":23000000}')
+        ])
+        ticks = iter((10.0, 11.5))
+        result = hexelion_proxy.ask("hola", endpoint="http://127.0.0.1:11434",
+                                    opener=opener, clock=lambda: next(ticks))
+        self.assertEqual(result, {"estado": "MEASURED", "texto": "respuesta medida",
+                                  "modelo": "hexelion:latest", "ms": 23.0})
+        self.assertEqual([call.kwargs["timeout"] for call in opener.call_args_list], [3, 120])
+        sent = json.loads(opener.call_args_list[1].args[0].data)
+        self.assertIs(sent["think"], False)
+        self.assertIs(sent["stream"], False)
+        self.assertEqual(sent["model"], "hexelion:latest")
+
+    def test_estacion_caida_no_entrega_placeholder(self):
+        import hexelion_proxy
+        opener = mock.Mock(side_effect=TimeoutError())
+        result = hexelion_proxy.ask("hola", endpoint="http://127.0.0.1:11434", opener=opener)
+        self.assertEqual(result, {"estado": "NO_DATA", "causa": "station_timeout"})
+        self.assertEqual(opener.call_count, 1)
+
+    def test_chat_endpoint_append_only_voz_hexelion_y_recibo_bajo_1k(self):
+        import io
+        from types import SimpleNamespace
+        import hexelion_proxy
+        payload = json.dumps({"texto": "hola"}).encode()
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/api/hexelion/chat"
+        handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
+        handler.rfile = io.BytesIO(payload)
+        handler.server = SimpleNamespace(ruta_db="unused")
+        captured = {}
+        handler._json = lambda code, body: captured.update(code=code, body=body)
+        handler._nodo_local_autorizado = lambda: True
+        result = {"estado": "MEASURED", "modelo": hexelion_proxy.MODEL,
+                  "ms": 23.0, "texto": "respuesta medida"}
+        with mock.patch.object(PWA._casa, "raiz", return_value="unused"), \
+             mock.patch.object(PWA._canales, "di_soberano") as person, \
+             mock.patch.object(PWA._canales, "di") as station, \
+             mock.patch.object(PWA._hexelion_proxy, "ask", return_value=result):
+            PWA.PWA._hexelion_chat(handler)
+        person.assert_called_once_with("orquesta", "hola", base="unused")
+        args, kwargs = station.call_args
+        self.assertEqual(args[:3], ("orquesta", "hexelion", "respuesta medida"))
+        self.assertEqual(kwargs["maquina"]["modelo"], "hexelion:latest")
+        self.assertEqual(captured["code"], 200)
+        self.assertEqual(captured["body"]["respuesta"]["voz"], "hexelion")
+        self.assertLess(len(json.dumps(captured["body"], ensure_ascii=False).encode()), 1024)
+
+    def test_chat_endpoint_falla_cerrado_y_conserva_a11y_de_portada(self):
+        import io
+        from types import SimpleNamespace
+        payload = json.dumps({"texto": "hola"}).encode()
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/api/hexelion/chat"
+        handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
+        handler.rfile = io.BytesIO(payload)
+        handler.server = SimpleNamespace(ruta_db="unused")
+        captured = {}
+        handler._json = lambda code, body: captured.update(code=code, body=body)
+        handler._nodo_local_autorizado = lambda: True
+        with mock.patch.object(PWA._casa, "raiz", return_value="unused"), \
+             mock.patch.object(PWA._canales, "di_soberano"), \
+             mock.patch.object(PWA._hexelion_proxy, "ask", return_value={
+                 "estado": "NO_DATA", "causa": "station_endpoint_not_configured"}), \
+             mock.patch.object(PWA._canales, "di") as station:
+            PWA.PWA._hexelion_chat(handler)
+        station.assert_not_called()
+        self.assertEqual(captured["body"]["estado"], "NO_DATA")
+        self.assertIn("station_endpoint_not_configured", captured["body"]["causa"])
+        html = (pathlib.Path(AQUI) / "interface/hexelion.html").read_text()
+        css = (pathlib.Path(AQUI) / "interface/hexelion.css").read_text()
+        js = (pathlib.Path(AQUI) / "interface/hexelion.js").read_text()
+        self.assertIn('role="log" aria-live="polite"', html)
+        self.assertIn("min-height:44px", css)
+        self.assertIn("outline:3px solid", css)
+        self.assertIn("new AbortController()", js)
+        self.assertIn("/api/hexelion/chat", js)

@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
   var doc = root.document, $ = function (id) { return doc.getElementById(id); };
-  var pending = false, request = null, lastAnswer = '', voice = null, readGeneration = 0;
+  var pending = false, request = null, requestStartedAt = null, lastAnswer = '', voice = null, readGeneration = 0;
   var semantic = root.AtlasSemantica, comic = root.AtlasComicTokens;
   function band(seal, variable) {
     var entry = comic.tone(seal);
@@ -17,6 +17,9 @@
     $('anchor-state').textContent = sentence;
   }
   function status(sentence) { $('connection').textContent = sentence; }
+  function pageWait(startedAt) {
+    return Number.isFinite(startedAt) ? Math.max(0, root.performance.now() - startedAt).toFixed(1) + ' ms total browser wait' : 'NO_DATA: browser wait not measured';
+  }
   function receipt(model, duration, cause) {
     var line = 'Model: ' + model + ' · duration: ' + duration + ' · cause: ' + cause;
     if (new TextEncoder().encode(line).length >= 1024) line = 'NO_DATA: receipt exceeded 1,023 UTF-8 bytes.';
@@ -33,15 +36,15 @@
     var reply = envelope && envelope.respuesta;
     if (!reply || reply.estado === 'NO_DATA' || typeof reply.texto !== 'string' || !reply.texto.trim()) {
       var why = reply && reply.causa ? reply.causa : 'NO_DATA: no attributed model reply';
-      receipt('NO_DATA: model unavailable', 'NO_DATA: not measured', why);
+      receipt('NO_DATA: model unavailable', pageWait(startedAt) + ' · NO_DATA: generation not returned', why);
       anchor('NO_DATA', why); throw new Error(why);
     }
-    turn('orquestador · local app', reply.texto, false);
+    turn('hexelion · local station', reply.texto, false);
     var measured = reply.maquina || {};
     var model = typeof measured.modelo === 'string' && measured.modelo ? measured.modelo : 'NO_DATA: response did not identify model';
     var generation = Number.isFinite(measured.ms) && measured.ms >= 0 ? measured.ms + ' ms generation' : 'NO_DATA: generation duration not returned';
-    var total = Number.isFinite(startedAt) ? Math.max(0, root.performance.now() - startedAt).toFixed(1) + ' ms total page wait (browser measured)' : 'NO_DATA: total page wait unavailable';
-    receipt(model, total + ' · ' + generation, 'NO_DATA: no signed benchcard accompanies this local response');
+    var total = pageWait(startedAt);
+    receipt(model, total + ' · ' + generation, envelope.causa || 'NO_DATA: response cause unavailable');
     anchor('LIVE', 'Answer received from ' + model + '. The local call is complete.');
     return reply;
   }
@@ -68,27 +71,27 @@
     if (!request) return;
     request.abort(); status('Stopped waiting in this browser. The local request may already be recorded; read the thread to check.');
     anchor('failed', 'NO_DATA: browser stopped waiting; server result is unknown.');
-    receipt('NO_DATA: reply not received', 'NO_DATA: wait aborted', 'NO_DATA: browser stopped waiting; server may already have recorded the reply');
+    receipt('NO_DATA: reply not received', pageWait(requestStartedAt) + ' · NO_DATA: generation receipt not received', 'NO_DATA: browser stopped waiting; server may already have recorded the reply');
   });
   $('message-form').addEventListener('submit', async function (event) {
     event.preventDefault(); var text = $('message').value.trim();
     if (pending || !text || text.length > 600) return;
-    pending = true; request = new AbortController(); var startedAt = root.performance.now(); $('send').disabled = true; $('refresh').disabled = true; $('stop').disabled = false;
-    turn('soberano · explicit send', text, true); status('Waiting for the local orchestrator.');
-    anchor('thinking', 'Thinking: the local request is in flight.');
+    pending = true; request = new AbortController(); var startedAt = requestStartedAt = root.performance.now(); $('send').disabled = true; $('refresh').disabled = true; $('stop').disabled = false;
+    turn('soberano · explicit send', text, true); status('Waiting for Hexelion through the local app proxy.');
+    anchor('thinking', 'Thinking: the local station request is in flight.');
     receipt('NO_DATA: response pending', 'NO_DATA: still running', 'NO_DATA: no reply received yet');
     try {
-      var response = await root.fetch('/api/lab', { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: text }), signal: request.signal });
+      var response = await root.fetch('/api/hexelion/chat', { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: text }), signal: request.signal });
       var data = await response.json();
-      if (!response.ok) throw new Error(data.motivo || 'local_request_refused');
-      var reply = paintReply(data, startedAt); if (reply) { $('message').value = ''; status('Answer received from the local orchestrator.'); }
+      if (!response.ok) throw new Error(data.causa || 'station_request_not_confirmed');
+      var reply = paintReply(data, startedAt); if (reply) { $('message').value = ''; status('Answer received from Hexelion through the local app.'); }
     } catch (error) {
       if (error.name !== 'AbortError') {
         var cause = error && error.message ? error.message : 'NO_DATA: local answer not confirmed';
-        receipt('NO_DATA: model not confirmed', 'NO_DATA: unavailable', cause);
-        anchor('failed', 'NO_DATA: ' + cause); status('NO_DATA: no attributed answer confirmed; read the thread before another send.');
+        receipt('NO_DATA: model not confirmed', pageWait(startedAt) + ' · NO_DATA: generation not returned', cause);
+        anchor('failed', 'NO_DATA: ' + cause); status('NO_DATA: no Hexelion answer confirmed; read the thread before another send.');
       }
-    } finally { pending = false; request = null; $('send').disabled = false; $('refresh').disabled = false; $('stop').disabled = true; }
+    } finally { pending = false; request = null; requestStartedAt = null; $('send').disabled = false; $('refresh').disabled = false; $('stop').disabled = true; }
   });
   $('memory-form').addEventListener('submit', async function (event) {
     event.preventDefault(); var query = $('memory-query').value.trim(); if (!query) return;

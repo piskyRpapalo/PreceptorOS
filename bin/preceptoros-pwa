@@ -71,6 +71,7 @@ import node_registration as _node_registration              # noqa: E402
 import node_building as _node_building                      # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
+import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
 import voz_creacion as _voz_creacion                          # noqa: E402
@@ -305,7 +306,7 @@ class PWA(BaseHTTPRequestHandler):
     server_version = "preceptoros-pwa"
 
     def _json(self, codigo, cuerpo):
-        if self.path.split("?")[0] in ("/api/orquestador", "/api/hexelion/search", "/api/hexelion/decision"):
+        if self.path.split("?")[0] in ("/api/orquestador", "/api/hexelion/search", "/api/hexelion/decision", "/api/hexelion/chat"):
             try:
                 crudo = _estado_compacto.serializar_objeto(cuerpo)
             except ValueError:
@@ -317,7 +318,9 @@ class PWA(BaseHTTPRequestHandler):
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(crudo)))
-        if self.path.split("?")[0].startswith("/api/nodo/") or self.path.split("?")[0] == "/api/bandeja":
+        if (self.path.split("?")[0].startswith("/api/nodo/") or
+                self.path.split("?")[0].startswith("/api/hexelion/") or
+                self.path.split("?")[0] == "/api/bandeja"):
             self.send_header("Cache-Control", "no-store")
         if (self.path.split("?")[0] == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -546,6 +549,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._creacion_publicar()
         if ruta == "/api/creaciones/voz":
             return self._creacion_voz()
+        if ruta == "/api/hexelion/chat":
+            return self._hexelion_chat()
         if ruta in ("/api/hexelion/search", "/api/hexelion/decision"):
             return self._hexelion_consulta(ruta)
         if ruta == "/api/orquestador":
@@ -812,6 +817,63 @@ class PWA(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(raw)
+
+    def _hexelion_chat(self):
+        """Append the person's turn, then proxy one bounded local station call."""
+        def no_data(cause, code=503):
+            return self._json(code, {"estado": "NO_DATA", "causa": cause,
+                                     "respuesta": {"estado": "NO_DATA", "causa": cause}})
+        if not self._nodo_local_autorizado():
+            return no_data("local_origin_required", 403)
+        if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+            return no_data("json_required", 415)
+        try:
+            size = int(self.headers.get("Content-Length") or 0)
+            if not 0 < size < 1024:
+                raise ValueError()
+            raw = self.rfile.read(size)
+            def unique(pairs):
+                result = {}
+                for key, value in pairs:
+                    if key in result:
+                        raise ValueError()
+                    result[key] = value
+                return result
+            data = json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=unique)
+            if len(raw) != size or type(data) is not dict or set(data) != {"texto"}:
+                raise ValueError()
+            text = data["texto"]
+            if type(text) is not str or not text.strip() or len(text) > 600:
+                raise ValueError()
+        except (TypeError, ValueError, UnicodeError, RecursionError):
+            return no_data("request_invalid", 400)
+        try:
+            _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
+        except _canales.CanalRechazado:
+            return no_data("thread_append_refused")
+        result = _hexelion_proxy.ask(text.strip())
+        if result.get("estado") != "MEASURED":
+            return no_data(result.get("causa") or "station_unavailable")
+        model, duration, answer = result.get("modelo"), result.get("ms"), result.get("texto")
+        if (model != _hexelion_proxy.MODEL or type(duration) not in (int, float)
+                or duration <= 0 or not isinstance(answer, str) or not answer.strip()):
+            return no_data("station_receipt_invalid")
+        response = {"estado": "MEASURED", "respuesta": {
+            "estado": "MEASURED", "texto": answer, "voz": "hexelion",
+            "maquina": {"modelo": model, "ms": duration}},
+            "causa": "station_reply_received; no authority inferred"}
+        try:
+            _estado_compacto.serializar_objeto(response)
+        except (TypeError, ValueError, UnicodeError):
+            return no_data("station_reply_exceeds_receipt_budget")
+        try:
+            _canales.di("orquesta", "hexelion", answer.strip(), sello="DECLARADO",
+                        rol="Hexelion local station",
+                        maquina={"modelo": model, "ms": duration, "via": "loopback station"},
+                        base=_casa.raiz())
+        except _canales.CanalRechazado:
+            return no_data("thread_append_refused")
+        return self._json(200, response)
 
     def _hexelion_consulta(self, ruta):
         """Explicit same-origin local lookup; optional advice never executes actions."""
