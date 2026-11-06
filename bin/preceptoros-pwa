@@ -72,6 +72,7 @@ import node_building as _node_building                      # noqa: E402
 import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
+import hexelion_book as _hexelion_book                       # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
 import voz_creacion as _voz_creacion                          # noqa: E402
@@ -851,17 +852,25 @@ class PWA(BaseHTTPRequestHandler):
             _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
-        result = _hexelion_proxy.ask(text.strip())
+        evidence = _memory_lookup.buscar(text.strip(), self.server.ruta_db)
+        prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence)
+        if prepared.get("estado") != "MEASURED" or prompt is None:
+            return no_data(prepared.get("causa") or "memory_evidence_unavailable")
+        result = _hexelion_proxy.ask(prompt)
         if result.get("estado") != "MEASURED":
             return no_data(result.get("causa") or "station_unavailable")
         model, duration, answer = result.get("modelo"), result.get("ms"), result.get("texto")
         if (model != _hexelion_proxy.MODEL or type(duration) not in (int, float)
                 or duration <= 0 or not isinstance(answer, str) or not answer.strip()):
             return no_data("station_receipt_invalid")
+        verified, citations = _hexelion_book.verificar_citas(answer, prepared["fuentes"])
+        if verified.get("estado") != "MEASURED" or not citations:
+            return no_data(verified.get("causa") or "station_extract_not_verified")
+        answer = verified["texto"]
         response = {"estado": "MEASURED", "respuesta": {
             "estado": "MEASURED", "texto": answer, "voz": "hexelion",
-            "maquina": {"modelo": model, "ms": duration}},
-            "causa": "station_reply_received; no authority inferred"}
+            "maquina": {"modelo": model, "ms": duration}, "fuentes": citations},
+            "causa": "verified_memory_sources; no authority inferred"}
         try:
             _estado_compacto.serializar_objeto(response)
         except (TypeError, ValueError, UnicodeError):
@@ -869,7 +878,8 @@ class PWA(BaseHTTPRequestHandler):
         try:
             _canales.di("orquesta", "hexelion", answer.strip(), sello="DECLARADO",
                         rol="Hexelion local station",
-                        maquina={"modelo": model, "ms": duration, "via": "loopback station"},
+                        maquina={"modelo": model, "ms": duration, "via": "loopback station",
+                                 "fuentes": citations},
                         base=_casa.raiz())
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")

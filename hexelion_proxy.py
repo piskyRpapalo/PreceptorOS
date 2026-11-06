@@ -9,11 +9,14 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlsplit, urlunsplit
 
+import hexelion_book as _hexelion_book
+
 ENDPOINT_ENV = "PRECEPTOROS_HEXELION_ENDPOINT"
 MODEL = "hexelion:latest"
 PROBE_TIMEOUT_S = 3
 GENERATE_TIMEOUT_S = 120
 MAX_RESPONSE_B = 65536
+MAX_PROMPT_B = _hexelion_book.MAX_PROMPT_B
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -68,8 +71,13 @@ def ask(text, *, endpoint=None, opener=None, clock=time.monotonic):
     base, cause = _base(os.environ.get(ENDPOINT_ENV) if endpoint is None else endpoint)
     if cause:
         return {"estado": "NO_DATA", "causa": cause}
-    if type(text) is not str or not text.strip() or len(text) > 600:
+    if type(text) is not str or not text.strip():
         return {"estado": "NO_DATA", "causa": "message_invalid"}
+    try:
+        if len(text.encode("utf-8", "strict")) > MAX_PROMPT_B:
+            return {"estado": "NO_DATA", "causa": "prompt_exceeds_context_budget"}
+    except UnicodeError:
+        return {"estado": "NO_DATA", "causa": "prompt_invalid_utf8"}
 
     open_url = opener or urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect()).open
     try:

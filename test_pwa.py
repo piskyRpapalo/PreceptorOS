@@ -1300,7 +1300,8 @@ class PortadaContract(unittest.TestCase):
         self.assertIn('NO_DATA: generation duration not returned', js)
         self.assertIn('root.performance.now()', js)
         self.assertIn('envelope && envelope.respuesta', js)
-        self.assertIn("turn('hexelion · local station', reply.texto, false)", js)
+        self.assertIn("turn('hexelion · local station', reply.texto, false, reply.fuentes)", js)
+        self.assertIn('Verified memory citations', js)
 
 
 class HexelionStationContract(unittest.TestCase):
@@ -1357,8 +1358,10 @@ class HexelionStationContract(unittest.TestCase):
     def test_chat_endpoint_append_only_voz_hexelion_y_recibo_bajo_1k(self):
         import io
         from types import SimpleNamespace
+        import hashlib
+        import hexelion_book
         import hexelion_proxy
-        payload = json.dumps({"texto": "hola"}).encode()
+        payload = json.dumps({"texto": "¿Qué dice el archivo?"}, ensure_ascii=False).encode()
         handler = PWA.PWA.__new__(PWA.PWA)
         handler.path = "/api/hexelion/chat"
         handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
@@ -1367,24 +1370,66 @@ class HexelionStationContract(unittest.TestCase):
         captured = {}
         handler._json = lambda code, body: captured.update(code=code, body=body)
         handler._nodo_local_autorizado = lambda: True
+        source_text = "The archive says: measured seed 17."
+        source = {"id": 9, "updated_at": "2026-11-06T00:00:00Z",
+                  "sha256": hashlib.sha256(source_text.encode()).hexdigest(), "texto": source_text}
+        evidence = {"esquema": hexelion_book.SCHEMA, "estado": "MEASURED", "fuentes": [source]}
         result = {"estado": "MEASURED", "modelo": hexelion_proxy.MODEL,
-                  "ms": 23.0, "texto": "respuesta medida"}
+                  "ms": 23.0, "texto": json.dumps({"citas": [{"id": 9, "quote": "measured seed 17"}]})}
         with mock.patch.object(PWA._casa, "raiz", return_value="unused"), \
              mock.patch.object(PWA._canales, "di_soberano") as person, \
              mock.patch.object(PWA._canales, "di") as station, \
-             mock.patch.object(PWA._hexelion_proxy, "ask", return_value=result):
+             mock.patch.object(PWA._memory_lookup, "buscar", return_value=evidence) as search, \
+             mock.patch.object(PWA._hexelion_proxy, "ask", return_value=result) as ask:
             PWA.PWA._hexelion_chat(handler)
-        person.assert_called_once_with("orquesta", "hola", base="unused")
+        person.assert_called_once_with("orquesta", "¿Qué dice el archivo?", base="unused")
+        search.assert_called_once_with("¿Qué dice el archivo?", "unused")
+        prompt = ask.call_args.args[0]
+        self.assertIn(source_text, prompt)
+        self.assertIn("¿Qué dice el archivo?", prompt)
         args, kwargs = station.call_args
-        self.assertEqual(args[:3], ("orquesta", "hexelion", "respuesta medida"))
+        self.assertEqual(args[:3], ("orquesta", "hexelion", "measured seed 17"))
         self.assertEqual(kwargs["maquina"]["modelo"], "hexelion:latest")
+        self.assertEqual(kwargs["maquina"]["fuentes"][0]["sha256"], source["sha256"])
         self.assertEqual(captured["code"], 200)
         self.assertEqual(captured["body"]["respuesta"]["voz"], "hexelion")
+        self.assertEqual(captured["body"]["respuesta"]["fuentes"][0]["id"], 9)
+        self.assertEqual(captured["body"]["causa"], "verified_memory_sources; no authority inferred")
         self.assertLess(len(json.dumps(captured["body"], ensure_ascii=False).encode()), 1024)
+
+    def test_chat_sin_memoria_no_llama_estacion_ni_append_hexelion(self):
+        import io
+        from types import SimpleNamespace
+        import memory_lookup
+        payload = json.dumps({"texto": "¿Qué recuerda?"}, ensure_ascii=False).encode()
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/api/hexelion/chat"
+        handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
+        handler.rfile = io.BytesIO(payload)
+        handler.server = SimpleNamespace(ruta_db="unused")
+        captured = {}
+        handler._json = lambda code, body: captured.update(code=code, body=body)
+        handler._nodo_local_autorizado = lambda: True
+        with mock.patch.object(PWA._casa, "raiz", return_value="unused"), \
+             mock.patch.object(PWA._canales, "di_soberano"), \
+             mock.patch.object(PWA._memory_lookup, "buscar", return_value=memory_lookup.unavailable("no_matches")), \
+             mock.patch.object(PWA._hexelion_proxy, "ask") as ask, \
+             mock.patch.object(PWA._canales, "di") as station:
+            PWA.PWA._hexelion_chat(handler)
+        ask.assert_not_called()
+        station.assert_not_called()
+        self.assertEqual(captured["body"]["estado"], "NO_DATA")
+        self.assertEqual(captured["body"]["causa"], "no_matches")
 
     def test_chat_endpoint_falla_cerrado_y_conserva_a11y_de_portada(self):
         import io
         from types import SimpleNamespace
+        import hashlib
+        import hexelion_book
+        source_text = "Measured archive source."
+        evidence = {"esquema": hexelion_book.SCHEMA, "estado": "MEASURED", "fuentes": [
+            {"id": 2, "updated_at": "2026-11-06T00:00:00Z",
+             "sha256": hashlib.sha256(source_text.encode()).hexdigest(), "texto": source_text}]}
         payload = json.dumps({"texto": "hola"}).encode()
         handler = PWA.PWA.__new__(PWA.PWA)
         handler.path = "/api/hexelion/chat"
@@ -1396,6 +1441,7 @@ class HexelionStationContract(unittest.TestCase):
         handler._nodo_local_autorizado = lambda: True
         with mock.patch.object(PWA._casa, "raiz", return_value="unused"), \
              mock.patch.object(PWA._canales, "di_soberano"), \
+             mock.patch.object(PWA._memory_lookup, "buscar", return_value=evidence), \
              mock.patch.object(PWA._hexelion_proxy, "ask", return_value={
                  "estado": "NO_DATA", "causa": "station_endpoint_not_configured"}), \
              mock.patch.object(PWA._canales, "di") as station:
@@ -1411,3 +1457,4 @@ class HexelionStationContract(unittest.TestCase):
         self.assertIn("outline:3px solid", css)
         self.assertIn("new AbortController()", js)
         self.assertIn("/api/hexelion/chat", js)
+        self.assertIn("Verified memory citations", js)

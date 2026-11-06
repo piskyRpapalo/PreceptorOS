@@ -25,11 +25,28 @@
     if (new TextEncoder().encode(line).length >= 1024) line = 'NO_DATA: receipt exceeded 1,023 UTF-8 bytes.';
     $('receipt').textContent = line;
   }
-  function turn(who, text, person) {
+  function turn(who, text, person, sources) {
     var li = doc.createElement('li'), speaker = doc.createElement('span'), body = doc.createElement('p');
     li.className = 'turn'; li.dataset.role = person ? 'person' : 'model';
     speaker.className = 'speaker'; body.className = 'turn-text';
-    speaker.textContent = who; body.textContent = text; li.append(speaker, body); $('thread').append(li);
+    speaker.textContent = who; body.textContent = text;
+    var citations = null;
+    if (Array.isArray(sources) && sources.length) {
+      citations = doc.createElement('ul'); citations.className = 'citations'; citations.setAttribute('aria-label', 'Verified memory citations');
+      sources.forEach(function (source) {
+        if (!Number.isSafeInteger(source.id) || typeof source.updated_at !== 'string' || !/^[a-f0-9]{64}$/.test(source.sha256)) throw new Error('NO_DATA: citation metadata invalid');
+        var cite = doc.createElement('li');
+        cite.textContent = 'Memory ' + source.id + ' · ' + source.updated_at + ' · SHA-256 ' + source.sha256;
+        citations.append(cite);
+      });
+    }
+    li.append(speaker, body);
+    if (citations) li.append(citations);
+    else if (!person && (who === 'hexelion · local station' || who === 'hexelion')) {
+      var absent = doc.createElement('p'); absent.className = 'citation-cause';
+      absent.textContent = 'NO_DATA: historical citation metadata unavailable.'; li.append(absent);
+    }
+    $('thread').append(li);
     if (!person) { lastAnswer = who + '. ' + text; $('read-last').disabled = false; }
   }
   function paintReply(envelope, startedAt) {
@@ -39,7 +56,8 @@
       receipt('NO_DATA: model unavailable', pageWait(startedAt) + ' · NO_DATA: generation not returned', why);
       anchor('NO_DATA', why); throw new Error(why);
     }
-    turn('hexelion · local station', reply.texto, false);
+    if (!Array.isArray(reply.fuentes) || reply.fuentes.length < 1 || reply.fuentes.length > 3) throw new Error('NO_DATA: verified memory citations unavailable');
+    turn('hexelion · local station', reply.texto, false, reply.fuentes);
     var measured = reply.maquina || {};
     var model = typeof measured.modelo === 'string' && measured.modelo ? measured.modelo : 'NO_DATA: response did not identify model';
     var generation = Number.isFinite(measured.ms) && measured.ms >= 0 ? measured.ms + ' ms generation' : 'NO_DATA: generation duration not returned';
@@ -56,7 +74,7 @@
       if (!response.ok || !data.conversacion || !Array.isArray(data.conversacion.mensajes)) throw new Error('local_thread_unavailable');
       $('thread').replaceChildren(); lastAnswer = ''; $('read-last').disabled = true;
       data.conversacion.mensajes.forEach(function (message) {
-        if (typeof message.texto === 'string' && typeof message.quien === 'string') turn(message.quien, message.texto, message.quien === 'soberano');
+        if (typeof message.texto === 'string' && typeof message.quien === 'string') turn(message.quien, message.texto, message.quien === 'soberano', message.maquina && message.maquina.fuentes);
       });
       status('Local thread read · ' + data.conversacion.mensajes.length + ' attributed records.');
       if (data.conversacion.mensajes.length) receipt('NO_DATA: historical model identity unavailable', 'NO_DATA: historical duration unavailable', 'NO_DATA: this record predates page receipt metadata');
