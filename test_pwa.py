@@ -1122,8 +1122,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=6', html)
-        self.assertIn('"/app.js?v=6"', sw)
+        self.assertIn('/app.js?v=7', html)
+        self.assertIn('"/app.js?v=7"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
@@ -1289,9 +1289,11 @@ class PortadaContract(unittest.TestCase):
     def test_zone_buttons_point_to_real_routes_or_explicit_cause(self):
         html = (pathlib.Path(AQUI) / 'interface/hexelion.html').read_text()
         self.assertIn('href="/"', html)
-        self.assertIn('href="/app.html#tab-lab"', html)
-        self.assertIn('href="/app.html#tab-modelos"', html)
-        self.assertIn('href="/app.html#tab-ajustes"', html)
+        # Decreto interfaz unica (2026-11-06): models y settings rutean al
+        # lab de la app, la unica interfaz que se modifica.
+        self.assertEqual(html.count('href="/app.html#tab-lab"'), 3)
+        self.assertNotIn('href="/app.html#tab-modelos"', html)
+        self.assertNotIn('href="/app.html#tab-ajustes"', html)
 
     def test_receipt_ceiling_and_honest_stop(self):
         js = (pathlib.Path(AQUI) / 'interface/hexelion.js').read_text()
@@ -1458,3 +1460,31 @@ class HexelionStationContract(unittest.TestCase):
         self.assertIn("new AbortController()", js)
         self.assertIn("/api/hexelion/chat", js)
         self.assertIn("Verified memory citations", js)
+
+
+class RutaAppContrato(unittest.TestCase):
+    """Decreto interfaz unica (2026-11-06): /app es la puerta canonica.
+
+    Sirve los mismos bytes que /app.html: una sola interfaz que se
+    modifica, con dos formas de pedirla, no dos piezas pegadas."""
+
+    def test_ruta_app_sirve_la_interfaz_unica(self):
+        import io
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/app"
+        handler.headers = {}
+        handler.wfile = io.BytesIO()
+        handler.send_response = mock.Mock()
+        handler.send_header = mock.Mock()
+        handler.end_headers = mock.Mock()
+        PWA.PWA.do_GET(handler)
+        handler.send_response.assert_called_once_with(200)
+        esperado = pathlib.Path(AQUI, "interface", "app.html").read_bytes()
+        self.assertEqual(handler.wfile.getvalue(), esperado)
+
+    def test_rutas_profundas_abren_la_zona_que_nombra_el_hash(self):
+        js = (pathlib.Path(AQUI) / "interface/app.js").read_text(encoding="utf-8")
+        self.assertIn("location.hash", js)
+        self.assertIn("#tab-", js)
+        self.assertIn("hashchange", js)
+        self.assertIn("findIndex((z) => z.id === pedida)", js)
