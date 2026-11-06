@@ -14,6 +14,7 @@ import importlib.util
 import json
 import os
 import pathlib
+import re
 import sys
 import tempfile
 import unittest
@@ -1246,3 +1247,57 @@ class TestPwaInstallPath(unittest.TestCase):
         self.assertEqual(manifest['id'],'/')
         self.assertEqual(manifest['scope'],'/')
         self.assertEqual(manifest['start_url'],'/hexelion.html')
+
+
+
+class PortadaContract(unittest.TestCase):
+    def test_stage_two_slots_have_source_or_explicit_no_data(self):
+        contract = (pathlib.Path(AQUI) / 'docs/style-contract.md').read_text()
+        self.assertIn('source_revision: 683d875274dc7cf9e75580569d2c0b135ac43187', contract)
+        self.assertIn('pin ratificado por la FIRMA SOBERANO', contract)
+        yaml = contract.split('```yaml\n', 1)[1].split('\n```', 1)[0]
+        for line in yaml.splitlines():
+            if re.match(r'^  [^#]+: ""', line):
+                self.assertIn('NO_DATA:', line, line)
+            if re.match(r'^  [^#]+: "[^"].*"$', line):
+                self.assertRegex(line, r'public/(assets|game)/[^ ]+')
+
+    def test_visual_colors_are_semantic_bands_not_literal_palette(self):
+        js = (pathlib.Path(AQUI) / 'interface/hexelion.js').read_text()
+        css = (pathlib.Path(AQUI) / 'interface/hexelion.css').read_text()
+        self.assertIn("band('LIVE', '--band-live')", js)
+        self.assertIn("band('NO_DATA', '--band-no-data')", js)
+        self.assertIn("band(failSeal, '--band-error')", js)
+        self.assertIn("band(proposalSeal, '--band-proposed')", js)
+        self.assertNotRegex(css, r'#[0-9a-fA-F]{3,8}')
+
+    def test_a11y_composer_and_anchor_contract(self):
+        html = (pathlib.Path(AQUI) / 'interface/hexelion.html').read_text()
+        css = (pathlib.Path(AQUI) / 'interface/hexelion.css').read_text()
+        js = (pathlib.Path(AQUI) / 'interface/hexelion.js').read_text()
+        self.assertIn('role="log" aria-live="polite"', html)
+        self.assertIn('id="anchor"', html)
+        self.assertIn('id="stop"', html)
+        self.assertIn('rows="3"', html)
+        self.assertIn("!event.shiftKey", js)
+        self.assertIn('new AbortController()', js)
+        self.assertIn('min-height:44px', css)
+        self.assertIn('outline:3px solid', css)
+        self.assertIn('prefers-reduced-motion:reduce', css)
+        self.assertNotRegex(css, r'animation\s*:\s*(?!none)')
+
+    def test_zone_buttons_point_to_real_routes_or_explicit_cause(self):
+        html = (pathlib.Path(AQUI) / 'interface/hexelion.html').read_text()
+        self.assertIn('href="/"', html)
+        self.assertIn('href="/app.html#tab-lab"', html)
+        self.assertIn('href="/app.html#tab-modelos"', html)
+        self.assertIn('href="/app.html#tab-ajustes"', html)
+
+    def test_receipt_ceiling_and_honest_stop(self):
+        js = (pathlib.Path(AQUI) / 'interface/hexelion.js').read_text()
+        self.assertIn("encode(line).length >= 1024", js)
+        self.assertIn('browser stopped waiting; server may already have recorded the reply', js)
+        self.assertIn('NO_DATA: generation duration not returned', js)
+        self.assertIn('root.performance.now()', js)
+        self.assertIn('envelope && envelope.respuesta', js)
+        self.assertIn("turn('orquestador · local app', reply.texto, false)", js)

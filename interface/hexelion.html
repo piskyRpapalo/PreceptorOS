@@ -3,50 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101e24">
-<title>Hexelion · Session</title>
+<meta name="theme-color" content="Canvas">
+<title>Hexelion · PreceptorOS</title>
 <link rel="icon" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="/hexelion.css">
+<script defer src="/face/bubble/tabla_semantica.js"></script>
+<script defer src="/face/bubble/comic_%74okens.js"></script>
+<script defer src="/face/bubble/comic_accents.js"></script>
 <script defer src="/install.js"></script>
 <script defer src="/hexelion.js"></script>
 </head>
 <body>
 <a class="skip" href="#conversation">Skip to conversation</a>
-<div class="shell">
-<aside class="rail" aria-label="Session navigation">
-  <a class="brand" href="/hexelion.html"><span class="sigil" aria-hidden="true">H</span><span>Hexelion<small>One session. Every voice attributed.</small></span></a>
-  <nav aria-label="Existing app rooms"><a href="/">Living map <span>↗</span></a><a href="/app.html">App rooms <span>↗</span></a><a href="/dashboard.html">Local dashboard <span>↗</span></a></nav>
-  <div class="rail-note"><span class="eyebrow">The door</span><p>Your text stays on the existing local app path. A model answer grants no authority.</p></div>
-</aside>
-<main>
-  <header class="mast"><p class="eyebrow">Session / conversation</p><div><span class="badge">Local app</span> <button id="install-app" type="button" disabled>Install Hexelion</button></div></header>
-  <p id="install-state" role="status" aria-live="polite">Install eligibility has not been measured.</p>
-  <section class="intro" aria-labelledby="title"><p class="eyebrow">A place to continue</p><h1 id="title">Speak. Keep the thread.</h1><p>Hexelion brings the work into one room.<br>Who answered, and what happened, stay visible.</p></section>
-  <div class="workspace">
-    <section id="conversation" class="conversation" aria-labelledby="conversation-title" tabindex="-1">
-      <div class="section-head"><h2 id="conversation-title">Conversation</h2><button id="refresh" type="button">Read local thread</button></div>
-      <p id="connection" role="status" aria-live="polite">Not read yet. Choose Read local thread or send a message.</p>
-      <ol id="thread" aria-label="Attributed conversation" aria-live="polite"></ol>
-      <form id="message-form"><label for="message">Your message to the local orchestrator</label><textarea id="message" name="message" rows="3" maxlength="4000" required placeholder="What shall we work on?"></textarea><div class="compose-foot"><span>Local pipe model · explicit send</span><button type="submit" id="send">Send message <span aria-hidden="true">↗</span></button></div></form>
-      <section aria-labelledby="memory-title">
-        <h2 id="memory-title">Find a memory</h2>
-        <p>Search saved fragments before asking the model. Results keep their source.</p>
-        <form id="memory-form"><label for="memory-query">Search your local memory</label><textarea id="memory-query" rows="2" maxlength="600" required></textarea><div class="compose-foot"><button id="memory-search" type="submit">Quick search</button><button id="memory-decision" type="button">Ask Hexelion for a decision</button></div></form>
-        <p id="memory-status" role="status" aria-live="polite">No search sent. Quick search does not call a model.</p>
-        <ol id="memory-results" aria-label="Memory sources"></ol>
-        <p id="decision-status" role="status" aria-live="polite">No decision requested. Proposals do not execute actions.</p>
-        <output id="decision-result"></output>
-      </section>
-    </section>
-    <aside class="context" aria-label="Session evidence">
-      <section><p class="eyebrow">The voice</p><h2>Attribution comes first.</h2><p>The app's local orchestrator answers here. Tower and aula answers are not implied.</p><label for="voice-source">Read using</label><select id="voice-source"><option value="browser">Local browser voice</option><option value="host-espeak-ng">App host · espeak-ng (English)</option></select><button id="read-last" type="button" disabled>Read last answer</button><button id="stop-reading" type="button">Stop reading</button><p id="voice-state" role="status" aria-live="polite">NO_DATA · native voice not measured.</p></section>
-      <section><p class="eyebrow">The receipt</p><output id="receipt">No request sent in this page.</output></section>
-      <section><p class="eyebrow">The aula</p><a id="aula-link" hidden href="http://127.0.0.1:8080/" rel="noreferrer">Open aula on this device ↗</a><p id="aula-state">NO_DATA · this browser's route to the aula is not configured.</p></section>
-    </aside>
-  </div>
-  <footer><p id="position" role="status">Position: session / conversation.</p><span>Human STOP always comes first.</span></footer>
+<main class="app-shell">
+<header class="top">
+  <div class="brand"><svg id="anchor" viewBox="0 0 72 72" role="img" aria-label="Room idle"><path d="M 36 4 L 64 20 V 52 L 36 68 L 8 52 V 20 Z"/><path d="M 36 10 L 58 23 V 49 L 36 62 L 14 49 V 23 Z"/></svg><div><h1>Hexelion</h1><p id="anchor-state">Room idle. No model call is running.</p></div></div>
+  <nav class="zones" aria-label="App zones">
+    <a href="/" aria-label="Map and face">Map</a>
+    <a href="/app.html#tab-lab" aria-label="Lab zone">Lab</a>
+    <a href="/app.html#tab-modelos" aria-label="Models zone">Models</a>
+    <a href="/app.html#tab-ajustes" aria-label="Settings zone">Settings</a>
+  </nav>
+</header>
+<section id="conversation" aria-labelledby="conversation-title">
+  <div class="section-head"><h2 id="conversation-title">Conversation</h2><button id="refresh" type="button">Read thread</button></div>
+  <p id="connection" role="status" aria-live="polite">Not read yet. Choose Read thread or send a message.</p>
+  <ol id="thread" role="log" aria-live="polite" aria-label="Attributed conversation"></ol>
+  <p id="receipt" class="receipt" aria-live="polite">NO_DATA: no request has been sent.</p>
+  <form id="message-form">
+    <label for="message">Your message to the local orchestrator</label>
+    <textarea id="message" name="message" rows="3" maxlength="600" required></textarea>
+    <div class="compose"><button id="send" type="submit">Send</button><button id="stop" type="button" disabled>Stop</button><button id="read-last" type="button" disabled>Read last answer</button><button id="stop-reading" type="button">Stop reading</button></div>
+  </form>
+  <p id="voice-state" role="status" aria-live="polite">NO_DATA: local reading has not been requested.</p>
+</section>
+<details id="memory"><summary>Search local memory</summary>
+<form id="memory-form"><label for="memory-query">Terms to find</label><textarea id="memory-query" rows="2" maxlength="600" required></textarea><button id="memory-search" type="submit">Search memory</button></form>
+<p id="memory-status" role="status" aria-live="polite">NO_DATA: no memory search requested.</p><ol id="memory-results" aria-label="Cited memory results"></ol>
+</details>
+<footer><p id="position" role="status">Position: conversation.</p><p>Model proposals do not grant authority.</p></footer>
 </main>
-</div>
 </body>
 </html>

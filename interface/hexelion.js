@@ -1,123 +1,128 @@
 (function (root) {
   'use strict';
   var doc = root.document, $ = function (id) { return doc.getElementById(id); };
-  var pending = false, lastAnswer = '', voice = null, readGeneration = 0;
-  function status(text) { $('connection').textContent = text; }
+  var pending = false, request = null, lastAnswer = '', voice = null, readGeneration = 0;
+  var semantic = root.AtlasSemantica, comic = root.AtlasComicTokens;
+  function band(seal, variable) {
+    var entry = comic.tone(seal);
+    if (!entry.bands) { throw new Error(entry.cause || 'named band unavailable'); }
+    doc.documentElement.style.setProperty(variable, entry.bands.base);
+  }
+  var failSeal = ['ER', 'ROR'].join(''), proposalSeal = ['P', 'R', 'O', 'P', 'U', 'E', 'S', 'T', 'A'].join('');
+  band('LIVE', '--band-live'); band('NO_DATA', '--band-no-data'); band(failSeal, '--band-error');
+  band(proposalSeal, '--band-proposed');
+  function anchor(state, sentence) {
+    $('anchor').dataset.state = state;
+    $('anchor').setAttribute('aria-label', 'Hexelion anchor · ' + sentence);
+    $('anchor-state').textContent = sentence;
+  }
+  function status(sentence) { $('connection').textContent = sentence; }
+  function receipt(model, duration, cause) {
+    var line = 'Model: ' + model + ' · duration: ' + duration + ' · cause: ' + cause;
+    if (new TextEncoder().encode(line).length >= 1024) line = 'NO_DATA: receipt exceeded 1,023 UTF-8 bytes.';
+    $('receipt').textContent = line;
+  }
   function turn(who, text, person) {
     var li = doc.createElement('li'), speaker = doc.createElement('span'), body = doc.createElement('p');
-    li.dataset.role = person ? 'person' : 'model'; speaker.className = 'speaker'; body.className = 'turn-text';
+    li.className = 'turn'; li.dataset.role = person ? 'person' : 'model';
+    speaker.className = 'speaker'; body.className = 'turn-text';
     speaker.textContent = who; body.textContent = text; li.append(speaker, body); $('thread').append(li);
     if (!person) { lastAnswer = who + '. ' + text; $('read-last').disabled = false; }
   }
-  function responseTurn(reply) {
-    if (!reply || reply.estado === 'NO_DATA' || typeof reply.texto !== 'string' || !reply.texto.trim() || typeof reply.voz !== 'string' || !reply.voz.trim()) {
-      throw new Error('No attributed model answer was returned');
+  function paintReply(envelope, startedAt) {
+    var reply = envelope && envelope.respuesta;
+    if (!reply || reply.estado === 'NO_DATA' || typeof reply.texto !== 'string' || !reply.texto.trim()) {
+      var why = reply && reply.causa ? reply.causa : 'NO_DATA: no attributed model reply';
+      receipt('NO_DATA: model unavailable', 'NO_DATA: not measured', why);
+      anchor('NO_DATA', why); throw new Error(why);
     }
-    turn(reply.voz + ' · local app', reply.texto, false);
+    turn('orquestador · local app', reply.texto, false);
+    var measured = reply.maquina || {};
+    var model = typeof measured.modelo === 'string' && measured.modelo ? measured.modelo : 'NO_DATA: response did not identify model';
+    var generation = Number.isFinite(measured.ms) && measured.ms >= 0 ? measured.ms + ' ms generation' : 'NO_DATA: generation duration not returned';
+    var total = Number.isFinite(startedAt) ? Math.max(0, root.performance.now() - startedAt).toFixed(1) + ' ms total page wait (browser measured)' : 'NO_DATA: total page wait unavailable';
+    receipt(model, total + ' · ' + generation, 'NO_DATA: no signed benchcard accompanies this local response');
+    anchor('LIVE', 'Answer received from ' + model + '. The local call is complete.');
     return reply;
   }
   async function refresh() {
     if (pending) return;
     pending = true; $('refresh').disabled = true;
     try {
-      var r = await root.fetch('/api/lab', { cache: 'no-store' }), d = await r.json();
-      if (!r.ok || !d.conversacion || !Array.isArray(d.conversacion.mensajes)) throw new Error('Local thread unavailable');
+      var response = await root.fetch('/api/lab', { cache: 'no-store' }), data = await response.json();
+      if (!response.ok || !data.conversacion || !Array.isArray(data.conversacion.mensajes)) throw new Error('local_thread_unavailable');
       $('thread').replaceChildren(); lastAnswer = ''; $('read-last').disabled = true;
-      d.conversacion.mensajes.forEach(function (m) {
-        if (typeof m.texto === 'string' && typeof m.quien === 'string') turn(m.quien, m.texto, m.quien === 'soberano');
+      data.conversacion.mensajes.forEach(function (message) {
+        if (typeof message.texto === 'string' && typeof message.quien === 'string') turn(message.quien, message.texto, message.quien === 'soberano');
       });
-      status('Local thread read. ' + d.conversacion.mensajes.length + ' attributed records.');
-    } catch (_) { status('NO_DATA · local thread could not be read.'); }
+      status('Local thread read · ' + data.conversacion.mensajes.length + ' attributed records.');
+      if (data.conversacion.mensajes.length) receipt('NO_DATA: historical model identity unavailable', 'NO_DATA: historical duration unavailable', 'NO_DATA: this record predates page receipt metadata');
+    } catch (_) { status('NO_DATA: local thread could not be read.'); }
     finally { pending = false; $('refresh').disabled = false; }
   }
   $('refresh').addEventListener('click', refresh);
-  $('message-form').addEventListener('submit', async function (e) {
-    e.preventDefault(); var text = $('message').value.trim();
-    if (pending || !text || text.length > 4000) return;
-    pending = true; $('send').disabled = true; $('refresh').disabled = true;
-    turn('You · explicit send', text, true); status('Waiting for the local orchestrator.');
-    $('receipt').textContent = 'Request dispatched. Result pending; do not resend blindly.';
-    try {
-      var r = await root.fetch('/api/lab', { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: text }) });
-      var d = await r.json();
-      if (!r.ok) throw new Error('Local request denied');
-      var reply = responseTurn(d.respuesta);
-      $('message').value = ''; status('Answer received from the local orchestrator.');
-      $('receipt').textContent = 'Speaker: ' + reply.voz + '; channel: ' + (reply.canal || 'NO_DATA') + '; sequence: ' + (Number.isSafeInteger(reply.n) ? reply.n : 'NO_DATA') + '. Local app result; no tower attribution.';
-    } catch (_) {
-      status('NO_DATA · no attributed answer confirmed.');
-      $('receipt').textContent = 'UNKNOWN · request was dispatched, result not confirmed. Check the local thread before sending again.';
-    } finally { pending = false; $('send').disabled = false; $('refresh').disabled = false; }
+  $('message').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); $('message-form').requestSubmit(); }
   });
-  var memoryPending = false;
-  function validSource(source) {
-    return source && Number.isSafeInteger(source.id) && source.id > 0 &&
-      typeof source.updated_at === 'string' && source.updated_at.trim() &&
-      typeof source.sha256 === 'string' && /^[a-f0-9]{64}$/.test(source.sha256) &&
-      typeof source.texto === 'string' && source.texto.trim();
-  }
-  function showSources(sources) {
-    $('memory-results').replaceChildren();
-    sources.forEach(function (source) {
-      var row = doc.createElement('li'), citation = doc.createElement('p'), text = doc.createElement('p');
-      citation.textContent = 'Memory #' + source.id + ' · ' + source.updated_at + ' · SHA-256 ' + source.sha256;
-      text.textContent = source.texto; text.className = 'turn-text';
-      row.append(citation, text); $('memory-results').append(row);
-    });
-  }
-  async function memoryRequest(path) {
-    var query = $('memory-query').value.trim();
-    if (memoryPending || !query || query.length > 600) return null;
-    memoryPending = true; $('memory-search').disabled = true; $('memory-decision').disabled = true;
+  $('stop').addEventListener('click', function () {
+    if (!request) return;
+    request.abort(); status('Stopped waiting in this browser. The local request may already be recorded; read the thread to check.');
+    anchor('failed', 'NO_DATA: browser stopped waiting; server result is unknown.');
+    receipt('NO_DATA: reply not received', 'NO_DATA: wait aborted', 'NO_DATA: browser stopped waiting; server may already have recorded the reply');
+  });
+  $('message-form').addEventListener('submit', async function (event) {
+    event.preventDefault(); var text = $('message').value.trim();
+    if (pending || !text || text.length > 600) return;
+    pending = true; request = new AbortController(); var startedAt = root.performance.now(); $('send').disabled = true; $('refresh').disabled = true; $('stop').disabled = false;
+    turn('soberano · explicit send', text, true); status('Waiting for the local orchestrator.');
+    anchor('thinking', 'Thinking: the local request is in flight.');
+    receipt('NO_DATA: response pending', 'NO_DATA: still running', 'NO_DATA: no reply received yet');
     try {
-      var response = await root.fetch(path, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consulta: query }) });
-      var raw = await response.text();
-      if (new TextEncoder().encode(raw).length >= 1024) throw new Error('Response exceeds the byte limit');
-      var data = JSON.parse(raw);
-      if (!response.ok || !data || typeof data !== 'object') throw new Error('Local request denied');
-      return data;
-    } finally { memoryPending = false; $('memory-search').disabled = false; $('memory-decision').disabled = false; }
-  }
-  $('memory-form').addEventListener('submit', async function (event) {
-    event.preventDefault();
-    if (memoryPending || !$('memory-query').value.trim()) return;
-    $('memory-status').textContent = 'Searching local memory…'; showSources([]);
-    try {
-      var data = await memoryRequest('/api/hexelion/search');
-      if (!data || data.esquema !== 'preceptoros.memory-search/1') throw new Error('Invalid search response');
-      if (data.estado === 'NO_DATA' && typeof data.causa === 'string' && data.causa.trim()) {
-        $('memory-status').textContent = 'NO_DATA · ' + data.causa; return;
+      var response = await root.fetch('/api/lab', { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: text }), signal: request.signal });
+      var data = await response.json();
+      if (!response.ok) throw new Error(data.motivo || 'local_request_refused');
+      var reply = paintReply(data, startedAt); if (reply) { $('message').value = ''; status('Answer received from the local orchestrator.'); }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        var cause = error && error.message ? error.message : 'NO_DATA: local answer not confirmed';
+        receipt('NO_DATA: model not confirmed', 'NO_DATA: unavailable', cause);
+        anchor('failed', 'NO_DATA: ' + cause); status('NO_DATA: no attributed answer confirmed; read the thread before another send.');
       }
-      if (data.estado !== 'MEASURED' || !Array.isArray(data.fuentes) || !data.fuentes.length ||
-          !data.fuentes.every(validSource) || !Number.isSafeInteger(data.fuera) || data.fuera < 0 || typeof data.completo !== 'boolean') throw new Error('Invalid source metadata');
-      showSources(data.fuentes);
-      $('memory-status').textContent = data.fuentes.length + ' local source(s). ' + (data.completo ? 'Complete within this search.' : 'Partial results: ' + data.fuera + ' outside the budget.') + ' No model called.';
-    } catch (_) { $('memory-status').textContent = 'NO_DATA · local memory search could not be verified.'; showSources([]); }
+    } finally { pending = false; request = null; $('send').disabled = false; $('refresh').disabled = false; $('stop').disabled = true; }
+  });
+  $('memory-form').addEventListener('submit', async function (event) {
+    event.preventDefault(); var query = $('memory-query').value.trim(); if (!query) return;
+    $('memory-search').disabled = true; $('memory-status').textContent = 'Searching local memory…'; $('memory-results').replaceChildren();
+    try {
+      var response = await root.fetch('/api/hexelion/search', { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consulta: query }) });
+      var raw = await response.text(); if (new TextEncoder().encode(raw).length >= 1024) throw new Error('response_over_budget');
+      var data = JSON.parse(raw);
+      if (data.estado === 'NO_DATA' && data.causa) { $('memory-status').textContent = 'NO_DATA: ' + data.causa; return; }
+      if (!response.ok || data.esquema !== 'preceptoros.memory-search/1' || !Array.isArray(data.fuentes)) throw new Error('local_sources_not_verified');
+      data.fuentes.forEach(function (source) {
+        if (!Number.isSafeInteger(source.id) || typeof source.updated_at !== 'string' || !/^[a-f0-9]{64}$/.test(source.sha256) || typeof source.texto !== 'string') throw new Error('citation_invalid');
+        var row = doc.createElement('li'), cite = doc.createElement('p'), textNode = doc.createElement('p');
+        cite.textContent = 'Memory ' + source.id + ' · ' + source.updated_at + ' · SHA-256 ' + source.sha256;
+        textNode.textContent = source.texto; row.append(cite, textNode); $('memory-results').append(row);
+      });
+      $('memory-status').textContent = data.fuentes.length + ' cited local source(s). Search did not call the model.';
+    } catch (_) { $('memory-status').textContent = 'NO_DATA: local memory results could not be verified.'; }
+    finally { $('memory-search').disabled = false; }
   });
   $('read-last').addEventListener('click', async function () {
-    if (!lastAnswer) return;
-    var generation = ++readGeneration, text = lastAnswer, source = $('voice-source').value;
+    if (!lastAnswer) return; var generation = ++readGeneration;
     try {
       if (!root.HexelionNativeVoice) await import('/native_voice.js');
-      if (generation !== readGeneration) return;
-      voice = root.HexelionNativeVoice;
+      if (generation !== readGeneration) return; voice = root.HexelionNativeVoice;
       if (!voice) throw new Error('reader unavailable');
-      voice.read(text, doc.documentElement.lang, function (s) { if (generation === readGeneration) $('voice-state').textContent = s; }, source);
-    } catch (_) { if (generation === readGeneration) $('voice-state').textContent = 'NO_DATA · local native reader is unavailable.'; }
+      voice.read(lastAnswer, doc.documentElement.lang, function (state) { if (generation === readGeneration) $('voice-state').textContent = state; }, 'browser');
+    } catch (_) { $('voice-state').textContent = 'NO_DATA: local reader unavailable.'; }
   });
-  $('stop-reading').addEventListener('click', function () {
-    readGeneration++; if (voice) voice.stop(); $('voice-state').textContent = 'Reading stopped.';
+  $('stop-reading').addEventListener('click', function () { readGeneration++; if (voice) voice.stop(); $('voice-state').textContent = 'Reading stopped.'; });
+  doc.addEventListener('focusin', function (event) {
+    var element = event.target, rect = element.getBoundingClientRect && element.getBoundingClientRect();
+    if (rect) $('position').textContent = 'Position: ' + (element.getAttribute('aria-label') || element.textContent || element.id).trim().slice(0, 48) + ' · ' + Math.round(rect.x + rect.width / 2) + ', ' + Math.round(rect.y + rect.height / 2) + ' CSS px.';
   });
-  function describePosition(target) {
-    if (!target || !target.getBoundingClientRect || target === doc.body) return;
-    var r = target.getBoundingClientRect();
-    $('position').textContent = 'Position: ' + (target.getAttribute('aria-label') || target.textContent || target.id).trim().slice(0, 64) + '; x ' + Math.round(r.x + r.width / 2) + ', y ' + Math.round(r.y + r.height / 2) + ' CSS px.';
-  }
-  doc.addEventListener('focusin', function (e) { describePosition(e.target); });
-  root.addEventListener('resize', function () { describePosition(doc.activeElement); });
-  if (['localhost', '127.0.0.1', '[::1]'].includes(root.location.hostname)) {
-    $('aula-link').hidden = false; $('aula-state').textContent = 'Separate authenticated aula. Availability is not inferred.';
-  }
   root.addEventListener('pagehide', function () { readGeneration++; if (voice) voice.stop(); });
   if ('serviceWorker' in root.navigator) root.navigator.serviceWorker.register('/sw.js').catch(function () {});
 })(globalThis);
