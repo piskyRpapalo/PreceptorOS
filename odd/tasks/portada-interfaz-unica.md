@@ -5,6 +5,47 @@ grafica estar basada en acho y su matematica (por la accesibilidad del carbono i
 AI mini local)". Canon: R-ESTILO-UNICO (docs/style-contract.md, stage 2) + LA CADENA NATIVA
 (gentle-dot MIT = measured reference, ADAPTED never copied; vanilla JS, no build).
 
+## LA INSPIRACION MEDIDA · gentle-dot by Alan Buscaglia (decree of 2026-11-06, session M5)
+The Sovereign brought the repertoire (the full tree structure + README, MIT) and the
+author's video (YouTube, 4-nov-2026) and ordered, verbatim: "las funciones de su producto
+son muy similares, pero nosotros YA TENEMOS LA BASE CONSTRUIDA NATIVA. Adaptamos la idea
+del señor Alan por la app de PreceptorOS como 'lo que evoluciona' con hexelion: su memoria,
+su harness, y su chatbot."
+
+### What gentle-dot measures (MIT, early preview)
+One desktop assistant, one key away: a floating rose · ONE continuous conversation that
+rotates into a fresh session seeded with a summary · real memory through Engram (its own
+project + the global one) · computer control with a pink glow, panic key, blocklist, risky
+actions confirmed in native dialogs the agent cannot answer · voice with a local model
+(Parakeet), zero tokens · connectors through its own MCP proxy, credentials in the
+Keychain, never the chat · three layers: a Tauri 2 face, a small Node daemon that
+supervises and translates, gentle-shell in RPC mode (white label, not a fork: he reused an
+existing agent and gave it another face) · the same daemon on a VPS behind HTTPS for any
+browser · all of it built with his own flow (gentle-ai + ODD as the captain's logbook).
+Study in the system: p0x/propuestas/ojos-2026-10-17/ (gentle-shell) + the gentle-dot tree
+and README measured 2026-11-06.
+
+### The adaptation map (each function, our native organ; ADAPTED never copied)
+| gentle-dot function | there | here (already built, native) |
+| --- | --- | --- |
+| the rose / the dot | floating anchor, one shortcut away | the A2 hexagon (FIRMA ·6652918366); the hexagon presides the portada |
+| one conversation + memory (Engram) | continuous chat, summary-seeded rotation | the attributed hilo + la mente (mente_buscar, MCP with FTS cache, terminal#7 FIRMO) + the record of the ecosystem; memory is ours, local, measured |
+| the harness (gentle-shell RPC + Node daemon) | 3 layers, isolated engine, white label | harness H3 (p0x#108, W2) FIRMO in canon; hexelion reached through the TRONO (loopback, think:false); composition harness<->chat = its own later piece |
+| the chatbot | the panel over everything | THIS PIECE: the portada, chat first, buttons on top, hexelion as the brain |
+| security outside the agent | panic key, blocklist, native dialogs | FIRMA SOBERANO by exact hash + HITL + SCRUB + the Mesa; Stop (A4 AbortController) already native |
+| connectors via proxy + approvals | Notion/Linear/Slack, Keychain | SALA-C: the register of voices; no voice speaks without a benchcard; VIVA/VACANTE/NO_DATA measured |
+| local voice (Parakeet) | offline, free, no tokens | native_voice.js (local-only, 700B chunks, SHA-256); dictation lives in the dashboard surface; NO_DATA here until its own piece |
+| VPS / any browser | same daemon on a server | REFUSED: loopback only; the person's privacy is decree |
+
+### The law of the adaptation (binding)
+- Alan did not rewrite an agent; he gave an existing one a new face. The same here, in our
+  direction: the face EVOLVES (this portada), the brain ALREADY EXISTS (hexelion + the
+  harness + la mente). Nothing of his stack enters this repo: no Tauri, no daemon, no Node
+  dependencies, no WebSocket protocol, no rose, no neon pink, no imported palette.
+- "Lo que evoluciona": the portada is not a static mockup. The chat talks to hexelion (the
+  local mini or the loopback station, honest receipt per reply: model · duration · cause),
+  and the buttons open the living zones of the one app.
+
 ## The mission in one line
 ONE app per device (the doctrine since the beginning). Its INTERFACE is the portada: simply
 a chatbot with a compact row of buttons on top. hexelion.html (the PWA start_url, the
