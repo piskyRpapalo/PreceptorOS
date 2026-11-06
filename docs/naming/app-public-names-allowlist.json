@@ -1,6 +1,7 @@
 {
   "routes": {
     "/": "interface/face/basic.html",
+    "/app": "interface/app.html",
     "/app.css": "interface/app.css",
     "/app.html": "interface/app.html",
     "/app.js": "interface/app.js",

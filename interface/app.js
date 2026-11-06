@@ -548,7 +548,17 @@ document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   });
 });
 $("ir-inicio").addEventListener("click", () => mostrar(0, { enfocar: true }));
-mostrar(0);
+/* Rutas profundas (decreto interfaz unica, 2026-11-06): /app#tab-<zona>
+ * abre esa zona. El hash nombra una zona del catalogo de zonas.js; si
+ * nombra otra cosa, manda mando. La interfaz no inventa zonas: solo
+ * obedece a las declaradas. */
+const zonaPorHash = () => {
+  const pedida = decodeURIComponent(location.hash).replace(/^#tab-/, "");
+  const i = paneles.findIndex((z) => z.id === pedida);
+  return i >= 0 ? i : 0;
+};
+mostrar(zonaPorHash());
+addEventListener("hashchange", () => mostrar(zonaPorHash()));
 
 /* Deslizar. Se exige que el gesto sea claramente horizontal (2:1) o el
  * scroll vertical del hilo cambiaría de panel sin querer. */
