@@ -3,8 +3,8 @@
   "short_name": "Hexelion",
   "start_url": "/hexelion.html",
   "display": "standalone",
-  "background_color": "#101e24",
-  "theme_color": "#101e24",
+  "background_color": "Canvas",
+  "theme_color": "Canvas",
   "description": "An attributed local session, connected to the existing living world.",
   "icons": [
     {
