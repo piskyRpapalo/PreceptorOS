@@ -1582,12 +1582,29 @@ function botonGuardar(texto) {
   return b;
 }
 
+function anchorUnknown() {
+  const labels = { es: "Estado del modelo no medido", en: "Model status not measured",
+    pt: "Estado do modelo não medido", fr: "État du modèle non mesuré",
+    it: "Stato del modello non misurato", de: "Modellstatus nicht gemessen",
+    ru: "Состояние модели не измерено", el: "Η κατάσταση του μοντέλου δεν έχει μετρηθεί",
+    ar: "حالة النموذج غير مقاسة" };
+  return "Preceptor · " + (labels[idioma] || labels.es);
+}
+function anchorStatus(state, label) {
+  const anchor = $("busto"), status = $("anchor-status");
+  if (!anchor || !status) return;
+  anchor.dataset.state = state;
+  anchor.setAttribute("aria-label", label);
+  status.textContent = label;
+}
+
 async function turno(texto) {
   if (!texto.trim()) return;
   linea(texto, "mio");
   $("hablar").disabled = true;
   $("mandar").disabled = true;
   $("busto").classList.add("piensa");
+  anchorStatus("working", t("pensando"));
   // DOS Avisos, y el orden importa. El primero sale YA: el modelo tarda porque
   // hay que subir 2,3 GiB de disco a memoria, y eso es fisica, no un fallo.
   // Decirlo Antes de que la persona se impaciente es la diferencia entre
@@ -1623,11 +1640,12 @@ async function turno(texto) {
     const d = await r.json();
     limpiar();
     marcarFusionVista();
-    if (r.ok) linea(d.texto);
-    else linea(d.estado === "tarde" ? t("tarde") : t("fallo"), "malo");
+    if (r.ok) { linea(d.texto); anchorStatus("unknown", anchorUnknown()); }
+    else { linea(d.estado === "tarde" ? t("tarde") : t("fallo"), "malo"); anchorStatus("error", t("fallo")); }
   } catch {
     limpiar();
     linea(t("sin_red"), "malo");
+    anchorStatus("error", t("sin_red"));
   }
   /* Pensar termina y empieza a hablar. La respuesta llega entera --no hay
    * streaming-- asi que la boca se mueve mientras el texto acaba de aparecer y
@@ -1765,6 +1783,12 @@ function marcarFusionVista() {
    duracion cambie en el css, un numero repetido aqui se queda viejo y nadie
    se entera. Se filtra por nombre porque `respirar` tambien termina... nunca,
    pero `hablar` y `latir` si podrian llegar aqui. */
+const anchorLanguage = new MutationObserver(() => {
+  if ($("busto").dataset.state === "unknown") anchorStatus("unknown", anchorUnknown());
+});
+anchorLanguage.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+anchorStatus("unknown", anchorUnknown());
+
 const bustoEl = $("busto");
 if (bustoEl) {
   /* Antes esto esperaba al `animationend` de `despertar` para encender el ciclo

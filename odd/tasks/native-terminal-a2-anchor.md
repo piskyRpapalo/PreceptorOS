@@ -36,3 +36,52 @@ map's own seat). The carbon chooses; silicon ships the chosen one.
 - 2026-11-05: served to codex by mesa-web under the EMPUJE decree; cooking order A1→A4.
 
 Agent: preceptor-orquestador-github · Model: GLM (Vibe) · Run: NO_DATA
+
+## Commission · Codex · 2026-11-05
+
+### Problem
+The app dashboard still exposes a marble bust as its visual anchor; the commissioned
+native terminal calls for a node glyph with accessible, truthful status.
+
+### Outcome
+A reviewable hexagonal node anchor uses the existing accent and reports only states
+supported by evidence. Six display states, keyboard and screen-reader accessibility,
+and reduced-motion behavior must be demonstrable without inventing live activity.
+
+### Affects
+The existing app dashboard, its anchor styling and state bindings, and corresponding
+service-worker delivery. Claim: buzon#53 ·6652132076.
+
+### Constraints
+One piece and one draft PR; preserve existing chat and node behavior; no external
+assets, telemetry, or unmeasured runtime claims. Report physical-device FPS as
+NO_DATA until measured. Mesa assigns any required seal; silicon does not merge.
+
+### Open questions
+Which existing runtime events support each of the six states? Which state should
+be presented while there is no authoritative status source? Inspect before binding;
+use NO_DATA for missing evidence.
+
+Decision: the Sovereign delegated routine decisions and requested a hexagonal app
+esthetic. The hexagon from the signed A2 candidate list is the proposed anchor.
+
+2026-11-05 · Candidate: inline hexagonal SVG replaces the hidden legacy bust
+in the dashboard. Existing chat submission reports pending and error through a
+visible live status; idle does not claim a model is running. No animation or
+external graphics. Local `python3 -m unittest test_pwa`: 66 passed;
+`python3 -m unittest test_guardrails`: 38 passed, 1 skipped. Remaining:
+independent accessibility review, authoritative
+sources for the other states, physical FPS, and Mesa-assigned service-worker seal.
+This candidate is incomplete and not ready for deployment or signature.
+
+2026-11-05: the unknown-status label now follows the app language across all nine
+declared languages. Local PWA and guardrail suites: 104 passed, 1 skipped.
+
+2026-11-05 · Mesa completion (the assignment this card asked for): the service-worker seal
+is served — the sheet moves to ?v=60, dashboard.js to ?v=50, and the armazon cache name to
+preceptoros-armazon-v129 (the HTML is precached by its URL, so its change rides the cache
+name). Jail gates on this exact tree: test_pwa 66/66; naming audit 75 routes / 284 entries
+PASS; guardrails identical to pristine main (only the jail's no-git lexicon check, which is
+green in CI); the full tanda shows the six known jail-environment runners, zero new red.
+The open questions (authoritative sources for the unmeasured states, device FPS,
+independent accessibility review) stay open with the commission — one piece, this pull.

@@ -114,3 +114,9 @@ input, textarea, select { background: Canvas; border: 1px solid GrayText;
 /* El boton de mandar lleva el acento en su borde y su icono: es el unico
    mando del terminal que siempre pide la vista. */
 #mandar { border-color: var(--acento); color: var(--acento); }
+
+/* Native anchor: geometry is local; status remains readable without color. */
+.node-anchor { display: flex; align-items: center; gap: .6rem; margin: .6rem 0; }
+.node-anchor svg { width: 72px; height: 72px; flex: none; fill: none; stroke: var(--acento, CanvasText); stroke-width: 2; }
+.node-anchor[data-state="error"] svg { stroke: CanvasText; stroke-dasharray: 3 3; }
+.node-anchor-status { font-size: .875rem; }
