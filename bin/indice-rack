@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""indice-rack · builds Hexelion's rack + GitHub index (read only everywhere).
+
+Sources: docs/ and odd/ of PreceptorOS and preceptoros-web as they stand on origin/main (read
+from the local git stores, no checkout), p0x mente/ propuestas/ hexelion/ (.md, .txt), and
+GitHub: open + last merged PRs of the house repos, the signature book and the mailboxes.
+Writes ~/.preceptoros/indice/rack.db atomically. A failed source is printed as NO_DATA.
+"""
+import datetime, json, os, subprocess, sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import indice_rack as I  # noqa: E402
+
+CASA = Path.home()
+SALIDA = Path(os.environ.get("PRECEPTOROS_INDICE_RACK", CASA / ".preceptoros" / "indice" / "rack.db"))
+GITS = {"PreceptorOS": CASA / "PreceptorOS", "preceptoros-web": CASA / "preceptoros-web"}
+P0X = CASA / "p0x"
+DUENO = "piskyRpapalo"
+REPOS = ("PreceptorOS", "preceptoros-web", "roadmap", "p0x", "firmas", "lab")
+BUZONES = (30, 53, 19)
+
+
+def sh(*a, cwd=None):
+    r = subprocess.run(a, capture_output=True, text=True, timeout=120, cwd=cwd)
+    if r.returncode:
+        raise RuntimeError((r.stderr or "").strip()[-160:])
+    return r.stdout
+
+
+def desde_git(nombre, raiz):
+    subprocess.run(["git", "-C", str(raiz), "fetch", "-q", "origin", "main"], timeout=120)
+    rama = "origin/main"
+    fecha = sh("git", "-C", str(raiz), "log", "-1", "--format=%cI", rama).strip()
+    for ruta in sh("git", "-C", str(raiz), "ls-tree", "-r", "--name-only", rama).splitlines():
+        if ruta.endswith(".md") and (ruta.startswith(("docs/", "odd/")) or "/" not in ruta):
+            try:
+                texto = sh("git", "-C", str(raiz), "show", rama + ":" + ruta)
+            except RuntimeError:
+                continue
+            yield ("rack: " + nombre + "/" + ruta, ruta, texto, fecha)
+
+
+def desde_p0x():
+    for sub in ("mente", "propuestas", "hexelion"):
+        for p in sorted((P0X / sub).rglob("*")):
+            if p.suffix in (".md", ".txt") and p.is_file() and not p.is_symlink() and p.stat().st_size < 400_000:
+                try:
+                    texto = p.read_text(encoding="utf-8", errors="ignore")
+                except OSError:
+                    continue
+                fecha = datetime.datetime.fromtimestamp(p.stat().st_mtime, datetime.timezone.utc).isoformat()
+                yield ("rack: p0x/" + str(p.relative_to(P0X)), p.name, texto, fecha)
+
+
+def gh(*a):
+    return json.loads(sh("gh", *a) or "null")
+
+
+def desde_github():
+    for nombre in REPOS:
+        repo = DUENO + "/" + nombre
+        for estado, n in (("open", 50), ("merged", 40)):
+            for pr in gh("pr", "list", "-R", repo, "--state", estado, "-L", str(n), "--json",
+                         "number,title,body,updatedAt,state,url") or []:
+                yield ("github: %s#%d (%s)" % (repo, pr["number"], pr["state"].lower()), pr["title"],
+                       pr["title"] + "\n\n" + (pr.get("body") or ""), pr.get("updatedAt"))
+    libro = sh("gh", "api", "repos/%s/firmas/contents/LIBRO_DE_FIRMAS.md" % DUENO, "-H", "Accept: application/vnd.github.raw")
+    yield ("github: %s/firmas LIBRO_DE_FIRMAS.md" % DUENO, "Libro de firmas", libro, "")
+    for n in BUZONES:
+        for c in gh("api", "repos/%s/buzon/issues/%d/comments?per_page=100" % (DUENO, n),
+                    "-q", "[.[-60:][] | {body, created_at, html_url}]") or []:
+            yield ("github: %s/buzon#%d %s" % (DUENO, n, c["created_at"][:16]), "buzon#%d" % n, c["body"], c["created_at"])
+
+
+def todo():
+    fuentes = [(n, desde_git(n, r)) for n, r in GITS.items()] + [("p0x", desde_p0x()), ("github", desde_github())]
+    for nombre, gen in fuentes:
+        k = 0
+        try:
+            for doc in gen:
+                k += 1
+                yield doc
+        except Exception as e:  # noqa: BLE001 - one source down is a cause, not a crash
+            print("NO_DATA", nombre, str(e)[:120], file=sys.stderr)
+        print("source", nombre, k, "docs", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    n = I.construir(SALIDA, todo())
+    print("rack index:", n, "chunks ->", SALIDA)
