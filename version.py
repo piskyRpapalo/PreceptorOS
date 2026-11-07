@@ -35,6 +35,7 @@ ARMAZON = (
     "interface/hexelion.html", "interface/hexelion.css", "interface/hexelion.js",
     "interface/dashboard.html", "interface/desnuda.css", "interface/dashboard.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
+    "interface/modelos_web.js",
     "interface/transicion.js",
     "interface/sting.js",
     "interface/compass.js", "interface/sw.js",

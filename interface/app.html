@@ -9,14 +9,27 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=8">
+<link rel="stylesheet" href="/app.css?v=9">
 </head>
 <body>
 
 <header class="barra">
   <div class="identidad">
     <h1>PreceptorOS</h1>
-    <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
+    <div class="estado-fila">
+      <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
+      <button id="modelos-toggle" class="modelos-toggle" type="button"
+              aria-haspopup="dialog" aria-expanded="false" aria-controls="modelos-menu">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        <span class="sr" data-i18n="lab_modelos_titulo">Modelos locales</span>
+      </button>
+    </div>
+    <section id="modelos-menu" class="modelos-menu" role="dialog" data-i18n-aria="lab_modelos_titulo" aria-label="Modelos locales" tabindex="-1" hidden>
+      <h2 data-i18n="lab_modelos_titulo">Modelos locales</h2>
+      <p id="modelo-activo" role="status" aria-live="polite"></p>
+      <p id="modelos-estado" role="status" aria-live="polite" data-i18n="modelos_cargando">Consultando los modelos locales…</p>
+      <ul class="turnos" id="modelos-lista"></ul>
+    </section>
   </div>
 </header>
 
@@ -28,7 +41,7 @@
   <button id="tab-lab" role="tab" aria-controls="panel-lab" aria-selected="false" tabindex="-1" data-panel="lab" data-i18n="tab_lab" aria-label="Lab" title="Lab">Lab</button>
   <button id="tab-harness" role="tab" aria-controls="panel-harness" aria-selected="false" tabindex="-1" data-panel="harness" data-i18n="tab_harness" aria-label="Harness" title="Harness">Harness</button>
   <button id="tab-puerta" role="tab" aria-controls="panel-puerta" aria-selected="false" tabindex="-1" data-panel="puerta" data-i18n="tab_puerta" aria-label="Puerta" title="Puerta">Puerta</button>
-  <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_modelos" aria-label="Modelos" title="Modelos">Modelos</button>
+  <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_mundo" aria-label="Mundo" title="Mundo">Mundo</button>
   <button id="tab-ajustes" role="tab" aria-controls="panel-ajustes" aria-selected="false" tabindex="-1" data-panel="ajustes" data-i18n="tab_ajustes" aria-label="Ajustes" title="Ajustes">Ajustes</button>
 </nav>
 
@@ -132,10 +145,13 @@
     <pre class="payload" id="puerta-documento"></pre>
     <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
   </section>
-  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="Modelos locales" hidden>
-    <p class="pie" id="modelos-estado" role="status" aria-live="polite" data-i18n="modelos_cargando">Consultando los modelos locales…</p>
-    <h2 data-i18n="tab_modelos">Modelos</h2>
-    <ul class="turnos" id="modelos-lista"></ul>
+  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="OpenWorld" hidden>
+    <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p>
+    <button id="openworld-retry" type="button" class="probar" data-i18n="world_retry" hidden>Reintentar OpenWorld</button>
+    <iframe id="openworld-frame" data-i18n-aria="world_frame_title" title="OpenWorld · mapa, partida efímera y Acho" loading="lazy"
+            referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+            allow="autoplay; fullscreen" hidden></iframe>
+    <a class="openworld-fallback" data-i18n="world_open_new" href="https://preceptoros.org/openworld/" target="_blank" rel="noopener noreferrer">Abrir OpenWorld en otra pestaña</a>
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
@@ -221,7 +237,8 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=11"></script>
+<script src="/modelos_web.js?v=1"></script>
+<script src="/app.js?v=12"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>

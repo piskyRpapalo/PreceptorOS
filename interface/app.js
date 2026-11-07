@@ -24,7 +24,8 @@ const textos = {
     comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Frontera",
     tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
-    tab_modelos: "Modelos", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
+    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
+    model_last_reply: "Último modelo que respondió", world_idle: "OpenWorld se cargará al abrir esta pestaña.", world_checking: "Comprobando conexión con OpenWorld…", world_loading: "Conexión disponible; cargando OpenWorld…", world_loaded: "El navegador terminó la navegación del marco; el estado HTTP externo no se puede leer aquí.", world_retry: "Reintentar OpenWorld", world_open_new: "Abrir OpenWorld en otra pestaña", world_frame_title: "OpenWorld: mapa, partida efímera y lenguaje Acho",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
     pie_captura: "Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.",
@@ -52,7 +53,7 @@ const textos = {
     anidar_no: "no se pudo anidar",
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
     chat_sin_respuesta: (causa) => "Hexelion no respondió · {causa}".replace("{causa}", causa), chat_edad_nd: "causa no disponible", chat_modelo_nd: "modelo no confirmado", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, fecha, sha) => `Fuente ${id} · ${fecha} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
+    lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_soberano_coder: "Codificador soberano", lab_eleccion: "Modelo de elección",
     aria_frontera: "Frontera del nodo",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sin consentir", cuaderno_recibo_pendiente: "Sin cambios recientes", cuaderno_recibo_ok: "Recibo recibido: turno {id}, {estado}.", cuaderno_recibo_error: "No se pudo cambiar este turno.", cuaderno_recibo_red: "No llegó el recibo; no hay cambios confirmados.", cuaderno_sin_texto: "Texto de turno no disponible", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corregidos",
     harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
@@ -70,7 +71,8 @@ const textos = {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
     tab_cuaderno: "Notebook", lo_que_dices: "What you say",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
-    tab_modelos: "Models", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
+    model_last_reply: "Last model that replied", world_idle: "OpenWorld loads when you open this tab.", world_checking: "Checking the OpenWorld connection…", world_loading: "Connection available; loading OpenWorld…", world_loaded: "The browser completed frame navigation; its cross-origin HTTP status is not readable here.", world_retry: "Retry OpenWorld", world_open_new: "Open OpenWorld in another tab", world_frame_title: "OpenWorld: map, ephemeral game and Acho language",
     ph_dicho: "Write your answer…", dilo: "Say it",
     pie_hallazgos: "What you see above is never the text that was found: class and count, nothing else. The numbers come from the payload — this interface does not count.",
     pie_captura: "A captured turn is not a consented turn. Nothing enters training until you mark it yourself, one at a time, and it can be withdrawn.",
@@ -98,7 +100,7 @@ const textos = {
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
     chat_sin_respuesta: (cause) => "Hexelion did not reply · {cause}".replace("{cause}", cause), chat_edad_nd: "cause unavailable", chat_modelo_nd: "model unconfirmed", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Source ${id} · ${date} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
+    lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_soberano_coder: "Sovereign coder", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
     harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
@@ -119,7 +121,8 @@ const textos = {
     comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Frontière",
     tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
-    tab_modelos: "Modèles", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
+    tab_modelos: "Modèles", tab_mundo: "Monde", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
+    model_last_reply: "Dernier modèle ayant répondu", world_idle: "OpenWorld se charge à l’ouverture de cet onglet.", world_checking: "Vérification de la connexion OpenWorld…", world_loading: "Connexion disponible ; chargement d’OpenWorld…", world_loaded: "Le navigateur a terminé la navigation du cadre ; son état HTTP inter-origines n’est pas lisible ici.", world_retry: "Réessayer OpenWorld", world_open_new: "Ouvrir OpenWorld dans un autre onglet", world_frame_title: "OpenWorld : carte, partie éphémère et langage Acho",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
     pie_captura: "Un tour capturé n'est pas un tour consenti. Rien n'entre dans un entraînement tant que tu ne le marques pas toi-même, un par un, et on peut le retirer.",
@@ -147,7 +150,7 @@ const textos = {
     anidar_no: "impossible de nicher",
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
     chat_sin_respuesta: (cause) => "Hexelion n’a pas répondu · {cause}".replace("{cause}", cause), chat_edad_nd: "cause indisponible", chat_modelo_nd: "modèle non confirmé", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Source ${id} · ${date} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
+    lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_soberano_coder: "Codeur souverain", lab_eleccion: "Modèle de sélection",
     aria_frontera: "Frontière du nœud",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirer", cuaderno_consentido: "Consentement donné", cuaderno_sin_consentir: "Sans consentement", cuaderno_recibo_pendiente: "Aucun changement récent", cuaderno_recibo_ok: "Reçu reçu : tour {id}, {estado}.", cuaderno_recibo_error: "Impossible de modifier ce tour.", cuaderno_recibo_red: "Aucun reçu reçu ; aucun changement confirmé.", cuaderno_sin_texto: "Texte du tour indisponible", cuaderno_recuento: "{t} tours · {c} consentis · {r} corrigés",
     harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
@@ -166,7 +169,8 @@ const textos = {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
     tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
-    tab_modelos: "Modelos", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
+    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
+    model_last_reply: "Último modelo que respondeu", world_idle: "OpenWorld carrega ao abrir esta separação.", world_checking: "A verificar a ligação ao OpenWorld…", world_loading: "Ligação disponível; a carregar OpenWorld…", world_loaded: "O navegador terminou a navegação do quadro; o estado HTTP entre origens não é legível aqui.", world_retry: "Tentar OpenWorld novamente", world_open_new: "Abrir OpenWorld noutra separação", world_frame_title: "OpenWorld: mapa, partida efémera e linguagem Acho",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
     pie_captura: "Um turno captado não é um turno consentido. Nada entra num treino até o marcares tu, um a um, e pode ser retirado.",
@@ -194,7 +198,7 @@ const textos = {
     anidar_no: "não consegui aninhar",
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
     chat_sin_respuesta: (causa) => "Hexelion não respondeu · {causa}".replace("{causa}", causa), chat_edad_nd: "causa indisponível", chat_modelo_nd: "modelo não confirmado", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, data, sha) => `Fonte ${id} · ${data} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
+    lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_soberano_coder: "Programador soberano", lab_eleccion: "Modelo de escolha",
     aria_frontera: "Fronteira do nó",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sem consentimento", cuaderno_recibo_pendiente: "Sem alterações recentes", cuaderno_recibo_ok: "Recibo recebido: turno {id}, {estado}.", cuaderno_recibo_error: "Não foi possível alterar este turno.", cuaderno_recibo_red: "O recibo não chegou; não há alterações confirmadas.", cuaderno_sin_texto: "Texto do turno indisponível", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corrigidos",
     harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
@@ -212,7 +216,8 @@ const textos = {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
     tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
-    tab_modelos: "Modelli", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
+    tab_modelos: "Modelli", tab_mundo: "Mondo", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
+    model_last_reply: "Ultimo modello che ha risposto", world_idle: "OpenWorld si carica quando apri questa scheda.", world_checking: "Verifica della connessione a OpenWorld…", world_loading: "Connessione disponibile; caricamento di OpenWorld…", world_loaded: "Il browser ha terminato la navigazione del frame; lo stato HTTP cross-origin non è leggibile qui.", world_retry: "Riprova OpenWorld", world_open_new: "Apri OpenWorld in un'altra scheda", world_frame_title: "OpenWorld: mappa, partita effimera e linguaggio Acho",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
     pie_captura: "Un turno catturato non è un turno acconsentito. Niente entra in un addestramento finché non lo segni tu, uno alla volta, e si può ritirare.",
@@ -240,7 +245,7 @@ const textos = {
     anidar_no: "impossibile annidare",
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
     chat_sin_respuesta: (causa) => "Hexelion non ha risposto · {causa}".replace("{causa}", causa), chat_edad_nd: "causa non disponibile", chat_modelo_nd: "modello non confermato", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, data, sha) => `Fonte ${id} · ${data} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
+    lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_soberano_coder: "Programmatore sovrano", lab_eleccion: "Modello di scelta",
     aria_frontera: "Frontiera del nodo",
     cuaderno_consentir: "Consenti", cuaderno_retirar: "Ritira", cuaderno_consentido: "Consenziente", cuaderno_sin_consentir: "Senza consenso", cuaderno_recibo_pendiente: "Nessuna modifica recente", cuaderno_recibo_ok: "Ricevuta ricevuta: turno {id}, {estado}.", cuaderno_recibo_error: "Impossibile modificare questo turno.", cuaderno_recibo_red: "Ricevuta non arrivata; nessuna modifica confermata.", cuaderno_sin_texto: "Testo del turno non disponibile", cuaderno_recuento: "{t} turni · {c} consentiti · {r} corretti",
     harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
@@ -258,7 +263,8 @@ const textos = {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
     tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
-    tab_modelos: "Modelle", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
+    tab_modelos: "Modelle", tab_mundo: "Welt", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
+    model_last_reply: "Zuletzt antwortendes Modell", world_idle: "OpenWorld wird beim Öffnen dieses Tabs geladen.", world_checking: "OpenWorld-Verbindung wird geprüft…", world_loading: "Verbindung verfügbar; OpenWorld wird geladen…", world_loaded: "Der Browser hat die Frame-Navigation beendet; der Cross-Origin-HTTP-Status ist hier nicht lesbar.", world_retry: "OpenWorld erneut versuchen", world_open_new: "OpenWorld in einem neuen Tab öffnen", world_frame_title: "OpenWorld: Karte, flüchtige Partie und Acho-Sprache",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
     pie_captura: "Eine erfasste Runde ist keine eingewilligte Runde. Nichts geht in ein Training, bis du es selbst markierst, eine nach der anderen, und es lässt sich zurückziehen.",
@@ -286,7 +292,7 @@ const textos = {
     anidar_no: "konnte nicht ablegen",
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
     chat_sin_respuesta: (cause) => "Hexelion hat nicht geantwortet · {cause}".replace("{cause}", cause), chat_edad_nd: "Ursache nicht verfügbar", chat_modelo_nd: "Modell nicht bestätigt", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, datum, sha) => `Quelle ${id} · ${datum} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
+    lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_soberano_coder: "Souveräner Coder", lab_eleccion: "Auswahlmodell",
     aria_frontera: "Knotengrenze",
     cuaderno_consentir: "Einwilligen", cuaderno_retirar: "Zurückziehen", cuaderno_consentido: "Einwilligung erteilt", cuaderno_sin_consentir: "Keine Einwilligung", cuaderno_recibo_pendiente: "Keine neuen Änderungen", cuaderno_recibo_ok: "Beleg erhalten: Runde {id}, {estado}.", cuaderno_recibo_error: "Diese Runde konnte nicht geändert werden.", cuaderno_recibo_red: "Kein Beleg erhalten; keine Änderung bestätigt.", cuaderno_sin_texto: "Rundentext nicht verfügbar", cuaderno_recuento: "{t} Runden · {c} eingewilligt · {r} korrigiert",
     harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
@@ -304,7 +310,8 @@ const textos = {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
     tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
     tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
-    tab_modelos: "Модели", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
+    tab_modelos: "Модели", tab_mundo: "Мир", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
+    model_last_reply: "Последняя ответившая модель", world_idle: "OpenWorld загрузится при открытии этой вкладки.", world_checking: "Проверка соединения с OpenWorld…", world_loading: "Соединение доступно; загружается OpenWorld…", world_loaded: "Браузер завершил навигацию фрейма; его HTTP-статус между источниками здесь не виден.", world_retry: "Повторить OpenWorld", world_open_new: "Открыть OpenWorld в другой вкладке", world_frame_title: "OpenWorld: карта, эфемерная партия и язык Acho",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
     pie_captura: "Записанный ход — не то же, что ход с согласием. Ничто не попадает в обучение, пока ты сам не отметишь его, по одному, и это можно отозвать.",
@@ -332,7 +339,7 @@ const textos = {
     anidar_no: "не удалось сохранить",
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
     chat_sin_respuesta: (cause) => "Hexelion не ответил · {cause}".replace("{cause}", cause), chat_edad_nd: "причина недоступна", chat_modelo_nd: "модель не подтверждена", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Источник ${id} · ${date} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
+    lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_soberano_coder: "Суверенный кодер", lab_eleccion: "Модель выбора",
     aria_frontera: "Граница узла",
     cuaderno_consentir: "Согласиться", cuaderno_retirar: "Отозвать", cuaderno_consentido: "Согласие дано", cuaderno_sin_consentir: "Без согласия", cuaderno_recibo_pendiente: "Недавних изменений нет", cuaderno_recibo_ok: "Получена квитанция: ход {id}, {estado}.", cuaderno_recibo_error: "Не удалось изменить этот ход.", cuaderno_recibo_red: "Квитанция не получена; изменения не подтверждены.", cuaderno_sin_texto: "Текст хода недоступен", cuaderno_recuento: "{t} ходов · согласие: {c} · исправлено: {r}",
     harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
@@ -350,7 +357,8 @@ const textos = {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
     tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
     tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
-    tab_modelos: "Μοντέλα", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
+    tab_modelos: "Μοντέλα", tab_mundo: "Κόσμος", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
+    model_last_reply: "Το τελευταίο μοντέλο που απάντησε", world_idle: "Το OpenWorld φορτώνεται όταν ανοίξεις αυτή την καρτέλα.", world_checking: "Έλεγχος σύνδεσης OpenWorld…", world_loading: "Η σύνδεση είναι διαθέσιμη· φόρτωση OpenWorld…", world_loaded: "Το πρόγραμμα περιήγησης ολοκλήρωσε την πλοήγηση του πλαισίου· η διασταυρούμενη κατάσταση HTTP δεν είναι αναγνώσιμη εδώ.", world_retry: "Νέα προσπάθεια OpenWorld", world_open_new: "Άνοιγμα OpenWorld σε άλλη καρτέλα", world_frame_title: "OpenWorld: χάρτης, εφήμερη παρτίδα και γλώσσα Acho",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
     pie_captura: "Ένας γύρος που καταγράφηκε δεν είναι γύρος με συναίνεση. Τίποτα δεν μπαίνει σε εκπαίδευση μέχρι να το σημειώσεις εσύ, έναν έναν, και μπορεί να αποσυρθεί.",
@@ -378,7 +386,7 @@ const textos = {
     anidar_no: "δεν ήταν δυνατό το φώλιασμα",
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
     chat_sin_respuesta: (cause) => "Το Hexelion δεν απάντησε · {cause}".replace("{cause}", cause), chat_edad_nd: "η αιτία δεν είναι διαθέσιμη", chat_modelo_nd: "το μοντέλο δεν έχει επιβεβαιωθεί", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Πηγή ${id} · ${date} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
+    lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_soberano_coder: "Κυρίαρχος κωδικοποιητής", lab_eleccion: "Μοντέλο επιλογής",
     aria_frontera: "Όριο κόμβου",
     cuaderno_consentir: "Συγκατάθεση", cuaderno_retirar: "Ανάκληση", cuaderno_consentido: "Με συγκατάθεση", cuaderno_sin_consentir: "Χωρίς συγκατάθεση", cuaderno_recibo_pendiente: "Δεν υπάρχουν πρόσφατες αλλαγές", cuaderno_recibo_ok: "Λήφθηκε απόδειξη: γύρος {id}, {estado}.", cuaderno_recibo_error: "Δεν ήταν δυνατή η αλλαγή αυτού του γύρου.", cuaderno_recibo_red: "Δεν ήρθε απόδειξη· δεν επιβεβαιώνεται αλλαγή.", cuaderno_sin_texto: "Το κείμενο του γύρου δεν είναι διαθέσιμο", cuaderno_recuento: "{t} γύροι · {c} με συγκατάθεση · {r} διορθωμένοι",
     harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
@@ -395,7 +403,8 @@ const textos = {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
     tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
     tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
-    tab_modelos: "النماذج", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
+    tab_modelos: "النماذج", tab_mundo: "العالم", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
+    model_last_reply: "آخر نموذج أجاب", world_idle: "سيُحمّل OpenWorld عند فتح علامة التبويب هذه.", world_checking: "جارٍ التحقق من اتصال OpenWorld…", world_loading: "الاتصال متاح؛ جارٍ تحميل OpenWorld…", world_loaded: "اكتمل تنقل الإطار في المتصفح؛ حالة HTTP عبر الأصل غير مقروءة هنا.", world_retry: "إعادة محاولة OpenWorld", world_open_new: "فتح OpenWorld في علامة تبويب أخرى", world_frame_title: "OpenWorld: الخريطة واللعبة المؤقتة ولغة Acho",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
     pie_captura: "الدور الملتقط ليس دورًا موافَقًا عليه. لا شيء يدخل تدريبًا حتى تعلّمه أنت، واحدًا تلو الآخر، ويمكن سحبه.",
@@ -423,7 +432,7 @@ const textos = {
     anidar_no: "تعذّر الحفظ",
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
     chat_sin_respuesta: (causa) => "لم يستجب Hexelion · {causa}".replace("{causa}", causa), chat_edad_nd: "السبب غير متاح", chat_modelo_nd: "النموذج غير مؤكد", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, fecha, sha) => `المصدر ${id} · ${fecha} · SHA-256 ${sha}`,
-    lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
+    lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_soberano_coder: "المبرمج السيادي", lab_eleccion: "نموذج الاختيار",
     aria_frontera: "حدود العقدة",
     cuaderno_consentir: "موافقة", cuaderno_retirar: "سحب", cuaderno_consentido: "تمت الموافقة", cuaderno_sin_consentir: "بلا موافقة", cuaderno_recibo_pendiente: "لا تغييرات حديثة", cuaderno_recibo_ok: "وصل الإيصال: الدور {id}، {estado}.", cuaderno_recibo_error: "تعذر تغيير هذا الدور.", cuaderno_recibo_red: "لم يصل الإيصال؛ لا يوجد تغيير مؤكد.", cuaderno_sin_texto: "نص الدور غير متاح", cuaderno_recuento: "{t} أدوار · {c} بموافقة · {r} مصححة",
     harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
@@ -481,12 +490,19 @@ async function fijarIdioma() {
     t = textos[l] || textos.en;
   } catch { /* sin respuesta, se queda el de fabrica */ }
   pintarEstaticos();
+  modelosWeb.refreshLabels();
   actualizarGuionZona();
 }
 let panelActual = 0;
 let filtroCaido = false;
 let cancelarGusano = null;
 let transicionVista = { origen: null, destino: "mando", tau: 1000000 };
+const modelosWeb = window.PreceptorModelosWeb.mount({
+  document,
+  window,
+  getText: () => t,
+  fetcher: (...args) => fetch(...args),
+});
 
 /* --- reorganización · zonas en una sola pestaña ----------------------- */
 function actualizarGuionZona() {
@@ -527,7 +543,7 @@ function mostrar(i, opciones = {}) {
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") cargarLab();
   if (paneles[panelActual].id === "harness") cargarHarness();
-  if (paneles[panelActual].id === "modelos") cargarModelos();
+  if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
   if (paneles[panelActual].id === "puerta") cargarPuerta();
 }
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
@@ -644,56 +660,6 @@ async function cargarPuerta() {
   }
 }
 
-/* --- Modelos · tres fichas servidas por el Lab -------------------------- */
-async function cargarModelos() {
-  const lista = $("modelos-lista");
-  const estadoVista = $("modelos-estado");
-  lista.replaceChildren();
-  estadoVista.textContent = t.modelos_cargando;
-  const nd = String.fromCharCode(78, 79, 95, 68, 65, 84, 65);
-  const medido = String.fromCharCode(77, 69, 68, 73, 68, 79);
-  const stale = String.fromCharCode(83, 84, 65, 76, 69);
-  const pintarFicha = (nombre, ficha) => {
-    const li = document.createElement("li");
-    const titulo = document.createElement("strong");
-    const tag = ficha && typeof ficha.tag === "string" ? ` · ${ficha.tag}` : "";
-    titulo.textContent = `${nombre}${tag}`;
-    li.appendChild(titulo);
-    const situacion = ficha && (ficha.frescura || ficha.estado);
-    const disponible = ficha && ficha.disponible === true;
-    const etiqueta = disponible || situacion === medido ? t.modelos_live
-      : situacion === stale ? t.modelos_stale : t.modelos_ausente;
-    const estadoTexto = document.createElement("p");
-    estadoTexto.textContent = etiqueta;
-    li.appendChild(estadoTexto);
-    const causa = ficha && typeof ficha.causa === "string" && ficha.causa
-      ? ficha.causa : ficha && ficha.adaptador && typeof ficha.adaptador.causa === "string"
-        ? ficha.adaptador.causa : t.modelos_causa_vacia;
-    if (causa) {
-      const razon = document.createElement("p");
-      razon.textContent = `${t.modelos_causa}: ${causa}`;
-      li.appendChild(razon);
-    }
-    lista.appendChild(li);
-  };
-  try {
-    const r = await fetch("/api/lab", { cache: "no-store" });
-    const d = await r.json();
-    const modelos = d && d.modelos;
-    if (!r.ok || !modelos || typeof modelos !== "object") throw new Error("respuesta ausente");
-    pintarFicha(t.lab_mini, modelos.mini);
-    pintarFicha(t.lab_grande, modelos.grande);
-    pintarFicha(t.lab_eleccion, modelos.eleccion);
-    const eleccion = modelos.eleccion;
-    if (eleccion && eleccion.tier1) pintarFicha(t.modelos_tier1, eleccion.tier1);
-    if (eleccion && eleccion.tier2) pintarFicha(t.modelos_tier2, eleccion.tier2);
-    if (eleccion && eleccion.adaptador) pintarFicha(t.modelos_adaptador, eleccion.adaptador);
-    estadoVista.textContent = t.lab_actualizado;
-  } catch {
-    estadoVista.textContent = t.modelos_error;
-  }
-}
-
 /* --- Harness · timers servidos por el sensor local del Nexo ------------- */
 async function cargarHarness() {
   const frescura = $("harness-frescura");
@@ -795,15 +761,19 @@ $("form-chat").addEventListener("submit", async (e) => {
       const ms = Number.isFinite(maquina.ms) && maquina.ms > 0 ? ` · ${maquina.ms} ms` : "";
       const causaRespuesta = typeof d.causa === "string" && d.causa ? ` · ${d.causa}` : "";
       $("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
+      modelosWeb.setActiveModel(typeof maquina.modelo === "string" ? maquina.modelo : null,
+        maquina.ms, "hexelion_model_name_not_returned");
       burbuja("Hexelion: " + respuesta.texto);
       respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)));
     } else {
       const causa = typeof d.causa === "string" && d.causa ? d.causa : t.chat_edad_nd;
       $("estado").textContent = t.chat_sin_respuesta(causa);
+      modelosWeb.setActiveModel(null, null, causa);
     }
   } catch {
     esperando.remove();
     $("estado").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
+    modelosWeb.setActiveModel(null, null, "hexelion_chat_transport_unavailable");
   }
   $("enviar").disabled = false;
 });
