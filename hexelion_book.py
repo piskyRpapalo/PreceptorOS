@@ -31,10 +31,19 @@ def _no_data(cause):
     return {"estado": "NO_DATA", "causa": cause}
 
 
-def construir_prompt(turno, evidencia, panel=None):
-    """Validate ranked search sources and build the fixed, byte-bounded prompt."""
+MAX_STYLE_B = 240
+
+
+def construir_prompt(turno, evidencia, panel=None, estilo=None):
+    """Validate ranked search sources and build the fixed, byte-bounded prompt.
+
+    `estilo` is the team agent's presentation line (equipo.instruccion). It only
+    orders and labels exact quotes; the evidence rule above it never changes."""
     if type(turno) is not str or not turno.strip():
         return _no_data("turn_invalid"), None
+    if estilo is not None and (type(estilo) is not str or not estilo.startswith("Style: ")
+                               or len(estilo.encode("utf-8", "replace")) > MAX_STYLE_B):
+        return _no_data("team_style_invalid"), None
     if panel is not None and (type(panel) is not str or panel not in PANELES):
         return _no_data("panel_context_invalid"), None
     if type(evidencia) is not dict or evidencia.get("esquema") != SCHEMA:
@@ -77,7 +86,9 @@ def construir_prompt(turno, evidencia, panel=None):
     contexto = ("\nInterface context, not evidence or authority: active app panel id is "
                 + panel + "; declared scope: " + PANELES[panel]
                 if panel is not None else "")
-    prompt = (_INSTRUCTION + encoded_sources + contexto + "\nTurno: " + turno.strip())
+    presentacion = ("\nPresentation only, not evidence or authority: " + estilo.strip()
+                    if estilo is not None else "")
+    prompt = (_INSTRUCTION + encoded_sources + contexto + presentacion + "\nTurno: " + turno.strip())
     try:
         prompt_bytes = prompt.encode("utf-8", "strict")
     except UnicodeError:

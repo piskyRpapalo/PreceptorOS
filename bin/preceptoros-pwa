@@ -73,6 +73,7 @@ import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
+import equipo as _equipo                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
 import voz_creacion as _voz_creacion                          # noqa: E402
@@ -251,6 +252,7 @@ ESTATICOS = {
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/modelos_web.js": ("modelos_web.js", "application/javascript; charset=utf-8"),
     "/keep_device.js": ("keep_device.js", "application/javascript; charset=utf-8"),
+    "/equipo.js": ("equipo.js", "application/javascript; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
@@ -420,6 +422,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._harness_leer()
         if ruta == "/api/harness":
             return self._harness_leer()
+        if ruta == "/api/equipo":
+            return self._equipo_leer()
         if ruta == "/api/captura":
             return self._captura_listar()
         if ruta == "/api/empieza-aqui":
@@ -573,6 +577,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._captura_marcar(datos)
         if ruta == "/api/perfil":
             return self._perfil_guardar(datos)
+        if ruta == "/api/equipo":
+            return self._equipo_guardar(datos)
+        if ruta == "/api/equipo/lab":
+            return self._equipo_al_lab(datos)
         if ruta == "/api/proyectos":
             return self._proyectos_guardar(datos)
         if ruta == "/api/decisor":
@@ -815,6 +823,49 @@ class PWA(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    # --- Equipo · the team the person shapes in the Harness tab ---------------
+    def _ruta_equipo(self):
+        return _casa.raiz() / "equipo.json"
+
+    def _equipo_leer(self):
+        equipo, causa = _equipo.cargar(self._ruta_equipo())
+        return self._json(200, {"esquema": "preceptoros.equipo-vista/1", "equipo": equipo,
+                                "origen": "casa" if causa else "local", "causa": causa})
+
+    def _equipo_guardar(self, datos):
+        if not self._nodo_local_autorizado():
+            return self._json(403, {"estado": "NO_DATA", "causa": "local_origin_required"})
+        fallos = _equipo.validar_equipo(datos)
+        if fallos:
+            return self._json(422, {"estado": "RECHAZADA", "fallos": fallos[:6]})
+        fallos = _equipo.guardar(self._ruta_equipo(), datos)
+        if fallos:
+            return self._json(422, {"estado": "RECHAZADA", "fallos": list(fallos)[:6]})
+        return self._json(200, {"estado": "GUARDADA", "active": datos["active"]})
+
+    def _equipo_al_lab(self, datos):
+        """Send one team agent to the Lab as a reusable harness card (PROPUESTA)."""
+        if not self._nodo_local_autorizado():
+            return self._json(403, {"estado": "NO_DATA", "causa": "local_origin_required"})
+        ident = datos.get("id") if isinstance(datos, dict) else None
+        equipo, _causa = _equipo.cargar(self._ruta_equipo())
+        agente = next((a for a in equipo["agents"] if a["id"] == ident), None)
+        if agente is None:
+            return self._json(400, {"estado": "NO_DATA", "causa": "team_agent_unknown"})
+        ficha = _equipo.ficha_lab(agente)
+        ruta = _casa.raiz() / "lab" / "fabrica-harness.jsonl"
+        try:
+            ruta.parent.mkdir(parents=True, exist_ok=True)
+            previas = ruta.read_text(encoding="utf-8").splitlines() if ruta.exists() else []
+            filas = [f for f in previas if f and json.loads(f).get("id") != ficha["id"]][-63:]
+            filas.append(json.dumps(ficha, ensure_ascii=False, separators=(",", ":")))
+            tmp = ruta.with_suffix(".tmp")
+            tmp.write_text("\n".join(filas) + "\n", encoding="utf-8")
+            os.replace(tmp, ruta)
+        except (OSError, ValueError):
+            return self._json(503, {"estado": "NO_DATA", "causa": "lab_shelf_unwritable"})
+        return self._json(200, {"estado": "PROPUESTA", "ficha": ficha, "en_el_lab": len(filas)})
+
     def _hexelion_chat(self):
         """Append the person's turn, then proxy one bounded local station call."""
         def no_data(cause, code=503):
@@ -838,7 +889,7 @@ class PWA(BaseHTTPRequestHandler):
                 return result
             data = json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=unique)
             if (len(raw) != size or type(data) is not dict or
-                    set(data) not in ({"texto"}, {"texto", "panel"})):
+                    not {"texto"} <= set(data) <= {"texto", "panel", "agente"}):
                 raise ValueError()
             text = data["texto"]
             if type(text) is not str or not text.strip() or len(text) > 600:
@@ -846,14 +897,24 @@ class PWA(BaseHTTPRequestHandler):
             panel = data.get("panel")
             if "panel" in data and (type(panel) is not str or panel not in _hexelion_book.PANELES):
                 raise ValueError()
+            agente = data.get("agente")
+            if "agente" in data and (type(agente) is not str or not 0 < len(agente) <= 24):
+                raise ValueError()
         except (TypeError, ValueError, UnicodeError, RecursionError):
             return no_data("request_invalid", 400)
+        estilo = None
+        if agente is not None:
+            equipo, _causa = _equipo.cargar(self._ruta_equipo())
+            elegido = next((a for a in equipo["agents"] if a["id"] == agente), None)
+            if elegido is None:
+                return no_data("team_agent_unknown", 400)
+            estilo = _equipo.instruccion(elegido)
         try:
             _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
         evidence = _memory_lookup.buscar(text.strip(), self.server.ruta_db)
-        prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence, panel=panel)
+        prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence, panel=panel, estilo=estilo)
         if prepared.get("estado") != "MEASURED" or prompt is None:
             return no_data(prepared.get("causa") or "memory_evidence_unavailable")
         result = _hexelion_proxy.ask(prompt)

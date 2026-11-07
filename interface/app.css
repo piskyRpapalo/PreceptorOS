@@ -316,3 +316,31 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
   font-family: Georgia, "Times New Roman", serif; pointer-events: none;
 }
 #compass-svg-hueco .etiqueta { font-size: 8.5px; }
+
+/* Equipo · the team in the Harness tab (mini window first: 420×437 panel, 44 px targets) */
+.equipo { display: grid; gap: .6rem; }
+.equipo-espectro { width: 96px; height: 96px; justify-self: center; }
+.equipo-espectro path, .agente-espectro path { fill: none; stroke: var(--agente, var(--acento)); stroke-width: .07; stroke-linejoin: round; }
+.equipo-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .5rem; }
+.agente { position: relative; display: grid; justify-items: center; gap: .1rem; min-height: 96px; padding: .5rem .4rem;
+  border: 1px solid transparent; border-radius: 14px; background: color-mix(in srgb, var(--agente) 12%, transparent);
+  color: inherit; font: inherit; cursor: pointer; }
+.agente[aria-checked="true"] { border-color: var(--agente); background: color-mix(in srgb, var(--agente) 24%, transparent); }
+.agente:focus-visible { outline: 2px solid var(--agente); outline-offset: 2px; }
+.agente-espectro { width: 44px; height: 44px; }
+.agente-glifo { position: absolute; top: .5rem; left: 50%; translate: -50% 0; width: 44px; height: 44px;
+  display: grid; place-items: center; font-size: 1.15rem; color: var(--agente); }
+.agente strong { font-size: .95rem; }
+.agente-forma { font-size: .8rem; opacity: .8; }
+.equipo-acciones { display: flex; flex-wrap: wrap; gap: .4rem; }
+.equipo-acciones button, .equipo-opciones button { min-height: 44px; min-width: 44px; border-radius: 12px; }
+.equipo-editor { display: grid; gap: .45rem; padding: .6rem; border: 1px solid var(--acento-tenue); border-radius: 14px; }
+.equipo-editor label { display: grid; gap: .2rem; }
+.equipo-opciones { display: flex; flex-wrap: wrap; gap: .3rem; }
+.equipo-opciones button[aria-checked="true"] { outline: 2px solid var(--agente, var(--acento)); }
+.equipo-opciones button[style] { background: var(--agente); }
+.harness-motor summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.chapa-agente { --agente: var(--acento); min-width: 44px; min-height: 44px; border-radius: 50%;
+  border: 1px solid var(--agente); background: color-mix(in srgb, var(--agente) 18%, transparent); color: var(--agente); font-size: 1.1rem; }
+@media (prefers-reduced-motion: reduce) { .agente, .equipo-espectro path { transition: none; } }
+@media (forced-colors: active) { .agente, .chapa-agente { border-color: CanvasText; } }
