@@ -373,3 +373,17 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
 .compass-card-mark path { fill: none; stroke: var(--agente); stroke-width: .12; }
 .acho-focus { filter: drop-shadow(0 0 5px #eacb56) drop-shadow(0 0 2px #eacb56); outline: 2px solid #eacb56; outline-offset: 2px; }
 @media (forced-colors: active) { .compass-card { border-color: ButtonText; } .acho-focus { outline-color: Highlight; filter: none; } }
+
+/* Pending signatures · Acho cards at the top of Command */
+.firmas-caja summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.firmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .5rem; }
+.firma { display: flex; flex-direction: column; gap: .25rem; padding: .6rem; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--agente) 45%, transparent); background: color-mix(in srgb, var(--agente) 11%, transparent); }
+.firma-mark { width: 28px; height: 28px; } .firma-mark path { fill: none; stroke: var(--agente); stroke-width: .12; }
+.firma-estado { margin: 0; font-size: .78em; font-weight: 700; letter-spacing: .02em; }
+.firma-red .firma-estado { color: #e36a5a; } .firma-sign .firma-estado, .firma-retarget .firma-estado { color: var(--agente); }
+.firma-titulo { font-size: .85em; }
+.firma-acciones { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.firma-acciones button, .firma-acciones a { min-height: 44px; min-width: 44px; padding: 0 .8rem; border-radius: 12px; display: inline-flex; align-items: center;
+  border: 1px solid var(--agente); background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
+@media (forced-colors: active) { .firma { border-color: CanvasText; } }

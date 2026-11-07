@@ -255,6 +255,7 @@ ESTATICOS = {
     "/keep_device.js": ("keep_device.js", "application/javascript; charset=utf-8"),
     "/acho_motion.js": ("acho_motion.js", "application/javascript; charset=utf-8"),
     "/team.js": ("team.js", "application/javascript; charset=utf-8"),
+    "/firmas.js": ("firmas.js", "application/javascript; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
@@ -441,6 +442,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._harness_leer()
         if ruta == "/api/team":
             return self._team_read()
+        if ruta == "/api/firmas":
+            return self._firmas_read()
         if ruta == "/api/captura":
             return self._captura_listar()
         if ruta == "/api/empieza-aqui":
@@ -843,6 +846,21 @@ class PWA(BaseHTTPRequestHandler):
     # --- Equipo · the team the person shapes in the Harness tab ---------------
     def _team_path(self):
         return _casa.raiz() / "team.json"
+
+    def _firmas_read(self):
+        """The pending-signature card the scraper writes (bin/firmas-scraper). Read only."""
+        ruta = _casa.raiz() / "firmas" / "pendientes.json"
+        try:
+            if ruta.stat().st_size > 65536:
+                raise ValueError("too_large")
+            datos = json.loads(ruta.read_text(encoding="utf-8"))
+            if datos.get("esquema") != "preceptoros.firmas-pendientes/1":
+                raise ValueError("bad_schema")
+            return self._json(200, datos)
+        except FileNotFoundError:
+            return self._json(200, {"estado": "NO_DATA", "causa": "scraper_not_run", "filas": []})
+        except (OSError, ValueError, AttributeError):
+            return self._json(200, {"estado": "NO_DATA", "causa": "signatures_unreadable", "filas": []})
 
     def _team_read(self):
         team, causa = _team.load(self._team_path())
