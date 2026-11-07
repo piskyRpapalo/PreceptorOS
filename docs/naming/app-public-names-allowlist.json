@@ -66,6 +66,7 @@
     "/hexelion.css": "interface/hexelion.css",
     "/hexelion.html": "interface/hexelion.html",
     "/hexelion.js": "interface/hexelion.js",
+    "/insertor.js": "interface/insertor.js",
     "/install.js": "interface/install.js",
     "/llms.txt": "llms.txt",
     "/manifest.json": "interface/manifest.json",
@@ -76,8 +77,7 @@
     "/sting.js": "interface/sting.js",
     "/sw.js": "interface/sw.js",
     "/transicion.js": "interface/transicion.js",
-    "/zonas.js": "interface/zonas.js",
-    "/insertor.js": "interface/insertor.js"
+    "/zonas.js": "interface/zonas.js"
   },
   "api_routes": [
     "/api/anidar",
@@ -121,6 +121,7 @@
     "crear-acceso-directo-android",
     "detectar-termux-boot",
     "eco-remoto",
+    "faro",
     "instalar-android",
     "instalar-pc",
     "instalar-pc-voz",
