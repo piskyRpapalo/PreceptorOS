@@ -32,6 +32,7 @@ LO QUE NO HACE
 from __future__ import annotations
 
 import json
+import hashlib
 import ipaddress
 import os
 import re
@@ -301,6 +302,7 @@ class PWA(BaseHTTPRequestHandler):
     server_version = "preceptoros-pwa"
 
     def _json(self, codigo, cuerpo):
+        ruta = self.path.split("?")[0]
         if self.path.split("?")[0] in ("/api/orquestador", "/api/hexelion/search", "/api/hexelion/decision", "/api/hexelion/chat"):
             try:
                 crudo = _estado_compacto.serializar_objeto(cuerpo)
@@ -310,14 +312,30 @@ class PWA(BaseHTTPRequestHandler):
                     "estado": "NO_DATA", "causa": "respuesta fuera del sobre de 1.023 B"})
         else:
             crudo = json.dumps(cuerpo, ensure_ascii=False).encode("utf-8")
+        # Only stable, non-sensitive local snapshots opt into browser
+        # revalidation. User content and node/credential routes stay no-store.
+        etag = None
+        if (getattr(self, "command", "") == "GET" and codigo == 200 and
+                ruta in ("/api/estado", "/api/manifiesto")):
+            etag = '"' + hashlib.sha256(crudo).hexdigest() + '"'
+            condition = self.headers.get("If-None-Match", "")
+            candidates = {part.strip() for part in condition.split(",")}
+            if "*" in candidates or etag in candidates or "W/" + etag in candidates:
+                self.send_response(304)
+                self.send_header("ETag", etag)
+                self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
+                self.end_headers()
+                return
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        if etag:
+            self.send_header("ETag", etag)
+            self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
-        if (self.path.split("?")[0].startswith("/api/nodo/") or
-                self.path.split("?")[0].startswith("/api/hexelion/") or
-                self.path.split("?")[0] == "/api/bandeja"):
+        if (ruta.startswith("/api/nodo/") or
+                ruta.startswith("/api/hexelion/") or ruta == "/api/bandeja"):
             self.send_header("Cache-Control", "no-store")
-        if (self.path.split("?")[0] == "/api/orquestador" and
+        if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
             self.send_header("Access-Control-Allow-Origin", ORIGEN_WEB_ORQUESTADOR)
             self.send_header("Vary", "Origin")

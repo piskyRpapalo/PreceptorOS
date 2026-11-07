@@ -1632,3 +1632,56 @@ class LabRackPuertaContrato(unittest.TestCase):
         self.assertIn('if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }', js)
         self.assertIn('fetch("/api/lab-rack", { cache: "no-store" })', js)
         self.assertIn('d.estado !== "MEASURED"', js)
+
+
+class ConditionalLocalReads(unittest.TestCase):
+    def handler(self, path, headers=None, command="GET"):
+        import io
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = path
+        handler.command = command
+        handler.headers = headers or {}
+        handler.status = None
+        handler.response_headers = {}
+        handler.send_response = lambda status: setattr(handler, "status", status)
+        handler.send_header = lambda key, value: handler.response_headers.__setitem__(key, value)
+        handler.end_headers = lambda: None
+        handler.wfile = io.BytesIO()
+        return handler
+
+    def test_state_snapshot_returns_304_only_for_the_same_body(self):
+        first = self.handler("/api/estado?view=map")
+        PWA.PWA._json(first, 200, {"estado": "ok", "turnos": 3})
+        etag = first.response_headers["ETag"]
+        self.assertEqual(first.status, 200)
+        self.assertEqual(first.response_headers["Cache-Control"], "private, max-age=60, must-revalidate")
+        self.assertEqual(int(first.response_headers["Content-Length"]), len(first.wfile.getvalue()))
+
+        same = self.handler("/api/estado", {"If-None-Match": '"other", W/' + etag})
+        PWA.PWA._json(same, 200, {"estado": "ok", "turnos": 3})
+        self.assertEqual(same.status, 304)
+        self.assertEqual(same.response_headers["ETag"], etag)
+        self.assertNotIn("Content-Length", same.response_headers)
+        self.assertEqual(same.wfile.getvalue(), b"")
+
+        changed = self.handler("/api/estado", {"If-None-Match": etag})
+        PWA.PWA._json(changed, 200, {"estado": "ok", "turnos": 4})
+        self.assertEqual(changed.status, 200)
+        self.assertNotEqual(changed.response_headers["ETag"], etag)
+
+    def test_manifest_can_revalidate_but_private_node_routes_stay_no_store(self):
+        manifest = self.handler("/api/manifiesto")
+        PWA.PWA._json(manifest, 200, {"estado": "ok", "texto": "local doctrine"})
+        self.assertIn("ETag", manifest.response_headers)
+
+        private = self.handler("/api/nodo/identity", {"If-None-Match": manifest.response_headers["ETag"]})
+        PWA.PWA._json(private, 200, {"estado": "configured"})
+        self.assertEqual(private.status, 200)
+        self.assertEqual(private.response_headers["Cache-Control"], "no-store")
+        self.assertNotIn("ETag", private.response_headers)
+
+    def test_non_get_responses_do_not_gain_validators(self):
+        response = self.handler("/api/estado", command="POST")
+        PWA.PWA._json(response, 200, {"estado": "ok"})
+        self.assertEqual(response.status, 200)
+        self.assertNotIn("ETag", response.response_headers)
