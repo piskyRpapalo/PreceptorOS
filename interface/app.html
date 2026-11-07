@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#121419">
 <title>PreceptorOS</title>
 <link rel="icon" type="image/png" sizes="192x192" href="/assets/icono-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=10">
+<link rel="stylesheet" href="/app.css?v=11">
 </head>
 <body>
 
@@ -66,45 +66,8 @@
 
   <!-- frontera -->
   <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" data-i18n-aria="aria_frontera" aria-label="Frontera del nodo" hidden>
-    <div class="tarjeta" id="tarjeta-frontera">
-      <div class="fila-switch">
-        <button class="switch is-on" id="switch" role="switch"
-                aria-checked="true" data-i18n-aria="aria_redaccion" aria-label="Redacción"><i></i></button>
-        <span class="switch-label" id="switch-label" data-i18n="redaccion_on">Redacción activa</span>
-        <span class="insignia insignia-ok" id="insignia" data-i18n="sin_medir">sin medir</span>
-      </div>
-
-      <label class="sr" for="prueba" data-i18n="texto_comprobar">Texto a comprobar</label>
-      <textarea id="prueba" rows="3"
-        data-i18n-ph="ph_prueba" placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
-      <button class="probar" id="probar" type="button" data-i18n="pasar_filtro">Pasar por el filtro</button>
-
-      <ul class="hallazgos" id="hallazgos"></ul>
-      <p class="vacio" id="vacio" hidden></p>
-      <p class="bloqueado" id="bloqueado" hidden></p>
-
-      <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
-
-      <!-- La aduana con salida. Aparece solo cuando el filtro ya corrió: no se
-           puede anidar lo que nadie ha mirado todavía. Lo que se enseña aquí es
-           el texto ya tachado que devolvió el servidor, nunca lo que se pegó
-           arriba — la persona firma lo que entra en su memoria, así que tiene
-           que estar viéndolo. -->
-      <div class="anidar-caja" id="anidar-caja" hidden>
-        <p class="anidar-titulo" data-i18n="anidar_titulo">Esto es lo que entraría en tu memoria</p>
-        <pre class="anidar-vista" id="anidar-vista"></pre>
-        <label class="sr" for="anidar-porque" data-i18n="anidar_porque">Por qué te importa</label>
-        <input id="anidar-porque" type="text" autocomplete="off"
-               data-i18n-ph="ph_porque" placeholder="¿Por qué te importa? (opcional)">
-        <button class="anidar" id="anidar" type="button" data-i18n="anidar_boton">Anidar esto en tu memoria</button>
-        <p class="anidar-dicho" id="anidar-dicho" hidden aria-live="polite"></p>
-        <p class="pie" data-i18n="pie_anidar">Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.</p>
-      </div>
-      <details class="payload-caja">
-        <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
-        <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
-      </details>
-    </div>
+    <h2 data-i18n="tab_frontera">Frontera</h2>
+    <p class="pie" id="a2a-politica" role="status" lang="en">NO_DATA: this node has no A2A policy written yet. Boundary is where you will write how other agents may reach it. The redaction filter now lives in Ajustes.</p>
   </section>
 
   <!-- cuaderno -->
@@ -151,6 +114,52 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <div class="tarjeta" id="tarjeta-frontera" role="group" aria-labelledby="redaccion-titulo">
+      <h3 id="redaccion-titulo" data-i18n="aria_redaccion">Redacción</h3>
+      <div class="fila-switch">
+        <button class="switch is-on" id="switch" role="switch"
+                aria-checked="true" data-i18n-aria="aria_redaccion" aria-label="Redacción"><i></i></button>
+        <span class="switch-label" id="switch-label" data-i18n="redaccion_on">Redacción activa</span>
+        <span class="insignia insignia-ok" id="insignia" data-i18n="sin_medir">sin medir</span>
+      </div>
+
+      <label class="sr" for="prueba" data-i18n="texto_comprobar">Texto a comprobar</label>
+      <textarea id="prueba" rows="3"
+        data-i18n-ph="ph_prueba" placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
+      <button class="probar" id="probar" type="button" data-i18n="pasar_filtro">Pasar por el filtro</button>
+
+      <ul class="hallazgos" id="hallazgos"></ul>
+      <p class="vacio" id="vacio" hidden></p>
+      <p class="bloqueado" id="bloqueado" hidden></p>
+
+      <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
+
+      <!-- La aduana con salida. Aparece solo cuando el filtro ya corrió: no se
+           puede anidar lo que nadie ha mirado todavía. Lo que se enseña aquí es
+           el texto ya tachado que devolvió el servidor, nunca lo que se pegó
+           arriba — la persona firma lo que entra en su memoria, así que tiene
+           que estar viéndolo. -->
+      <div class="anidar-caja" id="anidar-caja" hidden>
+        <p class="anidar-titulo" data-i18n="anidar_titulo">Esto es lo que entraría en tu memoria</p>
+        <pre class="anidar-vista" id="anidar-vista"></pre>
+        <label class="sr" for="anidar-porque" data-i18n="anidar_porque">Por qué te importa</label>
+        <input id="anidar-porque" type="text" autocomplete="off"
+               data-i18n-ph="ph_porque" placeholder="¿Por qué te importa? (opcional)">
+        <button class="anidar" id="anidar" type="button" data-i18n="anidar_boton">Anidar esto en tu memoria</button>
+        <p class="anidar-dicho" id="anidar-dicho" hidden aria-live="polite"></p>
+        <p class="pie" data-i18n="pie_anidar">Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.</p>
+      </div>
+      <details class="payload-caja">
+        <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
+        <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
+      </details>
+    </div>
+    <section class="tarjeta" lang="en" aria-labelledby="keep-device-title">
+      <h3 id="keep-device-title">Keep this app on this device</h3>
+      <p class="pie" id="keep-device-help">Asks the browser not to clear this app's storage. Nothing is asked until you press the button.</p>
+      <button type="button" id="keep-device" class="probar">Keep it</button>
+      <p class="pie" id="keep-device-status" role="status" aria-live="polite">Not asked yet.</p>
+    </section>
     <section class="tarjeta" lang="en" aria-labelledby="creation-voice-title">
       <h3 id="creation-voice-title">Creation voice</h3>
       <p id="creation-voice-help">Generate the drawing guidance and your author statement with one local voice.</p>
@@ -248,10 +257,11 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/modelos_web.js?v=1"></script>
+<script src="/modelos_web.js?v=2"></script>
 <script src="/insertor.js?v=1"></script>
 <script src="/app.js?v=14"></script>
 <script src="/creation_voice.js?v=1"></script>
+<script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
 <script src="/node_building.js?v=1"></script>
