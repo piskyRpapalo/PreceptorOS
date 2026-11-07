@@ -29,3 +29,7 @@ Estado: proposal, funcionalidad medida por pruebas locales. Base: `e747df6ee64c3
 ## Log
 
 - 2026-11-07: pieza propuesta desde main `e747df6`; base de navegación y sting leída antes de editar. El camino real a Hexelion permanece mismo origen y solo recibe los campos del contrato.
+
+## Enlace al laboratorio real
+
+La pieza separada `odd/tasks/lab-rack-real-20261107.md` mide el contrato del enlace al Lab real: comprobación local diferida al abrir el panel, sin redirecciones y con `NO_DATA` visible si no se confirma la respuesta.

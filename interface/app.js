@@ -545,7 +545,7 @@ function mostrar(i, opciones = {}) {
   }
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
-  if (paneles[panelActual].id === "lab") cargarLab();
+  if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }
   if (paneles[panelActual].id === "harness") cargarHarness();
   if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
   if (paneles[panelActual].id === "puerta") cargarPuerta();
@@ -633,6 +633,29 @@ async function cargarLab() {
     $("lab-estado").textContent = t.lab_actualizado;
   } catch {
     $("lab-estado").textContent = t.lab_error;
+  }
+}
+
+/* La puerta del laboratorio local se comprueba solo al abrir el panel. */
+async function cargarLabRack() {
+  const estado = $("lab-rack-estado");
+  const enlace = $("lab-rack-enlace");
+  enlace.hidden = true;
+  estado.hidden = false;
+  estado.textContent = t.lab_cargando;
+  try {
+    const r = await fetch("/api/lab-rack", { cache: "no-store" });
+    const d = await r.json();
+    if (!r.ok || !d || typeof d !== "object" || d.estado !== "MEASURED") {
+      const causa = d && typeof d.causa === "string" ? d.causa : "respuesta_invalida";
+      estado.textContent = `${t.lab_error} ${causa}`;
+      return;
+    }
+    enlace.href = `${location.protocol}//${location.hostname}:8790/`;
+    enlace.hidden = false;
+    estado.textContent = t.lab_actualizado;
+  } catch {
+    estado.textContent = `${t.lab_error} conexion_local_no_disponible`;
   }
 }
 

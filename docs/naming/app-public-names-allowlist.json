@@ -101,6 +101,7 @@
     "/api/hexelion/decision",
     "/api/hexelion/search",
     "/api/lab",
+    "/api/lab-rack",
     "/api/manifiesto",
     "/api/medidas",
     "/api/metricas",
