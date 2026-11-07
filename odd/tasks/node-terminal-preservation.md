@@ -1,3 +1,5 @@
+> **DEPRECIADO por decreto 2026-11-07.** Pieles y sesión gráfica quedan fuera del norte simplificado; este documento permanece solo como archivo histórico. No borrar.
+
 # Node terminal preservation
 
 Commission: preserve Atlantis and the Risen across the map migration. Web main `10506b5d27046772491ad3c8568e12a7816c5d6a` declares both names in `public/game/global_map.js:21-24`, filters the two IDs in `public/openworld/index.html:140-148`, and tests the current strings and filter in `test_web.py:2541-2551`. `public/game/en301_tutorial_copy.js:42-45` says signed cards must be verified and currently reports NO_DATA. These establish source anchors, not deployed terminal reachability or poll liveness.
