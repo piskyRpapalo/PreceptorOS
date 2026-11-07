@@ -460,6 +460,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._canales_leer()
         if ruta == "/api/lab":
             return self._lab_leer()
+        if ruta == "/api/lab-rack":
+            return self._lab_rack_leer()
         if ruta.startswith("/api/voz"):
             return self._voz()
         if ruta == "/api/perfil":
@@ -1232,6 +1234,38 @@ class PWA(BaseHTTPRequestHandler):
                                     "modelos": _lab.modelos_lab(raiz)})
         except Exception as e:                      # nunca tumba el tablero
             return self._json(500, {"estado": "bloqueado", "motivo": type(e).__name__})
+
+    def _lab_rack_leer(self):
+        """Comprueba la interfaz fija del Lab local; no sigue redirecciones."""
+        host = self.headers.get("Host", "")
+        puerto = self.server.server_port if getattr(self, "server", None) else PUERTO
+        hosts_locales = {f"localhost:{puerto}", f"127.0.0.1:{puerto}", f"[::1]:{puerto}"}
+        origen = self.headers.get("Origin")
+        autorizado = (self._es_loopback(self.client_address[0]) and host.casefold() in hosts_locales
+                      and (self._nodo_local_autorizado() if origen
+                           else self.headers.get("Sec-Fetch-Site") == "same-origin"))
+        if not autorizado:
+            return self._json(403, {"estado": "NO_DATA", "causa": "origen_local_no_autorizado"})
+
+        class SinRedireccion(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                return None
+
+        solicitud = urllib.request.Request(
+            "http://127.0.0.1:8790/", headers={"Accept": "text/html"}, method="GET")
+        try:
+            abridor = urllib.request.build_opener(SinRedireccion)
+            with abridor.open(solicitud, timeout=2) as respuesta:
+                tipo = respuesta.headers.get_content_type()
+                contenido = respuesta.read(16385)
+                if respuesta.status != 200:
+                    return self._json(200, {"estado": "NO_DATA", "causa": "estado_http_no_disponible"})
+                if tipo != "text/html" or not contenido or len(contenido) > 16384:
+                    return self._json(200, {"estado": "NO_DATA", "causa": "respuesta_fuera_de_contrato"})
+            return self._json(200, {"estado": "MEASURED"})
+        except Exception as exc:
+            causa = "redireccion_no_permitida" if isinstance(exc, urllib.error.HTTPError) and 300 <= exc.code < 400 else "laboratorio_local_no_disponible"
+            return self._json(200, {"estado": "NO_DATA", "causa": causa})
 
     def _lab_decir(self, datos):
         """La persona habla al Lab; el orquestador mini contesta por tuberia.

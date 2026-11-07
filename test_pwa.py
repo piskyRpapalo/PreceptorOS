@@ -1126,8 +1126,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=13', html)
-        self.assertIn('"/app.js?v=13"', sw)
+        self.assertIn('/app.js?v=14', html)
+        self.assertIn('"/app.js?v=14"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
@@ -1548,4 +1548,62 @@ class InsertorAncladoContrato(unittest.TestCase):
         self.assertIn('"/insertor.js": ("insertor.js",', server)
         self.assertIn('"interface/insertor.js"', versions)
         self.assertIn('"/app.css?v=10"', sw)
-        self.assertIn('"/app.js?v=13"', sw)
+        self.assertIn('"/app.js?v=14"', sw)
+
+
+class LabRackPuertaContrato(unittest.TestCase):
+    def _handler(self):
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.headers = {"Origin": "http://127.0.0.1:8740", "Host": "127.0.0.1:8740"}
+        handler.client_address = ("127.0.0.1", 4567)
+        handler._nodo_local_autorizado = lambda: True
+        handler._json = lambda status, body: (status, body)
+        return handler
+
+    def test_lab_rack_verifica_html_y_rechaza_redireccion(self):
+        import email.message
+        handler = self._handler()
+        response = mock.Mock(status=200, headers=email.message.Message())
+        response.headers["Content-Type"] = "text/html; charset=utf-8"
+        response.read.return_value = b"<!doctype html><title>Lab</title>"
+        response.__enter__ = lambda _: response
+        response.__exit__ = lambda *_: None
+        opener = mock.Mock()
+        opener.open.return_value = response
+        with mock.patch.object(PWA.urllib.request, "build_opener", return_value=opener) as build:
+            status, body = PWA.PWA._lab_rack_leer(handler)
+        self.assertEqual((status, body), (200, {"estado": "MEASURED"}))
+        self.assertIsNotNone(build.call_args.args[0])
+        self.assertEqual(opener.open.call_args.kwargs["timeout"], 2)
+
+        redirect = PWA.urllib.error.HTTPError("local", 302, "redirect", {}, None)
+        opener.open.side_effect = redirect
+        with mock.patch.object(PWA.urllib.request, "build_opener", return_value=opener):
+            status, body = PWA.PWA._lab_rack_leer(handler)
+        self.assertEqual(body["causa"], "redireccion_no_permitida")
+
+    def test_lab_rack_falla_cerrado_y_no_consulta_para_origen_remoto(self):
+        handler = self._handler()
+        handler._nodo_local_autorizado = lambda: False
+        with mock.patch.object(PWA.urllib.request, "build_opener") as build:
+            status, body = PWA.PWA._lab_rack_leer(handler)
+        self.assertEqual(status, 403)
+        self.assertEqual(body["causa"], "origen_local_no_autorizado")
+        build.assert_not_called()
+
+        handler = self._handler()
+        opener = mock.Mock()
+        opener.open.side_effect = TimeoutError()
+        with mock.patch.object(PWA.urllib.request, "build_opener", return_value=opener):
+            status, body = PWA.PWA._lab_rack_leer(handler)
+        self.assertEqual(status, 200)
+        self.assertEqual(body, {"estado": "NO_DATA", "causa": "laboratorio_local_no_disponible"})
+
+    def test_enlace_lab_solo_se_habilita_tras_abrir_el_panel(self):
+        html = (pathlib.Path(AQUI) / "interface/app.html").read_text(encoding="utf-8")
+        js = (pathlib.Path(AQUI) / "interface/app.js").read_text(encoding="utf-8")
+        self.assertIn('id="lab-rack-enlace"', html)
+        self.assertIn('id="lab-rack-enlace" href="#"', html)
+        self.assertIn('if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }', js)
+        self.assertIn('fetch("/api/lab-rack", { cache: "no-store" })', js)
+        self.assertIn('d.estado !== "MEASURED"', js)
