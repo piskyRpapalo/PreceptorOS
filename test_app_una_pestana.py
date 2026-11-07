@@ -35,11 +35,12 @@ class CarcasaUnaPestana(unittest.TestCase):
     def test_cada_zona_tiene_una_tab_y_un_panel(self):
         app = _app()
         ids = [tab.get("data-panel") for tab in app.tabs]
-        self.assertEqual(ids, ["mando", "conversacion", "gobierno", "cuaderno",
+        # Frontera lives in Ajustes (Sovereign, 2026-11-07): eight tabs fit the 420 px mini window.
+        self.assertEqual(ids, ["mando", "conversacion", "cuaderno",
                                "lab", "harness", "puerta", "modelos", "ajustes"])
         self.assertEqual(len(ids), len(set(ids)))
         paneles = {panel["id"] for panel in app.panels}
-        self.assertEqual(paneles, {"panel-mando", "panel-conversacion", "panel-gobierno",
+        self.assertEqual(paneles, {"panel-mando", "panel-conversacion",
                                    "panel-cuaderno", "panel-lab", "panel-harness",
                                    "panel-puerta", "panel-modelos", "panel-ajustes"})
         self.assertEqual({tab.get("aria-controls") for tab in app.tabs}, paneles)
@@ -114,3 +115,11 @@ class CarcasaUnaPestana(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FronteraEnAjustes(unittest.TestCase):
+    def test_frontera_es_una_tarjeta_de_ajustes(self):
+        html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
+        ajustes = html.split('id="panel-ajustes"', 1)[1].split("</section>\n\n", 1)[0]
+        self.assertIn('id="tarjeta-frontera"', ajustes)
+        self.assertNotIn('data-panel="gobierno"', html)

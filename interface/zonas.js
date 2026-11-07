@@ -4,7 +4,6 @@
   const zonas = Object.freeze([
     Object.freeze({ id: "mando", panel: "mando", titulo: "Mando" }),
     Object.freeze({ id: "conversacion", panel: "conversacion", titulo: "Conversación" }),
-    Object.freeze({ id: "gobierno", panel: "gobierno", titulo: "Gobierno" }),
     Object.freeze({ id: "cuaderno", panel: "cuaderno", titulo: "Cuaderno" }),
     Object.freeze({ id: "lab", panel: "lab", titulo: "Lab" }),
     Object.freeze({ id: "harness", panel: "harness", titulo: "Harness" }),

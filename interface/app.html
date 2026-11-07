@@ -34,7 +34,6 @@
 <nav class="pestanas" id="pestanas" role="tablist" aria-orientation="horizontal" aria-label="Zonas">
   <button id="tab-mando" role="tab" aria-controls="panel-mando" aria-selected="false" tabindex="-1" data-panel="mando" data-i18n="tab_mando" aria-label="Mando" title="Mando">Mando</button>
   <button id="tab-conversacion" role="tab" aria-controls="panel-conversacion" aria-selected="true" tabindex="0" data-panel="conversacion" data-i18n="tab_chat" aria-label="Hablar" title="Hablar">Hablar</button>
-  <button id="tab-gobierno" role="tab" aria-controls="panel-gobierno" aria-selected="false" tabindex="-1" data-panel="gobierno" data-i18n="tab_frontera" aria-label="Frontera" title="Frontera">Frontera</button>
   <button id="tab-cuaderno" role="tab" aria-controls="panel-cuaderno" aria-selected="false" tabindex="-1" data-panel="cuaderno" data-i18n="tab_cuaderno" aria-label="Cuaderno" title="Cuaderno">Cuaderno</button>
   <button id="tab-lab" role="tab" aria-controls="panel-lab" aria-selected="false" tabindex="-1" data-panel="lab" data-i18n="tab_lab" aria-label="Lab" title="Lab">Lab</button>
   <button id="tab-harness" role="tab" aria-controls="panel-harness" aria-selected="false" tabindex="-1" data-panel="harness" data-i18n="tab_harness" aria-label="Harness" title="Harness">Harness</button>
@@ -62,49 +61,6 @@
   <!-- hablar -->
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar">
     <ol class="hilo" id="hilo" aria-live="polite"></ol>
-  </section>
-
-  <!-- frontera -->
-  <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" data-i18n-aria="aria_frontera" aria-label="Frontera del nodo" hidden>
-    <div class="tarjeta" id="tarjeta-frontera">
-      <div class="fila-switch">
-        <button class="switch is-on" id="switch" role="switch"
-                aria-checked="true" data-i18n-aria="aria_redaccion" aria-label="Redacción"><i></i></button>
-        <span class="switch-label" id="switch-label" data-i18n="redaccion_on">Redacción activa</span>
-        <span class="insignia insignia-ok" id="insignia" data-i18n="sin_medir">sin medir</span>
-      </div>
-
-      <label class="sr" for="prueba" data-i18n="texto_comprobar">Texto a comprobar</label>
-      <textarea id="prueba" rows="3"
-        data-i18n-ph="ph_prueba" placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
-      <button class="probar" id="probar" type="button" data-i18n="pasar_filtro">Pasar por el filtro</button>
-
-      <ul class="hallazgos" id="hallazgos"></ul>
-      <p class="vacio" id="vacio" hidden></p>
-      <p class="bloqueado" id="bloqueado" hidden></p>
-
-      <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
-
-      <!-- La aduana con salida. Aparece solo cuando el filtro ya corrió: no se
-           puede anidar lo que nadie ha mirado todavía. Lo que se enseña aquí es
-           el texto ya tachado que devolvió el servidor, nunca lo que se pegó
-           arriba — la persona firma lo que entra en su memoria, así que tiene
-           que estar viéndolo. -->
-      <div class="anidar-caja" id="anidar-caja" hidden>
-        <p class="anidar-titulo" data-i18n="anidar_titulo">Esto es lo que entraría en tu memoria</p>
-        <pre class="anidar-vista" id="anidar-vista"></pre>
-        <label class="sr" for="anidar-porque" data-i18n="anidar_porque">Por qué te importa</label>
-        <input id="anidar-porque" type="text" autocomplete="off"
-               data-i18n-ph="ph_porque" placeholder="¿Por qué te importa? (opcional)">
-        <button class="anidar" id="anidar" type="button" data-i18n="anidar_boton">Anidar esto en tu memoria</button>
-        <p class="anidar-dicho" id="anidar-dicho" hidden aria-live="polite"></p>
-        <p class="pie" data-i18n="pie_anidar">Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.</p>
-      </div>
-      <details class="payload-caja">
-        <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
-        <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
-      </details>
-    </div>
   </section>
 
   <!-- cuaderno -->
@@ -151,6 +107,46 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <div class="tarjeta" id="tarjeta-frontera" role="group" data-i18n-aria="aria_frontera" aria-label="Frontera del nodo">
+      <h3 id="frontera-titulo" data-i18n="tab_frontera">Frontera</h3>
+      <div class="fila-switch">
+        <button class="switch is-on" id="switch" role="switch"
+                aria-checked="true" data-i18n-aria="aria_redaccion" aria-label="Redacción"><i></i></button>
+        <span class="switch-label" id="switch-label" data-i18n="redaccion_on">Redacción activa</span>
+        <span class="insignia insignia-ok" id="insignia" data-i18n="sin_medir">sin medir</span>
+      </div>
+
+      <label class="sr" for="prueba" data-i18n="texto_comprobar">Texto a comprobar</label>
+      <textarea id="prueba" rows="3"
+        data-i18n-ph="ph_prueba" placeholder="Pega aquí lo que quieras comprobar antes de que salga…"></textarea>
+      <button class="probar" id="probar" type="button" data-i18n="pasar_filtro">Pasar por el filtro</button>
+
+      <ul class="hallazgos" id="hallazgos"></ul>
+      <p class="vacio" id="vacio" hidden></p>
+      <p class="bloqueado" id="bloqueado" hidden></p>
+
+      <p class="pie" data-i18n="pie_hallazgos">Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.</p>
+
+      <!-- La aduana con salida. Aparece solo cuando el filtro ya corrió: no se
+           puede anidar lo que nadie ha mirado todavía. Lo que se enseña aquí es
+           el texto ya tachado que devolvió el servidor, nunca lo que se pegó
+           arriba — la persona firma lo que entra en su memoria, así que tiene
+           que estar viéndolo. -->
+      <div class="anidar-caja" id="anidar-caja" hidden>
+        <p class="anidar-titulo" data-i18n="anidar_titulo">Esto es lo que entraría en tu memoria</p>
+        <pre class="anidar-vista" id="anidar-vista"></pre>
+        <label class="sr" for="anidar-porque" data-i18n="anidar_porque">Por qué te importa</label>
+        <input id="anidar-porque" type="text" autocomplete="off"
+               data-i18n-ph="ph_porque" placeholder="¿Por qué te importa? (opcional)">
+        <button class="anidar" id="anidar" type="button" data-i18n="anidar_boton">Anidar esto en tu memoria</button>
+        <p class="anidar-dicho" id="anidar-dicho" hidden aria-live="polite"></p>
+        <p class="pie" data-i18n="pie_anidar">Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.</p>
+      </div>
+      <details class="payload-caja">
+        <summary data-i18n="payload_titulo">El payload, tal cual llegó</summary>
+        <pre class="payload" id="payload" data-i18n="sin_llamada">(sin llamada todavía)</pre>
+      </details>
+    </div>
     <section class="tarjeta" lang="en" aria-labelledby="creation-voice-title">
       <h3 id="creation-voice-title">Creation voice</h3>
       <p id="creation-voice-help">Generate the drawing guidance and your author statement with one local voice.</p>
@@ -245,7 +241,7 @@
 </form>
 
 <p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Zona activa: Hablar.</p>
-<script src="/zonas.js?v=1"></script>
+<script src="/zonas.js?v=2"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
 <script src="/modelos_web.js?v=2"></script>

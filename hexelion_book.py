@@ -11,13 +11,12 @@ MAX_QUOTES_B = 320
 PANELES = {
     "mando": "Mando shows the local memory compass and its measured steps.",
     "conversacion": "Hablar is the local Hexelion conversation panel.",
-    "gobierno": "Frontera checks text before it is saved to local memory.",
     "cuaderno": "Cuaderno lists captured turns and their consent state.",
     "lab": "Lab shows local channels and model availability.",
     "harness": "Harness shows measured local cycles and their freshness.",
     "puerta": "Puerta shows the public entry document and its source.",
     "modelos": "Mundo opens the public OpenWorld game when requested.",
-    "ajustes": "Ajustes contains local node setup and signed publishing controls.",
+    "ajustes": "Ajustes holds Frontera (text checked before it is saved to local memory), local node setup and signed publishing controls.",
 }
 
 _INSTRUCTION = (

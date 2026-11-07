@@ -17,7 +17,7 @@ from types import MappingProxyType
 import json
 
 ZONAS = MappingProxyType({
-    "mando": 1, "conversacion": 2, "gobierno": 3, "cuaderno": 4,
+    "mando": 1, "conversacion": 2, "cuaderno": 4,  # 3 was gobierno: retired, never reused
     "lab": 5, "harness": 6, "puerta": 7, "modelos": 8, "ajustes": 9,
 })
 FRESCURA = MappingProxyType({"NO_DATA": 0, "LIVE": 1, "STALE": 2})
