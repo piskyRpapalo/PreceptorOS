@@ -1,4 +1,4 @@
-"""La cara nueva: chat + joystick, la misma que la web, servida en "/".
+"""Archived face sources stay in git but are no longer served by the PWA.
 
 Encargo NORTE 5 (one-shot del pintor, 2026-10-24). La cara vive en
 `interface/face/` y es la MISMA que la web: `face.js`, `face.css`,
@@ -112,20 +112,17 @@ class TestLaCaraEsLaPuerta(unittest.TestCase):
         saboteado = codigo.replace("trustedSoundAction === true", "trustedSoundAction === false")
         self.assertFalse(_consentimiento_explicito(saboteado))
 
-    def test_la_raiz_sirve_la_cara_basic(self):
+    def test_la_raiz_sirve_el_tronco_app_sin_cambiar_sus_bytes(self):
         codigo, cuerpo = _get("/")
         self.assertEqual(codigo, 200)
-        self.assertEqual(cuerpo, (CARA / "basic.html").read_bytes())
+        app = pathlib.Path(AQUI, "interface", "app.html").read_bytes()
+        self.assertEqual(cuerpo, app)
+        self.assertEqual(len(app), 19552)
 
-    def test_cada_piel_y_cada_pieza_que_enlaza_se_sirve(self):
+    def test_las_rutas_de_las_tres_pieles_ya_no_se_sirven(self):
         for piel in PIELES:
-            codigo, cuerpo = _get(f"/face/{piel}.html")
-            self.assertEqual(codigo, 200, piel)
-            for ruta in _rutas_de(cuerpo.decode("utf-8")):
-                with self.subTest(piel=piel, ruta=ruta):
-                    c, b = _get(ruta)
-                    self.assertEqual(c, 200, f"{ruta} no se sirve")
-                    self.assertGreater(len(b), 0)
+            codigo, _ = _get(f"/face/{piel}.html")
+            self.assertEqual(codigo, 404, piel)
 
     def test_nada_de_red_ni_de_reloj_con_autoridad(self):
         for f in sorted(CARA.rglob("*")):
@@ -142,13 +139,15 @@ class TestLaCaraEsLaPuerta(unittest.TestCase):
             with self.subTest(pieza=nombre):
                 self.assertEqual(hashlib.sha256((CARA / "bubble" / nombre).read_bytes()).hexdigest(), sha)
 
-    def test_el_armazon_offline_lleva_toda_la_cara(self):
+    def test_el_armazon_no_precachea_las_pieles_deprecadas(self):
         sw = pathlib.Path(AQUI, "interface", "sw.js").read_text(encoding="utf-8")
+        precache = sw.split("const Armazon = [", 1)[1].split("];", 1)[0]
         for piel in PIELES:
-            html = (CARA / f"{piel}.html").read_text(encoding="utf-8")
-            for ruta in [f"/face/{piel}.html"] + _rutas_de(html):
-                with self.subTest(ruta=ruta):
-                    self.assertIn(f'"{ruta}"', sw, "sin esto la cara no abre sin red")
+            self.assertNotIn(f'"/face/{piel}.html"', precache)
+        for old in ("/face/", "/dashboard", "/hexelion", "/consola.", "/native_voice.js"):
+            self.assertNotIn(f'"{old}', precache)
+        self.assertIn('"/"', precache)
+        self.assertIn('"/app.html"', precache)
 
 
 if __name__ == "__main__":

@@ -31,9 +31,6 @@ AUSENTE = "NO_DATA"
 # que ampliarla — por eso `sw.js` está dentro: al tocarlo, la huella cambia.
 ARMAZON = (
     "interface/install.js",
-    "interface/native_voice.js",
-    "interface/hexelion.html", "interface/hexelion.css", "interface/hexelion.js",
-    "interface/dashboard.html", "interface/desnuda.css", "interface/dashboard.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
     "interface/modelos_web.js",
     "interface/transicion.js",
@@ -41,13 +38,9 @@ ARMAZON = (
     "interface/insertor.js",
     "interface/compass.js", "interface/sw.js",
     "interface/manifest.json", "assets/compass.svg",
-    "interface/consola.css", "interface/consola.js",
     "interface/creation_publish.js",
     "interface/node_registration.js",
     "interface/node_building.js",
-    "interface/face/basic.html", "interface/face/atlantis.html",
-    "interface/face/zombie.html", "interface/face/face.js",
-    "interface/face/face_hud.js", "interface/face/face.css",
 )
 
 

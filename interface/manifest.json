@@ -1,7 +1,7 @@
 {
   "name": "Hexelion · PreceptorOS",
   "short_name": "Hexelion",
-  "start_url": "/hexelion.html",
+  "start_url": "/app.html",
   "display": "standalone",
   "background_color": "Canvas",
   "theme_color": "Canvas",

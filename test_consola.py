@@ -443,7 +443,7 @@ class TestPuerta(Base):
         self.assertLess(html.index('id="consola"'), html.index('id="dice"'))
         sw = open(os.path.join(AQUI, "interface", "sw.js"), encoding="utf-8").read()
         for r in ("/consola.js?v=", "/consola.css?v="):
-            self.assertIn(r, sw)
+            self.assertNotIn(r, sw)
 
     def test_la_cara_no_manda_ni_guarda_nada(self):
         js = open(os.path.join(AQUI, "interface", "consola.js"), encoding="utf-8").read()
