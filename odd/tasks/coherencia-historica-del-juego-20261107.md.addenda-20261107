@@ -1,0 +1,32 @@
+## Addenda · fuentes de noviembre (1-3 nov · lo más actual pesa más)
+
+16. LA DIVISIÓN FRESCA (ideas 1-3nov): preceptoros.org contiene TODOS los
+    visuales y dinámicas posibles; la app solo decide las categorías y las
+    funciones matemáticas; la web muestra los visuales. Las cuentas efímeras
+    existen solo en la web, y es su creación y su paso por el mapa lo que
+    afecta «live» a los nodos.
+17. JUGABILIDAD MONOLÍTICA PARA EL VISITANTE (F2, ideas 1-3nov). Todos los
+    bucles alcanzables SIN nodo: cuenta efímera, conquista, duelos, huevos y
+    eclosión, gacha honesto, tutorial, terminal, radio. Gate de la fase:
+    PRUEBA_5_MINUTOS completada por un visitante real desde fuera, con recibo.
+18. EL MAPA ES UNA COLONIA HEXAGONAL ISOMÉTRICA (decreto 28-10). Tinta cómica
+    2.5D, nativo Acho, ángulo axonométrico FIJO; 1 edificio por hexágono; el
+    hexágono central = el Nodo.0; el hexágono es el nombre de la casa (Hexelion):
+    6 vecinos por celda = el mapa de nodos correcto para una flota. El mapa iso
+    es SOLO otro render del estado <1.024 B (one state, many renders).
+19. LA WEB SIRVE EL 100% DE LA CARGA GRÁFICA (ideas 1-3nov). Nada baja del
+    nodo; mismo origen, estático; cero requests externos al cargar; Cloudflare
+    NO computa estado. El nodo solo decide QUÉ edificio y CON QUÉ condiciones:
+    sus decisiones viajan como contratos firmados que referencian assets de la
+    web por id, jamás los assets mismos.
+20. EL «?» DEL HITL (metáfora bot-crossing, traducida). Un nodo con firma
+    pendiente (REQUIERE_FIRMA) muestra un «?»; al pulsarlo se abre la pieza.
+    Un único estado (atlas.carta/1) y un solo módulo que lo pinte; los demás
+    son vistas que lo consumen.
+21. RED BEFORE GREEN VISUAL. La PRIMERA medida de fps corre en el dispositivo
+    MÁS DÉBIL de la flota (el anillo Sanctuary), no en el Forge: si el Sanctuary
+    no lo mueve, es deriva, no ship. Y los upgrades visuales NUNCA cambian
+    reglas, resultados, recursos ni resultados sembrados de batallas (P5).
+22. LA WEB ES LA CASA DEL IDIOMA (ideas4nov). Las piezas de Acho viven en la
+    web y la app clava copias por sha256: si alguien edita una copia, la prueba
+    se pone roja. Traer assets a la web en Acho es coherente por construcción.
