@@ -208,6 +208,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_trans
           # test_nodo_export: la salida requiere cédula ya firmada y gesto
           # humano; la prueba inyecta transporte y no contacta la red.
           test_nodo_export
+          test_descarga_firmada
           # test_node_registration: unsigned phone preview, explicit consent,
           # loopback-only stub receiver, and no persistence or real signer.
           test_node_registration
