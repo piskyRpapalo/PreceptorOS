@@ -124,3 +124,12 @@ class RedaccionEnAjustes(unittest.TestCase):
         self.assertIn('id="tarjeta-frontera"', ajustes)
         self.assertNotIn('id="tarjeta-frontera"', frontera)
         self.assertIn("NO_DATA", frontera)
+
+
+class TecladoMovil(unittest.TestCase):
+    def test_el_teclado_redimensiona_el_contenido(self):
+        # Joya 7 (Mesa, 2026-11-07): the mobile keyboard resizes the content, so the anchored composer
+        # stays visible while typing instead of being covered.
+        html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
+        viewport = html.split('name="viewport"', 1)[1].split(">", 1)[0]
+        self.assertIn("interactive-widget=resizes-content", viewport)
