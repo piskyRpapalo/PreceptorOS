@@ -24,7 +24,7 @@ const textos = {
     comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Frontera",
     tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
+    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:", insertor_instrucciones: "Usa @panel para enrutar una pregunta; @ayuda abre ayuda local temporal.", ayuda_cerrar: "Cerrar ayuda",
     model_last_reply: "Último modelo que respondió", world_idle: "OpenWorld se cargará al abrir esta pestaña.", world_checking: "Comprobando conexión con OpenWorld…", world_loading: "Conexión disponible; cargando OpenWorld…", world_loaded: "El navegador terminó la navegación del marco; el estado HTTP externo no se puede leer aquí.", world_retry: "Reintentar OpenWorld", world_open_new: "Abrir OpenWorld en otra pestaña", world_frame_title: "OpenWorld: mapa, partida efímera y lenguaje Acho",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
@@ -71,7 +71,7 @@ const textos = {
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
     tab_cuaderno: "Notebook", lo_que_dices: "What you say",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
-    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:", insertor_instrucciones: "Use @panel to route a question; @ayuda opens temporary local help.", ayuda_cerrar: "Close help",
     model_last_reply: "Last model that replied", world_idle: "OpenWorld loads when you open this tab.", world_checking: "Checking the OpenWorld connection…", world_loading: "Connection available; loading OpenWorld…", world_loaded: "The browser completed frame navigation; its cross-origin HTTP status is not readable here.", world_retry: "Retry OpenWorld", world_open_new: "Open OpenWorld in another tab", world_frame_title: "OpenWorld: map, ephemeral game and Acho language",
     ph_dicho: "Write your answer…", dilo: "Say it",
     pie_hallazgos: "What you see above is never the text that was found: class and count, nothing else. The numbers come from the payload — this interface does not count.",
@@ -121,7 +121,7 @@ const textos = {
     comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Frontière",
     tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
-    tab_modelos: "Modèles", tab_mundo: "Monde", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
+    tab_modelos: "Modèles", tab_mundo: "Monde", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :", insertor_instrucciones: "Utilisez @panel pour acheminer une question ; @ayuda ouvre une aide locale temporaire.", ayuda_cerrar: "Fermer l’aide",
     model_last_reply: "Dernier modèle ayant répondu", world_idle: "OpenWorld se charge à l’ouverture de cet onglet.", world_checking: "Vérification de la connexion OpenWorld…", world_loading: "Connexion disponible ; chargement d’OpenWorld…", world_loaded: "Le navigateur a terminé la navigation du cadre ; son état HTTP inter-origines n’est pas lisible ici.", world_retry: "Réessayer OpenWorld", world_open_new: "Ouvrir OpenWorld dans un autre onglet", world_frame_title: "OpenWorld : carte, partie éphémère et langage Acho",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
@@ -169,7 +169,7 @@ const textos = {
     comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
     tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
+    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:", insertor_instrucciones: "Use @panel para encaminhar uma pergunta; @ayuda abre ajuda local temporária.", ayuda_cerrar: "Fechar ajuda",
     model_last_reply: "Último modelo que respondeu", world_idle: "OpenWorld carrega ao abrir esta separação.", world_checking: "A verificar a ligação ao OpenWorld…", world_loading: "Ligação disponível; a carregar OpenWorld…", world_loaded: "O navegador terminou a navegação do quadro; o estado HTTP entre origens não é legível aqui.", world_retry: "Tentar OpenWorld novamente", world_open_new: "Abrir OpenWorld noutra separação", world_frame_title: "OpenWorld: mapa, partida efémera e linguagem Acho",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
@@ -216,7 +216,7 @@ const textos = {
     comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
     tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
-    tab_modelos: "Modelli", tab_mundo: "Mondo", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
+    tab_modelos: "Modelli", tab_mundo: "Mondo", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:", insertor_instrucciones: "Usa @panel per instradare una domanda; @ayuda apre un aiuto locale temporaneo.", ayuda_cerrar: "Chiudi aiuto",
     model_last_reply: "Ultimo modello che ha risposto", world_idle: "OpenWorld si carica quando apri questa scheda.", world_checking: "Verifica della connessione a OpenWorld…", world_loading: "Connessione disponibile; caricamento di OpenWorld…", world_loaded: "Il browser ha terminato la navigazione del frame; lo stato HTTP cross-origin non è leggibile qui.", world_retry: "Riprova OpenWorld", world_open_new: "Apri OpenWorld in un'altra scheda", world_frame_title: "OpenWorld: mappa, partita effimera e linguaggio Acho",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
@@ -263,7 +263,7 @@ const textos = {
     comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
     tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
-    tab_modelos: "Modelle", tab_mundo: "Welt", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
+    tab_modelos: "Modelle", tab_mundo: "Welt", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:", insertor_instrucciones: "Nutze @panel für eine Frage; @ayuda öffnet eine lokale temporäre Hilfe.", ayuda_cerrar: "Hilfe schließen",
     model_last_reply: "Zuletzt antwortendes Modell", world_idle: "OpenWorld wird beim Öffnen dieses Tabs geladen.", world_checking: "OpenWorld-Verbindung wird geprüft…", world_loading: "Verbindung verfügbar; OpenWorld wird geladen…", world_loaded: "Der Browser hat die Frame-Navigation beendet; der Cross-Origin-HTTP-Status ist hier nicht lesbar.", world_retry: "OpenWorld erneut versuchen", world_open_new: "OpenWorld in einem neuen Tab öffnen", world_frame_title: "OpenWorld: Karte, flüchtige Partie und Acho-Sprache",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
@@ -310,7 +310,7 @@ const textos = {
     comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
     tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
     tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
-    tab_modelos: "Модели", tab_mundo: "Мир", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
+    tab_modelos: "Модели", tab_mundo: "Мир", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:", insertor_instrucciones: "Используйте @panel для маршрута вопроса; @ayuda открывает временную справку на устройстве.", ayuda_cerrar: "Закрыть справку",
     model_last_reply: "Последняя ответившая модель", world_idle: "OpenWorld загрузится при открытии этой вкладки.", world_checking: "Проверка соединения с OpenWorld…", world_loading: "Соединение доступно; загружается OpenWorld…", world_loaded: "Браузер завершил навигацию фрейма; его HTTP-статус между источниками здесь не виден.", world_retry: "Повторить OpenWorld", world_open_new: "Открыть OpenWorld в другой вкладке", world_frame_title: "OpenWorld: карта, эфемерная партия и язык Acho",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
@@ -357,7 +357,7 @@ const textos = {
     comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
     tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
     tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
-    tab_modelos: "Μοντέλα", tab_mundo: "Κόσμος", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
+    tab_modelos: "Μοντέλα", tab_mundo: "Κόσμος", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:", insertor_instrucciones: "Χρησιμοποιήστε @panel για δρομολόγηση ερώτησης· το @ayuda ανοίγει προσωρινή τοπική βοήθεια.", ayuda_cerrar: "Κλείσιμο βοήθειας",
     model_last_reply: "Το τελευταίο μοντέλο που απάντησε", world_idle: "Το OpenWorld φορτώνεται όταν ανοίξεις αυτή την καρτέλα.", world_checking: "Έλεγχος σύνδεσης OpenWorld…", world_loading: "Η σύνδεση είναι διαθέσιμη· φόρτωση OpenWorld…", world_loaded: "Το πρόγραμμα περιήγησης ολοκλήρωσε την πλοήγηση του πλαισίου· η διασταυρούμενη κατάσταση HTTP δεν είναι αναγνώσιμη εδώ.", world_retry: "Νέα προσπάθεια OpenWorld", world_open_new: "Άνοιγμα OpenWorld σε άλλη καρτέλα", world_frame_title: "OpenWorld: χάρτης, εφήμερη παρτίδα και γλώσσα Acho",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
@@ -403,7 +403,7 @@ const textos = {
     comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
     tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
     tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
-    tab_modelos: "النماذج", tab_mundo: "العالم", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
+    tab_modelos: "النماذج", tab_mundo: "العالم", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:", insertor_instrucciones: "استخدم @panel لتوجيه السؤال؛ يفتح @ayuda مساعدة محلية مؤقتة.", ayuda_cerrar: "إغلاق المساعدة",
     model_last_reply: "آخر نموذج أجاب", world_idle: "سيُحمّل OpenWorld عند فتح علامة التبويب هذه.", world_checking: "جارٍ التحقق من اتصال OpenWorld…", world_loading: "الاتصال متاح؛ جارٍ تحميل OpenWorld…", world_loaded: "اكتمل تنقل الإطار في المتصفح؛ حالة HTTP عبر الأصل غير مقروءة هنا.", world_retry: "إعادة محاولة OpenWorld", world_open_new: "فتح OpenWorld في علامة تبويب أخرى", world_frame_title: "OpenWorld: الخريطة واللعبة المؤقتة ولغة Acho",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
@@ -503,6 +503,7 @@ const modelosWeb = window.PreceptorModelosWeb.mount({
   getText: () => t,
   fetcher: (...args) => fetch(...args),
 });
+const insertor = window.PreceptorInsertor;
 
 /* --- reorganización · zonas en una sola pestaña ----------------------- */
 function actualizarGuionZona() {
@@ -520,6 +521,9 @@ function mostrar(i, opciones = {}) {
     boton.setAttribute("aria-selected", String(n === panelActual));
     boton.tabIndex = n === panelActual ? 0 : -1;
   });
+  if (indiceAnterior !== panelActual && $("ayuda-efimera") && !$("ayuda-efimera").hidden) {
+    cerrarAyuda(false);
+  }
   actualizarGuionZona();
   if (indiceAnterior !== panelActual && window.PreceptorSting) {
     window.PreceptorSting.tocar().catch(() => {});
@@ -735,18 +739,70 @@ function burbuja(texto, clase) {
   return li;
 }
 
+function abrirAyuda(panelId, nota = "") {
+  const zona = paneles.find((fila) => fila.id === panelId);
+  const panel = document.getElementById(`panel-${zona ? zona.panel : ""}`);
+  const boton = document.querySelector(`[data-panel="${panelId}"]`);
+  const lista = $("ayuda-efimera-base");
+  lista.replaceChildren();
+  const base = insertor.base(panel);
+  base.forEach((texto) => {
+    const fila = document.createElement("li");
+    fila.textContent = texto;
+    lista.appendChild(fila);
+  });
+  $("ayuda-efimera-titulo").textContent = boton ? boton.getAttribute("aria-label") : t.zona_no_data;
+  $("ayuda-efimera-nota").textContent = nota;
+  $("ayuda-efimera").hidden = false;
+}
+
+function cerrarAyuda(enfocar = true) {
+  $("ayuda-efimera").hidden = true;
+  $("ayuda-efimera-base").replaceChildren();
+  $("ayuda-efimera-nota").textContent = "";
+  if (enfocar) $("dicho").focus();
+}
+
+$("ayuda-efimera-cerrar").addEventListener("click", () => cerrarAyuda());
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("ayuda-efimera").hidden) {
+    e.preventDefault();
+    cerrarAyuda();
+  }
+});
+
 $("form-chat").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const texto = $("dicho").value.trim();
+  const escrito = $("dicho").value.trim();
+  if (!escrito) return;
+  const ruta = insertor.rutear(escrito, paneles.map((fila) => fila.id), paneles[panelActual].id);
+  if (ruta.estado !== "medido") {
+    $("estado").textContent = `${t.zona_no_data} · ${ruta.causa}`;
+    return;
+  }
+  if (ruta.carril === "ayuda") {
+    $("dicho").value = "";
+    abrirAyuda(ruta.panel, ruta.nota);
+    return;
+  }
+  const indiceRuta = paneles.findIndex((fila) => fila.id === ruta.panel);
+  if (indiceRuta >= 0 && indiceRuta !== panelActual) mostrar(indiceRuta);
+  if (!ruta.texto) {
+    $("dicho").value = "";
+    abrirAyuda(ruta.panel);
+    return;
+  }
+  cerrarAyuda(false);
+  const texto = ruta.texto;
   if (!texto) return;
   $("dicho").value = "";
-  burbuja(texto, "mio");
+  burbuja(escrito, "mio");
   $("enviar").disabled = true;
   const esperando = burbuja("pensando… en un teléfono esto son minutos", "espera");
   try {
     const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texto }),
+      body: JSON.stringify({ texto, panel: ruta.panel }),
     });
     const d = await r.json();
     esperando.remove();

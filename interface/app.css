@@ -49,9 +49,9 @@ body {
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
-.barra { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .65rem 1rem .3rem; }
+.barra { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: .35rem 0 0; }
 .barra { position: relative; z-index: 5; }
-.identidad { min-width: 0; flex: 1; position: relative; }
+.identidad { min-width: 0; flex: 0 0 auto; position: relative; padding: .3rem 1rem .15rem; }
 .barra h1 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em;
             font-weight: 800; }
 .estado { margin: .15rem 0 0; font-size: .8rem; color: var(--ink-soft); }
@@ -108,7 +108,7 @@ body {
 .pestanas button[data-panel="modelos"]::before { content: "▦"; }
 .pestanas button[data-panel="ajustes"]::before { content: "⚙"; }
 
-.carril { flex: 1; overflow: hidden; position: relative; }
+.carril { flex: 1; min-height: 0; overflow: hidden; position: relative; }
 .panel {
   position: absolute; inset: 0; overflow-y: auto;
   padding: 1rem; display: flex; flex-direction: column; gap: .8rem;
@@ -141,6 +141,17 @@ body {
 #panel-conversacion textarea { max-height: 160px; }
 
 .redactar { display: flex; gap: .5rem; align-items: flex-end; }
+#form-chat.redactar-anclado {
+  flex: 0 0 auto; z-index: 4; padding: .5rem 1rem;
+  border-top: 1px solid var(--line); background: var(--ground);
+}
+#form-chat textarea { max-height: 160px; }
+.ayuda-efimera { flex: 0 0 auto; max-height: 24vh; overflow: auto; padding: .5rem 1rem; border-top: 1px solid var(--line); background: var(--paper); }
+.ayuda-efimera[hidden] { display: none; }
+.ayuda-efimera-cabecera { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.ayuda-efimera h2, .ayuda-efimera p { margin: 0; font-size: .9rem; }
+.ayuda-efimera ul { margin: .3rem 0; padding-inline-start: 1.2rem; }
+#ayuda-efimera-cerrar { min-width: 44px; min-height: 44px; flex: 0 0 44px; }
 textarea {
   flex: 1; font: inherit; padding: .6rem .7rem; color: var(--ink);
   background: var(--paper); border: 1px solid var(--line);

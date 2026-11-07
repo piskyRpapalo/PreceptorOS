@@ -1126,8 +1126,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=12', html)
-        self.assertIn('"/app.js?v=12"', sw)
+        self.assertIn('/app.js?v=13', html)
+        self.assertIn('"/app.js?v=13"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
@@ -1368,7 +1368,7 @@ class HexelionStationContract(unittest.TestCase):
         import hashlib
         import hexelion_book
         import hexelion_proxy
-        payload = json.dumps({"texto": "¿Qué dice el archivo?"}, ensure_ascii=False).encode()
+        payload = json.dumps({"texto": "¿Qué dice el archivo?", "panel": "lab"}, ensure_ascii=False).encode()
         handler = PWA.PWA.__new__(PWA.PWA)
         handler.path = "/api/hexelion/chat"
         handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
@@ -1394,6 +1394,7 @@ class HexelionStationContract(unittest.TestCase):
         prompt = ask.call_args.args[0]
         self.assertIn(source_text, prompt)
         self.assertIn("¿Qué dice el archivo?", prompt)
+        self.assertIn("active app panel id is lab", prompt)
         args, kwargs = station.call_args
         self.assertEqual(args[:3], ("orquesta", "hexelion", "measured seed 17"))
         self.assertEqual(kwargs["maquina"]["modelo"], "hexelion:latest")
@@ -1466,6 +1467,26 @@ class HexelionStationContract(unittest.TestCase):
         self.assertIn("/api/hexelion/chat", js)
         self.assertIn("Verified memory citations", js)
 
+    def test_chat_rechaza_panel_no_declarado_antes_de_leer_memoria(self):
+        import io
+        payload = json.dumps({"texto": "hola", "panel": "admin"}).encode()
+        handler = PWA.PWA.__new__(PWA.PWA)
+        handler.path = "/api/hexelion/chat"
+        handler.headers = {"Content-Type": "application/json", "Content-Length": str(len(payload))}
+        handler.rfile = io.BytesIO(payload)
+        captured = {}
+        handler._json = lambda code, body: captured.update(code=code, body=body)
+        handler._nodo_local_autorizado = lambda: True
+        with mock.patch.object(PWA._canales, "di_soberano") as person, \
+             mock.patch.object(PWA._memory_lookup, "buscar") as search, \
+             mock.patch.object(PWA._hexelion_proxy, "ask") as ask:
+            PWA.PWA._hexelion_chat(handler)
+        person.assert_not_called()
+        search.assert_not_called()
+        ask.assert_not_called()
+        self.assertEqual(captured["code"], 400)
+        self.assertEqual(captured["body"]["causa"], "request_invalid")
+
 
 class RutaAppContrato(unittest.TestCase):
     """Decreto interfaz unica (2026-11-06): /app es la puerta canonica.
@@ -1493,3 +1514,38 @@ class RutaAppContrato(unittest.TestCase):
         self.assertIn("#tab-", js)
         self.assertIn("hashchange", js)
         self.assertIn("findIndex((z) => z.id === pedida)", js)
+
+
+class InsertorAncladoContrato(unittest.TestCase):
+    def test_comandos_cerrados_efimeros_y_contexto_base(self):
+        import subprocess
+        root = pathlib.Path(AQUI)
+        result = subprocess.run(["node", "--test", "tests/insertor_cases.cjs"],
+                                cwd=root, capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_chrome_y_compositor_estan_enraizados_fuera_de_los_paneles(self):
+        root = pathlib.Path(AQUI)
+        html = (root / "interface/app.html").read_text(encoding="utf-8")
+        css = (root / "interface/app.css").read_text(encoding="utf-8")
+        js = (root / "interface/app.js").read_text(encoding="utf-8")
+        self.assertEqual(html.count("<h1>"), 1)
+        self.assertLess(html.index('<nav class="pestanas"'), html.index("<main id=\"carril\""))
+        self.assertLess(html.index("</main>"), html.index('id="form-chat"'))
+        self.assertIn('id="ayuda-efimera"', html)
+        self.assertIn('id="form-chat" aria-describedby="insertor-instrucciones"', html)
+        self.assertIn("min-height: 44px", css)
+        self.assertIn('body: JSON.stringify({ texto, panel: ruta.panel })', js)
+
+    def test_insertor_es_pieza_estatica_versionada_y_en_cache(self):
+        root = pathlib.Path(AQUI)
+        html = (root / "interface/app.html").read_text(encoding="utf-8")
+        sw = (root / "interface/sw.js").read_text(encoding="utf-8")
+        server = (root / "bin/preceptoros-pwa").read_text(encoding="utf-8")
+        versions = (root / "version.py").read_text(encoding="utf-8")
+        self.assertIn('<script src="/insertor.js?v=1"></script>', html)
+        self.assertIn('"/insertor.js?v=1"', sw)
+        self.assertIn('"/insertor.js": ("insertor.js",', server)
+        self.assertIn('"interface/insertor.js"', versions)
+        self.assertIn('"/app.css?v=10"', sw)
+        self.assertIn('"/app.js?v=13"', sw)

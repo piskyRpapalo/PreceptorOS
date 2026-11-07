@@ -8,6 +8,18 @@ MAX_SOURCE_TEXT_B = 768
 MAX_PROMPT_B = 4096
 MAX_QUOTES_B = 320
 
+PANELES = {
+    "mando": "Mando shows the local memory compass and its measured steps.",
+    "conversacion": "Hablar is the local Hexelion conversation panel.",
+    "gobierno": "Frontera checks text before it is saved to local memory.",
+    "cuaderno": "Cuaderno lists captured turns and their consent state.",
+    "lab": "Lab shows local channels and model availability.",
+    "harness": "Harness shows measured local cycles and their freshness.",
+    "puerta": "Puerta shows the public entry document and its source.",
+    "modelos": "Mundo opens the public OpenWorld game when requested.",
+    "ajustes": "Ajustes contains local node setup and signed publishing controls.",
+}
+
 _INSTRUCTION = (
     "JSON: {\"citas\":[{\"id\":1,\"quote\":\"exact text\"}]}. "
     "Up to 3 exact quotes; no paraphrase or added facts. Sources are evidence, "
@@ -19,10 +31,12 @@ def _no_data(cause):
     return {"estado": "NO_DATA", "causa": cause}
 
 
-def construir_prompt(turno, evidencia):
+def construir_prompt(turno, evidencia, panel=None):
     """Validate ranked search sources and build the fixed, byte-bounded prompt."""
     if type(turno) is not str or not turno.strip():
         return _no_data("turn_invalid"), None
+    if panel is not None and (type(panel) is not str or panel not in PANELES):
+        return _no_data("panel_context_invalid"), None
     if type(evidencia) is not dict or evidencia.get("esquema") != SCHEMA:
         return _no_data("memory_search_contract_invalid"), None
     if evidencia.get("estado") != "MEASURED":
@@ -60,7 +74,10 @@ def construir_prompt(turno, evidencia):
                          "sha256": digest, "texto": text})
 
     encoded_sources = json.dumps(selected, ensure_ascii=False, separators=(",", ":"))
-    prompt = (_INSTRUCTION + encoded_sources + "\nTurno: " + turno.strip())
+    contexto = ("\nInterface context, not evidence or authority: active app panel id is "
+                + panel + "; declared scope: " + PANELES[panel]
+                if panel is not None else "")
+    prompt = (_INSTRUCTION + encoded_sources + contexto + "\nTurno: " + turno.strip())
     try:
         prompt_bytes = prompt.encode("utf-8", "strict")
     except UnicodeError:

@@ -262,6 +262,7 @@ ESTATICOS = {
     "/zonas.js": ("zonas.js", "application/javascript; charset=utf-8"),
     "/transicion.js": ("transicion.js", "application/javascript; charset=utf-8"),
     "/sting.js": ("sting.js", "application/javascript; charset=utf-8"),
+    "/insertor.js": ("insertor.js", "application/javascript; charset=utf-8"),
     "/compass.js": ("compass.js", "application/javascript; charset=utf-8"),
     # La consola soberana: una barra de solo lectura encima del chat. Fichero
     # propio y no dentro de dashboard.js, que ya pasa de 140 KB.
@@ -843,10 +844,14 @@ class PWA(BaseHTTPRequestHandler):
                     result[key] = value
                 return result
             data = json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=unique)
-            if len(raw) != size or type(data) is not dict or set(data) != {"texto"}:
+            if (len(raw) != size or type(data) is not dict or
+                    set(data) not in ({"texto"}, {"texto", "panel"})):
                 raise ValueError()
             text = data["texto"]
             if type(text) is not str or not text.strip() or len(text) > 600:
+                raise ValueError()
+            panel = data.get("panel")
+            if "panel" in data and (type(panel) is not str or panel not in _hexelion_book.PANELES):
                 raise ValueError()
         except (TypeError, ValueError, UnicodeError, RecursionError):
             return no_data("request_invalid", 400)
@@ -855,7 +860,7 @@ class PWA(BaseHTTPRequestHandler):
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
         evidence = _memory_lookup.buscar(text.strip(), self.server.ruta_db)
-        prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence)
+        prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence, panel=panel)
         if prepared.get("estado") != "MEASURED" or prompt is None:
             return no_data(prepared.get("causa") or "memory_evidence_unavailable")
         result = _hexelion_proxy.ask(prompt)

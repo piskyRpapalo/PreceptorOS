@@ -121,6 +121,19 @@ class HexelionBookTests(unittest.TestCase):
             "causa": "verified_memory_sources; no authority inferred"}
         self.assertEqual(len(json.dumps(response, ensure_ascii=False, separators=(",", ":")).encode()), 886)
 
+    def test_panel_context_is_fixed_and_not_evidence(self):
+        row = source(1, "The rack lab is measured.")
+        result, prompt = book.construir_prompt("What does this say?", self.evidence([row]), panel="lab")
+        self.assertEqual(result["estado"], "MEASURED")
+        self.assertIn("active app panel id is lab", prompt)
+        self.assertIn("not evidence or authority", prompt)
+        self.assertIn(row["texto"], prompt)
+
+    def test_unknown_panel_context_fails_closed(self):
+        result, prompt = book.construir_prompt("Question", self.evidence([source(1, "x")]), panel="unknown")
+        self.assertEqual(result, {"estado": "NO_DATA", "causa": "panel_context_invalid"})
+        self.assertIsNone(prompt)
+
 
 if __name__ == "__main__":
     unittest.main()
