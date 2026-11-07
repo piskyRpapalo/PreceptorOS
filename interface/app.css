@@ -316,3 +316,60 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
   font-family: Georgia, "Times New Roman", serif; pointer-events: none;
 }
 #compass-svg-hueco .etiqueta { font-size: 8.5px; }
+
+/* Equipo · the team in the Harness tab (mini window first: 420×437 panel, 44 px targets) */
+.team { display: grid; gap: .6rem; }
+.team-spectrum { width: 96px; height: 96px; justify-self: center; }
+.team-spectrum path, .agent-spectrum path { fill: none; stroke: var(--agente, var(--acento)); stroke-width: .07; stroke-linejoin: round; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .5rem; }
+.agent { position: relative; display: grid; justify-items: center; gap: .1rem; min-height: 96px; padding: .5rem .4rem;
+  border: 1px solid transparent; border-radius: 14px; background: color-mix(in srgb, var(--agente) 12%, transparent);
+  color: inherit; font: inherit; cursor: pointer; }
+.agent[aria-checked="true"] { border-color: var(--agente); background: color-mix(in srgb, var(--agente) 24%, transparent); }
+.agent:focus-visible { outline: 2px solid var(--agente); outline-offset: 2px; }
+.agent-spectrum { width: 44px; height: 44px; }
+.agent-glyph { position: absolute; top: .5rem; left: 50%; translate: -50% 0; width: 44px; height: 44px;
+  display: grid; place-items: center; font-size: 1.15rem; color: var(--agente); }
+.agent strong { font-size: .95rem; }
+.agent-form { font-size: .8rem; opacity: .8; }
+.team-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.team-actions button, .team-options button { min-height: 44px; min-width: 44px; border-radius: 12px; }
+.team-actions button { padding: 0 .9rem; border: 1px solid var(--acento-tenue); background: color-mix(in srgb, var(--acento) 10%, transparent); color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
+.team-actions button:hover, .team-actions button:focus-visible { border-color: var(--acento); }
+.team-editor { display: grid; gap: .45rem; padding: .6rem; border: 1px solid var(--acento-tenue); border-radius: 14px; }
+.team-editor label { display: grid; gap: .2rem; }
+.team-options { display: flex; flex-wrap: wrap; gap: .3rem; }
+.team-options button[aria-checked="true"] { outline: 2px solid var(--agente, var(--acento)); }
+.team-options button[style] { background: var(--agente); }
+.harness-motor summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.agent-badge { --agente: var(--acento); min-width: 44px; min-height: 44px; border-radius: 50%;
+  border: 1px solid var(--agente); background: color-mix(in srgb, var(--agente) 18%, transparent); color: var(--agente); font-size: 1.1rem; }
+@media (prefers-reduced-motion: reduce) { .agent, .team-spectrum path { transition: none; } }
+@media (forced-colors: active) { .agent, .agent-badge { border-color: CanvasText; } }
+
+/* Acho options · every option in every panel wears its spectrum, colour and gesture (acho_motion.js) */
+.acho-mark { width: 1.15em; height: 1.15em; flex: none; vertical-align: -.22em; margin-inline-end: .4em; }
+.acho-mark path { fill: none; stroke: var(--agente, var(--acento)); stroke-width: .13; stroke-linejoin: round; }
+.panel button.acho-option { border-radius: 14px; border: 1px solid color-mix(in srgb, var(--agente) 45%, transparent);
+  background: color-mix(in srgb, var(--agente) 13%, transparent); color: inherit; }
+.panel button.acho-option:hover, .panel button.acho-option:focus-visible { border-color: var(--agente); }
+.panel .turnos > li.acho-option { border-inline-start: 3px solid color-mix(in srgb, var(--agente) 70%, transparent); padding-inline-start: .55rem; }
+@media (forced-colors: active) { .panel button.acho-option { border-color: ButtonText; } .acho-mark path { stroke: CanvasText; } }
+
+/* Panel crests and the Lab as the team's sibling: rows become soft Acho cards */
+.acho-crest { display: block; width: 72px; height: 72px; margin: .2rem auto .6rem; }
+.acho-crest path { fill: none; stroke: var(--agente); stroke-width: .07; stroke-linejoin: round; }
+#panel-lab .turnos > li.acho-option, #panel-cuaderno .turnos > li.acho-option { border: 1px solid color-mix(in srgb, var(--agente) 40%, transparent);
+  border-radius: 14px; background: color-mix(in srgb, var(--agente) 9%, transparent); padding: .55rem .7rem; margin-block: .4rem; }
+/* Compass guide */
+.compass-guide { margin-top: .8rem; }
+.compass-guide summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.compass-guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .5rem; }
+.compass-card { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; min-height: 44px; padding: .6rem; text-align: start;
+  border-radius: 14px; border: 1px solid color-mix(in srgb, var(--agente) 45%, transparent); background: color-mix(in srgb, var(--agente) 12%, transparent);
+  color: inherit; font: inherit; cursor: pointer; }
+.compass-card span { font-size: .82em; opacity: .85; }
+.compass-card-mark { width: 30px; height: 30px; }
+.compass-card-mark path { fill: none; stroke: var(--agente); stroke-width: .12; }
+.acho-focus { filter: drop-shadow(0 0 5px #eacb56) drop-shadow(0 0 2px #eacb56); outline: 2px solid #eacb56; outline-offset: 2px; }
+@media (forced-colors: active) { .compass-card { border-color: ButtonText; } .acho-focus { outline-color: Highlight; filter: none; } }

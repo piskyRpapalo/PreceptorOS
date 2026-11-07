@@ -1126,8 +1126,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=14', html)
-        self.assertIn('"/app.js?v=14"', sw)
+        self.assertIn('/app.js?v=15', html)
+        self.assertIn('"/app.js?v=15"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
@@ -1560,7 +1560,7 @@ class InsertorAncladoContrato(unittest.TestCase):
         self.assertIn('id="ayuda-efimera"', html)
         self.assertIn('id="form-chat" aria-describedby="insertor-instrucciones"', html)
         self.assertIn("min-height: 44px", css)
-        self.assertIn('body: JSON.stringify({ texto, panel: ruta.panel })', js)
+        self.assertIn('body: JSON.stringify(Object.assign({ texto, panel: ruta.panel },', js)  # + the active team agent, if any
 
     def test_insertor_es_pieza_estatica_versionada_y_en_cache(self):
         root = pathlib.Path(AQUI)
@@ -1573,7 +1573,7 @@ class InsertorAncladoContrato(unittest.TestCase):
         self.assertIn('"/insertor.js": ("insertor.js",', server)
         self.assertIn('"interface/insertor.js"', versions)
         self.assertIn('"/app.css?v=11"', sw)
-        self.assertIn('"/app.js?v=14"', sw)
+        self.assertIn('"/app.js?v=15"', sw)
 
 
 class LabRackPuertaContrato(unittest.TestCase):

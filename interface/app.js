@@ -21,10 +21,10 @@ const paneles = window.PreceptorZonas.zonas;
  * El idioma lo manda la memoria, no el navegador. */
 const textos = {
   es: {
-    comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Frontera",
-    tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:", insertor_instrucciones: "Usa @panel para enrutar una pregunta; @ayuda abre ayuda local temporal.", ayuda_cerrar: "Cerrar ayuda",
+    comprobando: "comprobando…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Lo que dices",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:", insertor_instrucciones: "Usa @panel para enrutar una pregunta; @ayuda abre ayuda local temporal.", ayuda_cerrar: "Cerrar ayuda",
     model_last_reply: "Último modelo que respondió", world_idle: "OpenWorld se cargará al abrir esta pestaña.", world_checking: "Comprobando conexión con OpenWorld…", world_loading: "Conexión disponible; cargando OpenWorld…", world_loaded: "El navegador terminó la navegación del marco; el estado HTTP externo no se puede leer aquí.", world_retry: "Reintentar OpenWorld", world_open_new: "Abrir OpenWorld en otra pestaña", world_frame_title: "OpenWorld: mapa, partida efímera y lenguaje Acho",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
@@ -56,7 +56,7 @@ const textos = {
     lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_soberano_coder: "Codificador soberano", lab_eleccion: "Modelo de elección",
     aria_frontera: "Frontera del nodo",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sin consentir", cuaderno_recibo_pendiente: "Sin cambios recientes", cuaderno_recibo_ok: "Recibo recibido: turno {id}, {estado}.", cuaderno_recibo_error: "No se pudo cambiar este turno.", cuaderno_recibo_red: "No llegó el recibo; no hay cambios confirmados.", cuaderno_sin_texto: "Texto de turno no disponible", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corregidos",
-    harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Consultando los ciclos locales…', harness_error: 'No se pudieron leer los ciclos locales.',
     harness_frescura_live: (age) => `Actualizado hace ${age} · en directo`,
     harness_frescura_stale: (age) => `Dato antiguo · hace ${age}`,
     harness_vacio: 'Sin ciclos declarados', harness_ultima: 'Última pasada', harness_proxima: 'Próxima pasada', harness_causa: 'Causa', harness_hora_ausente: 'La fuente no suministró este horario',
@@ -103,7 +103,7 @@ const textos = {
     lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_soberano_coder: "Sovereign coder", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
-    harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
     harness_frescura_live: (age) => `Updated ${age} ago · live`,
     harness_frescura_stale: (age) => `Stale · ${age} ago`,
     harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule',
@@ -118,10 +118,10 @@ const textos = {
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
    * El arabe se escribe de derecha a izquierda: lo pone `pintarEstaticos`. */
   fr: {
-    comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Frontière",
-    tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
-    tab_modelos: "Modèles", tab_mundo: "Monde", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :", insertor_instrucciones: "Utilisez @panel pour acheminer une question ; @ayuda ouvre une aide locale temporaire.", ayuda_cerrar: "Fermer l’aide",
+    comprobando: "vérification…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Ce que tu dis",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :", insertor_instrucciones: "Utilisez @panel pour acheminer une question ; @ayuda ouvre une aide locale temporaire.", ayuda_cerrar: "Fermer l’aide",
     model_last_reply: "Dernier modèle ayant répondu", world_idle: "OpenWorld se charge à l’ouverture de cet onglet.", world_checking: "Vérification de la connexion OpenWorld…", world_loading: "Connexion disponible ; chargement d’OpenWorld…", world_loaded: "Le navigateur a terminé la navigation du cadre ; son état HTTP inter-origines n’est pas lisible ici.", world_retry: "Réessayer OpenWorld", world_open_new: "Ouvrir OpenWorld dans un autre onglet", world_frame_title: "OpenWorld : carte, partie éphémère et langage Acho",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
@@ -153,7 +153,7 @@ const textos = {
     lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_soberano_coder: "Codeur souverain", lab_eleccion: "Modèle de sélection",
     aria_frontera: "Frontière du nœud",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirer", cuaderno_consentido: "Consentement donné", cuaderno_sin_consentir: "Sans consentement", cuaderno_recibo_pendiente: "Aucun changement récent", cuaderno_recibo_ok: "Reçu reçu : tour {id}, {estado}.", cuaderno_recibo_error: "Impossible de modifier ce tour.", cuaderno_recibo_red: "Aucun reçu reçu ; aucun changement confirmé.", cuaderno_sin_texto: "Texte du tour indisponible", cuaderno_recuento: "{t} tours · {c} consentis · {r} corrigés",
-    harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Lecture des cycles locaux…', harness_error: 'Impossible de lire les cycles locaux.',
     harness_frescura_live: (age) => `Actualisé il y a ${age} · en direct`,
     harness_frescura_stale: (age) => `Donnée ancienne · il y a ${age}`,
     harness_vacio: 'Aucun cycle déclaré', harness_ultima: 'Dernière exécution', harness_proxima: 'Prochaine exécution', harness_causa: 'Cause', harness_hora_ausente: 'La source n’a pas fourni cet horaire',
@@ -166,10 +166,10 @@ const textos = {
     nodo_export_titulo: 'Identité du nœud', nodo_export_ayuda: 'Choisis un justificatif déjà signé. Cette app ne signe pas ; l’envoi ne part qu’après ton clic.', nodo_export_archivo: 'Justificatif signé (.json)', nodo_export_boton: 'Envoyer à la douane', nodo_export_espera: 'Aucun justificatif choisi. Rien n’a été envoyé.', nodo_export_enviando: 'Vérification et envoi du justificatif signé…', nodo_export_ok: 'La douane a reçu le paquet.', nodo_export_error: 'Envoi non confirmé. Vérifie le justificatif et la connexion.', nodo_export_causas: {cuerpo_invalido: 'Fichier ou format du justificatif invalide.', firma_no_disponible: 'Aucune signature vérifiable ; apporte un justificatif signé.', firma_rechazada: 'La signature du justificatif n’est pas valide.', plan_no_coincide: 'Le justificatif ne correspond pas au plan signé.', aduana_rechazo: 'La douane a rejeté la demande.', aduana_no_disponible: 'La douane est injoignable.', paquete_invalido: 'La réponse ne contient pas de paquet valide.', general: 'Fichier ou format du justificatif invalide.', clave_publica_no_configurada: 'La clé publique n’est pas configurée dans la douane.', plan_firmado_no_configurado: 'Aucun plan signé n’est configuré dans la douane.', registro_no_disponible: 'Le registre d’audit est indisponible ; rien n’a été enregistré.', firma_cedula_rechazada: 'La signature du justificatif n’est pas valide.', cedula_mal_formada: 'Les champs du justificatif sont invalides.', cuerpo_fuera_de_rango: 'Le justificatif dépasse la taille autorisée.'}
   },
   pt: {
-    comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
-    tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:", insertor_instrucciones: "Use @panel para encaminhar uma pergunta; @ayuda abre ajuda local temporária.", ayuda_cerrar: "Fechar ajuda",
+    comprobando: "a verificar…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "O que dizes",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:", insertor_instrucciones: "Use @panel para encaminhar uma pergunta; @ayuda abre ajuda local temporária.", ayuda_cerrar: "Fechar ajuda",
     model_last_reply: "Último modelo que respondeu", world_idle: "OpenWorld carrega ao abrir esta separação.", world_checking: "A verificar a ligação ao OpenWorld…", world_loading: "Ligação disponível; a carregar OpenWorld…", world_loaded: "O navegador terminou a navegação do quadro; o estado HTTP entre origens não é legível aqui.", world_retry: "Tentar OpenWorld novamente", world_open_new: "Abrir OpenWorld noutra separação", world_frame_title: "OpenWorld: mapa, partida efémera e linguagem Acho",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
@@ -201,7 +201,7 @@ const textos = {
     lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_soberano_coder: "Programador soberano", lab_eleccion: "Modelo de escolha",
     aria_frontera: "Fronteira do nó",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sem consentimento", cuaderno_recibo_pendiente: "Sem alterações recentes", cuaderno_recibo_ok: "Recibo recebido: turno {id}, {estado}.", cuaderno_recibo_error: "Não foi possível alterar este turno.", cuaderno_recibo_red: "O recibo não chegou; não há alterações confirmadas.", cuaderno_sin_texto: "Texto do turno indisponível", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corrigidos",
-    harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'A consultar os ciclos locais…', harness_error: 'Não foi possível ler os ciclos locais.',
     harness_frescura_live: (age) => `Atualizado há ${age} · ao vivo`,
     harness_frescura_stale: (age) => `Dado antigo · há ${age}`,
     harness_vacio: 'Sem ciclos declarados', harness_ultima: 'Última execução', harness_proxima: 'Próxima execução', harness_causa: 'Causa', harness_hora_ausente: 'A fonte não forneceu este horário',
@@ -213,10 +213,10 @@ const textos = {
     nodo_export_titulo: 'Identidade do nó', nodo_export_ayuda: 'Escolhe uma cédula já assinada. Esta app não assina; o envio só ocorre quando carregas no botão.', nodo_export_archivo: 'Cédula assinada (.json)', nodo_export_boton: 'Enviar para a alfândega', nodo_export_espera: 'Nenhuma cédula selecionada. Nada foi enviado.', nodo_export_enviando: 'A verificar e enviar a cédula assinada…', nodo_export_ok: 'A alfândega recebeu o pacote.', nodo_export_error: 'O envio não foi confirmado. Verifica a cédula e a ligação.', nodo_export_causas: {cuerpo_invalido: 'Ficheiro ou formato da cédula inválido.', firma_no_disponible: 'Não há assinatura verificável; traz uma cédula assinada.', firma_rechazada: 'A assinatura da cédula não foi verificada.', plan_no_coincide: 'A cédula não corresponde ao plano assinado.', aduana_rechazo: 'A alfândega rejeitou o pedido.', aduana_no_disponible: 'Não foi possível contactar a alfândega.', paquete_invalido: 'A resposta não contém um pacote válido.', general: 'Ficheiro ou formato da cédula inválido.', clave_publica_no_configurada: 'A chave pública não está configurada na alfândega.', plan_firmado_no_configurado: 'Não há um plano assinado configurado na alfândega.', registro_no_disponible: 'O registo de auditoria está indisponível; nada foi registado.', firma_cedula_rechazada: 'A assinatura da cédula não foi verificada.', cedula_mal_formada: 'Os campos da cédula são inválidos.', cuerpo_fuera_de_rango: 'A cédula excede o tamanho permitido.'}
   },
   it: {
-    comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
-    tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
-    tab_modelos: "Modelli", tab_mundo: "Mondo", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:", insertor_instrucciones: "Usa @panel per instradare una domanda; @ayuda apre un aiuto locale temporaneo.", ayuda_cerrar: "Chiudi aiuto",
+    comprobando: "verifica…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Quello che dici",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:", insertor_instrucciones: "Usa @panel per instradare una domanda; @ayuda apre un aiuto locale temporaneo.", ayuda_cerrar: "Chiudi aiuto",
     model_last_reply: "Ultimo modello che ha risposto", world_idle: "OpenWorld si carica quando apri questa scheda.", world_checking: "Verifica della connessione a OpenWorld…", world_loading: "Connessione disponibile; caricamento di OpenWorld…", world_loaded: "Il browser ha terminato la navigazione del frame; lo stato HTTP cross-origin non è leggibile qui.", world_retry: "Riprova OpenWorld", world_open_new: "Apri OpenWorld in un'altra scheda", world_frame_title: "OpenWorld: mappa, partita effimera e linguaggio Acho",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
@@ -248,7 +248,7 @@ const textos = {
     lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_soberano_coder: "Programmatore sovrano", lab_eleccion: "Modello di scelta",
     aria_frontera: "Frontiera del nodo",
     cuaderno_consentir: "Consenti", cuaderno_retirar: "Ritira", cuaderno_consentido: "Consenziente", cuaderno_sin_consentir: "Senza consenso", cuaderno_recibo_pendiente: "Nessuna modifica recente", cuaderno_recibo_ok: "Ricevuta ricevuta: turno {id}, {estado}.", cuaderno_recibo_error: "Impossibile modificare questo turno.", cuaderno_recibo_red: "Ricevuta non arrivata; nessuna modifica confermata.", cuaderno_sin_texto: "Testo del turno non disponibile", cuaderno_recuento: "{t} turni · {c} consentiti · {r} corretti",
-    harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Lettura dei cicli locali…', harness_error: 'Impossibile leggere i cicli locali.',
     harness_frescura_live: (age) => `Aggiornato ${age} fa · in diretta`,
     harness_frescura_stale: (age) => `Dato vecchio · ${age} fa`,
     harness_vacio: 'Nessun ciclo dichiarato', harness_ultima: 'Ultima esecuzione', harness_proxima: 'Prossima esecuzione', harness_causa: 'Causa', harness_hora_ausente: 'La fonte non ha fornito questo orario',
@@ -260,10 +260,10 @@ const textos = {
     nodo_export_titulo: 'Identità del nodo', nodo_export_ayuda: 'Scegli una credenziale già firmata. Questa app non firma; l’invio parte solo dopo il tuo clic.', nodo_export_archivo: 'Credenziale firmata (.json)', nodo_export_boton: 'Invia alla dogana', nodo_export_espera: 'Nessuna credenziale selezionata. Non è stato inviato nulla.', nodo_export_enviando: 'Verifica e invio della credenziale firmata…', nodo_export_ok: 'La dogana ha ricevuto il pacchetto.', nodo_export_error: 'Invio non confermato. Controlla la credenziale e la connessione.', nodo_export_causas: {cuerpo_invalido: 'File o formato della credenziale non valido.', firma_no_disponible: 'Nessuna firma verificabile; porta una credenziale firmata.', firma_rechazada: 'La firma della credenziale non è valida.', plan_no_coincide: 'La credenziale non corrisponde al piano firmato.', aduana_rechazo: 'La dogana ha rifiutato la richiesta.', aduana_no_disponible: 'La dogana non è raggiungibile.', paquete_invalido: 'La risposta non contiene un pacchetto valido.', general: 'File o formato della credenziale non valido.', clave_publica_no_configurada: 'La chiave pubblica non è configurata nella dogana.', plan_firmado_no_configurado: 'Nessun piano firmato è configurato nella dogana.', registro_no_disponible: 'Il registro di audit non è disponibile; non è stato registrato nulla.', firma_cedula_rechazada: 'La firma della credenziale non è valida.', cedula_mal_formada: 'I campi della credenziale non sono validi.', cuerpo_fuera_de_rango: 'La credenziale supera la dimensione consentita.'}
   },
   de: {
-    comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
-    tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
-    tab_modelos: "Modelle", tab_mundo: "Welt", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:", insertor_instrucciones: "Nutze @panel für eine Frage; @ayuda öffnet eine lokale temporäre Hilfe.", ayuda_cerrar: "Hilfe schließen",
+    comprobando: "wird geprüft…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Was du sagst",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:", insertor_instrucciones: "Nutze @panel für eine Frage; @ayuda öffnet eine lokale temporäre Hilfe.", ayuda_cerrar: "Hilfe schließen",
     model_last_reply: "Zuletzt antwortendes Modell", world_idle: "OpenWorld wird beim Öffnen dieses Tabs geladen.", world_checking: "OpenWorld-Verbindung wird geprüft…", world_loading: "Verbindung verfügbar; OpenWorld wird geladen…", world_loaded: "Der Browser hat die Frame-Navigation beendet; der Cross-Origin-HTTP-Status ist hier nicht lesbar.", world_retry: "OpenWorld erneut versuchen", world_open_new: "OpenWorld in einem neuen Tab öffnen", world_frame_title: "OpenWorld: Karte, flüchtige Partie und Acho-Sprache",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
@@ -295,7 +295,7 @@ const textos = {
     lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_soberano_coder: "Souveräner Coder", lab_eleccion: "Auswahlmodell",
     aria_frontera: "Knotengrenze",
     cuaderno_consentir: "Einwilligen", cuaderno_retirar: "Zurückziehen", cuaderno_consentido: "Einwilligung erteilt", cuaderno_sin_consentir: "Keine Einwilligung", cuaderno_recibo_pendiente: "Keine neuen Änderungen", cuaderno_recibo_ok: "Beleg erhalten: Runde {id}, {estado}.", cuaderno_recibo_error: "Diese Runde konnte nicht geändert werden.", cuaderno_recibo_red: "Kein Beleg erhalten; keine Änderung bestätigt.", cuaderno_sin_texto: "Rundentext nicht verfügbar", cuaderno_recuento: "{t} Runden · {c} eingewilligt · {r} korrigiert",
-    harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Lokale Zyklen werden gelesen…', harness_error: 'Lokale Zyklen konnten nicht gelesen werden.',
     harness_frescura_live: (age) => `Vor ${age} aktualisiert · live`,
     harness_frescura_stale: (age) => `Veraltete Daten · vor ${age}`,
     harness_vacio: 'Keine Zyklen angegeben', harness_ultima: 'Letzter Lauf', harness_proxima: 'Nächster Lauf', harness_causa: 'Ursache', harness_hora_ausente: 'Die Quelle hat diesen Zeitplan nicht geliefert',
@@ -307,10 +307,10 @@ const textos = {
     nodo_export_titulo: 'Knotenidentität', nodo_export_ayuda: 'Wähle einen bereits signierten Nachweis. Diese App signiert nicht; gesendet wird erst nach deinem Klick.', nodo_export_archivo: 'Signierter Nachweis (.json)', nodo_export_boton: 'An die Zollstelle senden', nodo_export_espera: 'Kein Nachweis ausgewählt. Es wurde nichts gesendet.', nodo_export_enviando: 'Signierten Nachweis prüfen und senden…', nodo_export_ok: 'Die Zollstelle hat das Paket empfangen.', nodo_export_error: 'Der Versand wurde nicht bestätigt. Prüfe Nachweis und Verbindung.', nodo_export_causas: {cuerpo_invalido: 'Datei oder Nachweisformat ungültig.', firma_no_disponible: 'Keine überprüfbare Signatur verfügbar; bringe einen signierten Nachweis mit.', firma_rechazada: 'Die Signatur des Nachweises ist ungültig.', plan_no_coincide: 'Der Nachweis stimmt nicht mit dem signierten Plan überein.', aduana_rechazo: 'Die Zollstelle hat die Anfrage abgelehnt.', aduana_no_disponible: 'Die Zollstelle ist nicht erreichbar.', paquete_invalido: 'Die Antwort enthält kein gültiges Paket.', general: 'Datei oder Nachweisformat ungültig.', clave_publica_no_configurada: 'Der Zollstelle fehlt der öffentliche Schlüssel.', plan_firmado_no_configurado: 'Bei der Zollstelle ist kein signierter Plan eingerichtet.', registro_no_disponible: 'Das Auditprotokoll ist nicht verfügbar; es wurde nichts erfasst.', firma_cedula_rechazada: 'Die Signatur des Nachweises ist ungültig.', cedula_mal_formada: 'Die Nachweisfelder sind ungültig.', cuerpo_fuera_de_rango: 'Der Nachweis überschreitet die zulässige Größe.'}
   },
   ru: {
-    comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
-    tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
-    tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
-    tab_modelos: "Модели", tab_mundo: "Мир", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:", insertor_instrucciones: "Используйте @panel для маршрута вопроса; @ayuda открывает временную справку на устройстве.", ayuda_cerrar: "Закрыть справку",
+    comprobando: "проверка…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Что ты говоришь",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:", insertor_instrucciones: "Используйте @panel для маршрута вопроса; @ayuda открывает временную справку на устройстве.", ayuda_cerrar: "Закрыть справку",
     model_last_reply: "Последняя ответившая модель", world_idle: "OpenWorld загрузится при открытии этой вкладки.", world_checking: "Проверка соединения с OpenWorld…", world_loading: "Соединение доступно; загружается OpenWorld…", world_loaded: "Браузер завершил навигацию фрейма; его HTTP-статус между источниками здесь не виден.", world_retry: "Повторить OpenWorld", world_open_new: "Открыть OpenWorld в другой вкладке", world_frame_title: "OpenWorld: карта, эфемерная партия и язык Acho",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
@@ -342,7 +342,7 @@ const textos = {
     lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_soberano_coder: "Суверенный кодер", lab_eleccion: "Модель выбора",
     aria_frontera: "Граница узла",
     cuaderno_consentir: "Согласиться", cuaderno_retirar: "Отозвать", cuaderno_consentido: "Согласие дано", cuaderno_sin_consentir: "Без согласия", cuaderno_recibo_pendiente: "Недавних изменений нет", cuaderno_recibo_ok: "Получена квитанция: ход {id}, {estado}.", cuaderno_recibo_error: "Не удалось изменить этот ход.", cuaderno_recibo_red: "Квитанция не получена; изменения не подтверждены.", cuaderno_sin_texto: "Текст хода недоступен", cuaderno_recuento: "{t} ходов · согласие: {c} · исправлено: {r}",
-    harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Читаю локальные циклы…', harness_error: 'Не удалось прочитать локальные циклы.',
     harness_frescura_live: (age) => `Обновлено ${age} назад · сейчас`,
     harness_frescura_stale: (age) => `Устарело · ${age} назад`,
     harness_vacio: 'Циклы не указаны', harness_ultima: 'Последний запуск', harness_proxima: 'Следующий запуск', harness_causa: 'Причина', harness_hora_ausente: 'Источник не указал это расписание',
@@ -354,10 +354,10 @@ const textos = {
     nodo_export_titulo: 'Идентификатор узла', nodo_export_ayuda: 'Выбери уже подписанное удостоверение. Приложение не подписывает; отправка начнётся только после нажатия.', nodo_export_archivo: 'Подписанное удостоверение (.json)', nodo_export_boton: 'Отправить в шлюз', nodo_export_espera: 'Удостоверение не выбрано. Ничего не отправлено.', nodo_export_enviando: 'Проверка и отправка подписанного удостоверения…', nodo_export_ok: 'Шлюз получил пакет.', nodo_export_error: 'Отправка не подтверждена. Проверь удостоверение и соединение.', nodo_export_causas: {cuerpo_invalido: 'Файл или формат удостоверения недействителен.', firma_no_disponible: 'Нет проверяемой подписи; предоставь подписанное удостоверение.', firma_rechazada: 'Подпись удостоверения не прошла проверку.', plan_no_coincide: 'Удостоверение не соответствует подписанному плану.', aduana_rechazo: 'Шлюз отклонил запрос.', aduana_no_disponible: 'Шлюз недоступен.', paquete_invalido: 'В ответе нет действительного пакета.', general: 'Файл или формат удостоверения недействителен.', clave_publica_no_configurada: 'В шлюзе не настроен открытый ключ.', plan_firmado_no_configurado: 'В шлюзе не настроен подписанный план.', registro_no_disponible: 'Журнал аудита недоступен; запись не выполнена.', firma_cedula_rechazada: 'Подпись удостоверения не прошла проверку.', cedula_mal_formada: 'Поля удостоверения недействительны.', cuerpo_fuera_de_rango: 'Размер удостоверения превышает допустимый.'}
   },
   el: {
-    comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
-    tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
-    tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
-    tab_modelos: "Μοντέλα", tab_mundo: "Κόσμος", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:", insertor_instrucciones: "Χρησιμοποιήστε @panel για δρομολόγηση ερώτησης· το @ayuda ανοίγει προσωρινή τοπική βοήθεια.", ayuda_cerrar: "Κλείσιμο βοήθειας",
+    comprobando: "έλεγχος…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Τι λες",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:", insertor_instrucciones: "Χρησιμοποιήστε @panel για δρομολόγηση ερώτησης· το @ayuda ανοίγει προσωρινή τοπική βοήθεια.", ayuda_cerrar: "Κλείσιμο βοήθειας",
     model_last_reply: "Το τελευταίο μοντέλο που απάντησε", world_idle: "Το OpenWorld φορτώνεται όταν ανοίξεις αυτή την καρτέλα.", world_checking: "Έλεγχος σύνδεσης OpenWorld…", world_loading: "Η σύνδεση είναι διαθέσιμη· φόρτωση OpenWorld…", world_loaded: "Το πρόγραμμα περιήγησης ολοκλήρωσε την πλοήγηση του πλαισίου· η διασταυρούμενη κατάσταση HTTP δεν είναι αναγνώσιμη εδώ.", world_retry: "Νέα προσπάθεια OpenWorld", world_open_new: "Άνοιγμα OpenWorld σε άλλη καρτέλα", world_frame_title: "OpenWorld: χάρτης, εφήμερη παρτίδα και γλώσσα Acho",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
@@ -389,7 +389,7 @@ const textos = {
     lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_soberano_coder: "Κυρίαρχος κωδικοποιητής", lab_eleccion: "Μοντέλο επιλογής",
     aria_frontera: "Όριο κόμβου",
     cuaderno_consentir: "Συγκατάθεση", cuaderno_retirar: "Ανάκληση", cuaderno_consentido: "Με συγκατάθεση", cuaderno_sin_consentir: "Χωρίς συγκατάθεση", cuaderno_recibo_pendiente: "Δεν υπάρχουν πρόσφατες αλλαγές", cuaderno_recibo_ok: "Λήφθηκε απόδειξη: γύρος {id}, {estado}.", cuaderno_recibo_error: "Δεν ήταν δυνατή η αλλαγή αυτού του γύρου.", cuaderno_recibo_red: "Δεν ήρθε απόδειξη· δεν επιβεβαιώνεται αλλαγή.", cuaderno_sin_texto: "Το κείμενο του γύρου δεν είναι διαθέσιμο", cuaderno_recuento: "{t} γύροι · {c} με συγκατάθεση · {r} διορθωμένοι",
-    harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Ανάγνωση τοπικών κύκλων…', harness_error: 'Δεν ήταν δυνατή η ανάγνωση των τοπικών κύκλων.',
     harness_frescura_live: (age) => `Ενημερώθηκε πριν από ${age} · ζωντανά`,
     harness_frescura_stale: (age) => `Παλιό δεδομένο · πριν από ${age}`,
     harness_vacio: 'Δεν δηλώθηκαν κύκλοι', harness_ultima: 'Τελευταία εκτέλεση', harness_proxima: 'Επόμενη εκτέλεση', harness_causa: 'Αιτία', harness_hora_ausente: 'Η πηγή δεν παρείχε αυτό το πρόγραμμα',
@@ -400,10 +400,10 @@ const textos = {
     nodo_export_titulo: 'Ταυτότητα κόμβου', nodo_export_ayuda: 'Επίλεξε διαπιστευτήριο που έχεις ήδη υπογράψει. Η εφαρμογή δεν υπογράφει· η αποστολή γίνεται μόνο με το πάτημά σου.', nodo_export_archivo: 'Υπογεγραμμένο διαπιστευτήριο (.json)', nodo_export_boton: 'Αποστολή στην πύλη', nodo_export_espera: 'Δεν επιλέχθηκε διαπιστευτήριο. Δεν στάλθηκε τίποτα.', nodo_export_enviando: 'Έλεγχος και αποστολή του υπογεγραμμένου διαπιστευτηρίου…', nodo_export_ok: 'Η πύλη έλαβε το πακέτο.', nodo_export_error: 'Η αποστολή δεν επιβεβαιώθηκε. Έλεγξε το διαπιστευτήριο και τη σύνδεση.', nodo_export_causas: {cuerpo_invalido: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', firma_no_disponible: 'Δεν υπάρχει επαληθεύσιμη υπογραφή· φέρε υπογεγραμμένο διαπιστευτήριο.', firma_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', plan_no_coincide: 'Το διαπιστευτήριο δεν ταιριάζει με το υπογεγραμμένο σχέδιο.', aduana_rechazo: 'Η πύλη απέρριψε το αίτημα.', aduana_no_disponible: 'Δεν ήταν δυνατή η σύνδεση με την πύλη.', paquete_invalido: 'Η απάντηση δεν περιέχει έγκυρο πακέτο.', general: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', clave_publica_no_configurada: 'Δεν έχει ρυθμιστεί δημόσιο κλειδί στην πύλη.', plan_firmado_no_configurado: 'Δεν έχει ρυθμιστεί υπογεγραμμένο σχέδιο στην πύλη.', registro_no_disponible: 'Το αρχείο ελέγχου δεν είναι διαθέσιμο· δεν καταγράφηκε τίποτα.', firma_cedula_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', cedula_mal_formada: 'Τα πεδία του διαπιστευτηρίου δεν είναι έγκυρα.', cuerpo_fuera_de_rango: 'Το διαπιστευτήριο υπερβαίνει το επιτρεπόμενο μέγεθος.'}
   },
   ar: {
-    comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
-    tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
-    tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
-    tab_modelos: "النماذج", tab_mundo: "العالم", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:", insertor_instrucciones: "استخدم @panel لتوجيه السؤال؛ يفتح @ayuda مساعدة محلية مؤقتة.", ayuda_cerrar: "إغلاق المساعدة",
+    comprobando: "جارٍ التحقق…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "ما تقوله",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:", insertor_instrucciones: "استخدم @panel لتوجيه السؤال؛ يفتح @ayuda مساعدة محلية مؤقتة.", ayuda_cerrar: "إغلاق المساعدة",
     model_last_reply: "آخر نموذج أجاب", world_idle: "سيُحمّل OpenWorld عند فتح علامة التبويب هذه.", world_checking: "جارٍ التحقق من اتصال OpenWorld…", world_loading: "الاتصال متاح؛ جارٍ تحميل OpenWorld…", world_loaded: "اكتمل تنقل الإطار في المتصفح؛ حالة HTTP عبر الأصل غير مقروءة هنا.", world_retry: "إعادة محاولة OpenWorld", world_open_new: "فتح OpenWorld في علامة تبويب أخرى", world_frame_title: "OpenWorld: الخريطة واللعبة المؤقتة ولغة Acho",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
@@ -435,7 +435,7 @@ const textos = {
     lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_soberano_coder: "المبرمج السيادي", lab_eleccion: "نموذج الاختيار",
     aria_frontera: "حدود العقدة",
     cuaderno_consentir: "موافقة", cuaderno_retirar: "سحب", cuaderno_consentido: "تمت الموافقة", cuaderno_sin_consentir: "بلا موافقة", cuaderno_recibo_pendiente: "لا تغييرات حديثة", cuaderno_recibo_ok: "وصل الإيصال: الدور {id}، {estado}.", cuaderno_recibo_error: "تعذر تغيير هذا الدور.", cuaderno_recibo_red: "لم يصل الإيصال؛ لا يوجد تغيير مؤكد.", cuaderno_sin_texto: "نص الدور غير متاح", cuaderno_recuento: "{t} أدوار · {c} بموافقة · {r} مصححة",
-    harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'جارٍ قراءة الدورات المحلية…', harness_error: 'تعذرت قراءة الدورات المحلية.',
     harness_frescura_live: (age) => `حُدّث منذ ${age} · مباشر`,
     harness_frescura_stale: (age) => `بيانات قديمة · منذ ${age}`,
     harness_vacio: 'لا توجد دورات مُعلنة', harness_ultima: 'آخر تشغيل', harness_proxima: 'التشغيل التالي', harness_causa: 'السبب', harness_hora_ausente: 'لم يوفّر المصدر هذا الجدول',
@@ -546,7 +546,7 @@ function mostrar(i, opciones = {}) {
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }
-  if (paneles[panelActual].id === "harness") cargarHarness();
+  if (paneles[panelActual].id === "harness") { cargarHarness(); if (window.PreceptorTeam) window.PreceptorTeam.load(); }
   if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
   if (paneles[panelActual].id === "puerta") cargarPuerta();
 }
@@ -825,7 +825,8 @@ $("form-chat").addEventListener("submit", async (e) => {
   try {
     const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texto, panel: ruta.panel }),
+      body: JSON.stringify(Object.assign({ texto, panel: ruta.panel },
+        window.PreceptorTeam && window.PreceptorTeam.active() ? { agente: window.PreceptorTeam.active().id } : {})),
     });
     const d = await r.json();
     esperando.remove();
@@ -842,7 +843,8 @@ $("form-chat").addEventListener("submit", async (e) => {
       $("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
       modelosWeb.setActiveModel(typeof maquina.modelo === "string" ? maquina.modelo : null,
         maquina.ms, "hexelion_model_name_not_returned");
-      burbuja("Hexelion: " + respuesta.texto);
+      const agente = window.PreceptorTeam ? window.PreceptorTeam.label(window.PreceptorTeam.active()) : "";
+      burbuja("Hexelion" + (agente ? " · " + agente : "") + ": " + respuesta.texto);
       respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)));
     } else {
       const causa = typeof d.causa === "string" && d.causa ? d.causa : t.chat_edad_nd;
