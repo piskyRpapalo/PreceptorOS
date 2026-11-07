@@ -9,6 +9,30 @@ import memory
 
 SCHEMA = 'preceptoros.memory-search/1'
 
+# Function words of a natural question (Spanish and English). memory.buscar requires EVERY
+# word (signed contract, test_memory case 23), so «¿Qué LoRA está servido en Ollama?» used to
+# require «qué» and «está» too and found nothing. Only the question layer drops them; every
+# content word is still required, and a question made only of function words is kept as is.
+FUNCION = frozenset('''
+    que qué cual cuál cuales cuáles como cómo donde dónde cuando cuándo quien quién cuanto cuánto
+    es son esta está estan están este esto ese eso esa aquel aquello ser fue hay tiene tienen el la los las lo un una unos unas
+    de del al a en y o u e ni por para con sin sobre se le les me te mi mis tu tus su sus
+    what which who whom whose how where when why is are was were be been the a an of to in
+    on at and or for with by from does do did can could it its this that these those
+'''.split())
+
+
+def _bare(word):
+    return ''.join(ch for ch in word.lower() if ch.isalnum())
+
+
+def contenido(consulta):
+    """The content words of a question, in its own spelling; the original if none is left."""
+    kept = [w for w in consulta.split() if _bare(w) and _bare(w) not in FUNCION]
+    words = [w.strip('¿?¡!.,;:«»"()') for w in kept]
+    words = [w for w in words if w]
+    return ' '.join(words) if words else consulta
+
 
 def encoded(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8')
@@ -43,7 +67,7 @@ def buscar(consulta, database):
             con.execute('pragma query_only=on')
             if not memory._tabla_existe(con, 'engrams_fts'):
                 return unavailable('memory_index_unavailable')
-            found = memory.recuperar(con, consulta, presupuesto=240, candidatos=50)
+            found = memory.recuperar(con, contenido(consulta), presupuesto=240, candidatos=50)
     except (OSError, sqlite3.Error, memory.BusquedaNoDisponible, ValueError, UnicodeError):
         return unavailable('memory_read_failed')
     out = {'esquema': SCHEMA, 'estado': 'MEASURED', 'fuentes': [],

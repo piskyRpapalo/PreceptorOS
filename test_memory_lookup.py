@@ -70,3 +70,31 @@ class LookupTests(unittest.TestCase):
         self.assertEqual(result['causa'], 'no_local_decision_adapter')
         self.assertEqual(result['fuentes'], [])
         self.assertLess(len(memory_lookup.encoded(result)), 1024)
+
+
+class NaturalQuestionTests(unittest.TestCase):
+    """A natural question keeps only its content words; every content word is still required."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.db = Path(self.temp.name) / 'memory.db'
+        memory.crear(str(self.db))
+        with memory.abrir(str(self.db)) as con:
+            memory.escribir_engrama(con, 'LoRA v7 servido en Ollama: dos lineas')
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_spanish_question_finds_the_memory(self):
+        for q in ('¿Qué LoRA está servido en Ollama?', 'which LoRA is servido in Ollama?'):
+            self.assertEqual(memory_lookup.buscar(q, self.db)['estado'], 'MEASURED', q)
+
+    def test_content_words_are_still_all_required(self):
+        self.assertEqual(memory_lookup.buscar('¿Qué LoRA está en Kubernetes?', self.db)['causa'], 'no_matches')
+
+    def test_only_function_words_keeps_the_original_query(self):
+        self.assertEqual(memory_lookup.contenido('¿qué es esto?'), '¿qué es esto?')
+        self.assertEqual(memory_lookup.contenido('¿Qué LoRA está servido?'), 'LoRA servido')
+
+
+if __name__ == '__main__':
+    unittest.main()
