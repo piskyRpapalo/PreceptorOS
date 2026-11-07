@@ -170,6 +170,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_trans
           test_linea
           test_normas
           test_soberania
+          test_keep_device
           # test_apretar: la compresion de contexto que SOLO puede borrar
           # unidades enteras. Entra en el corredor certificado porque su
           # garantia --nada de la salida se invento-- es de las que dejan de

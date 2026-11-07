@@ -255,6 +255,7 @@ ESTATICOS = {
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/modelos_web.js": ("modelos_web.js", "application/javascript; charset=utf-8"),
+    "/keep_device.js": ("keep_device.js", "application/javascript; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
