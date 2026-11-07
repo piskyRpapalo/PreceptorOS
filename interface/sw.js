@@ -69,8 +69,9 @@
 // v139 (2026-11-07): global composer, panel-tag routing, temporary local help.
 // v140 (2026-11-07): puerta al Lab local, consultada al abrir su panel.
 // v141 (2026-11-07): retire legacy face precache; root and install open the app trunk.
-const Cache = "preceptoros-armazon-v141";
-const Armazon = ["/install.js", "/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/assets/preceptoros-up.png", "/", "/app", "/app.html", "/app.css?v=10", "/app.js?v=14", "/modelos_web.js?v=1", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// v142 (2026-11-07): self-contained app shell refresh; fixed World panel, 80% type, fitted tabs, and opt-in storage setting.
+const Cache = "preceptoros-armazon-v142";
+const Armazon = ["/install.js", "/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/assets/preceptoros-up.png", "/", "/app", "/app.html", "/app.css?v=11", "/app.js?v=14", "/modelos_web.js?v=2", "/keep_device.js?v=1", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

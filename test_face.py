@@ -113,11 +113,12 @@ class TestLaCaraEsLaPuerta(unittest.TestCase):
         self.assertFalse(_consentimiento_explicito(saboteado))
 
     def test_la_raiz_sirve_el_tronco_app_sin_cambiar_sus_bytes(self):
-        codigo, cuerpo = _get("/")
-        self.assertEqual(codigo, 200)
-        app = pathlib.Path(AQUI, "interface", "app.html").read_bytes()
-        self.assertEqual(cuerpo, app)
-        self.assertEqual(len(app), 19552)
+        root_code, root_body = _get("/")
+        app_code, app_body = _get("/app.html")
+        self.assertEqual(root_code, 200)
+        self.assertEqual(app_code, 200)
+        self.assertEqual(root_body, app_body)
+        self.assertEqual(root_body, pathlib.Path(AQUI, "interface", "app.html").read_bytes())
 
     def test_las_rutas_de_las_tres_pieles_ya_no_se_sirven(self):
         for piel in PIELES:
