@@ -191,23 +191,19 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   .barra, .pestanas, .panel { max-width: 44rem; margin-inline: auto; width: 100%; }
 }
 
-/* --- rostro y control del panel ----------------------------------------- */
-.barra .inicio {
+/* --- control textual del panel ------------------------------------------ */
+.barra .control-panel {
   display: inline-flex; align-items: center; justify-content: center;
-  flex: 0 0 58px; width: 58px; height: 58px; min-width: 58px; min-height: 58px;
-  margin: 0; padding: 0; overflow: hidden;
-  border: 1px solid var(--acento); border-radius: 50%;
-  background: var(--acento-tenue); cursor: pointer;
-  box-shadow: 0 0 0 3px var(--halo-bajo);
+  flex: 0 0 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  margin: 0; padding: 0; font: inherit; font-size: 1.2rem; line-height: 1;
+  color: var(--ink); border: 1px solid var(--line);
+  border-radius: var(--radio); background: var(--paper); cursor: pointer;
 }
-.barra .inicio:hover { background: var(--acento-tenue); }
-.barra .inicio:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
-.rostro-preceptor {
-  display: block; width: 100%; height: 100%; border-radius: 50%;
-  background-image: url("/assets/preceptoros-up.png");
-  background-repeat: no-repeat; background-position: 0 50%; background-size: 400% auto;
-  image-rendering: pixelated;
+.barra .control-panel:hover, .barra .control-panel:focus-visible {
+  background: var(--acento-tenue); border-color: var(--acento);
 }
+.barra .control-panel:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+.barra .control-panel::before { content: "☰"; }
 body.panel-cerrado .pestanas, body.panel-cerrado .carril { display: none; }
 
 /* --- la aduana con salida ------------------------------------------------

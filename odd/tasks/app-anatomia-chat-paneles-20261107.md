@@ -4,7 +4,7 @@ Date: 2026-11-07
 Status: local proposal · not published  
 Source: PreceptorOS `origin/main` at `8f2bc8371b359f6e2e4398bd6a443a97cd459358`.  
 Interaction reference: Gentle Dot `9732fb3`; copy its interaction anatomy only.  
-Visual identity: retain PreceptorOS colors and its existing pixel-art preceptor asset.
+Visual identity: retain PreceptorOS colors; do not put the pixel-art preceptor in the app header.
 
 ## Explore
 
@@ -19,9 +19,8 @@ the four-frame PreceptorOS pixel bust at `assets/preceptoros-up.png`.
 2. Put compact, labeled zone buttons above the conversation; each selects its
    existing panel and preserves its current service behavior.
 3. Remove the separate Hexelion header link from this shell.
-4. Use the app's pixel bust in a round control that collapses or restores the
-   zone buttons and panel area. Keep the control's accessible name and expanded
-   state synchronized.
+4. Use a compact, non-round textual control to collapse or restore the zone
+   buttons and panel area. Keep its accessible name and expanded state synchronized.
 5. Keep Bandeja under Ajustes so the chat and its navigation stay the primary
    surface.
 6. Align the app stylesheet, script, pixel asset and service-worker cache.
@@ -34,13 +33,13 @@ node-connected state, and ephemeral visitor flow are outside this UI slice.
 - A fresh `/app` or `/app.html` opens the conversation panel.
 - All nine existing zones remain reachable by touch and keyboard; their names
   remain available to assistive technology in the selected language.
-- The round pixel-face control hides and restores navigation and the current
-  panel, and reports its state through `aria-expanded`.
+- The compact textual control hides and restores navigation and the current
+  panel, and reports its state through `aria-expanded`; it has no pixel face.
 - Existing chat, panel, and API behavior remains intact.
 - Service-worker cache versions and static URLs match the served app files.
 - Browser/device appearance remains NO_DATA until a real browser/device pass.
 
 ## Record
 
-Local changes are on `proposal/gentle-anatomy-acho-20261107`, based on the source
-head above. No push or merge. Tests and browser/device rendering were not run.
+The anatomy remains proposed in #186/#188 and the dependent follow-up proposal.
+The pixel-face requirement is superseded by `mini-html-verdad-unica-20261107.md`.

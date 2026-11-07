@@ -51,7 +51,19 @@ class CarcasaUnaPestana(unittest.TestCase):
         html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<header class="barra">', html)
         self.assertIn("pestanas", app.elements)
-        self.assertEqual(app.elements["ir-inicio"][0], "button")
+        self.assertEqual(app.elements["toggle-panel"][0], "button")
+
+    def test_control_del_panel_no_usa_esfera_ni_pixel_art(self):
+        html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
+        css = (RAIZ / "interface/app.css").read_text(encoding="utf-8")
+        js = (RAIZ / "interface/app.js").read_text(encoding="utf-8")
+        self.assertNotIn("rostro-preceptor", html + css)
+        self.assertNotIn("preceptoros-up.png", css)
+        self.assertIn('id="toggle-panel"', html)
+        self.assertIn('aria-controls="carril" aria-expanded="true"', html)
+        self.assertIn('$("toggle-panel").addEventListener("click"', js)
+        self.assertIn('$("toggle-panel").setAttribute("aria-expanded"', js)
+        self.assertIn('"/transicion.js?v=2"', (RAIZ / "interface/sw.js").read_text(encoding="utf-8"))
 
     def test_zona_inactiva_informa_no_data_y_hay_guion_vivo(self):
         app = _app()

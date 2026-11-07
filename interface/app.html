@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=5">
+<link rel="stylesheet" href="/app.css?v=6">
 </head>
 <body>
 
@@ -18,10 +18,8 @@
     <h1>PreceptorOS</h1>
     <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
   </div>
-  <button class="inicio" type="button" id="ir-inicio" data-i18n-aria="aria_inicio"
-          aria-label="Mostrar u ocultar el panel de PreceptorOS" aria-controls="carril" aria-expanded="true">
-    <span class="rostro-preceptor" aria-hidden="true"></span>
-  </button>
+  <button class="control-panel" type="button" id="toggle-panel" data-i18n-aria="aria_panel"
+          aria-label="Mostrar u ocultar paneles" aria-controls="carril" aria-expanded="true" title="Mostrar u ocultar paneles"></button>
 </header>
 
 <nav class="pestanas" id="pestanas" role="tablist" aria-orientation="horizontal" aria-label="Zonas">
@@ -229,7 +227,7 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=8"></script>
+<script src="/app.js?v=9"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
