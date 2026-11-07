@@ -55,10 +55,19 @@ El botón de instalar/añadir la PWA es otra función: la controlan el manifiest
 `install.js`; esta cura no altera esa ruta. Tampoco hace que la cabeza pixel
 permanezca visible fuera de la ventana.
 
-## Por verificar después de esta edición
+## Medición de esta edición
 
-Las pruebas estructurales y el gate se ejecutan en esta rama. Render de esta
-edición en navegador, despliegue, disponibilidad de Hexelion y respuesta con
-fuentes: NO_DATA hasta repetir esas mediciones sobre este head.
+Chromium local, ventana de app, cliente medido de 420 × 640: Hablar y el
+compositor están visibles; `#toggle-panel` aparece como control compacto sin
+`rostro-preceptor`; `PreceptorTransicion` está cargado. Hay nueve pestañas y la
+barra tiene desplazamiento horizontal: ocho iconos aparecen en el primer marco;
+el noveno requiere desplazar la barra. Captura local:
+`/tmp/preceptoros-remove-face-20261107.png`.
+
+La prueba de conexión hecha en la sesión anterior devolvió
+`NO_DATA: station_unavailable`; el túnel informó rechazo de conexión en su
+destino. Modelo y cita de respuesta: NO_DATA. Esta edición no repitió una
+solicitud de chat, así que conexión y fuentes en este head siguen sin medir.
+Despliegue: NO_DATA, no se ha desplegado.
 
 Agent: Codex
