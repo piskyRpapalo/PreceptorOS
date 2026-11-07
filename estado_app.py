@@ -11,7 +11,7 @@ FUENTE_SEMANTICA = MappingProxyType({
     "semilla": "tabla",
 })
 ZONAS = frozenset({
-    "mando", "conversacion", "cuaderno", "lab",
+    "mando", "conversacion", "gobierno", "cuaderno", "lab",
     "harness", "puerta", "modelos", "ajustes",
 })
 ESTADOS_FRESCURA = frozenset({"LIVE", "STALE", "NO_DATA"})

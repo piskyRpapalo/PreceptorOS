@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const insertor = require('../interface/insertor.js');
 
-const zones = ['mando', 'conversacion', 'cuaderno', 'lab', 'harness', 'puerta', 'modelos', 'ajustes'];
+const zones = ['mando', 'conversacion', 'gobierno', 'cuaderno', 'lab', 'harness', 'puerta', 'modelos', 'ajustes'];
 
 test('plain text uses the active panel', () => {
   assert.deepEqual(insertor.rutear('  hello  ', zones, 'lab'), {

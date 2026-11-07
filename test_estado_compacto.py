@@ -50,7 +50,7 @@ class MoldeST(unittest.TestCase):
                 decodificar(bytes(paquete))
 
     def test_zonas_y_codigos_de_frescura_son_vocabularios_cerrados(self):
-        self.assertEqual(len(ZONAS), 8)  # gobierno (3) retired: Frontera lives in Ajustes
+        self.assertEqual(len(ZONAS), 9)
         for campo, valor in (("zona", "web"), ("frescura", "EXPIRED")):
             estado = vector_base()
             estado[campo] = valor

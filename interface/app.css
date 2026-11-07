@@ -81,7 +81,8 @@ body {
 .modelos-menu .turnos { max-height: 48vh; overflow: auto; }
 
 .pestanas {
-  display: flex; gap: .35rem; padding: .5rem 1rem .6rem;
+  /* Nine 44px targets fit 420px (Sovereign, 2026-11-07): spread evenly, no side padding. */
+  display: flex; gap: 0; justify-content: space-evenly; padding: .5rem 0 .6rem;
   border-bottom: 1px solid var(--line);
   overflow-x: auto; overscroll-behavior-inline: contain;
   scrollbar-width: none;
