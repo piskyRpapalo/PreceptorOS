@@ -196,25 +196,6 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   .barra, .pestanas, .panel { max-width: 780px; margin-inline: auto; width: 100%; }
 }
 
-/* --- rostro y control del panel ----------------------------------------- */
-.barra .inicio {
-  display: inline-flex; align-items: center; justify-content: center;
-  flex: 0 0 72px; width: 72px; height: 72px; min-width: 72px; min-height: 72px;
-  margin: 0; padding: 0; overflow: hidden;
-  border: 1px solid var(--acento); border-radius: 50%;
-  background: var(--acento-tenue); cursor: pointer;
-  box-shadow: 0 0 0 3px var(--halo-bajo);
-}
-.barra .inicio:hover { background: var(--acento-tenue); }
-.barra .inicio:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
-.rostro-preceptor {
-  display: block; width: 100%; height: 100%; border-radius: 50%;
-  background-image: url("/assets/preceptoros-up.png");
-  background-repeat: no-repeat; background-position: 0 50%; background-size: 400% auto;
-  image-rendering: pixelated;
-}
-body.panel-cerrado .pestanas, body.panel-cerrado .carril { display: none; }
-
 /* --- la aduana con salida ------------------------------------------------
    El bloque que convierte la frontera en un paso y no en un espejo. Estaba
    todo hecho menos esto: se comprobaba el texto, se enseñaba lo que se iba a

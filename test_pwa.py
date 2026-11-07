@@ -981,14 +981,17 @@ class TestLasImagenesQuePideLaCaraSeSirven(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 
-class TestHablarConLab(unittest.TestCase):
-    def test_formulario_hablar_publica_al_lab_y_traduce_la_ausencia(self):
+class TestHablarConHexelion(unittest.TestCase):
+    def test_formulario_hablar_usa_hexelion_y_pide_fuentes(self):
         app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
         formulario = app.split('$("form-chat").addEventListener', 1)[1].split('/* --- frontera', 1)[0]
-        self.assertIn('fetch("/api/lab"', formulario)
+        self.assertIn('fetch("/api/hexelion/chat"', formulario)
         self.assertNotIn('fetch("/api/charla"', formulario)
-        self.assertIn('respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65)', formulario)
-        self.assertIn("chat_sin_respuesta", formulario)
+        self.assertIn('respuesta.voz === "hexelion"', formulario)
+        self.assertIn('Array.isArray(respuesta.fuentes)', formulario)
+        self.assertIn('t.chat_sin_respuesta(causa)', formulario)
+        self.assertIn('t.chat_modelo(modelo)', formulario)
+        self.assertIn('t.chat_fuente(f.id, f.updated_at, f.sha256)', formulario)
         self.assertNotIn("if (filtroCaido) return", formulario)
 
 class TestVistaLab(unittest.TestCase):
@@ -1122,8 +1125,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=10', html)
-        self.assertIn('"/app.js?v=10"', sw)
+        self.assertIn('/app.js?v=11', html)
+        self.assertIn('"/app.js?v=11"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)

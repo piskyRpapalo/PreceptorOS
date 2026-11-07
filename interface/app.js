@@ -51,7 +51,7 @@ const textos = {
     anidado: "Anidado. Vive en tu memoria, en esta máquina.",
     anidar_no: "no se pudo anidar",
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
-    chat_sin_respuesta: (edad) => "Hexelion no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (causa) => "Hexelion no respondió · {causa}".replace("{causa}", causa), chat_edad_nd: "causa no disponible", chat_modelo_nd: "modelo no confirmado", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, fecha, sha) => `Fuente ${id} · ${fecha} · SHA-256 ${sha}`,
     lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
     aria_frontera: "Frontera del nodo",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sin consentir", cuaderno_recibo_pendiente: "Sin cambios recientes", cuaderno_recibo_ok: "Recibo recibido: turno {id}, {estado}.", cuaderno_recibo_error: "No se pudo cambiar este turno.", cuaderno_recibo_red: "No llegó el recibo; no hay cambios confirmados.", cuaderno_sin_texto: "Texto de turno no disponible", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corregidos",
@@ -97,7 +97,7 @@ const textos = {
     anidado: "Nested. It lives in your memory, on this machine.",
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
-    chat_sin_respuesta: (edad) => "Hexelion did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (cause) => "Hexelion did not reply · {cause}".replace("{cause}", cause), chat_edad_nd: "cause unavailable", chat_modelo_nd: "model unconfirmed", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Source ${id} · ${date} · SHA-256 ${sha}`,
     lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
@@ -146,7 +146,7 @@ const textos = {
     anidado: "Niché. Ça vit dans ta mémoire, sur cette machine.",
     anidar_no: "impossible de nicher",
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
-    chat_sin_respuesta: (edad) => "Hexelion n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (cause) => "Hexelion n’a pas répondu · {cause}".replace("{cause}", cause), chat_edad_nd: "cause indisponible", chat_modelo_nd: "modèle non confirmé", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Source ${id} · ${date} · SHA-256 ${sha}`,
     lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
     aria_frontera: "Frontière du nœud",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirer", cuaderno_consentido: "Consentement donné", cuaderno_sin_consentir: "Sans consentement", cuaderno_recibo_pendiente: "Aucun changement récent", cuaderno_recibo_ok: "Reçu reçu : tour {id}, {estado}.", cuaderno_recibo_error: "Impossible de modifier ce tour.", cuaderno_recibo_red: "Aucun reçu reçu ; aucun changement confirmé.", cuaderno_sin_texto: "Texte du tour indisponible", cuaderno_recuento: "{t} tours · {c} consentis · {r} corrigés",
@@ -193,7 +193,7 @@ const textos = {
     anidado: "Aninhado. Vive na tua memória, nesta máquina.",
     anidar_no: "não consegui aninhar",
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
-    chat_sin_respuesta: (edad) => "Hexelion não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (causa) => "Hexelion não respondeu · {causa}".replace("{causa}", causa), chat_edad_nd: "causa indisponível", chat_modelo_nd: "modelo não confirmado", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, data, sha) => `Fonte ${id} · ${data} · SHA-256 ${sha}`,
     lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
     aria_frontera: "Fronteira do nó",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sem consentimento", cuaderno_recibo_pendiente: "Sem alterações recentes", cuaderno_recibo_ok: "Recibo recebido: turno {id}, {estado}.", cuaderno_recibo_error: "Não foi possível alterar este turno.", cuaderno_recibo_red: "O recibo não chegou; não há alterações confirmadas.", cuaderno_sin_texto: "Texto do turno indisponível", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corrigidos",
@@ -239,7 +239,7 @@ const textos = {
     anidado: "Annidato. Vive nella tua memoria, su questa macchina.",
     anidar_no: "impossibile annidare",
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
-    chat_sin_respuesta: (edad) => "Hexelion non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (causa) => "Hexelion non ha risposto · {causa}".replace("{causa}", causa), chat_edad_nd: "causa non disponibile", chat_modelo_nd: "modello non confermato", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, data, sha) => `Fonte ${id} · ${data} · SHA-256 ${sha}`,
     lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
     aria_frontera: "Frontiera del nodo",
     cuaderno_consentir: "Consenti", cuaderno_retirar: "Ritira", cuaderno_consentido: "Consenziente", cuaderno_sin_consentir: "Senza consenso", cuaderno_recibo_pendiente: "Nessuna modifica recente", cuaderno_recibo_ok: "Ricevuta ricevuta: turno {id}, {estado}.", cuaderno_recibo_error: "Impossibile modificare questo turno.", cuaderno_recibo_red: "Ricevuta non arrivata; nessuna modifica confermata.", cuaderno_sin_texto: "Testo del turno non disponibile", cuaderno_recuento: "{t} turni · {c} consentiti · {r} corretti",
@@ -285,7 +285,7 @@ const textos = {
     anidado: "Abgelegt. Es lebt in deinem Gedächtnis, auf dieser Maschine.",
     anidar_no: "konnte nicht ablegen",
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
-    chat_sin_respuesta: (edad) => "Hexelion hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (cause) => "Hexelion hat nicht geantwortet · {cause}".replace("{cause}", cause), chat_edad_nd: "Ursache nicht verfügbar", chat_modelo_nd: "Modell nicht bestätigt", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, datum, sha) => `Quelle ${id} · ${datum} · SHA-256 ${sha}`,
     lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
     aria_frontera: "Knotengrenze",
     cuaderno_consentir: "Einwilligen", cuaderno_retirar: "Zurückziehen", cuaderno_consentido: "Einwilligung erteilt", cuaderno_sin_consentir: "Keine Einwilligung", cuaderno_recibo_pendiente: "Keine neuen Änderungen", cuaderno_recibo_ok: "Beleg erhalten: Runde {id}, {estado}.", cuaderno_recibo_error: "Diese Runde konnte nicht geändert werden.", cuaderno_recibo_red: "Kein Beleg erhalten; keine Änderung bestätigt.", cuaderno_sin_texto: "Rundentext nicht verfügbar", cuaderno_recuento: "{t} Runden · {c} eingewilligt · {r} korrigiert",
@@ -331,7 +331,7 @@ const textos = {
     anidado: "Сохранено. Это живёт в твоей памяти, на этой машине.",
     anidar_no: "не удалось сохранить",
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
-    chat_sin_respuesta: (edad) => "Hexelion не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (cause) => "Hexelion не ответил · {cause}".replace("{cause}", cause), chat_edad_nd: "причина недоступна", chat_modelo_nd: "модель не подтверждена", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Источник ${id} · ${date} · SHA-256 ${sha}`,
     lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
     aria_frontera: "Граница узла",
     cuaderno_consentir: "Согласиться", cuaderno_retirar: "Отозвать", cuaderno_consentido: "Согласие дано", cuaderno_sin_consentir: "Без согласия", cuaderno_recibo_pendiente: "Недавних изменений нет", cuaderno_recibo_ok: "Получена квитанция: ход {id}, {estado}.", cuaderno_recibo_error: "Не удалось изменить этот ход.", cuaderno_recibo_red: "Квитанция не получена; изменения не подтверждены.", cuaderno_sin_texto: "Текст хода недоступен", cuaderno_recuento: "{t} ходов · согласие: {c} · исправлено: {r}",
@@ -377,7 +377,7 @@ const textos = {
     anidado: "Φωλιάστηκε. Ζει στη μνήμη σου, σε αυτό το μηχάνημα.",
     anidar_no: "δεν ήταν δυνατό το φώλιασμα",
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
-    chat_sin_respuesta: (edad) => "Το Hexelion δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (cause) => "Το Hexelion δεν απάντησε · {cause}".replace("{cause}", cause), chat_edad_nd: "η αιτία δεν είναι διαθέσιμη", chat_modelo_nd: "το μοντέλο δεν έχει επιβεβαιωθεί", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Πηγή ${id} · ${date} · SHA-256 ${sha}`,
     lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
     aria_frontera: "Όριο κόμβου",
     cuaderno_consentir: "Συγκατάθεση", cuaderno_retirar: "Ανάκληση", cuaderno_consentido: "Με συγκατάθεση", cuaderno_sin_consentir: "Χωρίς συγκατάθεση", cuaderno_recibo_pendiente: "Δεν υπάρχουν πρόσφατες αλλαγές", cuaderno_recibo_ok: "Λήφθηκε απόδειξη: γύρος {id}, {estado}.", cuaderno_recibo_error: "Δεν ήταν δυνατή η αλλαγή αυτού του γύρου.", cuaderno_recibo_red: "Δεν ήρθε απόδειξη· δεν επιβεβαιώνεται αλλαγή.", cuaderno_sin_texto: "Το κείμενο του γύρου δεν είναι διαθέσιμο", cuaderno_recuento: "{t} γύροι · {c} με συγκατάθεση · {r} διορθωμένοι",
@@ -422,7 +422,7 @@ const textos = {
     anidado: "حُفظ. يعيش في ذاكرتك، على هذا الجهاز.",
     anidar_no: "تعذّر الحفظ",
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
-    chat_sin_respuesta: (edad) => "لم يستجب Hexelion. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
+    chat_sin_respuesta: (causa) => "لم يستجب Hexelion · {causa}".replace("{causa}", causa), chat_edad_nd: "السبب غير متاح", chat_modelo_nd: "النموذج غير مؤكد", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, fecha, sha) => `المصدر ${id} · ${fecha} · SHA-256 ${sha}`,
     lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
     aria_frontera: "حدود العقدة",
     cuaderno_consentir: "موافقة", cuaderno_retirar: "سحب", cuaderno_consentido: "تمت الموافقة", cuaderno_sin_consentir: "بلا موافقة", cuaderno_recibo_pendiente: "لا تغييرات حديثة", cuaderno_recibo_ok: "وصل الإيصال: الدور {id}، {estado}.", cuaderno_recibo_error: "تعذر تغيير هذا الدور.", cuaderno_recibo_red: "لم يصل الإيصال؛ لا يوجد تغيير مؤكد.", cuaderno_sin_texto: "نص الدور غير متاح", cuaderno_recuento: "{t} أدوار · {c} بموافقة · {r} مصححة",
@@ -778,22 +778,28 @@ $("form-chat").addEventListener("submit", async (e) => {
   $("enviar").disabled = true;
   const esperando = burbuja("pensando… en un teléfono esto son minutos", "espera");
   try {
-    const r = await fetch("/api/lab", {
+    const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texto }),
     });
     const d = await r.json();
     esperando.remove();
     const respuesta = d.respuesta;
-    if (r.ok && respuesta && respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65) && respuesta.texto) {
-      burbuja(respuesta.texto);
-      const maquina = respuesta.maquina;
-      const modelo = maquina && typeof maquina.modelo === "string" && maquina.modelo.trim()
-        ? maquina.modelo.trim() : null;
-      $("estado").textContent = modelo ? t.chat_modelo(modelo) : t.chat_sin_respuesta(t.chat_edad_nd);
+    if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
+        typeof respuesta.texto === "string" && respuesta.texto.trim() &&
+        Array.isArray(respuesta.fuentes) && respuesta.fuentes.length > 0 &&
+        respuesta.fuentes.every((f) => Number.isSafeInteger(f.id) && typeof f.updated_at === "string" && /^[a-f0-9]{64}$/.test(f.sha256))) {
+      const maquina = respuesta.maquina || {};
+      const modelo = typeof maquina.modelo === "string" && maquina.modelo.trim()
+        ? maquina.modelo.trim() : t.chat_modelo_nd;
+      const ms = Number.isFinite(maquina.ms) && maquina.ms > 0 ? ` · ${maquina.ms} ms` : "";
+      const causaRespuesta = typeof d.causa === "string" && d.causa ? ` · ${d.causa}` : "";
+      $("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
+      burbuja("Hexelion: " + respuesta.texto);
+      respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)));
     } else {
-      const edad = await edadUltimaRespuestaLab();
-      $("estado").textContent = t.chat_sin_respuesta(edad);
+      const causa = typeof d.causa === "string" && d.causa ? d.causa : t.chat_edad_nd;
+      $("estado").textContent = t.chat_sin_respuesta(causa);
     }
   } catch {
     esperando.remove();
@@ -801,22 +807,6 @@ $("form-chat").addEventListener("submit", async (e) => {
   }
   $("enviar").disabled = false;
 });
-
-async function edadUltimaRespuestaLab() {
-  try {
-    const r = await fetch("/api/lab", { cache: "no-store" });
-    const d = await r.json();
-    const mensajes = d.conversacion && Array.isArray(d.conversacion.mensajes)
-      ? d.conversacion.mensajes : [];
-    const ultima = [...mensajes].reverse().find((m) => m.quien === "orquestador" && m.t);
-    const marca = ultima ? Date.parse(ultima.t) : NaN;
-    if (!Number.isFinite(marca)) return t.chat_edad_nd;
-    const segundos = Math.max(0, Math.floor((Date.now() - marca) / 1000));
-    return `${segundos} s`;
-  } catch {
-    return t.chat_edad_nd;
-  }
-}
 
 /* --- frontera ---------------------------------------------------------- */
 const sw = $("switch");
