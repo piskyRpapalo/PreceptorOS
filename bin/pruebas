@@ -158,6 +158,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # exige que el camino por defecto sea stdlib puro. Entra aqui en su
           # mismo commit por la misma razon: un candado que no corre no cierra.
           test_superficie test_memory_lookup test_hexelion_book test_atlas_riesgo test_pwa_bind test_lora_signed_download test_lora_dataset
+          test_rutas_unicas
           # Every suite is counted separately; test_superficie catches omissions.
           test_huella test_metricas test_herramientas test_empieza_aqui test_soberano
           test_importar test_medidas test_cifras test_compliance
@@ -172,12 +173,14 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_soberania
           test_team_face
           test_team
+          test_bucles_edad
           # test_apretar: la compresion de contexto que SOLO puede borrar
           # unidades enteras. Entra en el corredor certificado porque su
           # garantia --nada de la salida se invento-- es de las que dejan de
           # comprobarse en cuanto viven en un guion aparte.
           test_apretar
           test_public_names
+          test_faro
           test_colony_web_fixture
           test_colony_services
           test_colony_liveness
@@ -192,6 +195,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # la tabla fijada ya encontro que su copia vieja clasificaba mal
           # `[fe80::1]%eno1`. Entra en el corredor en su MISMO commit.
           test_clases
+          test_politica_vista
           # test_atlas_runner: tu IA local juega theGame sin conversar, por una
           # tuberia (D68) con el motor de la web verificado por su huella, y se
           # mide contra la regla fija. Incluye el sabotaje: un byte tocado en el
@@ -206,6 +210,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # Local synthetic account coverage; no key generation or persistence.
           test_voz_lectura
           test_visita_web
+          test_rendimiento_vista
           test_cuenta_cangrejo
           test_prueba_edificio
           # test_nodo_export: la salida requiere cédula ya firmada y gesto

@@ -1,3 +1,5 @@
+> Nota 2026-11-07: queda **DEPRECIADO por decreto 2026-11-07** todo lo relativo a acentos visuales derivados de pieles y al skin switch del dashboard. La terminal del norte lleva los colores del OpenWorld. Archivo histórico; no borrar.
+
 # Native terminal · piece A1 — the panel
 
 The first piece of Carril A under `odd/tasks/native-terminal-visual-contract.md` (contract, merged as #173). One piece, one PR, in order A1→A4.

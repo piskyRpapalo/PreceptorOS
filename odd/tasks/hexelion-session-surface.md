@@ -1,3 +1,5 @@
+> **DEPRECIADO por decreto 2026-11-07.** Pieles y sesión gráfica quedan fuera del norte simplificado; este documento permanece solo como archivo histórico. No borrar.
+
 # Hexelion session surface
 
 ## Explore · plan before code
