@@ -235,17 +235,12 @@ def _cerebro_paquete(modelo):
 ESTATICOS = {
     "/install.js": ("install.js", "application/javascript; charset=utf-8"),
     "/native_voice.js": ("native_voice.js", "application/javascript; charset=utf-8"),
-    "/hexelion.html": ("hexelion.html", "text/html; charset=utf-8"),
     "/hexelion.css": ("hexelion.css", "text/css; charset=utf-8"),
     "/hexelion.js": ("hexelion.js", "application/javascript; charset=utf-8"),
-    # La puerta es la cara nueva (NORTE 5, 2026-10-24): chat + joystick, la
-    # misma que la web, en `interface/face/`. El tablero sigue en
-    # /dashboard.html porque el chat con modelo, la voz y la consola viven ahi;
-    # su retirada es la pieza siguiente, no esta.
-    "/": ("face/basic.html", "text/html; charset=utf-8"),
-    "/dashboard.html": ("dashboard.html", "text/html; charset=utf-8"),
-    # Ruta histórica que conserva dashboard.html y clientes ya cacheados;
-    # sirve la hoja mínima activa, no el CSS ornamental archivado en legacy/.
+    # The single app trunk is served from its existing canonical document.
+    "/": ("app.html", "text/html; charset=utf-8"),
+    # Keep the historical stylesheet URL available to clients that still ask
+    # for it; it serves the minimal stylesheet, not archived decoration.
     "/dashboard.css": ("desnuda.css", "text/css; charset=utf-8"),
     "/dashboard.js": ("dashboard.js", "application/javascript; charset=utf-8"),
     "/app": ("app.html", "text/html; charset=utf-8"),
@@ -272,19 +267,14 @@ ESTATICOS = {
     "/sw.js": ("sw.js", "application/javascript; charset=utf-8"),
 }
 
-# La cara: tres pieles, su hoja, su guion y las nueve piezas de la lengua de
-# burbujas copiadas de la web (clavadas por sha256 en test_face.py). La ruta
-# de comic_tokens va con la t escapada porque asi la pide el html: el
-# servidor compara la ruta cruda, sin decodificar.
-CARA_PIELES = ("basic", "atlantis", "zombie")
+# Archived face assets remain addressable for source compatibility; no legacy
+# face HTML route is registered. The encoded token path remains byte-exact.
 CARA_LENGUA = ("tabla_semantica", "comic_tokens", "comic_accents", "valores", "gacha",
                "comic_atoms", "bubble_light", "bubble_language", "bubble_bestiary", "bubble_world", "core",
                "isometric_floor_projection", "world_camera", "map_zoom", "fog_of_war",
                "atlas-coord", "canon", "combate_ticks", "escuadron", "wave_render", "worm_transition",
                "escena", "sea-floor", "gdpr-art25-ephemeral-crab", "crab_render_hd",
                "bubble_icons", "db", "army-wave-panel", "summon-wave-card", "summon_reveal", "auth", "taller")
-for _piel in CARA_PIELES:
-    ESTATICOS[f"/face/{_piel}.html"] = (f"face/{_piel}.html", "text/html; charset=utf-8")
 ESTATICOS["/face/face.js"] = ("face/face.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_world.js"] = ("face/face_world.js", "application/javascript; charset=utf-8")
 ESTATICOS["/face/face_paint.js"] = ("face/face_paint.js", "application/javascript; charset=utf-8")

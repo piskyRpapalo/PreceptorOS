@@ -838,7 +838,7 @@ class TestHojasActivas(unittest.TestCase):
                                     f"el handler enlaza a un CSS ausente: {fichero}")
 
         sw = pathlib.Path(interfaz, "sw.js").read_text(encoding="utf-8")
-        self.assertIn('"/dashboard.css?v=60"', sw, "la cache debe usar la URL exacta de la hoja")
+        self.assertNotIn('"/dashboard.css?v=60"', sw, "la hoja antigua no debe seguir en la cache")
         self.assertNotIn("compass.css", sw, "la hoja ornamental apartada no debe seguir en la cache")
 
     def test_todos_los_scripts_enlazados_resuelven_a_ficheros_servidos(self):
@@ -1198,10 +1198,35 @@ class PwaNodeBuildingBoundary(unittest.TestCase):
 
 
 class TestHexelionSessionRoutes(unittest.TestCase):
-    def test_session_assets_are_served_with_their_declared_content_type(self):
+    def test_old_session_page_is_not_served_and_shared_assets_remain(self):
+        import io
+        for path, expected in (
+            ('/hexelion.html', 404),
+            ('/dashboard.html', 404),
+            ('/face/basic.html', 404),
+            ('/face/atlantis.html', 404),
+            ('/face/zombie.html', 404),
+        ):
+            h = PWA.PWA.__new__(PWA.PWA)
+            h.path, h.headers, h.wfile = path, {}, io.BytesIO()
+            h.send_response, h.send_header, h.end_headers = mock.Mock(), mock.Mock(), mock.Mock()
+            PWA.PWA.do_GET(h)
+            self.assertEqual(h.send_response.call_args.args[0], expected, path)
+
+    def test_root_and_app_html_serve_identical_trunk_bytes(self):
+        import io
+        expected = pathlib.Path(AQUI, "interface", "app.html").read_bytes()
+        for path in ("/", "/app.html"):
+            h = PWA.PWA.__new__(PWA.PWA)
+            h.path, h.headers, h.wfile = path, {}, io.BytesIO()
+            h.send_response, h.send_header, h.end_headers = mock.Mock(), mock.Mock(), mock.Mock()
+            PWA.PWA.do_GET(h)
+            self.assertEqual(h.send_response.call_args.args[0], 200)
+            self.assertEqual(h.wfile.getvalue(), expected)
+
+    def test_legacy_supporting_assets_remain_available_but_are_not_precached(self):
         import io
         for path, marker, mime in (
-            ('/hexelion.html', b'Hexelion', 'text/html'),
             ('/hexelion.js', b'/api/lab', 'application/javascript'),
             ('/hexelion.css', b'44px', 'text/css'),
         ):
@@ -1250,7 +1275,7 @@ class TestPwaInstallPath(unittest.TestCase):
         manifest=json.loads((root/'interface/manifest.json').read_text())
         self.assertEqual(manifest['id'],'/')
         self.assertEqual(manifest['scope'],'/')
-        self.assertEqual(manifest['start_url'],'/hexelion.html')
+        self.assertEqual(manifest['start_url'],'/app.html')
 
 
 
