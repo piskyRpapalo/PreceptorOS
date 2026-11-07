@@ -71,8 +71,9 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertNotIn('id="estado-chat-lab"', html + js)
         self.assertNotIn("Each turn takes minutes on a phone. It has not frozen.", js)
         self.assertNotIn("Local orchestrator ready.", js)
-        self.assertIn('$("estado").textContent = modelo ? t.chat_modelo(modelo)', js)
-        self.assertIn('"estado").textContent = t.chat_sin_respuesta', js)
+        self.assertIn('$("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`', js)
+        self.assertIn('$("estado").textContent = t.chat_sin_respuesta(causa)', js)
+        self.assertIn('respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)))', js)
 
     def test_zona_inactiva_informa_no_data_y_hay_guion_vivo(self):
         app = _app()

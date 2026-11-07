@@ -69,6 +69,37 @@ class HexelionBookTests(unittest.TestCase):
                 self.assertEqual(result["estado"], "NO_DATA")
                 self.assertIsNone(citations)
 
+    def test_one_json_fence_and_duplicate_source_ids_are_accepted_once(self):
+        row = source(7, "The archive states: arco 🌙 is measured.")
+        payload = json.dumps({"citas": [
+            {"id": 7, "quote": "arco 🌙"}, {"id": 7, "quote": "is measured"}
+        ]}, ensure_ascii=False)
+        for opening in ("```\n", "```json\n"):
+            with self.subTest(opening=opening):
+                result, citations = book.verificar_citas(opening + payload + "\n```", [row])
+                self.assertEqual(result["estado"], "MEASURED")
+                self.assertEqual(result["texto"], "arco 🌙\nis measured")
+                self.assertEqual([item["id"] for item in citations], [7])
+
+    def test_fenced_paragraphs_excess_items_and_garbage_stay_no_data(self):
+        row = source(7, "The archive states: " + "x" * 400)
+        valid = json.dumps({"citas": [{"id": 7, "quote": "The archive"}]})
+        too_many = json.dumps({"citas": [
+            {"id": 7, "quote": "x"} for _ in range(4)
+        ]})
+        oversized = json.dumps({"citas": [{"id": 7, "quote": "x" * 321}]})
+        for invalid in (
+                "```json\n" + valid + "\n```\nextra",
+                "preamble\n```json\n" + valid + "\n```",
+                "```\n```json\n" + valid + "\n```\n```",
+                "```json\n" + too_many + "\n```",
+                oversized,
+                "not json"):
+            with self.subTest(invalid=invalid[:40]):
+                result, citations = book.verificar_citas(invalid, [row])
+                self.assertEqual(result["estado"], "NO_DATA")
+                self.assertIsNone(citations)
+
     def test_no_quote_and_quote_over_320_bytes_fail_closed(self):
         row = source(1, "x" * 400)
         for answer, cause in (
