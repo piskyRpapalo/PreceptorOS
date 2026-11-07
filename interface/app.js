@@ -29,7 +29,7 @@ const textos = {
     pie_chat: "Cada turno tarda minutos en un teléfono. No es que se haya colgado.",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
     pie_captura: "Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.",
-    aria_inicio: "Ir a la portada", aria_redaccion: "Redacción", redaccion_on: "Redacción activa",
+    aria_inicio: "Mostrar u ocultar el panel de PreceptorOS", aria_redaccion: "Redacción", redaccion_on: "Redacción activa",
     redaccion_off: "Redacción apagada", sin_medir: "sin medir",
     texto_comprobar: "Texto a comprobar",
     ph_prueba: "Pega aquí lo que quieras comprobar antes de que salga…",
@@ -76,7 +76,7 @@ const textos = {
     pie_chat: "Each turn takes minutes on a phone. It has not frozen.",
     pie_hallazgos: "What you see above is never the text that was found: class and count, nothing else. The numbers come from the payload — this interface does not count.",
     pie_captura: "A captured turn is not a consented turn. Nothing enters training until you mark it yourself, one at a time, and it can be withdrawn.",
-    aria_inicio: "Go to the front page", aria_redaccion: "Redaction", redaccion_on: "Redaction on",
+    aria_inicio: "Show or hide the PreceptorOS panel", aria_redaccion: "Redaction", redaccion_on: "Redaction on",
     redaccion_off: "Redaction off", sin_medir: "not measured",
     texto_comprobar: "Text to check",
     ph_prueba: "Paste here whatever you want checked before it leaves…",
@@ -126,7 +126,7 @@ const textos = {
     pie_chat: "Chaque tour prend des minutes sur un téléphone. Ce n'est pas bloqué.",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
     pie_captura: "Un tour capturé n'est pas un tour consenti. Rien n'entre dans un entraînement tant que tu ne le marques pas toi-même, un par un, et on peut le retirer.",
-    aria_inicio: "Aller à la page d'accueil", aria_redaccion: "Caviardage", redaccion_on: "Caviardage actif",
+    aria_inicio: "Afficher ou masquer le panneau PreceptorOS", aria_redaccion: "Caviardage", redaccion_on: "Caviardage actif",
     redaccion_off: "Caviardage coupé", sin_medir: "non mesuré",
     texto_comprobar: "Texte à vérifier",
     ph_prueba: "Colle ici ce que tu veux vérifier avant que ça parte…",
@@ -174,7 +174,7 @@ const textos = {
     pie_chat: "Cada turno demora minutos num telemóvel. Não está pendurado.",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
     pie_captura: "Um turno captado não é um turno consentido. Nada entra num treino até o marcares tu, um a um, e pode ser retirado.",
-    aria_inicio: "Ir para a página inicial", aria_redaccion: "Rasura", redaccion_on: "Rasura ativa",
+    aria_inicio: "Mostrar ou ocultar o painel PreceptorOS", aria_redaccion: "Rasura", redaccion_on: "Rasura ativa",
     redaccion_off: "Rasura desligada", sin_medir: "sem medir",
     texto_comprobar: "Texto a verificar",
     ph_prueba: "Cola aqui o que quiseres verificar antes de sair…",
@@ -221,7 +221,7 @@ const textos = {
     pie_chat: "Ogni turno richiede minuti su un telefono. Non si è bloccato.",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
     pie_captura: "Un turno catturato non è un turno acconsentito. Niente entra in un addestramento finché non lo segni tu, uno alla volta, e si può ritirare.",
-    aria_inicio: "Vai alla pagina iniziale", aria_redaccion: "Oscuramento", redaccion_on: "Oscuramento attivo",
+    aria_inicio: "Mostra o nascondi il pannello PreceptorOS", aria_redaccion: "Oscuramento", redaccion_on: "Oscuramento attivo",
     redaccion_off: "Oscuramento spento", sin_medir: "non misurato",
     texto_comprobar: "Testo da verificare",
     ph_prueba: "Incolla qui quello che vuoi verificare prima che esca…",
@@ -268,7 +268,7 @@ const textos = {
     pie_chat: "Jede Runde dauert auf einem Telefon Minuten. Es hängt nicht.",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
     pie_captura: "Eine erfasste Runde ist keine eingewilligte Runde. Nichts geht in ein Training, bis du es selbst markierst, eine nach der anderen, und es lässt sich zurückziehen.",
-    aria_inicio: "Zur Startseite", aria_redaccion: "Schwärzung", redaccion_on: "Schwärzung an",
+    aria_inicio: "PreceptorOS-Panel ein- oder ausblenden", aria_redaccion: "Schwärzung", redaccion_on: "Schwärzung an",
     redaccion_off: "Schwärzung aus", sin_medir: "nicht gemessen",
     texto_comprobar: "Zu prüfender Text",
     ph_prueba: "Füge hier ein, was du prüfen willst, bevor es rausgeht…",
@@ -315,7 +315,7 @@ const textos = {
     pie_chat: "На телефоне каждый ход занимает минуты. Оно не зависло.",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
     pie_captura: "Записанный ход — не то же, что ход с согласием. Ничто не попадает в обучение, пока ты сам не отметишь его, по одному, и это можно отозвать.",
-    aria_inicio: "На главную", aria_redaccion: "Вычёркивание", redaccion_on: "Вычёркивание включено",
+    aria_inicio: "Показать или скрыть панель PreceptorOS", aria_redaccion: "Вычёркивание", redaccion_on: "Вычёркивание включено",
     redaccion_off: "Вычёркивание выключено", sin_medir: "не измерено",
     texto_comprobar: "Текст для проверки",
     ph_prueba: "Вставь сюда то, что хочешь проверить, прежде чем оно уйдёт…",
@@ -362,7 +362,7 @@ const textos = {
     pie_chat: "Κάθε γύρος παίρνει λεπτά σε ένα τηλέφωνο. Δεν έχει κολλήσει.",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
     pie_captura: "Ένας γύρος που καταγράφηκε δεν είναι γύρος με συναίνεση. Τίποτα δεν μπαίνει σε εκπαίδευση μέχρι να το σημειώσεις εσύ, έναν έναν, και μπορεί να αποσυρθεί.",
-    aria_inicio: "Στην αρχική σελίδα", aria_redaccion: "Σβήσιμο", redaccion_on: "Σβήσιμο ενεργό",
+    aria_inicio: "Εμφάνιση ή απόκρυψη του πίνακα PreceptorOS", aria_redaccion: "Σβήσιμο", redaccion_on: "Σβήσιμο ενεργό",
     redaccion_off: "Σβήσιμο ανενεργό", sin_medir: "χωρίς μέτρηση",
     texto_comprobar: "Κείμενο για έλεγχο",
     ph_prueba: "Επικόλλησε εδώ ό,τι θέλεις να ελεγχθεί πριν φύγει…",
@@ -408,7 +408,7 @@ const textos = {
     pie_chat: "كل دور يستغرق دقائق على الهاتف. لم يتجمّد.",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
     pie_captura: "الدور الملتقط ليس دورًا موافَقًا عليه. لا شيء يدخل تدريبًا حتى تعلّمه أنت، واحدًا تلو الآخر، ويمكن سحبه.",
-    aria_inicio: "اذهب إلى الصفحة الرئيسية", aria_redaccion: "الحجب", redaccion_on: "الحجب مفعّل",
+    aria_inicio: "إظهار لوحة PreceptorOS أو إخفاؤها", aria_redaccion: "الحجب", redaccion_on: "الحجب مفعّل",
     redaccion_off: "الحجب متوقف", sin_medir: "غير مقيس",
     texto_comprobar: "نص للتحقق",
     ph_prueba: "الصق هنا ما تريد التحقق منه قبل أن يخرج…",
@@ -460,7 +460,13 @@ window.PreceptorNodeBuildingText = (key, values = {}) => {
 function pintarEstaticos() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const v = t[el.dataset.i18n];
-    if (typeof v === "string") el.textContent = v;
+    if (typeof v === "string") {
+      el.textContent = v;
+      if (el.matches(".pestanas [role=tab]")) {
+        el.title = v;
+        el.setAttribute("aria-label", v);
+      }
+    }
   });
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
     const v = t[el.dataset.i18nPh];
@@ -547,15 +553,18 @@ document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
     }
   });
 });
-$("ir-inicio").addEventListener("click", () => mostrar(0, { enfocar: true }));
+$("ir-inicio").addEventListener("click", () => {
+  const cerrado = document.body.classList.toggle("panel-cerrado");
+  $("ir-inicio").setAttribute("aria-expanded", String(!cerrado));
+});
 /* Rutas profundas (decreto interfaz unica, 2026-11-06): /app#tab-<zona>
  * abre esa zona. El hash nombra una zona del catalogo de zonas.js; si
- * nombra otra cosa, manda mando. La interfaz no inventa zonas: solo
+ * nombra otra cosa, abre el chat. La interfaz no inventa zonas: solo
  * obedece a las declaradas. */
 const zonaPorHash = () => {
   const pedida = decodeURIComponent(location.hash).replace(/^#tab-/, "");
   const i = paneles.findIndex((z) => z.id === pedida);
-  return i >= 0 ? i : 0;
+  return i >= 0 ? i : paneles.findIndex((zona) => zona.id === "conversacion");
 };
 mostrar(zonaPorHash());
 addEventListener("hashchange", () => mostrar(zonaPorHash()));
