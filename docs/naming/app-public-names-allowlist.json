@@ -66,7 +66,9 @@
     "/hexelion.css": "interface/hexelion.css",
     "/hexelion.html": "interface/hexelion.html",
     "/hexelion.js": "interface/hexelion.js",
+    "/insertor.js": "interface/insertor.js",
     "/install.js": "interface/install.js",
+    "/keep_device.js": "interface/keep_device.js",
     "/llms.txt": "llms.txt",
     "/manifest.json": "interface/manifest.json",
     "/modelos_web.js": "interface/modelos_web.js",
@@ -76,8 +78,7 @@
     "/sting.js": "interface/sting.js",
     "/sw.js": "interface/sw.js",
     "/transicion.js": "interface/transicion.js",
-    "/zonas.js": "interface/zonas.js",
-    "/insertor.js": "interface/insertor.js"
+    "/zonas.js": "interface/zonas.js"
   },
   "api_routes": [
     "/api/anidar",
@@ -164,6 +165,8 @@
       "ID canónico del nodo (flota/2)",
       "Identidad del nodo",
       "Identidad local y edificio del nodo",
+      "Keep it",
+      "Keep this app on this device",
       "Lab",
       "Leer bandeja local",
       "Leer identidad local",

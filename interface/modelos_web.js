@@ -82,7 +82,7 @@
       try {
         const response = await fetcher(url_mundo, {
           method: "GET", mode: "no-cors", credentials: "omit", cache: "no-store",
-          redirect: "error", signal: controller.signal,
+          redirect: "follow", signal: controller.signal, // no-cors requires follow (Fetch standard); the frame URL stays fixed
         });
         if (probeTimer !== null) win.clearTimeout(probeTimer);
         probeTimer = null;
