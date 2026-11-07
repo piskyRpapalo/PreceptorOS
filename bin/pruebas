@@ -205,6 +205,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # Local synthetic account coverage; no key generation or persistence.
           test_voz_lectura
           test_visita_web
+          test_rendimiento_vista
           test_cuenta_cangrejo
           test_prueba_edificio
           # test_nodo_export: la salida requiere cédula ya firmada y gesto
