@@ -191,21 +191,6 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   .barra, .pestanas, .panel { max-width: 44rem; margin-inline: auto; width: 100%; }
 }
 
-/* --- control textual del panel ------------------------------------------ */
-.barra .control-panel {
-  display: inline-flex; align-items: center; justify-content: center;
-  flex: 0 0 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px;
-  margin: 0; padding: 0; font: inherit; font-size: 1.2rem; line-height: 1;
-  color: var(--ink); border: 1px solid var(--line);
-  border-radius: var(--radio); background: var(--paper); cursor: pointer;
-}
-.barra .control-panel:hover, .barra .control-panel:focus-visible {
-  background: var(--acento-tenue); border-color: var(--acento);
-}
-.barra .control-panel:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
-.barra .control-panel::before { content: "☰"; }
-body.panel-cerrado .pestanas, body.panel-cerrado .carril { display: none; }
-
 /* --- la aduana con salida ------------------------------------------------
    El bloque que convierte la frontera en un paso y no en un espejo. Estaba
    todo hecho menos esto: se comprobaba el texto, se enseñaba lo que se iba a

@@ -26,10 +26,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
     tab_modelos: "Modelos", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
-    pie_chat: "Cada turno tarda minutos en un teléfono. No es que se haya colgado.",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
     pie_captura: "Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.",
-    aria_inicio: "Ir a la portada", aria_panel: "Mostrar u ocultar paneles", aria_redaccion: "Redacción", redaccion_on: "Redacción activa",
+    aria_inicio: "Ir a la portada", aria_redaccion: "Redacción", redaccion_on: "Redacción activa",
     redaccion_off: "Redacción apagada", sin_medir: "sin medir",
     texto_comprobar: "Texto a comprobar",
     ph_prueba: "Pega aquí lo que quieras comprobar antes de que salga…",
@@ -52,7 +51,7 @@ const textos = {
     anidado: "Anidado. Vive en tu memoria, en esta máquina.",
     anidar_no: "no se pudo anidar",
     pie_anidar: "Se guarda el texto tachado, nunca el que pegaste. El filtro vuelve a correr en el servidor al guardar: esta pantalla no decide qué está limpio.",
-    chat_sin_respuesta: (edad) => "El orquestador local no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_listo: "Orquestador local preparado.",
+    chat_sin_respuesta: (edad) => "Hexelion no respondió. Última respuesta: {edad}.".replace("{edad}", edad), chat_edad_nd: "antigüedad no disponible", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Canales recientes", lab_modelos_titulo: "Modelos locales", lab_cargando: "Consultando el Lab local…", lab_actualizado: "Lectura actualizada.", lab_error: "No se pudo leer el Lab local.", lab_estado_live: "Disponible ahora", lab_estado_stale: "Dato antiguo", lab_estado_ausente: "No está disponible", lab_mensaje_vacio: "Mensaje sin texto", lab_causa_vacia: "Sin causa declarada", lab_mini: "Orquestador mini", lab_grande: "Orquestador grande", lab_eleccion: "Modelo de elección",
     aria_frontera: "Frontera del nodo",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sin consentir", cuaderno_recibo_pendiente: "Sin cambios recientes", cuaderno_recibo_ok: "Recibo recibido: turno {id}, {estado}.", cuaderno_recibo_error: "No se pudo cambiar este turno.", cuaderno_recibo_red: "No llegó el recibo; no hay cambios confirmados.", cuaderno_sin_texto: "Texto de turno no disponible", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corregidos",
@@ -73,10 +72,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
     tab_modelos: "Models", tab_ajustes: "Settings", zona_no_data: "No data: content for this zone has not been declared.", zona_activa: "Active zone:",
     ph_dicho: "Write your answer…", dilo: "Say it",
-    pie_chat: "Each turn takes minutes on a phone. It has not frozen.",
     pie_hallazgos: "What you see above is never the text that was found: class and count, nothing else. The numbers come from the payload — this interface does not count.",
     pie_captura: "A captured turn is not a consented turn. Nothing enters training until you mark it yourself, one at a time, and it can be withdrawn.",
-    aria_inicio: "Go to the front page", aria_panel: "Show or hide panels", aria_redaccion: "Redaction", redaccion_on: "Redaction on",
+    aria_inicio: "Go to the front page", aria_redaccion: "Redaction", redaccion_on: "Redaction on",
     redaccion_off: "Redaction off", sin_medir: "not measured",
     texto_comprobar: "Text to check",
     ph_prueba: "Paste here whatever you want checked before it leaves…",
@@ -99,7 +97,7 @@ const textos = {
     anidado: "Nested. It lives in your memory, on this machine.",
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
-    chat_sin_respuesta: (edad) => "The local orchestrator did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_listo: "Local orchestrator ready.",
+    chat_sin_respuesta: (edad) => "Hexelion did not reply. Last reply: {edad}.".replace("{edad}", edad), chat_edad_nd: "age unavailable", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
@@ -123,10 +121,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
     tab_modelos: "Modèles", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
-    pie_chat: "Chaque tour prend des minutes sur un téléphone. Ce n'est pas bloqué.",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
     pie_captura: "Un tour capturé n'est pas un tour consenti. Rien n'entre dans un entraînement tant que tu ne le marques pas toi-même, un par un, et on peut le retirer.",
-    aria_inicio: "Aller à la page d'accueil", aria_panel: "Afficher ou masquer les panneaux", aria_redaccion: "Caviardage", redaccion_on: "Caviardage actif",
+    aria_inicio: "Aller à la page d'accueil", aria_redaccion: "Caviardage", redaccion_on: "Caviardage actif",
     redaccion_off: "Caviardage coupé", sin_medir: "non mesuré",
     texto_comprobar: "Texte à vérifier",
     ph_prueba: "Colle ici ce que tu veux vérifier avant que ça parte…",
@@ -149,7 +146,7 @@ const textos = {
     anidado: "Niché. Ça vit dans ta mémoire, sur cette machine.",
     anidar_no: "impossible de nicher",
     pie_anidar: "Ce qui est enregistré est le texte caviardé, jamais celui que tu as collé. Le filtre repasse sur le serveur à l'enregistrement : cet écran ne décide pas de ce qui est propre.",
-    chat_sin_respuesta: (edad) => "L’orchestrateur local n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_listo: "Orchestrateur local prêt.",
+    chat_sin_respuesta: (edad) => "Hexelion n’a pas répondu. Dernière réponse : {edad}.".replace("{edad}", edad), chat_edad_nd: "âge indisponible", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Canaux récents", lab_modelos_titulo: "Modèles locaux", lab_cargando: "Lecture du Lab local…", lab_actualizado: "Lecture actualisée.", lab_error: "Lecture du Lab local impossible.", lab_estado_live: "Disponible maintenant", lab_estado_stale: "Donnée ancienne", lab_estado_ausente: "Indisponible", lab_mensaje_vacio: "Message sans texte", lab_causa_vacia: "Aucune cause déclarée", lab_mini: "Orchestrateur mini", lab_grande: "Orchestrateur grand", lab_eleccion: "Modèle de sélection",
     aria_frontera: "Frontière du nœud",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirer", cuaderno_consentido: "Consentement donné", cuaderno_sin_consentir: "Sans consentement", cuaderno_recibo_pendiente: "Aucun changement récent", cuaderno_recibo_ok: "Reçu reçu : tour {id}, {estado}.", cuaderno_recibo_error: "Impossible de modifier ce tour.", cuaderno_recibo_red: "Aucun reçu reçu ; aucun changement confirmé.", cuaderno_sin_texto: "Texte du tour indisponible", cuaderno_recuento: "{t} tours · {c} consentis · {r} corrigés",
@@ -171,10 +168,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
     tab_modelos: "Modelos", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
-    pie_chat: "Cada turno demora minutos num telemóvel. Não está pendurado.",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
     pie_captura: "Um turno captado não é um turno consentido. Nada entra num treino até o marcares tu, um a um, e pode ser retirado.",
-    aria_inicio: "Ir para a página inicial", aria_panel: "Mostrar ou ocultar painéis", aria_redaccion: "Rasura", redaccion_on: "Rasura ativa",
+    aria_inicio: "Ir para a página inicial", aria_redaccion: "Rasura", redaccion_on: "Rasura ativa",
     redaccion_off: "Rasura desligada", sin_medir: "sem medir",
     texto_comprobar: "Texto a verificar",
     ph_prueba: "Cola aqui o que quiseres verificar antes de sair…",
@@ -197,7 +193,7 @@ const textos = {
     anidado: "Aninhado. Vive na tua memória, nesta máquina.",
     anidar_no: "não consegui aninhar",
     pie_anidar: "O que se guarda é o texto rasurado, nunca o que colaste. O filtro volta a correr no servidor ao guardar: este ecrã não decide o que está limpo.",
-    chat_sin_respuesta: (edad) => "O orquestrador local não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_listo: "Orquestrador local pronto.",
+    chat_sin_respuesta: (edad) => "Hexelion não respondeu. Última resposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "idade indisponível", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Canais recentes", lab_modelos_titulo: "Modelos locais", lab_cargando: "A consultar o Lab local…", lab_actualizado: "Leitura atualizada.", lab_error: "Não foi possível ler o Lab local.", lab_estado_live: "Disponível agora", lab_estado_stale: "Dado antigo", lab_estado_ausente: "Indisponível", lab_mensaje_vacio: "Mensagem sem texto", lab_causa_vacia: "Sem causa declarada", lab_mini: "Orquestrador mini", lab_grande: "Orquestrador grande", lab_eleccion: "Modelo de escolha",
     aria_frontera: "Fronteira do nó",
     cuaderno_consentir: "Consentir", cuaderno_retirar: "Retirar", cuaderno_consentido: "Consentido", cuaderno_sin_consentir: "Sem consentimento", cuaderno_recibo_pendiente: "Sem alterações recentes", cuaderno_recibo_ok: "Recibo recebido: turno {id}, {estado}.", cuaderno_recibo_error: "Não foi possível alterar este turno.", cuaderno_recibo_red: "O recibo não chegou; não há alterações confirmadas.", cuaderno_sin_texto: "Texto do turno indisponível", cuaderno_recuento: "{t} turnos · {c} consentidos · {r} corrigidos",
@@ -218,10 +214,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
     tab_modelos: "Modelli", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
-    pie_chat: "Ogni turno richiede minuti su un telefono. Non si è bloccato.",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
     pie_captura: "Un turno catturato non è un turno acconsentito. Niente entra in un addestramento finché non lo segni tu, uno alla volta, e si può ritirare.",
-    aria_inicio: "Vai alla pagina iniziale", aria_panel: "Mostra o nascondi i pannelli", aria_redaccion: "Oscuramento", redaccion_on: "Oscuramento attivo",
+    aria_inicio: "Vai alla pagina iniziale", aria_redaccion: "Oscuramento", redaccion_on: "Oscuramento attivo",
     redaccion_off: "Oscuramento spento", sin_medir: "non misurato",
     texto_comprobar: "Testo da verificare",
     ph_prueba: "Incolla qui quello che vuoi verificare prima che esca…",
@@ -244,7 +239,7 @@ const textos = {
     anidado: "Annidato. Vive nella tua memoria, su questa macchina.",
     anidar_no: "impossibile annidare",
     pie_anidar: "Si salva il testo oscurato, mai quello che hai incollato. Il filtro ripassa sul server al salvataggio: questo schermo non decide cosa è pulito.",
-    chat_sin_respuesta: (edad) => "L’orchestratore locale non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_listo: "Orchestratore locale pronto.",
+    chat_sin_respuesta: (edad) => "Hexelion non ha risposto. Ultima risposta: {edad}.".replace("{edad}", edad), chat_edad_nd: "età non disponibile", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Canali recenti", lab_modelos_titulo: "Modelli locali", lab_cargando: "Lettura del Lab locale…", lab_actualizado: "Lettura aggiornata.", lab_error: "Impossibile leggere il Lab locale.", lab_estado_live: "Disponibile ora", lab_estado_stale: "Dato non aggiornato", lab_estado_ausente: "Non disponibile", lab_mensaje_vacio: "Messaggio senza testo", lab_causa_vacia: "Nessuna causa dichiarata", lab_mini: "Orchestratore mini", lab_grande: "Orchestratore grande", lab_eleccion: "Modello di scelta",
     aria_frontera: "Frontiera del nodo",
     cuaderno_consentir: "Consenti", cuaderno_retirar: "Ritira", cuaderno_consentido: "Consenziente", cuaderno_sin_consentir: "Senza consenso", cuaderno_recibo_pendiente: "Nessuna modifica recente", cuaderno_recibo_ok: "Ricevuta ricevuta: turno {id}, {estado}.", cuaderno_recibo_error: "Impossibile modificare questo turno.", cuaderno_recibo_red: "Ricevuta non arrivata; nessuna modifica confermata.", cuaderno_sin_texto: "Testo del turno non disponibile", cuaderno_recuento: "{t} turni · {c} consentiti · {r} corretti",
@@ -265,10 +260,9 @@ const textos = {
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
     tab_modelos: "Modelle", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
-    pie_chat: "Jede Runde dauert auf einem Telefon Minuten. Es hängt nicht.",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
     pie_captura: "Eine erfasste Runde ist keine eingewilligte Runde. Nichts geht in ein Training, bis du es selbst markierst, eine nach der anderen, und es lässt sich zurückziehen.",
-    aria_inicio: "Zur Startseite", aria_panel: "Bereiche ein- oder ausblenden", aria_redaccion: "Schwärzung", redaccion_on: "Schwärzung an",
+    aria_inicio: "Zur Startseite", aria_redaccion: "Schwärzung", redaccion_on: "Schwärzung an",
     redaccion_off: "Schwärzung aus", sin_medir: "nicht gemessen",
     texto_comprobar: "Zu prüfender Text",
     ph_prueba: "Füge hier ein, was du prüfen willst, bevor es rausgeht…",
@@ -291,7 +285,7 @@ const textos = {
     anidado: "Abgelegt. Es lebt in deinem Gedächtnis, auf dieser Maschine.",
     anidar_no: "konnte nicht ablegen",
     pie_anidar: "Gespeichert wird der geschwärzte Text, nie der, den du eingefügt hast. Der Filter läuft beim Speichern noch einmal auf dem Server: dieser Bildschirm entscheidet nicht, was sauber ist.",
-    chat_sin_respuesta: (edad) => "Der lokale Orchestrator hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_listo: "Lokaler Orchestrator bereit.",
+    chat_sin_respuesta: (edad) => "Hexelion hat nicht geantwortet. Letzte Antwort: {edad}.".replace("{edad}", edad), chat_edad_nd: "Alter nicht verfügbar", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Neueste Kanäle", lab_modelos_titulo: "Lokale Modelle", lab_cargando: "Lokales Lab wird gelesen…", lab_actualizado: "Lesung aktualisiert.", lab_error: "Lokales Lab konnte nicht gelesen werden.", lab_estado_live: "Jetzt verfügbar", lab_estado_stale: "Veraltete Daten", lab_estado_ausente: "Nicht verfügbar", lab_mensaje_vacio: "Nachricht ohne Text", lab_causa_vacia: "Keine Ursache angegeben", lab_mini: "Mini-Orchestrator", lab_grande: "Großer Orchestrator", lab_eleccion: "Auswahlmodell",
     aria_frontera: "Knotengrenze",
     cuaderno_consentir: "Einwilligen", cuaderno_retirar: "Zurückziehen", cuaderno_consentido: "Einwilligung erteilt", cuaderno_sin_consentir: "Keine Einwilligung", cuaderno_recibo_pendiente: "Keine neuen Änderungen", cuaderno_recibo_ok: "Beleg erhalten: Runde {id}, {estado}.", cuaderno_recibo_error: "Diese Runde konnte nicht geändert werden.", cuaderno_recibo_red: "Kein Beleg erhalten; keine Änderung bestätigt.", cuaderno_sin_texto: "Rundentext nicht verfügbar", cuaderno_recuento: "{t} Runden · {c} eingewilligt · {r} korrigiert",
@@ -312,10 +306,9 @@ const textos = {
     tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
     tab_modelos: "Модели", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
-    pie_chat: "На телефоне каждый ход занимает минуты. Оно не зависло.",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
     pie_captura: "Записанный ход — не то же, что ход с согласием. Ничто не попадает в обучение, пока ты сам не отметишь его, по одному, и это можно отозвать.",
-    aria_inicio: "На главную", aria_panel: "Показать или скрыть панели", aria_redaccion: "Вычёркивание", redaccion_on: "Вычёркивание включено",
+    aria_inicio: "На главную", aria_redaccion: "Вычёркивание", redaccion_on: "Вычёркивание включено",
     redaccion_off: "Вычёркивание выключено", sin_medir: "не измерено",
     texto_comprobar: "Текст для проверки",
     ph_prueba: "Вставь сюда то, что хочешь проверить, прежде чем оно уйдёт…",
@@ -338,7 +331,7 @@ const textos = {
     anidado: "Сохранено. Это живёт в твоей памяти, на этой машине.",
     anidar_no: "не удалось сохранить",
     pie_anidar: "Сохраняется вычеркнутый текст, а не тот, что ты вставил. При сохранении фильтр снова проходит на сервере: этот экран не решает, что чисто.",
-    chat_sin_respuesta: (edad) => "Локальный оркестратор не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_listo: "Локальный оркестратор готов.",
+    chat_sin_respuesta: (edad) => "Hexelion не ответил. Последний ответ: {edad}.".replace("{edad}", edad), chat_edad_nd: "возраст недоступен", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Последние каналы", lab_modelos_titulo: "Локальные модели", lab_cargando: "Чтение локальной лаборатории…", lab_actualizado: "Данные обновлены.", lab_error: "Не удалось прочитать локальную лабораторию.", lab_estado_live: "Сейчас доступно", lab_estado_stale: "Устаревшие данные", lab_estado_ausente: "Недоступно", lab_mensaje_vacio: "В сообщении нет текста", lab_causa_vacia: "Причина не указана", lab_mini: "Мини-оркестратор", lab_grande: "Большой оркестратор", lab_eleccion: "Модель выбора",
     aria_frontera: "Граница узла",
     cuaderno_consentir: "Согласиться", cuaderno_retirar: "Отозвать", cuaderno_consentido: "Согласие дано", cuaderno_sin_consentir: "Без согласия", cuaderno_recibo_pendiente: "Недавних изменений нет", cuaderno_recibo_ok: "Получена квитанция: ход {id}, {estado}.", cuaderno_recibo_error: "Не удалось изменить этот ход.", cuaderno_recibo_red: "Квитанция не получена; изменения не подтверждены.", cuaderno_sin_texto: "Текст хода недоступен", cuaderno_recuento: "{t} ходов · согласие: {c} · исправлено: {r}",
@@ -359,10 +352,9 @@ const textos = {
     tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
     tab_modelos: "Μοντέλα", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
-    pie_chat: "Κάθε γύρος παίρνει λεπτά σε ένα τηλέφωνο. Δεν έχει κολλήσει.",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
     pie_captura: "Ένας γύρος που καταγράφηκε δεν είναι γύρος με συναίνεση. Τίποτα δεν μπαίνει σε εκπαίδευση μέχρι να το σημειώσεις εσύ, έναν έναν, και μπορεί να αποσυρθεί.",
-    aria_inicio: "Στην αρχική σελίδα", aria_panel: "Εμφάνιση ή απόκρυψη των πινάκων", aria_redaccion: "Σβήσιμο", redaccion_on: "Σβήσιμο ενεργό",
+    aria_inicio: "Στην αρχική σελίδα", aria_redaccion: "Σβήσιμο", redaccion_on: "Σβήσιμο ενεργό",
     redaccion_off: "Σβήσιμο ανενεργό", sin_medir: "χωρίς μέτρηση",
     texto_comprobar: "Κείμενο για έλεγχο",
     ph_prueba: "Επικόλλησε εδώ ό,τι θέλεις να ελεγχθεί πριν φύγει…",
@@ -385,7 +377,7 @@ const textos = {
     anidado: "Φωλιάστηκε. Ζει στη μνήμη σου, σε αυτό το μηχάνημα.",
     anidar_no: "δεν ήταν δυνατό το φώλιασμα",
     pie_anidar: "Αποθηκεύεται το σβησμένο κείμενο, ποτέ αυτό που επικόλλησες. Το φίλτρο ξανατρέχει στον διακομιστή κατά την αποθήκευση: αυτή η οθόνη δεν αποφασίζει τι είναι καθαρό.",
-    chat_sin_respuesta: (edad) => "Ο τοπικός ενορχηστρωτής δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_listo: "Ο τοπικός ενορχηστρωτής είναι έτοιμος.",
+    chat_sin_respuesta: (edad) => "Το Hexelion δεν απάντησε. Τελευταία απάντηση: {edad}.".replace("{edad}", edad), chat_edad_nd: "η ηλικία δεν είναι διαθέσιμη", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "Πρόσφατα κανάλια", lab_modelos_titulo: "Τοπικά μοντέλα", lab_cargando: "Έλεγχος του τοπικού Lab…", lab_actualizado: "Η ανάγνωση ενημερώθηκε.", lab_error: "Δεν ήταν δυνατή η ανάγνωση του τοπικού Lab.", lab_estado_live: "Διαθέσιμο τώρα", lab_estado_stale: "Παλιό δεδομένο", lab_estado_ausente: "Μη διαθέσιμο", lab_mensaje_vacio: "Μήνυμα χωρίς κείμενο", lab_causa_vacia: "Δεν δηλώθηκε αιτία", lab_mini: "Μικρός ενορχηστρωτής", lab_grande: "Μεγάλος ενορχηστρωτής", lab_eleccion: "Μοντέλο επιλογής",
     aria_frontera: "Όριο κόμβου",
     cuaderno_consentir: "Συγκατάθεση", cuaderno_retirar: "Ανάκληση", cuaderno_consentido: "Με συγκατάθεση", cuaderno_sin_consentir: "Χωρίς συγκατάθεση", cuaderno_recibo_pendiente: "Δεν υπάρχουν πρόσφατες αλλαγές", cuaderno_recibo_ok: "Λήφθηκε απόδειξη: γύρος {id}, {estado}.", cuaderno_recibo_error: "Δεν ήταν δυνατή η αλλαγή αυτού του γύρου.", cuaderno_recibo_red: "Δεν ήρθε απόδειξη· δεν επιβεβαιώνεται αλλαγή.", cuaderno_sin_texto: "Το κείμενο του γύρου δεν είναι διαθέσιμο", cuaderno_recuento: "{t} γύροι · {c} με συγκατάθεση · {r} διορθωμένοι",
@@ -405,10 +397,9 @@ const textos = {
     tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
     tab_modelos: "النماذج", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
-    pie_chat: "كل دور يستغرق دقائق على الهاتف. لم يتجمّد.",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
     pie_captura: "الدور الملتقط ليس دورًا موافَقًا عليه. لا شيء يدخل تدريبًا حتى تعلّمه أنت، واحدًا تلو الآخر، ويمكن سحبه.",
-    aria_inicio: "اذهب إلى الصفحة الرئيسية", aria_panel: "إظهار اللوحات أو إخفاؤها", aria_redaccion: "الحجب", redaccion_on: "الحجب مفعّل",
+    aria_inicio: "اذهب إلى الصفحة الرئيسية", aria_redaccion: "الحجب", redaccion_on: "الحجب مفعّل",
     redaccion_off: "الحجب متوقف", sin_medir: "غير مقيس",
     texto_comprobar: "نص للتحقق",
     ph_prueba: "الصق هنا ما تريد التحقق منه قبل أن يخرج…",
@@ -431,7 +422,7 @@ const textos = {
     anidado: "حُفظ. يعيش في ذاكرتك، على هذا الجهاز.",
     anidar_no: "تعذّر الحفظ",
     pie_anidar: "ما يُحفظ هو النص المحجوب، لا الذي لصقته أبدًا. يعود المرشّح إلى العمل على الخادم عند الحفظ: هذه الشاشة لا تقرّر ما هو نظيف.",
-    chat_sin_respuesta: (edad) => "لم يستجب المنسق المحلي. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_listo: "المنسق المحلي جاهز.",
+    chat_sin_respuesta: (edad) => "لم يستجب Hexelion. آخر رد: {edad}.".replace("{edad}", edad), chat_edad_nd: "العمر غير متاح", chat_modelo: (modelo) => `Hexelion · ${modelo}`,
     lab_canales_titulo: "القنوات الأخيرة", lab_modelos_titulo: "النماذج المحلية", lab_cargando: "جارٍ فحص المختبر المحلي…", lab_actualizado: "تم تحديث القراءة.", lab_error: "تعذرت قراءة المختبر المحلي.", lab_estado_live: "متاح الآن", lab_estado_stale: "بيانات قديمة", lab_estado_ausente: "غير متاح", lab_mensaje_vacio: "رسالة بلا نص", lab_causa_vacia: "لم يُذكر سبب", lab_mini: "المنسق المصغر", lab_grande: "المنسق الكبير", lab_eleccion: "نموذج الاختيار",
     aria_frontera: "حدود العقدة",
     cuaderno_consentir: "موافقة", cuaderno_retirar: "سحب", cuaderno_consentido: "تمت الموافقة", cuaderno_sin_consentir: "بلا موافقة", cuaderno_recibo_pendiente: "لا تغييرات حديثة", cuaderno_recibo_ok: "وصل الإيصال: الدور {id}، {estado}.", cuaderno_recibo_error: "تعذر تغيير هذا الدور.", cuaderno_recibo_red: "لم يصل الإيصال؛ لا يوجد تغيير مؤكد.", cuaderno_sin_texto: "نص الدور غير متاح", cuaderno_recuento: "{t} أدوار · {c} بموافقة · {r} مصححة",
@@ -552,10 +543,6 @@ document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
       mostrar(siguiente, { enfocar: true });
     }
   });
-});
-$("toggle-panel").addEventListener("click", () => {
-  const cerrado = document.body.classList.toggle("panel-cerrado");
-  $("toggle-panel").setAttribute("aria-expanded", String(!cerrado));
 });
 /* Rutas profundas (decreto interfaz unica, 2026-11-06): /app#tab-<zona>
  * abre esa zona. El hash nombra una zona del catalogo de zonas.js; si
@@ -800,14 +787,17 @@ $("form-chat").addEventListener("submit", async (e) => {
     const respuesta = d.respuesta;
     if (r.ok && respuesta && respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65) && respuesta.texto) {
       burbuja(respuesta.texto);
-      $("estado-chat-lab").textContent = t.chat_listo;
+      const maquina = respuesta.maquina;
+      const modelo = maquina && typeof maquina.modelo === "string" && maquina.modelo.trim()
+        ? maquina.modelo.trim() : null;
+      $("estado").textContent = modelo ? t.chat_modelo(modelo) : t.chat_sin_respuesta(t.chat_edad_nd);
     } else {
       const edad = await edadUltimaRespuestaLab();
-      $("estado-chat-lab").textContent = t.chat_sin_respuesta(edad);
+      $("estado").textContent = t.chat_sin_respuesta(edad);
     }
   } catch {
     esperando.remove();
-    $("estado-chat-lab").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
+    $("estado").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
   }
   $("enviar").disabled = false;
 });

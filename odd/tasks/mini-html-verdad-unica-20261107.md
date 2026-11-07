@@ -46,10 +46,16 @@ respuesta.
 
 ## Cambio T3 en esta propuesta
 
-Se quita `span.rostro-preceptor` y su fondo pixel art del cabecero. `#toggle-panel`
-conserva el gesto de plegar/restaurar las zonas y anuncia `aria-expanded`. El
-botón no es redondo y no usa la imagen del preceptor. `transicion.js` sigue
-enlazado y su llamada desde `mostrar()` no se modifica.
+Se quitan `span.rostro-preceptor`, su fondo pixel art y `#toggle-panel` del
+cabecero. El botón de panel solo plegaba la navegación y el carril; no instala
+ni cierra la app, así que también se retiran su comportamiento y estilo.
+`transicion.js` sigue enlazado y su llamada desde `mostrar()` no se modifica.
+
+Seguimiento de la petición del 2026-11-07: se elimina del panel Hablar el texto
+de espera sobre teléfonos y el estado prematuro «Local orchestrator ready».
+Tras una respuesta, el cabecero muestra el modelo que el servidor incluyó en
+`respuesta.maquina.modelo`; si falta o falla la respuesta, muestra el estado
+de ausencia allí. El modelo solo se anuncia a partir de ese campo medido.
 
 El botón de instalar/añadir la PWA es otra función: la controlan el manifiesto y
 `install.js`; esta cura no altera esa ruta. Tampoco hace que la cabeza pixel
@@ -58,10 +64,10 @@ permanezca visible fuera de la ventana.
 ## Medición de esta edición
 
 Chromium local, ventana de app, cliente medido de 420 × 640: Hablar y el
-compositor están visibles; `#toggle-panel` aparece como control compacto sin
-`rostro-preceptor`; `PreceptorTransicion` está cargado. Hay nueve pestañas y la
-barra tiene desplazamiento horizontal: ocho iconos aparecen en el primer marco;
-el noveno requiere desplazar la barra. Captura local:
+compositor están visibles, sin esfera ni botón de plegado; `PreceptorTransicion`
+está cargado. Hay nueve pestañas y la barra tiene desplazamiento horizontal:
+ocho iconos aparecen en el primer marco; el noveno requiere desplazar la barra.
+Captura local:
 `/tmp/preceptoros-remove-face-20261107.png`.
 
 La prueba de conexión hecha en la sesión anterior devolvió
