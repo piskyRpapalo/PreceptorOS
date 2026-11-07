@@ -1352,6 +1352,7 @@ class HexelionStationContract(unittest.TestCase):
         self.assertEqual(sent["think"], "low")
         self.assertIs(sent["stream"], False)
         self.assertEqual(sent["model"], "hexelion:latest")
+        self.assertEqual(sent["options"]["num_predict"], 512)
 
     def test_estacion_caida_no_entrega_placeholder(self):
         import hexelion_proxy

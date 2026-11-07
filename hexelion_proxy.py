@@ -93,7 +93,7 @@ def ask(text, *, endpoint=None, opener=None, clock=time.monotonic):
             return {"estado": "NO_DATA", "causa": "station_model_unavailable"}
 
         payload = json.dumps({"model": MODEL, "prompt": text, "stream": False,
-                              "think": "low", "options": {"num_predict": 160}},
+                              "think": "low", "options": {"num_predict": 512}},
                              ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         req = urllib.request.Request(base + "/api/generate", data=payload,
                                      headers={"Content-Type": "application/json",
