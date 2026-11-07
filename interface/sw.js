@@ -65,10 +65,13 @@
 // v136 (2026-11-07): remove panel collapse control and chat helper copy;
 // report the measured reply model in the header.
 // v137 (2026-11-07): anchored conversation composer and verified Hexelion chat.
-const Cache = "preceptoros-armazon-v137";
+// v138 (2026-11-07): lazy OpenWorld panel and accessible model catalogue.
+// v139 (2026-11-07): global composer, panel-tag routing, temporary local help.
+// v140 (2026-11-07): puerta al Lab local, consultada al abrir su panel.
+const Cache = "preceptoros-armazon-v140";
 const Armazon = ["/install.js", "/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/assets/preceptoros-up.png", "/native_voice.js", "/hexelion.html", "/hexelion.css", "/hexelion.js", "/", "/face/basic.html", "/face/atlantis.html", "/face/zombie.html", "/face/face.js", "/face/face_world.js", "/face/face_paint.js", "/face/face_battle.js", "/face/face_panel.js", "/face/face_fight.js", "/face/face_hud.js", "/face/face_hero.js", "/face/face_army.js", "/face/face_eggs.js", "/face/face_workshop.js", "/face/face_tutorial.js", "/face/face.css", "/face/face_views.css", "/face/face_canon.css", "/face/bubble/tabla_semantica.js", "/face/bubble/comic_%74okens.js", "/face/bubble/comic_accents.js", "/face/bubble/valores.js", "/face/bubble/gacha.js", "/face/bubble/comic_atoms.js", "/face/bubble/bubble_light.js", "/face/bubble/bubble_language.js", "/face/bubble/bubble_bestiary.js", "/face/bubble/bubble_world.js", "/face/bubble/core.js", "/face/bubble/isometric_floor_projection.js", "/face/bubble/world_camera.js", "/face/bubble/map_zoom.js", "/face/bubble/fog_of_war.js", "/face/bubble/atlas-coord.js", "/face/bubble/canon.js", "/face/bubble/combate_ticks.js", "/face/bubble/escuadron.js", "/face/bubble/wave_render.js", "/face/bubble/worm_transition.js", "/face/bubble/escena.js", "/face/bubble/sea-floor.js", "/face/bubble/gdpr-art25-ephemeral-crab.js", "/face/bubble/crab_render_hd.js", "/face/bubble/bubble_icons.js", "/face/bubble/db.js", "/face/bubble/army-wave-panel.js", "/face/bubble/summon-wave-card.js", "/face/bubble/summon_reveal.js", "/face/bubble/auth.js", "/face/bubble/taller.js",
                  "/dashboard.html", "/dashboard.css?v=60", "/dashboard.js?v=50",
-                 "/app", "/app.html", "/app.css?v=8", "/app.js?v=11", "/creation_publish.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+                 "/app", "/app.html", "/app.css?v=10", "/app.js?v=14", "/modelos_web.js?v=1", "/insertor.js?v=1", "/creation_publish.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

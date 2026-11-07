@@ -9,17 +9,28 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=8">
+<link rel="stylesheet" href="/app.css?v=10">
 </head>
 <body>
 
 <header class="barra">
   <div class="identidad">
     <h1>PreceptorOS</h1>
-    <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
+    <div class="estado-fila">
+      <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
+      <button id="modelos-toggle" class="modelos-toggle" type="button"
+              aria-haspopup="dialog" aria-expanded="false" aria-controls="modelos-menu">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        <span class="sr" data-i18n="lab_modelos_titulo">Modelos locales</span>
+      </button>
+    </div>
+    <section id="modelos-menu" class="modelos-menu" role="dialog" data-i18n-aria="lab_modelos_titulo" aria-label="Modelos locales" tabindex="-1" hidden>
+      <h2 data-i18n="lab_modelos_titulo">Modelos locales</h2>
+      <p id="modelo-activo" role="status" aria-live="polite"></p>
+      <p id="modelos-estado" role="status" aria-live="polite" data-i18n="modelos_cargando">Consultando los modelos locales…</p>
+      <ul class="turnos" id="modelos-lista"></ul>
+    </section>
   </div>
-</header>
-
 <nav class="pestanas" id="pestanas" role="tablist" aria-orientation="horizontal" aria-label="Zonas">
   <button id="tab-mando" role="tab" aria-controls="panel-mando" aria-selected="false" tabindex="-1" data-panel="mando" data-i18n="tab_mando" aria-label="Mando" title="Mando">Mando</button>
   <button id="tab-conversacion" role="tab" aria-controls="panel-conversacion" aria-selected="true" tabindex="0" data-panel="conversacion" data-i18n="tab_chat" aria-label="Hablar" title="Hablar">Hablar</button>
@@ -28,9 +39,10 @@
   <button id="tab-lab" role="tab" aria-controls="panel-lab" aria-selected="false" tabindex="-1" data-panel="lab" data-i18n="tab_lab" aria-label="Lab" title="Lab">Lab</button>
   <button id="tab-harness" role="tab" aria-controls="panel-harness" aria-selected="false" tabindex="-1" data-panel="harness" data-i18n="tab_harness" aria-label="Harness" title="Harness">Harness</button>
   <button id="tab-puerta" role="tab" aria-controls="panel-puerta" aria-selected="false" tabindex="-1" data-panel="puerta" data-i18n="tab_puerta" aria-label="Puerta" title="Puerta">Puerta</button>
-  <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_modelos" aria-label="Modelos" title="Modelos">Modelos</button>
+  <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_mundo" aria-label="Mundo" title="Mundo">Mundo</button>
   <button id="tab-ajustes" role="tab" aria-controls="panel-ajustes" aria-selected="false" tabindex="-1" data-panel="ajustes" data-i18n="tab_ajustes" aria-label="Ajustes" title="Ajustes">Ajustes</button>
 </nav>
+</header>
 
 <main id="carril" class="carril">
 
@@ -50,11 +62,6 @@
   <!-- hablar -->
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar">
     <ol class="hilo" id="hilo" aria-live="polite"></ol>
-    <form class="redactar" id="form-chat">
-      <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
-      <textarea id="dicho" rows="2" maxlength="600" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
-      <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
-    </form>
   </section>
 
   <!-- frontera -->
@@ -111,6 +118,8 @@
     <h2 data-i18n="tab_lab">Lab</h2>
     <h3 data-i18n="lab_canales_titulo">Canales recientes</h3>
     <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
+    <p class="pie" id="lab-rack-estado" role="status" aria-live="polite" hidden></p>
+    <a id="lab-rack-enlace" href="#" target="_blank" rel="noopener noreferrer" hidden>Rack Lab</a>
     <ul class="turnos" id="lab-canales"></ul>
     <h3 data-i18n="lab_modelos_titulo">Modelos locales</h3>
     <ul class="turnos" id="lab-modelos"></ul>
@@ -132,10 +141,13 @@
     <pre class="payload" id="puerta-documento"></pre>
     <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
   </section>
-  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="Modelos locales" hidden>
-    <p class="pie" id="modelos-estado" role="status" aria-live="polite" data-i18n="modelos_cargando">Consultando los modelos locales…</p>
-    <h2 data-i18n="tab_modelos">Modelos</h2>
-    <ul class="turnos" id="modelos-lista"></ul>
+  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="OpenWorld" hidden>
+    <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p>
+    <button id="openworld-retry" type="button" class="probar" data-i18n="world_retry" hidden>Reintentar OpenWorld</button>
+    <iframe id="openworld-frame" data-i18n-aria="world_frame_title" title="OpenWorld · mapa, partida efímera y Acho" loading="lazy"
+            referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+            allow="autoplay; fullscreen" hidden></iframe>
+    <a class="openworld-fallback" data-i18n="world_open_new" href="https://preceptoros.org/openworld/" target="_blank" rel="noopener noreferrer">Abrir OpenWorld en otra pestaña</a>
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
@@ -217,11 +229,28 @@
   </section>
 </main>
 
+<section class="ayuda-efimera" id="ayuda-efimera" role="region" aria-live="polite" aria-atomic="true" aria-labelledby="ayuda-efimera-titulo" hidden>
+  <div class="ayuda-efimera-cabecera">
+    <h2 id="ayuda-efimera-titulo"></h2>
+    <button type="button" id="ayuda-efimera-cerrar" data-i18n-aria="ayuda_cerrar" aria-label="Close help">×</button>
+  </div>
+  <ul id="ayuda-efimera-base"></ul>
+  <p id="ayuda-efimera-nota"></p>
+</section>
+<form class="redactar redactar-anclado" id="form-chat" aria-describedby="insertor-instrucciones">
+  <p class="sr" id="insertor-instrucciones" data-i18n="insertor_instrucciones">Use an @panel tag to route a question, or @ayuda for local temporary help.</p>
+  <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
+  <textarea id="dicho" rows="2" maxlength="600" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
+  <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
+</form>
+
 <p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Zona activa: Hablar.</p>
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=11"></script>
+<script src="/modelos_web.js?v=1"></script>
+<script src="/insertor.js?v=1"></script>
+<script src="/app.js?v=14"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
