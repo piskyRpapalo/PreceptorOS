@@ -1,3 +1,6 @@
+/* Type scale: the mini window reads 20% smaller (Sovereign, 2026-11-07). One knob: every rem follows;
+   touch targets (44px) and icon glyphs (px) keep their size. */
+html { font-size: 80%; }
 /* PreceptorOS · cara premium. Mobile-first, los tokens de privacy_toggle.css. */
 
 :root {
@@ -38,7 +41,7 @@ body {
     radial-gradient(130% 40% at 50% -5%,  var(--halo-alto) 0%, transparent 68%),
     radial-gradient(120% 35% at 50% 105%, var(--halo-bajo) 0%, transparent 70%),
     var(--ground);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   display: flex; flex-direction: column;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
            env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -121,6 +124,15 @@ body {
 #openworld-status { margin: 0; padding: .3rem .5rem; overflow-wrap: anywhere; }
 #openworld-retry { min-height: 44px; flex: 0 0 auto; }
 .openworld-fallback { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; padding: .35rem .6rem; }
+/* While the frame is shown, the map is one fixed piece: it fills the whole gap between the header and
+   the composer (measured 420x447 in the 420x680 mini window). The status stays for screen readers
+   (aria-live), the fallback link returns with Retry when the frame fails and is hidden. */
+#panel-modelos:has(#openworld-frame:not([hidden])) { padding: 0; gap: 0; overflow: hidden; }
+#panel-modelos:has(#openworld-frame:not([hidden])) #openworld-status {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+#panel-modelos:has(#openworld-frame:not([hidden])) .openworld-fallback { display: none; }
+#panel-modelos:has(#openworld-frame:not([hidden])) #openworld-frame { min-height: 0; height: 100%; }
 
 /* --- hilo --- */
 .hilo { list-style: none; margin: 0; padding: 0; display: flex;

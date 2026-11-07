@@ -168,3 +168,23 @@ test("frame load only reports navigation completion, not cross-origin HTTP statu
   assert.equal(api.state(), "loaded");
   assert.match(document.getElementById("openworld-status").textContent, /HTTP status unreadable/);
 });
+
+// Measured 2026-11-07 in Chromium (420x680 window): fetch(url, {mode: "no-cors", redirect: "error"})
+// throws before any network ("Request mode is \"no-cors\" but the redirect mode is not \"follow\""),
+// so the World tab was NO_DATA: openworld_unreachable even with the site answering 200. The fake
+// fetcher now enforces that Fetch-standard rule, so the probe can never pass a test it fails live.
+test("probe init is legal under the Fetch standard and an opaque answer loads the frame", async () => {
+  const seen = [];
+  const { document, api } = setup(async (url, init) => {
+    seen.push(init);
+    if (init.mode === "no-cors" && init.redirect !== "follow") {
+      throw new TypeError('Request mode is "no-cors" but the redirect mode is not "follow"');
+    }
+    return { type: "opaque", ok: false };
+  });
+  await api.openWorld();
+  assert.equal(seen.length, 1);
+  assert.equal(seen[0].credentials, "omit");
+  assert.equal(api.state(), "loading");
+  assert.equal(document.getElementById("openworld-frame").getAttribute("src"), "https://preceptoros.org/openworld/");
+});

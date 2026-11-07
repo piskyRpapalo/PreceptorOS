@@ -27,9 +27,9 @@ class ModelosWebSabotajes(unittest.TestCase):
         self.assertIn('aria-expanded="false"', html)
         self.assertIn("min-width: 44px; min-height: 44px", css)
         self.assertIn('"/modelos_web.js": ("modelos_web.js",', server)
-        self.assertIn('"/modelos_web.js?v=1"', sw)
+        self.assertIn('"/modelos_web.js?v=2"', sw)
         self.assertIn('"interface/modelos_web.js"', versions)
-        self.assertIn("preceptoros-armazon-v140", sw)
+        self.assertIn("preceptoros-armazon-v141", sw)
 
 
 if __name__ == "__main__":
