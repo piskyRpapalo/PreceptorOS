@@ -21,10 +21,10 @@ const paneles = window.PreceptorZonas.zonas;
  * El idioma lo manda la memoria, no el navegador. */
 const textos = {
   es: {
-    comprobando: "comprobando…", tab_mando: "Mando", tab_chat: "Hablar", tab_frontera: "Frontera",
-    tab_cuaderno: "Cuaderno", lo_que_dices: "Lo que dices",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Puerta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Ajustes", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:", insertor_instrucciones: "Usa @panel para enrutar una pregunta; @ayuda abre ayuda local temporal.", ayuda_cerrar: "Cerrar ayuda",
+    comprobando: "comprobando…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Lo que dices",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Sin datos: contenido de esta zona aún no declarado.", zona_activa: "Zona activa:", insertor_instrucciones: "Usa @panel para enrutar una pregunta; @ayuda abre ayuda local temporal.", ayuda_cerrar: "Cerrar ayuda",
     model_last_reply: "Último modelo que respondió", world_idle: "OpenWorld se cargará al abrir esta pestaña.", world_checking: "Comprobando conexión con OpenWorld…", world_loading: "Conexión disponible; cargando OpenWorld…", world_loaded: "El navegador terminó la navegación del marco; el estado HTTP externo no se puede leer aquí.", world_retry: "Reintentar OpenWorld", world_open_new: "Abrir OpenWorld en otra pestaña", world_frame_title: "OpenWorld: mapa, partida efímera y lenguaje Acho",
     ph_dicho: "Escribe tu respuesta…", dilo: "Dilo",
     pie_hallazgos: "Lo de arriba nunca es el texto encontrado: clase y cantidad, nada más. Los números vienen del payload — esta interfaz no cuenta.",
@@ -118,10 +118,10 @@ const textos = {
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
    * El arabe se escribe de derecha a izquierda: lo pone `pintarEstaticos`. */
   fr: {
-    comprobando: "vérification…", tab_mando: "Pilotage", tab_chat: "Parler", tab_frontera: "Frontière",
-    tab_cuaderno: "Carnet", lo_que_dices: "Ce que tu dis",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porte publique",
-    tab_modelos: "Modèles", tab_mundo: "Monde", tab_ajustes: "Réglages", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :", insertor_instrucciones: "Utilisez @panel pour acheminer une question ; @ayuda ouvre une aide locale temporaire.", ayuda_cerrar: "Fermer l’aide",
+    comprobando: "vérification…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Ce que tu dis",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Pas de données : contenu de cette zone non déclaré.", zona_activa: "Zone active :", insertor_instrucciones: "Utilisez @panel pour acheminer une question ; @ayuda ouvre une aide locale temporaire.", ayuda_cerrar: "Fermer l’aide",
     model_last_reply: "Dernier modèle ayant répondu", world_idle: "OpenWorld se charge à l’ouverture de cet onglet.", world_checking: "Vérification de la connexion OpenWorld…", world_loading: "Connexion disponible ; chargement d’OpenWorld…", world_loaded: "Le navigateur a terminé la navigation du cadre ; son état HTTP inter-origines n’est pas lisible ici.", world_retry: "Réessayer OpenWorld", world_open_new: "Ouvrir OpenWorld dans un autre onglet", world_frame_title: "OpenWorld : carte, partie éphémère et langage Acho",
     ph_dicho: "Écris ta réponse…", dilo: "Dis-le",
     pie_hallazgos: "Ce que tu vois au-dessus n'est jamais le texte trouvé : la classe et le nombre, rien d'autre. Les chiffres viennent du payload — cette interface ne compte pas.",
@@ -166,10 +166,10 @@ const textos = {
     nodo_export_titulo: 'Identité du nœud', nodo_export_ayuda: 'Choisis un justificatif déjà signé. Cette app ne signe pas ; l’envoi ne part qu’après ton clic.', nodo_export_archivo: 'Justificatif signé (.json)', nodo_export_boton: 'Envoyer à la douane', nodo_export_espera: 'Aucun justificatif choisi. Rien n’a été envoyé.', nodo_export_enviando: 'Vérification et envoi du justificatif signé…', nodo_export_ok: 'La douane a reçu le paquet.', nodo_export_error: 'Envoi non confirmé. Vérifie le justificatif et la connexion.', nodo_export_causas: {cuerpo_invalido: 'Fichier ou format du justificatif invalide.', firma_no_disponible: 'Aucune signature vérifiable ; apporte un justificatif signé.', firma_rechazada: 'La signature du justificatif n’est pas valide.', plan_no_coincide: 'Le justificatif ne correspond pas au plan signé.', aduana_rechazo: 'La douane a rejeté la demande.', aduana_no_disponible: 'La douane est injoignable.', paquete_invalido: 'La réponse ne contient pas de paquet valide.', general: 'Fichier ou format du justificatif invalide.', clave_publica_no_configurada: 'La clé publique n’est pas configurée dans la douane.', plan_firmado_no_configurado: 'Aucun plan signé n’est configuré dans la douane.', registro_no_disponible: 'Le registre d’audit est indisponible ; rien n’a été enregistré.', firma_cedula_rechazada: 'La signature du justificatif n’est pas valide.', cedula_mal_formada: 'Les champs du justificatif sont invalides.', cuerpo_fuera_de_rango: 'Le justificatif dépasse la taille autorisée.'}
   },
   pt: {
-    comprobando: "a verificar…", tab_mando: "Comando", tab_chat: "Falar", tab_frontera: "Fronteira",
-    tab_cuaderno: "Caderno", lo_que_dices: "O que dizes",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pública",
-    tab_modelos: "Modelos", tab_mundo: "Mundo", tab_ajustes: "Definições", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:", insertor_instrucciones: "Use @panel para encaminhar uma pergunta; @ayuda abre ajuda local temporária.", ayuda_cerrar: "Fechar ajuda",
+    comprobando: "a verificar…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "O que dizes",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Sem dados: conteúdo desta zona ainda não declarado.", zona_activa: "Zona ativa:", insertor_instrucciones: "Use @panel para encaminhar uma pergunta; @ayuda abre ajuda local temporária.", ayuda_cerrar: "Fechar ajuda",
     model_last_reply: "Último modelo que respondeu", world_idle: "OpenWorld carrega ao abrir esta separação.", world_checking: "A verificar a ligação ao OpenWorld…", world_loading: "Ligação disponível; a carregar OpenWorld…", world_loaded: "O navegador terminou a navegação do quadro; o estado HTTP entre origens não é legível aqui.", world_retry: "Tentar OpenWorld novamente", world_open_new: "Abrir OpenWorld noutra separação", world_frame_title: "OpenWorld: mapa, partida efémera e linguagem Acho",
     ph_dicho: "Escreve a tua resposta…", dilo: "Diz",
     pie_hallazgos: "O que vês acima nunca é o texto encontrado: classe e quantidade, nada mais. Os números vêm do payload — esta interface não conta.",
@@ -213,10 +213,10 @@ const textos = {
     nodo_export_titulo: 'Identidade do nó', nodo_export_ayuda: 'Escolhe uma cédula já assinada. Esta app não assina; o envio só ocorre quando carregas no botão.', nodo_export_archivo: 'Cédula assinada (.json)', nodo_export_boton: 'Enviar para a alfândega', nodo_export_espera: 'Nenhuma cédula selecionada. Nada foi enviado.', nodo_export_enviando: 'A verificar e enviar a cédula assinada…', nodo_export_ok: 'A alfândega recebeu o pacote.', nodo_export_error: 'O envio não foi confirmado. Verifica a cédula e a ligação.', nodo_export_causas: {cuerpo_invalido: 'Ficheiro ou formato da cédula inválido.', firma_no_disponible: 'Não há assinatura verificável; traz uma cédula assinada.', firma_rechazada: 'A assinatura da cédula não foi verificada.', plan_no_coincide: 'A cédula não corresponde ao plano assinado.', aduana_rechazo: 'A alfândega rejeitou o pedido.', aduana_no_disponible: 'Não foi possível contactar a alfândega.', paquete_invalido: 'A resposta não contém um pacote válido.', general: 'Ficheiro ou formato da cédula inválido.', clave_publica_no_configurada: 'A chave pública não está configurada na alfândega.', plan_firmado_no_configurado: 'Não há um plano assinado configurado na alfândega.', registro_no_disponible: 'O registo de auditoria está indisponível; nada foi registado.', firma_cedula_rechazada: 'A assinatura da cédula não foi verificada.', cedula_mal_formada: 'Os campos da cédula são inválidos.', cuerpo_fuera_de_rango: 'A cédula excede o tamanho permitido.'}
   },
   it: {
-    comprobando: "verifica…", tab_mando: "Comando", tab_chat: "Parla", tab_frontera: "Frontiera",
-    tab_cuaderno: "Quaderno", lo_que_dices: "Quello che dici",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Porta pubblica",
-    tab_modelos: "Modelli", tab_mundo: "Mondo", tab_ajustes: "Impostazioni", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:", insertor_instrucciones: "Usa @panel per instradare una domanda; @ayuda apre un aiuto locale temporaneo.", ayuda_cerrar: "Chiudi aiuto",
+    comprobando: "verifica…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Quello che dici",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Nessun dato: contenuto di questa zona non dichiarato.", zona_activa: "Zona attiva:", insertor_instrucciones: "Usa @panel per instradare una domanda; @ayuda apre un aiuto locale temporaneo.", ayuda_cerrar: "Chiudi aiuto",
     model_last_reply: "Ultimo modello che ha risposto", world_idle: "OpenWorld si carica quando apri questa scheda.", world_checking: "Verifica della connessione a OpenWorld…", world_loading: "Connessione disponibile; caricamento di OpenWorld…", world_loaded: "Il browser ha terminato la navigazione del frame; lo stato HTTP cross-origin non è leggibile qui.", world_retry: "Riprova OpenWorld", world_open_new: "Apri OpenWorld in un'altra scheda", world_frame_title: "OpenWorld: mappa, partita effimera e linguaggio Acho",
     ph_dicho: "Scrivi la tua risposta…", dilo: "Dillo",
     pie_hallazgos: "Quello che vedi sopra non è mai il testo trovato: classe e quantità, nient'altro. I numeri vengono dal payload — questa interfaccia non conta.",
@@ -260,10 +260,10 @@ const textos = {
     nodo_export_titulo: 'Identità del nodo', nodo_export_ayuda: 'Scegli una credenziale già firmata. Questa app non firma; l’invio parte solo dopo il tuo clic.', nodo_export_archivo: 'Credenziale firmata (.json)', nodo_export_boton: 'Invia alla dogana', nodo_export_espera: 'Nessuna credenziale selezionata. Non è stato inviato nulla.', nodo_export_enviando: 'Verifica e invio della credenziale firmata…', nodo_export_ok: 'La dogana ha ricevuto il pacchetto.', nodo_export_error: 'Invio non confermato. Controlla la credenziale e la connessione.', nodo_export_causas: {cuerpo_invalido: 'File o formato della credenziale non valido.', firma_no_disponible: 'Nessuna firma verificabile; porta una credenziale firmata.', firma_rechazada: 'La firma della credenziale non è valida.', plan_no_coincide: 'La credenziale non corrisponde al piano firmato.', aduana_rechazo: 'La dogana ha rifiutato la richiesta.', aduana_no_disponible: 'La dogana non è raggiungibile.', paquete_invalido: 'La risposta non contiene un pacchetto valido.', general: 'File o formato della credenziale non valido.', clave_publica_no_configurada: 'La chiave pubblica non è configurata nella dogana.', plan_firmado_no_configurado: 'Nessun piano firmato è configurato nella dogana.', registro_no_disponible: 'Il registro di audit non è disponibile; non è stato registrato nulla.', firma_cedula_rechazada: 'La firma della credenziale non è valida.', cedula_mal_formada: 'I campi della credenziale non sono validi.', cuerpo_fuera_de_rango: 'La credenziale supera la dimensione consentita.'}
   },
   de: {
-    comprobando: "wird geprüft…", tab_mando: "Leitstand", tab_chat: "Reden", tab_frontera: "Grenze",
-    tab_cuaderno: "Notizbuch", lo_que_dices: "Was du sagst",
-    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Öffentliches Tor",
-    tab_modelos: "Modelle", tab_mundo: "Welt", tab_ajustes: "Einstellungen", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:", insertor_instrucciones: "Nutze @panel für eine Frage; @ayuda öffnet eine lokale temporäre Hilfe.", ayuda_cerrar: "Hilfe schließen",
+    comprobando: "wird geprüft…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Was du sagst",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Keine Daten: Inhalt dieser Zone ist noch nicht festgelegt.", zona_activa: "Aktive Zone:", insertor_instrucciones: "Nutze @panel für eine Frage; @ayuda öffnet eine lokale temporäre Hilfe.", ayuda_cerrar: "Hilfe schließen",
     model_last_reply: "Zuletzt antwortendes Modell", world_idle: "OpenWorld wird beim Öffnen dieses Tabs geladen.", world_checking: "OpenWorld-Verbindung wird geprüft…", world_loading: "Verbindung verfügbar; OpenWorld wird geladen…", world_loaded: "Der Browser hat die Frame-Navigation beendet; der Cross-Origin-HTTP-Status ist hier nicht lesbar.", world_retry: "OpenWorld erneut versuchen", world_open_new: "OpenWorld in einem neuen Tab öffnen", world_frame_title: "OpenWorld: Karte, flüchtige Partie und Acho-Sprache",
     ph_dicho: "Schreib deine Antwort…", dilo: "Sag es",
     pie_hallazgos: "Was du oben siehst, ist nie der gefundene Text: Klasse und Anzahl, sonst nichts. Die Zahlen kommen aus dem Payload — diese Oberfläche zählt nicht.",
@@ -307,10 +307,10 @@ const textos = {
     nodo_export_titulo: 'Knotenidentität', nodo_export_ayuda: 'Wähle einen bereits signierten Nachweis. Diese App signiert nicht; gesendet wird erst nach deinem Klick.', nodo_export_archivo: 'Signierter Nachweis (.json)', nodo_export_boton: 'An die Zollstelle senden', nodo_export_espera: 'Kein Nachweis ausgewählt. Es wurde nichts gesendet.', nodo_export_enviando: 'Signierten Nachweis prüfen und senden…', nodo_export_ok: 'Die Zollstelle hat das Paket empfangen.', nodo_export_error: 'Der Versand wurde nicht bestätigt. Prüfe Nachweis und Verbindung.', nodo_export_causas: {cuerpo_invalido: 'Datei oder Nachweisformat ungültig.', firma_no_disponible: 'Keine überprüfbare Signatur verfügbar; bringe einen signierten Nachweis mit.', firma_rechazada: 'Die Signatur des Nachweises ist ungültig.', plan_no_coincide: 'Der Nachweis stimmt nicht mit dem signierten Plan überein.', aduana_rechazo: 'Die Zollstelle hat die Anfrage abgelehnt.', aduana_no_disponible: 'Die Zollstelle ist nicht erreichbar.', paquete_invalido: 'Die Antwort enthält kein gültiges Paket.', general: 'Datei oder Nachweisformat ungültig.', clave_publica_no_configurada: 'Der Zollstelle fehlt der öffentliche Schlüssel.', plan_firmado_no_configurado: 'Bei der Zollstelle ist kein signierter Plan eingerichtet.', registro_no_disponible: 'Das Auditprotokoll ist nicht verfügbar; es wurde nichts erfasst.', firma_cedula_rechazada: 'Die Signatur des Nachweises ist ungültig.', cedula_mal_formada: 'Die Nachweisfelder sind ungültig.', cuerpo_fuera_de_rango: 'Der Nachweis überschreitet die zulässige Größe.'}
   },
   ru: {
-    comprobando: "проверка…", tab_mando: "Командный центр", tab_chat: "Разговор", tab_frontera: "Граница",
-    tab_cuaderno: "Тетрадь", lo_que_dices: "Что ты говоришь",
-    tab_lab: "Лаборатория", tab_harness: "Harness", tab_puerta: "Публичный шлюз",
-    tab_modelos: "Модели", tab_mundo: "Мир", tab_ajustes: "Настройки", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:", insertor_instrucciones: "Используйте @panel для маршрута вопроса; @ayuda открывает временную справку на устройстве.", ayuda_cerrar: "Закрыть справку",
+    comprobando: "проверка…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Что ты говоришь",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Нет данных: содержимое этой зоны ещё не объявлено.", zona_activa: "Активная зона:", insertor_instrucciones: "Используйте @panel для маршрута вопроса; @ayuda открывает временную справку на устройстве.", ayuda_cerrar: "Закрыть справку",
     model_last_reply: "Последняя ответившая модель", world_idle: "OpenWorld загрузится при открытии этой вкладки.", world_checking: "Проверка соединения с OpenWorld…", world_loading: "Соединение доступно; загружается OpenWorld…", world_loaded: "Браузер завершил навигацию фрейма; его HTTP-статус между источниками здесь не виден.", world_retry: "Повторить OpenWorld", world_open_new: "Открыть OpenWorld в другой вкладке", world_frame_title: "OpenWorld: карта, эфемерная партия и язык Acho",
     ph_dicho: "Напиши свой ответ…", dilo: "Скажи",
     pie_hallazgos: "То, что ты видишь выше, — никогда не найденный текст: класс и количество, больше ничего. Числа приходят из payload — этот интерфейс не считает.",
@@ -354,10 +354,10 @@ const textos = {
     nodo_export_titulo: 'Идентификатор узла', nodo_export_ayuda: 'Выбери уже подписанное удостоверение. Приложение не подписывает; отправка начнётся только после нажатия.', nodo_export_archivo: 'Подписанное удостоверение (.json)', nodo_export_boton: 'Отправить в шлюз', nodo_export_espera: 'Удостоверение не выбрано. Ничего не отправлено.', nodo_export_enviando: 'Проверка и отправка подписанного удостоверения…', nodo_export_ok: 'Шлюз получил пакет.', nodo_export_error: 'Отправка не подтверждена. Проверь удостоверение и соединение.', nodo_export_causas: {cuerpo_invalido: 'Файл или формат удостоверения недействителен.', firma_no_disponible: 'Нет проверяемой подписи; предоставь подписанное удостоверение.', firma_rechazada: 'Подпись удостоверения не прошла проверку.', plan_no_coincide: 'Удостоверение не соответствует подписанному плану.', aduana_rechazo: 'Шлюз отклонил запрос.', aduana_no_disponible: 'Шлюз недоступен.', paquete_invalido: 'В ответе нет действительного пакета.', general: 'Файл или формат удостоверения недействителен.', clave_publica_no_configurada: 'В шлюзе не настроен открытый ключ.', plan_firmado_no_configurado: 'В шлюзе не настроен подписанный план.', registro_no_disponible: 'Журнал аудита недоступен; запись не выполнена.', firma_cedula_rechazada: 'Подпись удостоверения не прошла проверку.', cedula_mal_formada: 'Поля удостоверения недействительны.', cuerpo_fuera_de_rango: 'Размер удостоверения превышает допустимый.'}
   },
   el: {
-    comprobando: "έλεγχος…", tab_mando: "Κέντρο", tab_chat: "Μίλα", tab_frontera: "Σύνορο",
-    tab_cuaderno: "Τετράδιο", lo_que_dices: "Τι λες",
-    tab_lab: "Εργαστήριο", tab_harness: "Harness", tab_puerta: "Δημόσια πύλη",
-    tab_modelos: "Μοντέλα", tab_mundo: "Κόσμος", tab_ajustes: "Ρυθμίσεις", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:", insertor_instrucciones: "Χρησιμοποιήστε @panel για δρομολόγηση ερώτησης· το @ayuda ανοίγει προσωρινή τοπική βοήθεια.", ayuda_cerrar: "Κλείσιμο βοήθειας",
+    comprobando: "έλεγχος…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "Τι λες",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "Χωρίς δεδομένα: το περιεχόμενο αυτής της ζώνης δεν έχει δηλωθεί.", zona_activa: "Ενεργή ζώνη:", insertor_instrucciones: "Χρησιμοποιήστε @panel για δρομολόγηση ερώτησης· το @ayuda ανοίγει προσωρινή τοπική βοήθεια.", ayuda_cerrar: "Κλείσιμο βοήθειας",
     model_last_reply: "Το τελευταίο μοντέλο που απάντησε", world_idle: "Το OpenWorld φορτώνεται όταν ανοίξεις αυτή την καρτέλα.", world_checking: "Έλεγχος σύνδεσης OpenWorld…", world_loading: "Η σύνδεση είναι διαθέσιμη· φόρτωση OpenWorld…", world_loaded: "Το πρόγραμμα περιήγησης ολοκλήρωσε την πλοήγηση του πλαισίου· η διασταυρούμενη κατάσταση HTTP δεν είναι αναγνώσιμη εδώ.", world_retry: "Νέα προσπάθεια OpenWorld", world_open_new: "Άνοιγμα OpenWorld σε άλλη καρτέλα", world_frame_title: "OpenWorld: χάρτης, εφήμερη παρτίδα και γλώσσα Acho",
     ph_dicho: "Γράψε την απάντησή σου…", dilo: "Πες το",
     pie_hallazgos: "Αυτό που βλέπεις πάνω δεν είναι ποτέ το κείμενο που βρέθηκε: κατηγορία και πλήθος, τίποτα άλλο. Οι αριθμοί έρχονται από το payload — αυτή η διεπαφή δεν μετρά.",
@@ -400,10 +400,10 @@ const textos = {
     nodo_export_titulo: 'Ταυτότητα κόμβου', nodo_export_ayuda: 'Επίλεξε διαπιστευτήριο που έχεις ήδη υπογράψει. Η εφαρμογή δεν υπογράφει· η αποστολή γίνεται μόνο με το πάτημά σου.', nodo_export_archivo: 'Υπογεγραμμένο διαπιστευτήριο (.json)', nodo_export_boton: 'Αποστολή στην πύλη', nodo_export_espera: 'Δεν επιλέχθηκε διαπιστευτήριο. Δεν στάλθηκε τίποτα.', nodo_export_enviando: 'Έλεγχος και αποστολή του υπογεγραμμένου διαπιστευτηρίου…', nodo_export_ok: 'Η πύλη έλαβε το πακέτο.', nodo_export_error: 'Η αποστολή δεν επιβεβαιώθηκε. Έλεγξε το διαπιστευτήριο και τη σύνδεση.', nodo_export_causas: {cuerpo_invalido: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', firma_no_disponible: 'Δεν υπάρχει επαληθεύσιμη υπογραφή· φέρε υπογεγραμμένο διαπιστευτήριο.', firma_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', plan_no_coincide: 'Το διαπιστευτήριο δεν ταιριάζει με το υπογεγραμμένο σχέδιο.', aduana_rechazo: 'Η πύλη απέρριψε το αίτημα.', aduana_no_disponible: 'Δεν ήταν δυνατή η σύνδεση με την πύλη.', paquete_invalido: 'Η απάντηση δεν περιέχει έγκυρο πακέτο.', general: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', clave_publica_no_configurada: 'Δεν έχει ρυθμιστεί δημόσιο κλειδί στην πύλη.', plan_firmado_no_configurado: 'Δεν έχει ρυθμιστεί υπογεγραμμένο σχέδιο στην πύλη.', registro_no_disponible: 'Το αρχείο ελέγχου δεν είναι διαθέσιμο· δεν καταγράφηκε τίποτα.', firma_cedula_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', cedula_mal_formada: 'Τα πεδία του διαπιστευτηρίου δεν είναι έγκυρα.', cuerpo_fuera_de_rango: 'Το διαπιστευτήριο υπερβαίνει το επιτρεπόμενο μέγεθος.'}
   },
   ar: {
-    comprobando: "جارٍ التحقق…", tab_mando: "مركز القيادة", tab_chat: "تحدّث", tab_frontera: "الحدود",
-    tab_cuaderno: "الدفتر", lo_que_dices: "ما تقوله",
-    tab_lab: "المختبر", tab_harness: "Harness", tab_puerta: "البوابة العامة",
-    tab_modelos: "النماذج", tab_mundo: "العالم", tab_ajustes: "الإعدادات", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:", insertor_instrucciones: "استخدم @panel لتوجيه السؤال؛ يفتح @ayuda مساعدة محلية مؤقتة.", ayuda_cerrar: "إغلاق المساعدة",
+    comprobando: "جارٍ التحقق…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary",
+    tab_cuaderno: "Notebook", lo_que_dices: "ما تقوله",
+    tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
+    tab_modelos: "Models", tab_mundo: "World", tab_ajustes: "Settings", zona_no_data: "لا توجد بيانات: لم يُعلن محتوى هذه المنطقة بعد.", zona_activa: "المنطقة النشطة:", insertor_instrucciones: "استخدم @panel لتوجيه السؤال؛ يفتح @ayuda مساعدة محلية مؤقتة.", ayuda_cerrar: "إغلاق المساعدة",
     model_last_reply: "آخر نموذج أجاب", world_idle: "سيُحمّل OpenWorld عند فتح علامة التبويب هذه.", world_checking: "جارٍ التحقق من اتصال OpenWorld…", world_loading: "الاتصال متاح؛ جارٍ تحميل OpenWorld…", world_loaded: "اكتمل تنقل الإطار في المتصفح؛ حالة HTTP عبر الأصل غير مقروءة هنا.", world_retry: "إعادة محاولة OpenWorld", world_open_new: "فتح OpenWorld في علامة تبويب أخرى", world_frame_title: "OpenWorld: الخريطة واللعبة المؤقتة ولغة Acho",
     ph_dicho: "اكتب جوابك…", dilo: "قُلها",
     pie_hallazgos: "ما تراه في الأعلى ليس أبدًا النص الذي عُثر عليه: الفئة والعدد، لا غير. الأرقام تأتي من الـ payload — هذه الواجهة لا تعدّ.",
@@ -546,7 +546,7 @@ function mostrar(i, opciones = {}) {
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
   if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
   if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }
-  if (paneles[panelActual].id === "harness") { cargarHarness(); if (window.PreceptorEquipo) window.PreceptorEquipo.cargar(); }
+  if (paneles[panelActual].id === "harness") { cargarHarness(); if (window.PreceptorTeam) window.PreceptorTeam.load(); }
   if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
   if (paneles[panelActual].id === "puerta") cargarPuerta();
 }
@@ -826,7 +826,7 @@ $("form-chat").addEventListener("submit", async (e) => {
     const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.assign({ texto, panel: ruta.panel },
-        window.PreceptorEquipo && window.PreceptorEquipo.activo() ? { agente: window.PreceptorEquipo.activo().id } : {})),
+        window.PreceptorTeam && window.PreceptorTeam.active() ? { agente: window.PreceptorTeam.active().id } : {})),
     });
     const d = await r.json();
     esperando.remove();
@@ -843,7 +843,7 @@ $("form-chat").addEventListener("submit", async (e) => {
       $("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
       modelosWeb.setActiveModel(typeof maquina.modelo === "string" ? maquina.modelo : null,
         maquina.ms, "hexelion_model_name_not_returned");
-      const agente = window.PreceptorEquipo ? window.PreceptorEquipo.etiqueta(window.PreceptorEquipo.activo()) : "";
+      const agente = window.PreceptorTeam ? window.PreceptorTeam.label(window.PreceptorTeam.active()) : "";
       burbuja("Hexelion" + (agente ? " · " + agente : "") + ": " + respuesta.texto);
       respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)));
     } else {

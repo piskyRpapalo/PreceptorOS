@@ -1,11 +1,11 @@
-"""Harness team contract, preceptoros.equipo/1. Disk only in cargar/guardar."""
+"""Harness team contract, preceptoros.team/1. Disk only in load/save."""
 import json
 import os
 import re
 import tempfile
 import unicodedata
 
-SCHEMA = "preceptoros.equipo/1"
+SCHEMA = "preceptoros.team/1"
 GLYPHS = ("✦", "◆", "☺", "⋮", "?", "⌁", "◇", "◉", "▲", "●")
 COLORS = {"sea": "#64ae91", "blue": "#348ea2", "grass": "#6eb75d", "sand": "#d8be78",
      "clay": "#c19964", "sun": "#eacb56", "sky": "#45cbd4", "moss": "#a9bf68"}
@@ -14,10 +14,10 @@ FORMS = {  # None: the agent's ask is the style
   "key_points": "Present each exact quote as one key point.",
   "easy": "Pick the plainest exact quotes; a child should follow them.",
   "steps": "Order the exact quotes as steps, first to last.",
-  "ask_me": "Pick exact quotes that lead to a question back to the user.",
+  "ask_me": "End with one exact quote the user can check with yes or no.",
   "free": None,
 }
-_AGENT = ("id", "name", "glyph", "color", "form", "ask")  # ordered: casa() zips it
+_AGENT = ("id", "name", "glyph", "color", "form", "ask")  # ordered: house() zips it
 _TEAM = ("esquema", "agents", "active")
 _ID = re.compile(r"[a-z0-9-]{1,24}")
 
@@ -26,7 +26,7 @@ def _control(text):  # any Unicode C* category
   return any(unicodedata.category(c).startswith("C") for c in text)
 
 
-def validar_agente(a):
+def validate_agent(a):
   if type(a) is not dict or set(a) != set(_AGENT):
     return ["agent_keys"]
   ask = a["ask"]
@@ -52,7 +52,7 @@ def _dump(e):
   return json.dumps(e, ensure_ascii=False, separators=(",", ":"))
 
 
-def validar_equipo(e):
+def validate_team(e):
   if type(e) is not dict or set(e) != set(_TEAM):
     return ["team_keys"]
   fails = [] if e["esquema"] == SCHEMA else ["esquema"]
@@ -61,7 +61,7 @@ def validar_equipo(e):
     fails.append("agents_count")
   else:
     for a in agents:
-      fails += validar_agente(a)
+      fails += validate_agent(a)
       if type(a) is dict and type(a.get("id")) is str:
         ids.append(a["id"])
     if len(set(ids)) != len(ids):
@@ -74,18 +74,18 @@ def validar_equipo(e):
   return fails
 
 
-def casa():
+def house():
   rows = (("tips", "Advice", "✦", "sun", "tips"),
       ("key-points", "Key points", "◆", "blue", "key_points"),
       ("easy", "Simple words", "☺", "grass", "easy"),
       ("steps", "Steps", "⋮", "sand", "steps"),
-      ("ask-me", "Questions", "?", "sky", "ask_me"))
+      ("ask-me", "Check questions", "?", "sky", "ask_me"))
   return {"esquema": SCHEMA, "active": "tips", "agents": [
     dict(zip(_AGENT, row + ("",))) for row in rows]}
 
 
-def instruccion(agente):
-  fails = validar_agente(agente)
+def instruction(agente):
+  fails = validate_agent(agente)
   if fails:
     raise ValueError("agent invalid: " + ",".join(fails))
   fixed = FORMS[agente["form"]]
@@ -100,29 +100,29 @@ def _unique(pares):
   return out
 
 
-def cargar(ruta):
-  """Falls back to casa() with a cause; a valid team comes back with None."""
+def load(ruta):
+  """Falls back to house() with a cause; a valid team comes back with None."""
   try:
     with open(ruta, "rb") as f:
       raw = f.read(4097)
   except OSError as err:
-    return casa(), "missing" if isinstance(err, FileNotFoundError) else "unreadable"
+    return house(), "missing" if isinstance(err, FileNotFoundError) else "unreadable"
   if len(raw) > 4096:
-    return casa(), "too_large"
+    return house(), "too_large"
   try:
     e = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique)
   except (ValueError, RecursionError):
-    return casa(), "not_json"
-  fails = validar_equipo(e)
-  return (casa(), fails[0]) if fails else (e, None)
+    return house(), "not_json"
+  fails = validate_team(e)
+  return (house(), fails[0]) if fails else (e, None)
 
 
-def guardar(ruta, e):
+def save(ruta, e):
   """Atomic write; [] on success, else the failures with nothing written."""
-  fails = validar_equipo(e)
+  fails = validate_team(e)
   if fails:
     return fails
-  fd, tmp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(ruta)), prefix=".equipo-")
+  fd, tmp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(ruta)), prefix=".team-")
   try:
     with os.fdopen(fd, "wb") as f:
       f.write(_dump(e).encode("utf-8"))
@@ -133,8 +133,8 @@ def guardar(ruta, e):
   return []
 
 
-def ficha_lab(agente, edad=0):
-  fails = validar_agente(agente)
+def lab_card(agente, edad=0):
+  fails = validate_agent(agente)
   if fails:
     raise ValueError("agent invalid: " + ",".join(fails))
   if type(edad) is not int or edad < 0:

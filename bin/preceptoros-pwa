@@ -73,7 +73,7 @@ import orquestador as _orquestador                          # noqa: E402
 import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
-import equipo as _equipo                                     # noqa: E402
+import team as _team                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
 import voz_creacion as _voz_creacion                          # noqa: E402
@@ -252,7 +252,8 @@ ESTATICOS = {
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/modelos_web.js": ("modelos_web.js", "application/javascript; charset=utf-8"),
     "/keep_device.js": ("keep_device.js", "application/javascript; charset=utf-8"),
-    "/equipo.js": ("equipo.js", "application/javascript; charset=utf-8"),
+    "/acho_motion.js": ("acho_motion.js", "application/javascript; charset=utf-8"),
+    "/team.js": ("team.js", "application/javascript; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
@@ -422,8 +423,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._harness_leer()
         if ruta == "/api/harness":
             return self._harness_leer()
-        if ruta == "/api/equipo":
-            return self._equipo_leer()
+        if ruta == "/api/team":
+            return self._team_read()
         if ruta == "/api/captura":
             return self._captura_listar()
         if ruta == "/api/empieza-aqui":
@@ -577,10 +578,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._captura_marcar(datos)
         if ruta == "/api/perfil":
             return self._perfil_guardar(datos)
-        if ruta == "/api/equipo":
-            return self._equipo_guardar(datos)
-        if ruta == "/api/equipo/lab":
-            return self._equipo_al_lab(datos)
+        if ruta == "/api/team":
+            return self._team_save(datos)
+        if ruta == "/api/team/lab":
+            return self._team_to_lab(datos)
         if ruta == "/api/proyectos":
             return self._proyectos_guardar(datos)
         if ruta == "/api/decisor":
@@ -824,36 +825,36 @@ class PWA(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
     # --- Equipo · the team the person shapes in the Harness tab ---------------
-    def _ruta_equipo(self):
-        return _casa.raiz() / "equipo.json"
+    def _team_path(self):
+        return _casa.raiz() / "team.json"
 
-    def _equipo_leer(self):
-        equipo, causa = _equipo.cargar(self._ruta_equipo())
-        return self._json(200, {"esquema": "preceptoros.equipo-vista/1", "equipo": equipo,
+    def _team_read(self):
+        team, causa = _team.load(self._team_path())
+        return self._json(200, {"esquema": "preceptoros.team-view/1", "team": team,
                                 "origen": "casa" if causa else "local", "causa": causa})
 
-    def _equipo_guardar(self, datos):
+    def _team_save(self, datos):
         if not self._nodo_local_autorizado():
             return self._json(403, {"estado": "NO_DATA", "causa": "local_origin_required"})
-        fallos = _equipo.validar_equipo(datos)
+        fallos = _team.validate_team(datos)
         if fallos:
             return self._json(422, {"estado": "RECHAZADA", "fallos": fallos[:6]})
-        fallos = _equipo.guardar(self._ruta_equipo(), datos)
+        fallos = _team.save(self._team_path(), datos)
         if fallos:
             return self._json(422, {"estado": "RECHAZADA", "fallos": list(fallos)[:6]})
         return self._json(200, {"estado": "GUARDADA", "active": datos["active"]})
 
-    def _equipo_al_lab(self, datos):
+    def _team_to_lab(self, datos):
         """Send one team agent to the Lab as a reusable harness card (PROPUESTA)."""
         if not self._nodo_local_autorizado():
             return self._json(403, {"estado": "NO_DATA", "causa": "local_origin_required"})
         ident = datos.get("id") if isinstance(datos, dict) else None
-        equipo, _causa = _equipo.cargar(self._ruta_equipo())
-        agente = next((a for a in equipo["agents"] if a["id"] == ident), None)
+        team, _causa = _team.load(self._team_path())
+        agente = next((a for a in team["agents"] if a["id"] == ident), None)
         if agente is None:
             return self._json(400, {"estado": "NO_DATA", "causa": "team_agent_unknown"})
-        ficha = _equipo.ficha_lab(agente)
-        ruta = _casa.raiz() / "lab" / "fabrica-harness.jsonl"
+        ficha = _team.lab_card(agente)
+        ruta = _casa.raiz() / "lab" / "harness-shelf.jsonl"
         try:
             ruta.parent.mkdir(parents=True, exist_ok=True)
             previas = ruta.read_text(encoding="utf-8").splitlines() if ruta.exists() else []
@@ -904,11 +905,11 @@ class PWA(BaseHTTPRequestHandler):
             return no_data("request_invalid", 400)
         estilo = None
         if agente is not None:
-            equipo, _causa = _equipo.cargar(self._ruta_equipo())
-            elegido = next((a for a in equipo["agents"] if a["id"] == agente), None)
+            team, _causa = _team.load(self._team_path())
+            elegido = next((a for a in team["agents"] if a["id"] == agente), None)
             if elegido is None:
                 return no_data("team_agent_unknown", 400)
-            estilo = _equipo.instruccion(elegido)
+            estilo = _team.instruction(elegido)
         try:
             _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
         except _canales.CanalRechazado:
@@ -1153,7 +1154,7 @@ class PWA(BaseHTTPRequestHandler):
     def _medidas(self):
         """Lo mismo que `/api/metricas`, hablando el esquema de `medidas.json`.
 
-        Existe porque «mide tu equipo y guarda el resultado» producia un
+        Existe porque «mide tu team y guarda el resultado» producia un
         fichero que no encajaba en ningun sitio: el medidor de aqui y la tabla
         que la web publica hablaban de lo mismo --que va este modelo en esta
         maquina-- con dos vocabularios distintos. Esta ruta devuelve el de la

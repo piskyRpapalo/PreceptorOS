@@ -1,9 +1,9 @@
-"""Tests for equipo.py (preceptoros.equipo/1). Offline; temporary files only."""
+"""Tests for team.py (preceptoros.team/1). Offline; temporary files only."""
 import os
 import tempfile
 import unittest
 
-import equipo as E
+import team as E
 
 
 def ag(**over):
@@ -18,13 +18,13 @@ def team(agents, active=None):
 
 
 def bad(x):
-  return E.validar_agente(x) if isinstance(x, dict) else E.validar_equipo(x)
+  return E.validate_agent(x) if isinstance(x, dict) else E.validate_team(x)
 
 
 class CasaTest(unittest.TestCase):
   def test_casa_valid_within_budget(self):
-    c = E.casa()
-    self.assertEqual(E.validar_equipo(c), [])
+    c = E.house()
+    self.assertEqual(E.validate_team(c), [])
     self.assertLessEqual(len(E._dump(c).encode("utf-8")), 4096)
     self.assertEqual(c["active"], "tips")
 
@@ -49,12 +49,12 @@ class AgentTest(unittest.TestCase):
     self.assertTrue(bad(ag(form="tips", ask="hola")))
 
 
-class EquipoTest(unittest.TestCase):
+class TeamTest(unittest.TestCase):
   def test_count_duplicates_active_schema_extra(self):
     e = team([ag()])
     for x in (team([ag(id="a%d" % i) for i in range(7)]), team([]),
          team([ag(), ag(form="easy")]), team([ag()], active="nope"),
-         team([ag(glyph="x")]), dict(e, esquema="preceptoros.equipo/2"),
+         team([ag(glyph="x")]), dict(e, esquema="preceptoros.team/2"),
          dict(e, extra=1)):
       with self.subTest(team=repr(x)[:40]):
         self.assertTrue(bad(x))
@@ -65,64 +65,64 @@ class InstruccionTest(unittest.TestCase):
     for text in E.FORMS.values():
       if text is not None:
         self.assertLessEqual(len(text.encode("utf-8")), 160)
-    for a in E.casa()["agents"]:
-      s = E.instruccion(a)
+    for a in E.house()["agents"]:
+      s = E.instruction(a)
       self.assertTrue(s.startswith("Style: "), s)
       self.assertLessEqual(len(s.encode("utf-8")), 240)
-    self.assertEqual(E.instruccion(ag(form="free", ask="ñ" * 100)), "Style: " + "ñ" * 100 + ". ")
+    self.assertEqual(E.instruction(ag(form="free", ask="ñ" * 100)), "Style: " + "ñ" * 100 + ". ")
     with self.assertRaises(ValueError):
-      E.instruccion(ag(form="poem"))
+      E.instruction(ag(form="poem"))
 
 
 class FichaLabTest(unittest.TestCase):
   def test_fields_and_bounds(self):
-    for a in E.casa()["agents"]:
-      f = E.ficha_lab(a, edad=3)
+    for a in E.house()["agents"]:
+      f = E.lab_card(a, edad=3)
       self.assertEqual((f["esquema"], f["id"], f["titulo"], f["estado"]),
               ("preceptoros.fabrica/1", "harness-" + a["id"], a["name"], "PROPUESTA"))
       self.assertEqual((f["agentes"], f["edad"]), ([a["id"]], 3))
       self.assertLessEqual(len(f["novedades"]), 100)
       self.assertIn(a["glyph"], f["novedades"])
       self.assertIn(a["form"], f["novedades"])
-    self.assertLessEqual(len(E.ficha_lab(ag(form="free", ask="x" * 200))["novedades"]), 100)
+    self.assertLessEqual(len(E.lab_card(ag(form="free", ask="x" * 200))["novedades"]), 100)
 
 
 class FicheroTest(unittest.TestCase):
   def setUp(self):
     self._d = tempfile.TemporaryDirectory()
     self.dir = self._d.name
-    self.p = os.path.join(self.dir, "equipo.json")
+    self.p = os.path.join(self.dir, "team.json")
 
   def tearDown(self):
     self._d.cleanup()
 
   def test_broken_duplicate_missing_oversize_give_casa_and_cause(self):
-    self.assertEqual(E.cargar(self.p), (E.casa(), "missing"))
+    self.assertEqual(E.load(self.p), (E.house(), "missing"))
     for text, cause in (("{roto", "not_json"),
-              ('{"esquema":"preceptoros.equipo/1","esquema":"x"}', "not_json"),
+              ('{"esquema":"preceptoros.team/1","esquema":"x"}', "not_json"),
               (" " * 4097, "too_large")):
       with self.subTest(cause=cause):
         with open(self.p, "w", encoding="utf-8") as f:
           f.write(text)
-        self.assertEqual(E.cargar(self.p), (E.casa(), cause))
+        self.assertEqual(E.load(self.p), (E.house(), cause))
 
   def test_guardar_invalid_writes_nothing_and_keeps_previous(self):
-    self.assertTrue(E.guardar(self.p, team([ag(glyph="x")])))
+    self.assertTrue(E.save(self.p, team([ag(glyph="x")])))
     self.assertEqual(os.listdir(self.dir), [])
-    self.assertEqual(E.guardar(self.p, E.casa()), [])
+    self.assertEqual(E.save(self.p, E.house()), [])
     with open(self.p, "rb") as f:
       before = f.read()
-    self.assertTrue(E.guardar(self.p, team([ag(form="poem")])))
+    self.assertTrue(E.save(self.p, team([ag(form="poem")])))
     with open(self.p, "rb") as f:
       self.assertEqual(f.read(), before)
-    self.assertEqual(os.listdir(self.dir), ["equipo.json"])
+    self.assertEqual(os.listdir(self.dir), ["team.json"])
 
   def test_roundtrip(self):
     mine = team([ag(id="voz", name="Voz", form="free", ask="ñ" * 100),
           ag(id="pasos", form="steps", glyph="⋮", color="clay")], active="voz")
-    self.assertEqual(E.guardar(self.p, mine), [])
-    self.assertEqual(E.cargar(self.p), (mine, None))
-    self.assertEqual(os.listdir(self.dir), ["equipo.json"])
+    self.assertEqual(E.save(self.p, mine), [])
+    self.assertEqual(E.load(self.p), (mine, None))
+    self.assertEqual(os.listdir(self.dir), ["team.json"])
 
 
 if __name__ == "__main__":

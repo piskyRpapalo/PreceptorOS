@@ -15,9 +15,9 @@ def _evidencia():
             "fuentes": [{"id": 1, "updated_at": "x", "sha256": hashlib.sha256(texto.encode()).hexdigest(), "texto": texto}]}
 
 
-class CaraDelEquipo(unittest.TestCase):
+class TeamFace(unittest.TestCase):
     def test_node_cases_pass(self):
-        r = subprocess.run(["node", "--test", "--test-reporter=tap", "tests/equipo_cases.cjs"], cwd=ROOT,
+        r = subprocess.run(["node", "--test", "--test-reporter=tap", "tests/team_cases.cjs", "tests/acho_motion_cases.cjs"], cwd=ROOT,
                            capture_output=True, text=True, timeout=60)
         self.assertEqual(r.returncode, 0, r.stdout[-800:] + r.stderr[-400:])
 
@@ -25,12 +25,15 @@ class CaraDelEquipo(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
         server = (ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8")
-        self.assertIn('<div class="equipo" id="equipo"></div>', html)
+        self.assertIn('<div class="team" id="team"></div>', html)
         self.assertIn('<summary data-i18n="harness_motor">', html)
-        self.assertLess(html.index('/equipo.js?v=1'), html.index('/app.js?v=15'))
-        self.assertIn('"/equipo.js?v=1"', sw)
-        self.assertIn('"/equipo.js": ("equipo.js",', server)
-        for ruta in ('ruta == "/api/equipo"', 'ruta == "/api/equipo/lab"'):
+        self.assertLess(html.index('/acho_motion.js?v=2'), html.index('/team.js?v=2'))
+        self.assertLess(html.index('/team.js?v=2'), html.index('/app.js?v=15'))
+        self.assertIn('"/acho_motion.js?v=2"', sw)
+        self.assertIn('"/acho_motion.js": ("acho_motion.js",', server)
+        self.assertIn('"/team.js?v=2"', sw)
+        self.assertIn('"/team.js": ("team.js",', server)
+        for ruta in ('ruta == "/api/team"', 'ruta == "/api/team/lab"'):
             self.assertIn(ruta, server)
 
     def test_style_sits_below_the_evidence_rule(self):
