@@ -160,7 +160,6 @@
       "ID canónico del nodo (flota/2)",
       "Identidad del nodo",
       "Identidad local y edificio del nodo",
-      "Ir a la portada",
       "Lab",
       "Leer bandeja local",
       "Leer identidad local",
@@ -188,8 +187,7 @@
       "Verificar e importar",
       "Your author statement",
       "Zonas",
-      "¿Por qué te importa? (opcional)",
-      "⌂"
+      "¿Por qué te importa? (opcional)"
     ],
     "interface/dashboard.html": [
       "Agentes y herramientas",

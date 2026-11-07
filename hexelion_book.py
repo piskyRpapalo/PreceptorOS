@@ -72,10 +72,15 @@ def construir_prompt(turno, evidencia):
 
 
 def verificar_citas(raw_answer, sources):
-    """Accept only source IDs with non-empty quotes matching exact source bytes."""
+    """Accept bounded exact quotes, with one optional JSON fence wrapper."""
     if not isinstance(raw_answer, str) or not isinstance(sources, list):
         return _no_data("station_extract_invalid"), None
     try:
+        if raw_answer.startswith("```"):
+            opening = "```json\n" if raw_answer.startswith("```json\n") else "```\n"
+            if not raw_answer.endswith("\n```"):
+                raise ValueError("fence_shape")
+            raw_answer = raw_answer[len(opening):-4]
         def unique(pairs):
             result = {}
             for key, value in pairs:
@@ -96,7 +101,7 @@ def verificar_citas(raw_answer, sources):
             if type(item) is not dict or set(item) != {"id", "quote"}:
                 raise ValueError("citation_shape")
             ident, quote = item["id"], item["quote"]
-            if type(ident) is not int or ident not in by_id or ident in seen:
+            if type(ident) is not int or ident not in by_id:
                 raise ValueError("citation_id_invalid")
             if not isinstance(quote, str) or not quote.strip():
                 raise ValueError("quote_empty")
@@ -107,11 +112,12 @@ def verificar_citas(raw_answer, sources):
             total += len(quote_bytes)
             if total > MAX_QUOTES_B:
                 raise ValueError("quote_budget_exceeded")
-            seen.add(ident)
             texts.append(quote)
-            source = by_id[ident]
-            citations.append({"id": ident, "updated_at": source["updated_at"],
-                              "sha256": source["sha256"]})
+            if ident not in seen:
+                seen.add(ident)
+                source = by_id[ident]
+                citations.append({"id": ident, "updated_at": source["updated_at"],
+                                  "sha256": source["sha256"]})
     except (ValueError, TypeError, UnicodeError, RecursionError):
         return _no_data("station_extract_not_verified"), None
     return {"estado": "MEASURED", "texto": "\n".join(texts),
