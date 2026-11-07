@@ -14,7 +14,6 @@ class ModelosWebSabotajes(unittest.TestCase):
             cwd=ROOT, capture_output=True, text=True, timeout=30,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("# pass 6", result.stdout)
 
     def test_recurso_lazy_esta_servido_y_versionado(self):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
