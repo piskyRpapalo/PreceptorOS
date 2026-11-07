@@ -791,42 +791,31 @@ $("form-chat").addEventListener("submit", async (e) => {
   $("enviar").disabled = true;
   const esperando = burbuja("pensando… en un teléfono esto son minutos", "espera");
   try {
-    const r = await fetch("/api/lab", {
+    const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texto }),
     });
     const d = await r.json();
     esperando.remove();
     const respuesta = d.respuesta;
-    if (r.ok && respuesta && respuesta.estado !== String.fromCharCode(78, 79, 95, 68, 65, 84, 65) && respuesta.texto) {
-      burbuja(respuesta.texto);
-      $("estado-chat-lab").textContent = t.chat_listo;
+    if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
+        typeof respuesta.texto === "string" && respuesta.texto.trim() &&
+        Array.isArray(respuesta.fuentes) && respuesta.fuentes.length > 0 &&
+        respuesta.fuentes.every((f) => Number.isSafeInteger(f.id) && typeof f.updated_at === "string" && /^[a-f0-9]{64}$/.test(f.sha256))) {
+      const maquina = respuesta.maquina || {};
+      $("modelo-chat").textContent = "Hexelion · " + (typeof maquina.modelo === "string" && maquina.modelo ? maquina.modelo : "modelo no confirmado");
+      burbuja("Hexelion: " + respuesta.texto);
+      respuesta.fuentes.forEach((f) => burbuja("Fuente " + f.id + " · " + f.updated_at + " · SHA-256 " + f.sha256));
+      $("estado-chat-lab").textContent = "Respuesta de Hexelion con fuentes verificadas.";
     } else {
-      const edad = await edadUltimaRespuestaLab();
-      $("estado-chat-lab").textContent = t.chat_sin_respuesta(edad);
+      $("estado-chat-lab").textContent = "NO_DATA · " + (typeof d.causa === "string" ? d.causa : "respuesta de Hexelion no confirmada");
     }
   } catch {
     esperando.remove();
-    $("estado-chat-lab").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
+    $("estado-chat-lab").textContent = "NO_DATA · resultado no confirmado; revisa el hilo antes de volver a enviar.";
   }
   $("enviar").disabled = false;
 });
-
-async function edadUltimaRespuestaLab() {
-  try {
-    const r = await fetch("/api/lab", { cache: "no-store" });
-    const d = await r.json();
-    const mensajes = d.conversacion && Array.isArray(d.conversacion.mensajes)
-      ? d.conversacion.mensajes : [];
-    const ultima = [...mensajes].reverse().find((m) => m.quien === "orquestador" && m.t);
-    const marca = ultima ? Date.parse(ultima.t) : NaN;
-    if (!Number.isFinite(marca)) return t.chat_edad_nd;
-    const segundos = Math.max(0, Math.floor((Date.now() - marca) / 1000));
-    return `${segundos} s`;
-  } catch {
-    return t.chat_edad_nd;
-  }
-}
 
 /* --- frontera ---------------------------------------------------------- */
 const sw = $("switch");

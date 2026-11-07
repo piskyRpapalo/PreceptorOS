@@ -53,16 +53,17 @@
 
   <!-- hablar -->
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar">
+    <p class="pie" id="modelo-chat">Hexelion · modelo no confirmado</p>
     <ol class="hilo" id="hilo" aria-live="polite"></ol>
     <form class="redactar" id="form-chat">
       <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
-      <textarea id="dicho" rows="2" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
+      <textarea id="dicho" rows="2" maxlength="600" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
       <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
     </form>
     <p class="pie" id="pie-chat">
       <span data-i18n="pie_chat">Cada turno tarda minutos en un teléfono. No es que se haya colgado.</span>
     </p>
-    <p class="pie" id="estado-chat-lab" role="status" aria-live="polite" data-i18n="chat_listo">Orquestador local preparado.</p>
+    <p class="pie" id="estado-chat-lab" role="status" aria-live="polite">Hexelion · disponibilidad aún no comprobada.</p>
   </section>
 
   <!-- frontera -->
@@ -229,7 +230,7 @@
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
-<script src="/app.js?v=8"></script>
+<script src="/app.js?v=9"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
 <script src="/creation_publish.js?v=1"></script>
