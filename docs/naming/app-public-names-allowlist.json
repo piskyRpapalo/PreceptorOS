@@ -76,7 +76,8 @@
     "/sting.js": "interface/sting.js",
     "/sw.js": "interface/sw.js",
     "/transicion.js": "interface/transicion.js",
-    "/zonas.js": "interface/zonas.js"
+    "/zonas.js": "interface/zonas.js",
+    "/insertor.js": "interface/insertor.js"
   },
   "api_routes": [
     "/api/anidar",
@@ -137,6 +138,7 @@
       "Bandeja",
       "Canales recientes",
       "Canonical pending credential preview",
+      "Close help",
       "Confirmo que quiero declarar el edificio ya asignado al nodo configurado. Se enviará una petición a Aduana.",
       "Copiar documento fuente",
       "Copiar llave",
@@ -191,7 +193,8 @@
       "Verificar e importar",
       "Your author statement",
       "Zonas",
-      "¿Por qué te importa? (opcional)"
+      "¿Por qué te importa? (opcional)",
+      "×"
     ],
     "interface/dashboard.html": [
       "Agentes y herramientas",
