@@ -50,10 +50,32 @@ body {
 }
 
 .barra { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .65rem 1rem .3rem; }
-.identidad { min-width: 0; }
+.barra { position: relative; z-index: 5; }
+.identidad { min-width: 0; flex: 1; position: relative; }
 .barra h1 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em;
             font-weight: 800; }
 .estado { margin: .15rem 0 0; font-size: .8rem; color: var(--ink-soft); }
+.estado-fila { display: flex; align-items: center; gap: .3rem; min-width: 0; }
+.estado-fila .estado { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.modelos-toggle {
+  display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px;
+  min-width: 44px; min-height: 44px; padding: 0; color: var(--ink-soft);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 999px; cursor: pointer;
+}
+.modelos-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+.modelos-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.modelos-toggle:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.modelos-menu {
+  position: absolute; z-index: 30; inset-inline-start: 0; top: calc(100% + .4rem);
+  width: min(92vw, 30rem); max-height: min(70vh, 36rem); overflow: auto;
+  padding: .8rem; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--radio);
+  box-shadow: 0 .6rem 2rem rgba(0, 0, 0, .22);
+}
+.modelos-menu[hidden] { display: none; }
+.modelos-menu h2 { margin: 0 0 .5rem; font-size: 1rem; }
+.modelos-menu p { overflow-wrap: anywhere; }
+.modelos-menu .turnos { max-height: 48vh; overflow: auto; }
 
 .pestanas {
   display: flex; gap: .35rem; padding: .5rem 1rem .6rem;
@@ -93,6 +115,12 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 .panel[hidden] { display: none; }
+#panel-modelos { padding: .5rem; gap: .5rem; }
+#openworld-frame { display: block; flex: 1 1 auto; width: 100%; min-height: 16rem; border: 0; background: var(--paper); }
+#openworld-frame[hidden] { display: none; }
+#openworld-status { margin: 0; padding: .3rem .5rem; overflow-wrap: anywhere; }
+#openworld-retry { min-height: 44px; flex: 0 0 auto; }
+.openworld-fallback { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; padding: .35rem .6rem; }
 
 /* --- hilo --- */
 .hilo { list-style: none; margin: 0; padding: 0; display: flex;
