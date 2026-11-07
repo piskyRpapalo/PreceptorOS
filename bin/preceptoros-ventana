@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Explicit local browser-app window; does not install a browser or a service.
+set -eu
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+port="${PRECEPTOROS_PWA_PUERTO:-8740}"
+case "$port" in
+  ''|*[!0-9]*) printf '%s\n' 'NO_DATA · puerto local inválido' >&2; exit 1 ;;
+esac
+if [ "${#port}" -gt 5 ] || [ "$((10#$port))" -lt 1 ] || [ "$((10#$port))" -gt 65535 ]; then
+  printf '%s\n' 'NO_DATA · puerto local fuera de rango' >&2; exit 1
+fi
+browser=""
+for candidate in chromium chromium-browser google-chrome; do
+  if command -v "$candidate" >/dev/null 2>&1; then browser="$candidate"; break; fi
+done
+if [ -z "$browser" ]; then
+  printf '%s\n' 'NO_DATA · no hay navegador Chromium compatible en PATH' >&2; exit 1
+fi
+"$root/bin/preceptoros-servicio" arranca
+exec "$browser" --new-window --window-size=420,640 "--app=http://127.0.0.1:$port/app"
