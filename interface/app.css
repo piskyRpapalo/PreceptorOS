@@ -107,6 +107,11 @@ body {
 .hilo li.espera { color: var(--ink-soft); font-style: italic; }
 .hilo li.malo { border-color: var(--stop); color: var(--stop); }
 
+/* Keep composition visible while the conversation itself scrolls. */
+#panel-conversacion { overflow: hidden; }
+#panel-conversacion .hilo { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+#panel-conversacion textarea { max-height: 160px; }
+
 .redactar { display: flex; gap: .5rem; align-items: flex-end; }
 textarea {
   flex: 1; font: inherit; padding: .6rem .7rem; color: var(--ink);
@@ -188,13 +193,13 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .marca.no { color: var(--ink-soft); }
 
 @media (min-width: 720px) {
-  .barra, .pestanas, .panel { max-width: 44rem; margin-inline: auto; width: 100%; }
+  .barra, .pestanas, .panel { max-width: 780px; margin-inline: auto; width: 100%; }
 }
 
 /* --- rostro y control del panel ----------------------------------------- */
 .barra .inicio {
   display: inline-flex; align-items: center; justify-content: center;
-  flex: 0 0 58px; width: 58px; height: 58px; min-width: 58px; min-height: 58px;
+  flex: 0 0 72px; width: 72px; height: 72px; min-width: 72px; min-height: 72px;
   margin: 0; padding: 0; overflow: hidden;
   border: 1px solid var(--acento); border-radius: 50%;
   background: var(--acento-tenue); cursor: pointer;
