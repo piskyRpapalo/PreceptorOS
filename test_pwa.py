@@ -1331,7 +1331,7 @@ class HexelionStationContract(unittest.TestCase):
                 self.assertIsNone(base)
                 self.assertIn(cause, {"station_loopback_required", "station_endpoint_invalid"})
 
-    def test_probes_model_y_envia_think_false_una_vez(self):
+    def test_probes_model_y_envia_think_low_una_vez(self):
         import hexelion_proxy
         class Response:
             def __init__(self, body): self.body = body
@@ -1349,7 +1349,7 @@ class HexelionStationContract(unittest.TestCase):
                                   "modelo": "hexelion:latest", "ms": 23.0})
         self.assertEqual([call.kwargs["timeout"] for call in opener.call_args_list], [3, 120])
         sent = json.loads(opener.call_args_list[1].args[0].data)
-        self.assertIs(sent["think"], False)
+        self.assertEqual(sent["think"], "low")
         self.assertIs(sent["stream"], False)
         self.assertEqual(sent["model"], "hexelion:latest")
 
