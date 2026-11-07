@@ -160,7 +160,6 @@
       "ID canónico del nodo (flota/2)",
       "Identidad del nodo",
       "Identidad local y edificio del nodo",
-      "Ir a la portada",
       "Lab",
       "Leer bandeja local",
       "Leer identidad local",
@@ -170,6 +169,7 @@
       "Mando personal",
       "Modelos",
       "Modelos locales",
+      "Mostrar u ocultar el panel de PreceptorOS",
       "Paquete de creación (.json, hasta 25 MiB)",
       "Pasar por el filtro",
       "Pega aquí lo que quieras comprobar antes de que salga…",
@@ -188,8 +188,7 @@
       "Verificar e importar",
       "Your author statement",
       "Zonas",
-      "¿Por qué te importa? (opcional)",
-      "⌂"
+      "¿Por qué te importa? (opcional)"
     ],
     "interface/dashboard.html": [
       "Agentes y herramientas",
