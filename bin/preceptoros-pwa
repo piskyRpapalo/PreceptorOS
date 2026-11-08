@@ -908,7 +908,11 @@ class PWA(BaseHTTPRequestHandler):
         def no_data(cause, code=503):
             return self._json(code, {"estado": "NO_DATA", "causa": cause,
                                      "respuesta": {"estado": "NO_DATA", "causa": cause}})
-        if not self._nodo_local_autorizado():
+        # Two doors. The person's window carries a same-host Origin; a rack CLI agent is loopback with NO Origin
+        # and must name its voice (checked after parsing). Anything else is refused before the body is read.
+        persona = self._nodo_local_autorizado()
+        agente_cli = (not persona) and self._es_loopback(self.client_address[0]) and not self.headers.get("Origin")
+        if not persona and not agente_cli:
             return no_data("local_origin_required", 403)
         if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
             return no_data("json_required", 415)
@@ -949,6 +953,8 @@ class PWA(BaseHTTPRequestHandler):
         try:
             voz = data.get("voz")
             if voz is None:
+                if not persona:   # a CLI without a voice never speaks as the person
+                    return no_data("local_origin_required", 403)
                 _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
             elif (voz in AGENT_VOICES and self._es_loopback(self.client_address[0])
                   and not self.headers.get("Origin")):
