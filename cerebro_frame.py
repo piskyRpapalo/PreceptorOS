@@ -11,6 +11,8 @@ import re
 LIMITE_BYTES = 1024           # a frame is a syllable: under 1,024 UTF-8 bytes (docs/acho-language.md §1)
 RIM = [[58, 66], [36, 94], [92, 72]]
 _ID = re.compile(r"^[a-z0-9-]{1,40}$")
+# consola.CAUSA_RESIDENTE, said in ASCII English so the shared canon stays small (web brain_frame.js, same text)
+CAUSA_RESIDENTE = "knowing it needs the Ollama socket API and D68 forbids that in the product"
 
 
 def canonical(value):
@@ -65,7 +67,7 @@ def project(catalog):
                     " · signature " + _flag(model.get("firmado"), "signed", "unsigned") +
                     " · base NO_DATA (not separately declared) · adapter NO_DATA (not declared)"
                     " · permissions NO_DATA (not declared) · requires signature NO_DATA (not declared)"
-                    " · residency NO_DATA (catalogue has no live residency measure)")
+                    " · residency NO_DATA (CAUSA_RESIDENTE)")
         frame = _state_frame("brain-" + ident, sentence)
         frame["seal"] = "NO_DATA"
         frame["atoms"][0]["k"] = "NO_DATA"
@@ -75,6 +77,9 @@ def project(catalog):
         frame["atoms"][0]["i"][0]["s"] = "NO_DATA.contorno"
         frame["sound"] = "NO_DATA: model frames declare no measured harmonic table"
         frame["soundCause"] = "no harmonic table in this catalogue"
+        frame["residencia"] = "NO_DATA"
+        frame["causa"] = {"CAUSA_RESIDENTE": CAUSA_RESIDENTE}
+        frame["huella"] = huella(frame)   # sha256 of the canon of every field above; same hex in the web
         if valida(frame):
             return {"ok": False, "cause": "model frame breaks the Acho frame law"}
         frames.append(frame)

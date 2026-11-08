@@ -1,7 +1,7 @@
 """N4 parity: the app projects the model catalogue to the same Acho frames as the web, hash for hash.
 
 The vector below was measured from preceptoros-web main (public/brains.json sha256 d0e7e237…, projected by
-public/game/brain_frame.js, hashed by public/game/canon.js huella). If the web changes the frame, this
+public/game/brain_frame.js, hashed by public/game/canon.js huella; N4 P2: the frame carries it as `huella`). If the web changes the frame, this
 test goes red here until both sides move together.
 """
 import json
@@ -20,20 +20,23 @@ CATALOGO = {"esquema": 1, "cerebros": [
 
 WEB_BRAINS_SHA256 = "d0e7e2376bfa5f63e570bd94aedac6a0158d9a3735f2d8af73166f4218705abd"
 WEB_HUELLAS = {
-    "brain-charla-multi": "503ac39359a24d5da422317b78c731d7c302d777edd91fbe4d86e854b376aa85",
-    "brain-charla-web": "ff8a4387ac015c9a145786dbdc366c137ae222e89fb40081bc0c9a582c0de1f6",
-    "brain-mini": "2856417c3dc766b83547f30b9ef4245307d48a40b14da8101b3dc542449568c7",
-    "brain-mistral-base": "b0539e123549a263e7f4ac82ed43c0881a20dfd538474304426a892a3f6a6b03",
-    "brain-qwen-coder": "c7c35452bd28bb73329a34742bd5eba87dbf02e95c99d55d3b45ce88b1e58a9e",
-    "brain-superviviente": "5603c081574c244d839a4541e0c14190b1e108fb8ff10f0abcd3fffd773306cf",
-    "brain-v7": "7df8de24dbb4f857c76eb8e801bb2743999369c3603d87160c7d0b5512266c03"}
+    "brain-charla-multi": "cce2b5961c8f5eb7672e79ad9efecc394e662376e39122aecf314dff0c25469f",
+    "brain-charla-web": "9a1b0edf4d2f9d4f35164ac87ea3d9ad0703a957118a6d5447832cdf7cfb7d31",
+    "brain-mini": "a68342de8ca6d670fe1ce494708713b4c61bc6387dd9dddf459bcdc1d3d92aa4",
+    "brain-mistral-base": "bd4d78eda6266c8b13b00c4779baf2b588a995cfe16e420aea02a015a53500b6",
+    "brain-qwen-coder": "0958e33e080519aa9f5889b9d38ddb460b81c8e3d979e6b4420078aaa6296f51",
+    "brain-superviviente": "d6b50b1b8d0921c9f038aac7a1ec73a65dee8ba9746a29a6202ad374d32119cd",
+    "brain-v7": "bb5ef043d2d07c1142490664a275b0f8f2b0c3b6e69b764817ae5b4de5a7304d"}
 
 
 class CerebroFrame(unittest.TestCase):
     def test_same_seven_hashes_as_the_web(self):
         r = CF.project(CATALOGO)
         self.assertTrue(r["ok"], r)
-        self.assertEqual({f["id"]: CF.huella(f) for f in r["frames"]}, WEB_HUELLAS)
+        self.assertEqual({f["id"]: f["huella"] for f in r["frames"]}, WEB_HUELLAS)
+        for f in r["frames"]:
+            rest = {k: v for k, v in f.items() if k != "huella"}
+            self.assertEqual(CF.huella(rest), f["huella"])
 
     def test_canon_matches_web_canon_on_hard_text(self):
         # measured with web canon.js: ñ, DEL, an astral emoji and a newline
@@ -45,7 +48,9 @@ class CerebroFrame(unittest.TestCase):
         for f in CF.project(CATALOGO)["frames"]:
             self.assertLess(len(json.dumps(f, ensure_ascii=False, separators=(",", ":")).encode()), CF.LIMITE_BYTES)
             self.assertEqual(f["seal"], "NO_DATA")
-            self.assertIn("residency NO_DATA", f["atoms"][0]["r"])
+            self.assertIn("residency NO_DATA (CAUSA_RESIDENTE)", f["atoms"][0]["r"])
+            self.assertEqual((f["residencia"], f["causa"]["CAUSA_RESIDENTE"]), ("NO_DATA", CF.CAUSA_RESIDENTE))
+            self.assertLess(len(CF.canonical(f)), CF.LIMITE_BYTES)
             self.assertEqual(CF.valida(f), [])
 
     def test_sorted_and_door_comes_from_the_catalogue(self):
