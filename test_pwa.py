@@ -1685,3 +1685,49 @@ class ConditionalLocalReads(unittest.TestCase):
         PWA.PWA._json(response, 200, {"estado": "ok"})
         self.assertEqual(response.status, 200)
         self.assertNotIn("ETag", response.response_headers)
+
+
+class TestVigiaEnHitl(unittest.TestCase):
+    """GET /api/hitl: cada fila trae la ultima linea del vigia con mismo PR y misma cabeza."""
+    CAB = "d4e690dd006d855571f01f9915deadf628dca46d"
+    REPO = "piskyRpapalo/preceptoros-web"
+
+    def _linea(self, **c):
+        base = {"v": "preceptoros.vigia/1", "ts": "2026-11-08T10:00:00Z", "repo": self.REPO,
+                "pr": 781, "cabeza": self.CAB, "estado": "rojo", "rojos": ["test_web"], "titulo": "t"}
+        base.update(c)
+        return json.dumps(base)
+
+    def _filas(self, registro):
+        import io
+        cols = ("PR", "CABEZA", "BASE", "ESTADO", "CHECKS", "TITULO")
+        cab = "".join(c.ljust(16) for c in cols)
+        fila = "".join(v.ljust(16) for v in ("#781", self.CAB[:12], "main", "BEHIND", "ROJO")) + "HITL · t"
+        texto = cab + "\n" + fila + "\n"
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "vigia_hitl.jsonl")
+            if registro is not None:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(registro)
+            with mock.patch.dict(os.environ, {"VIGIA_LOG": ruta}), \
+                    mock.patch.object(PWA.PWA, "_hitl_ejecutar", return_value=(0, texto)):
+                h = PWA.PWA.__new__(PWA.PWA)
+                h.path, h.headers, h.wfile = "/api/hitl", {}, io.BytesIO()
+                h.client_address, h.command = ("127.0.0.1", 9), "GET"
+                h.send_response, h.send_header, h.end_headers = mock.Mock(), mock.Mock(), mock.Mock()
+                PWA.PWA.do_GET(h)
+        self.assertEqual(h.send_response.call_args.args[0], 200)
+        return json.loads(h.wfile.getvalue())["filas"]
+
+    def test_la_ultima_linea_del_mismo_pr_y_cabeza_gana_y_lo_demas_se_ignora(self):
+        registro = "\n".join([
+            self._linea(ts="2026-11-08T10:00:00Z", estado="rojo"),
+            "{linea rota",
+            self._linea(cabeza="f" * 40, estado="firmado"),
+            self._linea(ts="2026-11-08T11:00:00Z", estado="listo", rojos=[]),
+        ]) + "\n"
+        fila = self._filas(registro)[0]
+        self.assertEqual(fila["vigia"], {"estado": "listo", "ts": "2026-11-08T11:00:00Z", "rojos": []})
+
+    def test_sin_registro_la_fila_trae_vigia_null(self):
+        self.assertIsNone(self._filas(None)[0]["vigia"])

@@ -36,8 +36,11 @@ import hashlib
 import ipaddress
 import os
 import re
+import secrets
 import sqlite3
+import subprocess
 import sys
+import threading
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -258,6 +261,8 @@ ESTATICOS = {
     "/acho_motion.js": ("acho_motion.js", "application/javascript; charset=utf-8"),
     "/team.js": ("team.js", "application/javascript; charset=utf-8"),
     "/firmas.js": ("firmas.js", "application/javascript; charset=utf-8"),
+    "/hitl.js": ("hitl.js", "application/javascript; charset=utf-8"),
+    "/hitl.css": ("hitl.css", "text/css; charset=utf-8"),
     "/node_registration.js": ("node_registration.js", "application/javascript; charset=utf-8"),
     "/node_building.js": ("node_building.js", "application/javascript; charset=utf-8"),
     # Índice canónico en la raíz del repo; el handler sirve esos mismos bytes.
@@ -301,6 +306,38 @@ ESTATICOS["/face/face.css"] = ("face/face.css", "text/css; charset=utf-8")
 for _pieza in CARA_LENGUA:
     _url = "/face/bubble/" + _pieza.replace("tokens", "%74okens") + ".js"
     ESTATICOS[_url] = (f"face/bubble/{_pieza}.js", "application/javascript; charset=utf-8")
+
+
+# HITL · la app pide la firma del Soberano; el script sigue siendo quien firma.
+# Token nuevo en cada arranque del servidor (decision mia, sin firma).
+HITL_BIN = os.path.expanduser("~/.local/bin/HITL")
+HITL_TOKEN = secrets.token_urlsafe(24)
+_HITL_LOCK = threading.Lock()
+# Registro del VIGÍA (~/.local/bin/preceptoros-vigia): solo lectura, dato y nunca orden.
+VIGIA_REPO = "piskyRpapalo/preceptoros-web"
+VIGIA_VERSION = "preceptoros.vigia/1"
+
+
+def _vigia_indice():
+    """{(PR, cabeza[:12]): {estado, ts, rojos}} con la ÚLTIMA línea válida de cada par.
+    Líneas rotas o de otro repo/versión se ignoran; fichero ausente → {}."""
+    ruta = os.environ.get("VIGIA_LOG") or os.path.expanduser("~/p0x/mente/telemetria/vigia_hitl.jsonl")
+    indice = {}
+    try:
+        with open(ruta, encoding="utf-8", errors="replace") as f:
+            for linea in f:
+                try:
+                    v = json.loads(linea)
+                except ValueError:
+                    continue
+                if (not isinstance(v, dict) or v.get("v") != VIGIA_VERSION or v.get("repo") != VIGIA_REPO
+                        or not isinstance(v.get("pr"), int) or not isinstance(v.get("cabeza"), str)):
+                    continue
+                rojos = v.get("rojos") if isinstance(v.get("rojos"), list) else []
+                indice[(v["pr"], v["cabeza"][:12])] = {"estado": v.get("estado"), "ts": v.get("ts"), "rojos": rojos}
+    except OSError:
+        return {}
+    return indice
 
 
 class PWA(BaseHTTPRequestHandler):
@@ -444,6 +481,10 @@ class PWA(BaseHTTPRequestHandler):
             return self._harness_leer()
         if ruta == "/api/team":
             return self._team_read()
+        if ruta == "/api/hitl":
+            return self._hitl_listar()
+        if re.fullmatch(r"/api/hitl/\d{1,7}", ruta):
+            return self._hitl_resumen(ruta.rsplit("/", 1)[1])
         if ruta == "/api/firmas":
             return self._firmas_read()
         if ruta == "/api/captura":
@@ -578,6 +619,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._hexelion_consulta(ruta)
         if ruta == "/api/orquestador":
             return self._orquestador()
+        if ruta.startswith("/api/hitl/"):
+            return self._hitl_firmar(ruta)
         datos = self._leer()
         if datos is None:
             return self._json(400, {"estado": "bloqueado",
@@ -848,6 +891,83 @@ class PWA(BaseHTTPRequestHandler):
     # --- Equipo · the team the person shapes in the Harness tab ---------------
     def _team_path(self):
         return _casa.raiz() / "team.json"
+
+    # --- HITL (decision mia, sin firma) -------------------------------------
+    def _hitl_ejecutar(self, args, dry=False, timeout=90):
+        """Corre HITL sin tty (setsid): cualquier «y/n» falla en cerrado."""
+        env = dict(os.environ)
+        # El unit transitorio no trae ~/.local/bin en PATH; HITL necesita `gh`.
+        env["PATH"] = os.path.expanduser("~/.local/bin") + os.pathsep + env.get("PATH", "/usr/bin:/bin")
+        if dry:
+            env["HITL_DRY"] = "1"
+        try:
+            r = subprocess.run([HITL_BIN] + args, stdin=subprocess.DEVNULL,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               timeout=timeout, env=env, start_new_session=True)
+            return r.returncode, r.stdout.decode("utf-8", "replace")[:8192]
+        except subprocess.TimeoutExpired:
+            return 124, "tiempo agotado: comprueba el PR con HITL"
+        except OSError as e:
+            return 127, "no se pudo ejecutar HITL: " + type(e).__name__
+
+    def _hitl_listar(self):
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"estado": "NO_DATA", "causa": "solo_loopback"})
+        rc, texto = self._hitl_ejecutar([])
+        if rc != 0:
+            return self._json(502, {"estado": "NO_DATA", "causa": "hitl_fallo", "motivo": texto[:300]})
+        lineas = [x for x in texto.splitlines() if x.strip()]
+        filas = []
+        if lineas and lineas[0].startswith("PR"):
+            ini = [lineas[0].index(k) for k in ("CABEZA", "BASE", "ESTADO", "CHECKS", "TITULO")]
+            for x in lineas[1:]:
+                if not x.startswith("#"):
+                    continue
+                t = [x[a:b].strip() for a, b in zip([0] + ini, ini + [None])]
+                filas.append({"numero": int(t[0][1:]) if t[0][1:].isdigit() else None,
+                              "cabeza": t[1], "estado": t[3], "checks": t[4], "titulo": t[5]})
+        # Lo que ve el VIGÍA de cada fila: última línea de su registro con mismo PR y misma cabeza.
+        vigia = _vigia_indice()
+        for f in filas:
+            f["vigia"] = vigia.get((f["numero"], f["cabeza"][:12])) if f["numero"] is not None and f["cabeza"] else None
+        # El token viaja en este JSON (otra web no puede leerlo: sin CORS); la página sigue idéntica a app.html.
+        return self._json(200, {"esquema": "preceptoros.hitl/1", "estado": "ok", "filas": filas, "token": HITL_TOKEN})
+
+    def _hitl_resumen(self, n):
+        """Solo lectura: HITL llega a su pregunta y, sin tty, se para."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"estado": "NO_DATA", "causa": "solo_loopback"})
+        rc, texto = self._hitl_ejecutar([n])
+        lineas = [x for x in texto.splitlines() if "¿Firmas" not in x and "no firmado" not in x]
+        return self._json(200 if rc != 124 else 504, {
+            "esquema": "preceptoros.hitl-resumen/1", "numero": int(n),
+            "texto": "\n".join(lineas)[:4096]})
+
+    def _hitl_firmar(self, ruta):
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"estado": "NO_DATA", "causa": "solo_loopback"})
+        if not re.fullmatch(r"/api/hitl/\d{1,7}", ruta):
+            return self._json(404, {"estado": "NO_DATA", "motivo": "aquí no vive eso"})
+        if not secrets.compare_digest(self.headers.get("X-Hitl-Token", "").encode("utf-8"),
+                                      HITL_TOKEN.encode("ascii")):
+            return self._json(403, {"estado": "bloqueado",
+                                    "motivo": "token ausente o caducado: recarga la página"})
+        n = ruta.rsplit("/", 1)[1]
+        dry = "dry=1" in self.path.partition("?")[2].split("&")
+        if not _HITL_LOCK.acquire(blocking=False):
+            return self._json(409, {"estado": "bloqueado", "motivo": "ya hay una firma en curso"})
+        try:
+            rc, texto = self._hitl_ejecutar(["--si", n], dry=dry, timeout=1200)
+        finally:
+            _HITL_LOCK.release()
+        cuerpo = texto.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(cuerpo)))
+        self.send_header("X-Hitl-Rc", str(rc))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(cuerpo)
 
     def _firmas_read(self):
         """The pending-signature card the scraper writes (bin/firmas-scraper). Read only."""

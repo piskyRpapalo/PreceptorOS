@@ -1,3 +1,5 @@
+// [deprecated 2026-11-08] replaced_by=interface/hitl.js (HITL, first in Boundary)
+// Ya no se pinta: app.html quito el contenedor #firmas de Command. No borrar: queda como referencia.
 /* Firmas · Pending signatures, at the top of the Command tab.
  * Reads /api/firmas, the card the internal scraper (bin/firmas-scraper, every 10 min) writes.
  * One Acho card per open front. The page never signs: «Copy» gives the one command the
