@@ -75,7 +75,8 @@ import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
-import indice_rack as _indice_rack                                     # noqa: E402
+import indice_rack as _indice_rack
+AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
 import creacion_publicacion as _creacion_publicacion         # noqa: E402
 import voz_creacion as _voz_creacion                          # noqa: E402
@@ -925,7 +926,7 @@ class PWA(BaseHTTPRequestHandler):
                 return result
             data = json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=unique)
             if (len(raw) != size or type(data) is not dict or
-                    not {"texto"} <= set(data) <= {"texto", "panel", "agente"}):
+                    not {"texto"} <= set(data) <= {"texto", "panel", "agente", "voz"}):
                 raise ValueError()
             text = data["texto"]
             if type(text) is not str or not text.strip() or len(text) > 600:
@@ -946,7 +947,15 @@ class PWA(BaseHTTPRequestHandler):
                 return no_data("team_agent_unknown", 400)
             estilo = _team.instruction(elegido)
         try:
-            _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
+            voz = data.get("voz")
+            if voz is None:
+                _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
+            elif (voz in AGENT_VOICES and self._es_loopback(self.client_address[0])
+                  and not self.headers.get("Origin")):
+                # A CLI agent on this rack (Claude, Codex…) asks in its own voice; never the person's.
+                _canales.di("orquesta", voz, text.strip(), rol="rack CLI agent", base=_casa.raiz())
+            else:
+                return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
