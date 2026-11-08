@@ -1,7 +1,7 @@
 """N4 parity: the app projects the model catalogue to the same Acho frames as the web, hash for hash.
 
 The vector below was measured from preceptoros-web main (public/brains.json sha256 d0e7e237…, projected by
-public/game/brain_frame.js, hashed by public/game/canon.js huella; N4 P2: the frame carries it as `huella`). If the web changes the frame, this
+public/game/brain_frame.js, hashed by public/game/canon.js huella; N4 P2: the frame carries it as `sha256`). If the web changes the frame, this
 test goes red here until both sides move together.
 """
 import json
@@ -33,10 +33,10 @@ class CerebroFrame(unittest.TestCase):
     def test_same_seven_hashes_as_the_web(self):
         r = CF.project(CATALOGO)
         self.assertTrue(r["ok"], r)
-        self.assertEqual({f["id"]: f["huella"] for f in r["frames"]}, WEB_HUELLAS)
+        self.assertEqual({f["id"]: f["sha256"] for f in r["frames"]}, WEB_HUELLAS)
         for f in r["frames"]:
-            rest = {k: v for k, v in f.items() if k != "huella"}
-            self.assertEqual(CF.huella(rest), f["huella"])
+            rest = {k: v for k, v in f.items() if k != "sha256"}
+            self.assertEqual(CF.huella(rest), f["sha256"])
 
     def test_canon_matches_web_canon_on_hard_text(self):
         # measured with web canon.js: ñ, DEL, an astral emoji and a newline

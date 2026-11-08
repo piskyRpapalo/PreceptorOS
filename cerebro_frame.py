@@ -79,7 +79,7 @@ def project(catalog):
         frame["soundCause"] = "no harmonic table in this catalogue"
         frame["residencia"] = "NO_DATA"
         frame["causa"] = {"CAUSA_RESIDENTE": CAUSA_RESIDENTE}
-        frame["huella"] = huella(frame)   # sha256 of the canon of every field above; same hex in the web
+        frame["sha256"] = huella(frame)   # sha256 of the canon of every field above; same hex in the web
         if valida(frame):
             return {"ok": False, "cause": "model frame breaks the Acho frame law"}
         frames.append(frame)
