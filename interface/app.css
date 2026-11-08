@@ -17,19 +17,9 @@ html { font-size: 80%; }
   --halo-bajo: #e6dbc3;
   --radio: 12px;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #e9ecf1;  --ink-soft: #a2abba; --line: #333844;
-    --paper: #1b1e25; --ground: #121419;
-    --ok: #6cd39b;   --ok-soft: #17301f;
-    --warn: #e0b872; --warn-soft: #2e2515;
-    --stop: #f19aa0; --stop-soft: #331a1c;
-    --acento: #a794ff;
-    --acento-tenue: #221d3d;
-    --halo-alto: #241d47;
-    --halo-bajo: #191532;
-  }
-}
+/* Always cream, like the web (Sovereign, 2026-11-08, with a photo of the mini window in dark mode): the web's
+   controller and map are cream in every scheme, so the app no longer turns dark around them. */
+:root { color-scheme: light; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
