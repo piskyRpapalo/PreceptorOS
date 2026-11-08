@@ -1572,7 +1572,7 @@ class InsertorAncladoContrato(unittest.TestCase):
         self.assertIn('"/insertor.js?v=1"', sw)
         self.assertIn('"/insertor.js": ("insertor.js",', server)
         self.assertIn('"interface/insertor.js"', versions)
-        self.assertIn('"/app.css?v=11"', sw)
+        self.assertIn('"/app.css?v=12"', sw)
         self.assertIn('"/app.js?v=15"', sw)
 
 
