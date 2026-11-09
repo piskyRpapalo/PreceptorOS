@@ -185,6 +185,58 @@ the vocabulary.
   Their messages are in Spanish, and nobody has timed an install from
   scratch: five minutes is NO_DATA.
 
+## What works, what waits · measured 2026-11-09
+
+This section separates what is verified from what only exists. A file is not a
+capability. Everything below was verified in the source at head `7a210f2c`
+(2026-11-09).
+
+**Working in the interface trunk (`/app`, `interface/app.html`):**
+
+- Nine panels: Command, Talk, Boundary, Notebook, Lab, Harness, Public gate,
+  World, Settings.
+- Keyboard travel between panels: arrow keys, Home, End, Escape.
+- Live regions in each panel, for screen readers.
+- Nine interface languages.
+- Voice output through `native_voice.js`. When the browser gives no voice,
+  the interface says so; it does not stay silent.
+- The Boundary panel shows the HITL signature list (`hitl.js`, served at
+  `/api/hitl`). `firmas.js` is deprecated in favour of `hitl.js`, and the
+  trunk still loads both. Nothing is removed in this change.
+
+**Present in the source, not connected:**
+
+- `oido.py` is a local speech-to-text library. No interface route and no
+  microphone control call it. Voice input is NO_DATA, cause: not connected,
+  not tested.
+- `dashboard.html`, `consola.js`, `hexelion.html` and `privacy_toggle.html`
+  are superseded surfaces. The server still serves some of their assets.
+  Use `/app`.
+
+**Mission status, design only:** the APP can show mission status as a
+read-only view of the mission catalogs (public and private Mesa). The catalog
+stays the only writer. The APP maps each mission to the state words below and
+never writes mission state. FIRMO stays with the human.
+
+**State words (documentation map; no new runtime enum):**
+
+- **MEDIDO**: a fact with a measured source. The chat payload uses the
+  English form `MEASURED`; same rule.
+- **NO_DATA**: missing evidence. The cause is mandatory.
+- **PROPOSED**: a design that no FIRMO has signed.
+- **LIVE**: verified fresh now (contract `preceptoros.app.estado/1`).
+- **STALE**: measured before, not fresh now (same contract).
+
+**Accessibility evidence, labeled:**
+
+- Keyboard navigation: verified in the source. Physical test: NO_DATA, cause:
+  not exercised on a device in this audit.
+- Screen-reader states: live regions verified in the source. Test with a
+  screen reader on hardware: NO_DATA, cause: not exercised in this audit.
+- Voice output: code path verified. It works only where the browser supplies
+  a voice.
+- Voice input: NO_DATA, cause: `oido.py` is not connected to the interface.
+
 ## Requirements
 
 - 8 GB of memory is enough for a small model.
@@ -196,8 +248,8 @@ the vocabulary.
     bin/pruebas
 
 The suite is large on purpose. Anything that reports a number is checked
-against the case where the number is missing, because a meter that invents a
-reading is worse than no meter.
+against the case where the number is missing, because a meter that invents
+a reading is worse than no meter.
 
 ## A note on names
 
@@ -208,6 +260,11 @@ own disk that holds the memory, the measurements and the runs. It is not a
 link (measured 2026-11-04). They are legacy names, kept on purpose so that
 nothing already running breaks. They will move only with a migration that
 keeps both names working, never with a blind rename.
+
+The repository itself has a new address:
+[preceptoros-app](https://github.com/piskyRpapalo/preceptoros-app). The old
+address, `piskyRpapalo/PreceptorOS`, still resolves to the same repository
+(same repository ID). The product name stays **PreceptorOS**.
 
 **This repository is the APP.** The companion is a separate repository
 ([preceptoros-companion](https://github.com/piskyRpapalo/preceptoros-companion))

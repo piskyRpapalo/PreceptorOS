@@ -40,11 +40,11 @@ un USB, o borrarlo. Nada sale de tu máquina si tú no lo exportas.
 
 La ventana negra dice qué pasó. Las dos cosas que suelen ocurrir:
 
-- **«PreceptorOS ya estaba abierto»** — lo está. Se abrió el navegador y no se
-  arrancó un segundo, porque dos a la vez sobre la misma memoria haría que
+- **«PreceptorOS ya estaba abierto»** — lo está. Se abrió el navegador y no
+  se arrancó un segundo, porque dos a la vez sobre la misma memoria haría que
   vieras una cosa y el fichero dijera otra.
-- **«El servidor no llegó a responder»** — algo ocupa el puerto 8740. Cierra la
-  otra copia y vuelve a abrirlo.
+- **«El servidor no llegó a responder»** — algo ocupa el puerto 8740. Cierra
+  la otra copia y vuelve a abrirlo.
 
 ---
 
@@ -55,7 +55,7 @@ reabrirlo sin recordar un comando.
 
 ### En el ordenador
 
-1. Busca **PreceptorOS** en el menú de aplicaciones. Si está, tócalo y ya.
+1. Busca **PreceptorOS** en tu menú de aplicaciones. Si está, tócalo y ya.
 2. Si no está, abre una terminal:
 
 ```
@@ -106,29 +106,31 @@ bin/instalar-pc
 ```
 
 Crea el icono, y te dice por dónde volver si algo se cuelga. Cubre las dos
-rutas: si tienes el repositorio, el icono arranca desde él; si solo tienes el
-fichero descargado, arranca ese.
+rutas: si tienes el repositorio, el icono arranca desde él; si solo tienes
+el fichero descargado, arranca ese.
 
-Para quitarlo: `bin/instalar-pc --desinstalar`. **No toca tu memoria** ni el
-producto — solo el icono.
+Para quitarlo: `bin/instalar-pc --desinstalar`. **No toca tu memoria** ni
+el producto — solo el icono.
 
 ---
 
 ## Camino 2 · desde el código
 
-Para quien quiera leerlo, cambiarlo o auditarlo.
+Para quien quiera leerlo, cambiarlo o auditarlo. El repositorio es ahora
+`preceptoros-app`; la dirección antigua `PreceptorOS` sigue llegando al mismo
+sitio.
 
 ```
-git clone https://github.com/piskyRpapalo/PreceptorOS
-cd PreceptorOS
+git clone https://github.com/piskyRpapalo/preceptoros-app
+cd preceptoros-app
 python3 preceptoros.py             # crear tu memoria
 python3 preceptoros.py --charla    # hablar, si hay cerebro
 bin/preceptoros-servicio arranca   # la cara web
 ```
 
-Python 3.10 o más nuevo. **Sin dependencias**: solo biblioteca estándar. Eso no
-es una virtud abstracta — es lo que hace que el fichero del camino 1 quepa en
-14 MB y no en 400.
+Python 3.10 o más nuevo. **Sin dependencias**: solo biblioteca estándar. Eso
+no es una virtud abstracta — es lo que hace que el fichero del camino 1 quepa
+en 14 MB y no en 400.
 
 ---
 

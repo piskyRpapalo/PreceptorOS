@@ -42,8 +42,8 @@ delete it. Nothing leaves your machine unless you export it.
 
 ## Closed everything and cannot get back in?
 
-It happened to the author. It is not your fault: until today there was no way
-to reopen it without remembering a command.
+It happened to the author. It is not your fault: until today there was no way to
+reopen it without remembering a command.
 
 1. Look for **PreceptorOS** in your applications menu. If it is there, click it.
 2. If it is not, open a terminal:
@@ -58,7 +58,7 @@ browser.
 ### If it says the port is busy
 
 An earlier copy is still running. **Watch out here**, because there is a trap:
-the server can be called two different things depending on how you started it.
+the server can be called two different names depending on how you started it.
 
 ```
 bin/preceptoros-servicio para      # the clean way: stops whatever is there
@@ -105,11 +105,12 @@ memory** or the product — only the icon.
 
 ## Path 2 · from the source
 
-For anyone who wants to read it, change it or audit it.
+For anyone who wants to read it, change it or audit it. The repository is now
+`preceptoros-app`; the old `PreceptorOS` address still resolves to it.
 
 ```
-git clone https://github.com/piskyRpapalo/PreceptorOS
-cd PreceptorOS
+git clone https://github.com/piskyRpapalo/preceptoros-app
+cd preceptoros-app
 python3 preceptoros.py             # create your memory
 python3 preceptoros.py --charla    # talk, if a brain is installed
 bin/preceptoros-servicio arranca   # the web face
