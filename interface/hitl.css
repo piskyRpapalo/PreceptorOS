@@ -1,0 +1,27 @@
+/* HITL · panel de firmas pendientes (decision mia, sin firma). Crema, botones de 44 px. */
+.hitl { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radio); padding: 12px; margin: 12px 0; color: var(--ink); }
+.hitl h3 { margin: 0 0 4px; }
+.hitl .hitl-cabecera { display: block; width: 100%; min-height: 56px; padding: 12px 16px; font-size: 18px; font-weight: 600; text-align: left; border: 2px solid var(--ink); background: var(--ground); }
+.hitl .hitl-cabecera span { display: inline; }
+.hitl .hitl-cabecera[aria-expanded="true"] { background: var(--paper); }
+.hitl h4 { margin: 12px 0 6px; }
+.hitl button { min-height: 44px; min-width: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; }
+.hitl button:disabled { opacity: .5; cursor: not-allowed; }
+.hitl-lista { list-style: none; padding: 0; margin: 8px 0; }
+.hitl-fila { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; margin-bottom: 8px; background: var(--ground) !important; }
+.hitl-fila strong { font-weight: 600; }
+.hitl-detalle[hidden] { display: none; }
+.hitl-resumen { white-space: pre-wrap; font: inherit; font-size: 14px; background: var(--ground); padding: 8px 10px; border-radius: 8px; max-height: 40vh; overflow: auto; margin: 0 0 10px; }
+.hitl-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+.hitl-botones button { flex: 1 1 140px; }
+.hitl-si { border-color: var(--ok) !important; color: var(--ok) !important; background: var(--ok-soft) !important; }
+.hitl-no { border-color: var(--stop) !important; color: var(--stop) !important; background: var(--stop-soft) !important; }
+.hitl-resultado { white-space: pre-wrap; font-size: 14px; margin: 10px 0 0; }
+@media (max-width: 420px) { .hitl { padding: 10px; } }
+
+/* Panels: the reading opens under its own row, then the choice (as the HITL command: read, then y/n). */
+.hitl-lista li{list-style:none}
+.hitl-lista .hitl-detalle{margin:6px 0 12px;padding:12px;border:2px solid currentColor;border-radius:14px}
+.hitl-fila[aria-expanded="true"]{outline:3px solid currentColor;outline-offset:2px}
+.hitl-resumen{white-space:pre-wrap;overflow-wrap:anywhere;max-height:50vh;overflow:auto}
+.hitl-vigia{font-size:14px;font-weight:600}

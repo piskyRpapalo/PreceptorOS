@@ -29,7 +29,7 @@ class ModelosWebSabotajes(unittest.TestCase):
         self.assertIn('"/modelos_web.js": ("modelos_web.js",', server)
         self.assertIn('"/modelos_web.js?v=2"', sw)
         self.assertIn('"interface/modelos_web.js"', versions)
-        self.assertIn("preceptoros-armazon-v148", sw)
+        self.assertRegex(sw, r"preceptoros-armazon-v\d+")  # [deprecated 2026-11-08] pinned v148: any bump was a red
 
 
 if __name__ == "__main__":

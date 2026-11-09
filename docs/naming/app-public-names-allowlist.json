@@ -63,6 +63,8 @@
     "/firmas.js": "interface/firmas.js",
     "/hexelion.css": "interface/hexelion.css",
     "/hexelion.js": "interface/hexelion.js",
+    "/hitl.css": "interface/hitl.css",
+    "/hitl.js": "interface/hitl.js",
     "/insertor.js": "interface/insertor.js",
     "/install.js": "interface/install.js",
     "/keep_device.js": "interface/keep_device.js",
@@ -100,6 +102,8 @@
     "/api/hexelion/chat",
     "/api/hexelion/decision",
     "/api/hexelion/search",
+    "/api/hitl",
+    "/api/hitl/",
     "/api/lab",
     "/api/lab-rack",
     "/api/manifiesto",
@@ -139,6 +143,7 @@
   ],
   "names_by_source": {
     "interface/app.html": [
+      "Actualizar lista",
       "Ajustes",
       "Anidar esto en tu memoria",
       "Bandeja",
@@ -162,6 +167,7 @@
       "Engine: measured cycles",
       "Enviar a la aduana",
       "Escribe tu respuesta…",
+      "Firmas HITL",
       "Frontera",
       "Frontera del nodo",
       "Generate voice downloads",
@@ -181,6 +187,7 @@
       "Lo que dices",
       "Mando personal",
       "Modelos locales",
+      "No",
       "Notebook",
       "OpenWorld",
       "OpenWorld · mapa, partida efímera y Acho",
@@ -199,6 +206,7 @@
       "Reintentar OpenWorld",
       "Settings",
       "Submit pending cédula",
+      "Sí, firmo y fusiono",
       "Talk",
       "Texto a comprobar",
       "The Path",
@@ -206,8 +214,10 @@
       "World",
       "Your author statement",
       "Zonas",
+      "·",
       "¿Por qué te importa? (opcional)",
-      "×"
+      "×",
+      "…"
     ],
     "interface/manifest.json": [
       "Hexelion",

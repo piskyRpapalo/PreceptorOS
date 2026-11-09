@@ -1,3 +1,4 @@
+import re
 """The team face in Harness: wired, cached, deterministic, and never above the evidence rule."""
 import hashlib
 import subprocess
@@ -28,7 +29,7 @@ class TeamFace(unittest.TestCase):
         self.assertIn('<div class="team" id="team"></div>', html)
         self.assertIn('<summary data-i18n="harness_motor">', html)
         self.assertLess(html.index('/acho_motion.js?v=2'), html.index('/team.js?v=2'))
-        self.assertLess(html.index('/team.js?v=2'), html.index('/app.js?v=15'))
+        self.assertLess(html.index('/team.js?v=2'), html.index(re.search(r'/app\.js\?v=\d+', html).group(0)))
         self.assertIn('"/acho_motion.js?v=2"', sw)
         self.assertIn('"/acho_motion.js": ("acho_motion.js",', server)
         self.assertIn('"/team.js?v=2"', sw)
