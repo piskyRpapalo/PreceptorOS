@@ -1126,8 +1126,8 @@ class ExportacionNodoContracto(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('if ruta == "/api/nodo/export"', server)
         self.assertIn('id="nodo-export-form"', html)
-        self.assertIn('/app.js?v=15', html)
-        self.assertIn('"/app.js?v=15"', sw)
+        v = re.search(r'/app\.js\?v=(\d+)', html).group(1)  # [deprecated 2026-11-08] pinned v=15: the rule is that page and cache agree
+        self.assertIn('"/app.js?v=' + v + '"', sw)
         self.assertIn('if ruta == "/api/nodo/edificio"', server)
         self.assertIn('id="node-building-form"', html)
         self.assertIn('/node_building.js?v=1', html)
@@ -1572,8 +1572,9 @@ class InsertorAncladoContrato(unittest.TestCase):
         self.assertIn('"/insertor.js?v=1"', sw)
         self.assertIn('"/insertor.js": ("insertor.js",', server)
         self.assertIn('"interface/insertor.js"', versions)
-        self.assertIn('"/app.css?v=13"', sw)
-        self.assertIn('"/app.js?v=15"', sw)
+        for pieza in ('app.css', 'app.js'):  # [deprecated 2026-11-08] pinned v=13/v=15: the rule is that page and cache agree
+            v = re.search(r'/' + pieza.replace('.', r'\.') + r'\?v=(\d+)', html).group(1)
+            self.assertIn('"/' + pieza + '?v=' + v + '"', sw)
 
 
 class LabRackPuertaContrato(unittest.TestCase):

@@ -503,6 +503,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # face_army.js lee la API canon de la gacha y del Army por sus nombres
         # (AtlasGacha.RAREZAS / TCS, AtlasArmy.TOPE): propiedades canon, no politicas.
         INTRINSECOS |= {"RAREZAS", "TCS", "TOPE"}
+        # HITL es el nombre del comando de firma del Soberano (doctrina 2026-11-08): el bloque de Boundary
+        # lo nombra porque lo ejecuta; es un comando, no una politica.
+        INTRINSECOS |= {"HITL", "ROJO"}  # ROJO: the checks state the HITL list shows, in words (a status, not a policy)
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

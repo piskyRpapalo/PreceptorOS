@@ -68,18 +68,18 @@
   <!-- frontera -->
   <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" data-i18n-aria="aria_frontera" aria-label="Frontera del nodo" hidden>
     <section class="hitl" id="hitl" aria-labelledby="hitl-titulo">
-      <button type="button" class="hitl-cabecera" id="hitl-cabecera" aria-expanded="false" aria-controls="hitl-cuerpo"><span id="hitl-titulo">Firmas HITL · <span id="hitl-n">…</span> pendientes</span></button>
+      <button type="button" class="hitl-cabecera" id="hitl-cabecera" aria-expanded="false" aria-controls="hitl-cuerpo"><span id="hitl-titulo"><span data-i18n="hitl_titulo">Firmas HITL</span> · <span id="hitl-n">…</span></span></button>
       <div class="hitl-cuerpo" id="hitl-cuerpo" hidden>
-        <p class="pie">Lista de PRs HITL de preceptoros-web. Nada se firma hasta que pulsas «Sí, firmo y fusiono».</p>
-        <button type="button" id="hitl-recargar">Actualizar lista</button>
-        <p class="pie hitl-estado" id="hitl-estado" role="status" aria-live="polite"></p>
+        <p class="pie" data-i18n="hitl_intro">Los PRs que esperan tu firma. Nada se firma hasta que pulsas «Sí, firmo y fusiono».</p>
+        <button type="button" id="hitl-recargar" data-i18n="hitl_recargar">Actualizar lista</button>
+        <p class="pie hitl-estado" id="hitl-estado" role="status" aria-live="polite" data-i18n="hitl_estado">NO_DATA: la lista se lee al abrir Boundary.</p>
         <ul class="hitl-lista" id="hitl-lista"></ul>
         <div class="hitl-detalle" id="hitl-detalle" hidden>
           <h4 id="hitl-detalle-titulo"></h4>
           <pre class="hitl-resumen" id="hitl-resumen"></pre>
           <div class="hitl-botones">
-            <button type="button" class="hitl-si" id="hitl-si">Sí, firmo y fusiono</button>
-            <button type="button" class="hitl-no" id="hitl-no">No</button>
+            <button type="button" class="hitl-si" id="hitl-si" data-i18n="hitl_si">Sí, firmo y fusiono</button>
+            <button type="button" class="hitl-no" id="hitl-no" data-i18n="hitl_no">No</button>
           </div>
         </div>
         <p class="pie hitl-resultado" id="hitl-resultado" role="status" aria-live="polite"></p>
@@ -286,7 +286,7 @@
 <script src="/team.js?v=2"></script>
 <script src="/firmas.js?v=1"></script>
 <script src="/hitl.js?v=5"></script>
-<script src="/app.js?v=15"></script>
+<script src="/app.js?v=16"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>

@@ -83,7 +83,9 @@ class Cara(unittest.TestCase):
         js = (raiz / "interface" / "firmas.js").read_text(encoding="utf-8")
         html = (raiz / "interface" / "app.html").read_text(encoding="utf-8")
         server = (raiz / "bin" / "preceptoros-pwa").read_text(encoding="utf-8")
-        self.assertIn('id="firmas"', html)
+        # [deprecated 2026-11-08] the scraped block left Command; HITL in Boundary replaces it.
+        self.assertNotIn('id="firmas"', html)
+        self.assertIn('id="hitl"', html)
         self.assertLess(html.index("/acho_motion.js"), html.index("/firmas.js?v=1"))
         self.assertIn('"/firmas.js?v=1"', (raiz / "interface" / "sw.js").read_text(encoding="utf-8"))
         self.assertIn('if ruta == "/api/firmas":', server)

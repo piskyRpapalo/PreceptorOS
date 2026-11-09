@@ -74,8 +74,9 @@
 // v148 (2026-11-08): HITL moves from Command to Boundary, as a folded button (hitl.js v2).
 // v149 (2026-11-08): old firmas block retired from Command (firmas.js deprecated); HITL reads live on open.
 // v151 (2026-11-08): HITL rows show the vigía state (hitl.js v5, hitl.css v4).
-const Cache = "preceptoros-armazon-v151";
-const Armazon = ["/install.js", "/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/assets/preceptoros-up.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=15", "/modelos_web.js?v=2", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/firmas.js?v=1", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// v152 (2026-11-08): HITL texts in the nine languages (app.js v16).
+const Cache = "preceptoros-armazon-v152";
+const Armazon = ["/install.js", "/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/assets/preceptoros-up.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=16", "/modelos_web.js?v=2", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/firmas.js?v=1", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
