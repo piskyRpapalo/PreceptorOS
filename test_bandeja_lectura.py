@@ -25,6 +25,18 @@ class BandejaLecturaTest(unittest.TestCase):
             (folder / 'coberturas.jsonl').write_text(' ' * 65537)
             self.assertTrue(all(x['estado'] == 'NO_DATA' for x in bandeja_lectura.leer(tmp).values()))
 
+    def test_data_directory_symlink_is_not_followed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            external = root / 'external'
+            (external / 'bandeja').mkdir(parents=True)
+            (external / 'bandeja' / 'huecos.jsonl').write_text(
+                json.dumps({'id': 'private_fixture'}) + chr(10))
+            (root / 'data').symlink_to(external, target_is_directory=True)
+            got = bandeja_lectura.leer(root)
+            self.assertEqual(got['huecos']['estado'], 'NO_DATA')
+            self.assertNotIn('private_fixture', str(got))
+
 class BandejaRouteTest(unittest.TestCase):
     def test_cross_origin_and_remote_are_denied(self):
         import importlib.util

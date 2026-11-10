@@ -11,7 +11,8 @@ def leer(raiz):
     for nombre in ('huecos', 'coberturas'):
         path = Path(raiz) / 'data' / 'bandeja' / (nombre + '.jsonl')
         try:
-            if path.is_symlink() or path.parent.is_symlink():
+            if (path.is_symlink() or path.parent.is_symlink()
+                    or path.parent.parent.is_symlink()):
                 raise ValueError('unsafe_path')
             with open(path, 'rb') as stream:
                 raw = stream.read(LIMIT + 1)
