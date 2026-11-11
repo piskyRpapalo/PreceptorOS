@@ -91,5 +91,39 @@ class NotebookReadTests(unittest.TestCase):
         self.assertEqual(N.read(self.root, NOW)["agents_cause"], "agent_invalid")
 
 
+class NotebookShellTests(unittest.TestCase):
+    ROOT = Path(__file__).parent
+
+    def test_notebook_replaces_old_turns_without_deleting_consent(self):
+        html = (self.ROOT / "interface/app.html").read_text(encoding="utf-8")
+        notebook = html.split('id="panel-cuaderno"', 1)[1].split('id="panel-lab"', 1)[0]
+        settings = html.split('id="panel-ajustes"', 1)[1]
+        self.assertIn('id="notebook-agents"', notebook)
+        self.assertIn('id="notebook-loops"', notebook)
+        self.assertIn('id="notebook-reports"', notebook)
+        self.assertNotIn('id="turnos"', notebook)
+        self.assertIn('id="captura-consent"', settings)
+        self.assertIn('id="turnos"', settings)
+        self.assertIn('id="recuento"', settings)
+
+    def test_route_and_cache_align(self):
+        html = (self.ROOT / "interface/app.html").read_text(encoding="utf-8")
+        sw = (self.ROOT / "interface/sw.js").read_text(encoding="utf-8")
+        pwa = (self.ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8")
+        app = (self.ROOT / "interface/app.js").read_text(encoding="utf-8")
+        self.assertIn('<script src="/notebook.js?v=1"></script>', html)
+        self.assertIn('"/notebook.js?v=1"', sw)
+        self.assertIn('"/notebook.js": ("notebook.js", "application/javascript; charset=utf-8")', pwa)
+        self.assertIn('ruta == "/api/notebook"', pwa)
+        self.assertIn('ruta in ("/api/bandeja", "/api/notebook")', pwa)
+        self.assertIn("preceptoros-armazon-v158", sw)
+        self.assertIn('<script src="/app.js?v=19"></script>', html)
+        self.assertIn('"/app.js?v=19"', sw)
+        self.assertIn('<link rel="stylesheet" href="/app.css?v=15">', html)
+        self.assertIn('"/app.css?v=15"', sw)
+        self.assertIn('window.PreceptorNotebook.load()', app)
+        self.assertIn('if (paneles[panelActual].id === "ajustes") cargarCuaderno()', app)
+
+
 if __name__ == "__main__":
     unittest.main()
