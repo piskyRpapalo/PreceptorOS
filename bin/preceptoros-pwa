@@ -78,6 +78,7 @@ import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
+import notebook_read as _notebook_read
 import indice_rack as _indice_rack
 AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -260,6 +261,7 @@ ESTATICOS = {
     "/keep_device.js": ("keep_device.js", "application/javascript; charset=utf-8"),
     "/acho_motion.js": ("acho_motion.js", "application/javascript; charset=utf-8"),
     "/team.js": ("team.js", "application/javascript; charset=utf-8"),
+    "/notebook.js": ("notebook.js", "application/javascript; charset=utf-8"),
     "/firmas.js": ("firmas.js", "application/javascript; charset=utf-8"),
     "/hitl.js": ("hitl.js", "application/javascript; charset=utf-8"),
     "/hitl.css": ("hitl.css", "text/css; charset=utf-8"),
@@ -376,7 +378,7 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta == "/api/bandeja"):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/notebook")):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -479,6 +481,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._creacion_asset(ruta)
         if ruta == "/api/harness":
             return self._harness_leer()
+        if ruta == "/api/notebook":
+            return self._json(200, _notebook_read.read(_casa.raiz()))
         if ruta == "/api/team":
             return self._team_read()
         if ruta == "/api/hitl":
