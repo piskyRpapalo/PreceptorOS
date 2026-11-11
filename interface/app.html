@@ -137,6 +137,15 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <section class="tarjeta" lang="es" aria-labelledby="energy-title">
+      <h3 id="energy-title">Energía del rack · solo lectura</h3>
+      <p class="pie">Una consulta local al medidor. La batería, el sol y el reparto siguen sin instrumentar. Este botón nunca cambia el suministro.</p>
+      <button type="button" class="probar" id="energy-read" style="min-height:44px">Consultar energía</button>
+      <p id="energy-status" role="status" aria-live="polite" aria-atomic="true">NO_DATA: no consultado todavía.</p>
+      <details><summary>Recibo para máquinas</summary>
+        <pre class="payload" id="energy-json"></pre>
+      </details>
+    </section>
     <div class="tarjeta" id="tarjeta-frontera" role="group" aria-labelledby="redaccion-titulo">
       <h3 id="redaccion-titulo" data-i18n="aria_redaccion">Redacción</h3>
       <div class="fila-switch">
@@ -301,5 +310,6 @@ document.getElementById('tray-read').addEventListener('click', async function ()
   } catch (_) { out.textContent = 'NO_DATA: bandeja local no disponible'; }
 });
 </script>
+  <script src="/energia_ui.js?v=1" defer></script>
 </body>
 </html>
