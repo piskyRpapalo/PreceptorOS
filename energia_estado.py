@@ -21,8 +21,14 @@ def _cause(raw):
         return "meter_read_invalid"
     if "meter endpoint not configured" in raw:
         return "meter_endpoint_not_configured"
-    if "electrical" in raw or "incoheren" in raw.lower():
+    if "electrical reference incomplete" in raw:
+        return "meter_reference_incomplete"
+    if "electrical values invalid" in raw:
+        return "meter_electrical_invalid"
+    if "electrical fields incoherent" in raw:
         return "meter_electrical_incoherent"
+    if "meter_reader_failed" in raw:
+        return "meter_reader_failed"
     if "StatusSNS.ENERGY.Power" in raw:
         return "meter_schema_incomplete"
     if "no responde" in raw:
@@ -82,7 +88,9 @@ def decir(ficha):
 
 def _cause_public(value):
     allowed = {"meter_endpoint_not_configured", "meter_electrical_incoherent",
-               "meter_schema_incomplete", "meter_unreachable", "meter_read_invalid"}
+               "meter_schema_incomplete", "meter_reference_incomplete",
+               "meter_electrical_invalid", "meter_reader_failed",
+               "meter_unreachable", "meter_read_invalid"}
     return value if value in allowed else "meter_read_invalid"
 
 
