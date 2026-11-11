@@ -79,8 +79,9 @@
 // v154 (proposed): Talk preserves the draft on a verified failure; state does not equate the old motor to Hexelion.
 // v155 (proposed after APP-LIVE-01): installed cream manifest/nav chrome.
 // v156 (APP-LIVE-04): drop deprecated signatures renderer from the active app shell.
-const Cache = "preceptoros-armazon-v156";
-const Armazon = ["/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=17", "/modelos_web.js?v=2", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=5", "/hitl.css?v=4", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// v157 (APP-LIVE-05): retain last independently verified model after an attempted reply fails.
+const Cache = "preceptoros-armazon-v157";
+const Armazon = ["/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=17", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=5", "/hitl.css?v=4", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

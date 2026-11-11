@@ -27,7 +27,8 @@ class ModelosWebSabotajes(unittest.TestCase):
         self.assertIn('aria-expanded="false"', html)
         self.assertIn("min-width: 44px; min-height: 44px", css)
         self.assertIn('"/modelos_web.js": ("modelos_web.js",', server)
-        self.assertIn('"/modelos_web.js?v=2"', sw)
+        self.assertIn('"/modelos_web.js?v=3"', sw)
+        self.assertIn('<script src="/modelos_web.js?v=3"></script>', html)
         self.assertIn('"interface/modelos_web.js"', versions)
         self.assertRegex(sw, r"preceptoros-armazon-v\d+")  # [deprecated 2026-11-08] pinned v148: any bump was a red
 

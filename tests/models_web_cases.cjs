@@ -141,6 +141,18 @@ test("measured model catalogue displays causes and Escape restores focus", async
   assert.equal(document.activeElement, document.getElementById("modelos-toggle"));
 });
 
+test("the last verified model survives a later failed attempt", () => {
+  const { document, api } = setup(async () => { throw new Error("no request expected"); });
+  api.setActiveModel(null, null, "station_not_confirmed");
+  assert.match(document.getElementById("modelo-activo").textContent, /NO_DATA: station_not_confirmed/);
+  api.setActiveModel("hexelion:latest", 1234);
+  assert.equal(api.activeModel().model, "hexelion:latest");
+  const prior = document.getElementById("modelo-activo").textContent;
+  api.setActiveModel(null, null, "station_extract_not_verified");
+  assert.equal(api.activeModel().model, "hexelion:latest");
+  assert.equal(document.getElementById("modelo-activo").textContent, prior);
+});
+
 test("offline probe reports a cause and never assigns the frame URL", async () => {
   const { document, api } = setup(async () => { throw new TypeError("offline"); });
   await api.openWorld();
