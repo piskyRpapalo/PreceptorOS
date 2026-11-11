@@ -39,7 +39,8 @@ class Source(unittest.TestCase):
 
     def test_the_manifest_names_exactly_the_generated_files(self):
         manifest = json.loads((ROOT / "interface" / "manifest.json").read_text(encoding="utf-8"))
-        named = sorted(icon["src"].rsplit("/", 1)[1] for icon in manifest["icons"])
+        named = sorted(icon["src"].rsplit("/", 1)[1].split("?")[0] for icon in manifest["icons"])
+        self.assertTrue(all(icon["src"].endswith("?v=2") for icon in manifest["icons"]), "a versioned address, so no device keeps the old picture")
         self.assertEqual(named, ["icono-192.png", "icono-512-maskable.png", "icono-512.png"])
 
 
