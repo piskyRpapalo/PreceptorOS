@@ -20,7 +20,8 @@ INTENTS = frozenset({
     "que energia nos queda", "cuanta energia nos queda",
     # EN
     "rack energy", "rack energy status", "energy status",
-    "how much power does the rack use", "rack power",
+    "how much power does the rack use", "what is the rack power",
+    "rack power", "what is the energy status",
     "battery status", "solar battery status", "solar energy status",
     # PT
     "energia do rack", "estado da energia do rack",
