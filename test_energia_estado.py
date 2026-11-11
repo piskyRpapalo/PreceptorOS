@@ -83,9 +83,9 @@ class MeterContracts(unittest.TestCase):
 
     def test_reader_exception_does_not_leak_private_url(self):
         def exploding():
-            raise RuntimeError("meter at 192.168.1.123 secret")
+            raise RuntimeError("meter at private-device.invalid secret")
         text = json.dumps(E.respuesta(reader=exploding), ensure_ascii=False)
-        self.assertNotIn("192.168", text)
+        self.assertNotIn("private-device.invalid", text)
         self.assertEqual(E.respuesta(reader=exploding)["consumo"]["causa"],
                          "meter_reader_failed")
 
@@ -131,7 +131,7 @@ class LocalEnergyRoutes(unittest.TestCase):
         for bad in ({"host": "example.org:8742"},
                     {"site": "cross-site"},
                     {"origin": "https://example.org"},
-                    {"remote": "10.0.0.10"}):
+                    {"remote": "203.0.113.10"}):
             with self.subTest(bad=bad):
                 h, got, PWA = self.handler(**bad)
                 with mock.patch.object(PWA._energia_estado, "respuesta") as reader:
