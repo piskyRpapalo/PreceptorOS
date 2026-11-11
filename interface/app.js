@@ -544,7 +544,8 @@ function mostrar(i, opciones = {}) {
     transicionVista = { origen: paneles[panelActual].id, destino: paneles[panelActual].id, tau: 1000000 };
   }
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
-  if (paneles[panelActual].id === "cuaderno") cargarCuaderno();
+  if (paneles[panelActual].id === "cuaderno" && window.PreceptorNotebook) window.PreceptorNotebook.load();
+  if (paneles[panelActual].id === "ajustes") cargarCuaderno();
   if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }
   if (paneles[panelActual].id === "harness") { cargarHarness(); if (window.PreceptorTeam) window.PreceptorTeam.load(); }
   if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
