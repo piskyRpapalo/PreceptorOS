@@ -40,12 +40,12 @@
     return {
       status: clean(raw.agents_status, 20),
       cause: clean(raw.agents_cause, 72),
-      agents: raw.agents.slice(0, 12).map(a => ({
+      agents: raw.agents.filter(a => a && typeof a === "object").slice(0, 12).map(a => ({
         id: clean(a.id, 40), name: clean(a.name, 48), role: clean(a.role, 64),
         status: ["OBSERVADO", "STALE", "NO_DATA"].includes(a.status) ? a.status : "NO_DATA",
         cause: clean(a.cause, 72), last: clean(a.last_seen, 40), receipt: clean(a.receipt_sha256, 64)
       })),
-      reports: raw.reports.slice(0, 2).map(r => ({
+      reports: raw.reports.filter(r => r && typeof r === "object" && ["WBR", "MBR"].includes(r.kind)).slice(0, 2).map(r => ({
         kind: r.kind === "WBR" ? "WBR" : "MBR",
         status: r.status === "DECLARADO" ? "DECLARADO" : "NO_DATA",
         cause: clean(r.cause, 100), period: clean(r.period, 16),
@@ -94,6 +94,11 @@
     const panel = document.getElementById("panel-cuaderno");
     if (!panel) return;
     const t = lang();
+    [
+      ["notebook-title", t.title], ["notebook-subtitle", t.subtitle],
+      ["notebook-refresh", t.refresh], ["notebook-agents-title", t.agents],
+      ["notebook-loops-title", t.loops], ["notebook-reports-title", t.reports]
+    ].forEach(([id, value]) => { const target = document.getElementById(id); if (target) target.textContent = value; });
     const button = document.getElementById("notebook-refresh");
     const status = document.getElementById("notebook-status");
     button.disabled = true;
