@@ -160,6 +160,34 @@ def _causa(paquete, clave):
     return f"el medidor no emite «{clave}»"
 
 
+def estacion(turno):
+    """The last station turn as one row of the same table, with its gaps named.
+
+    `turno` is what the Hexelion door kept from its last measured turn:
+    {"modelo", "ms", "medida"} with the station's own token counters. Nothing is
+    derived: a rate the station did not count is null and says why.
+    """
+    if not isinstance(turno, dict) or not isinstance(turno.get("medida"), dict):
+        return {"estado": "NO_DATA", "causa": "no station turn measured since this app started",
+                "linea": None, "huecos": []}
+    m, huecos = turno["medida"], []
+    gen, prompt = m.get("gen_tok_s"), m.get("prompt_tok_s")
+    if gen is None:
+        huecos.append({"que": "generacion (tok/s)", "causa": "the station did not report eval_count and eval_duration"})
+    if prompt is None:
+        huecos.append({"que": "prompt (tok/s)", "causa": "the station did not report prompt_eval_count and prompt_eval_duration (a cached prompt is not re-read)"})
+    huecos.append({"que": "backend", "causa": "this door does not ask the station which processor ran the turn"})
+    huecos.append({"que": "TTFT", "causa": "the station answers in one piece through this door; there is no first chunk to time"})
+    huecos.append({"que": "media por hora", "causa": "one turn, the most recent; not an average"})
+    return {"estado": "MEDIDO" if gen is not None else "NO_DATA",
+            "modelo": turno.get("modelo"), "muestras": 1,
+            "turno_ms": turno.get("ms"), "carga_ms": m.get("carga_ms"),
+            "tokens": {"prompt": m.get("prompt_tokens"), "generacion": m.get("gen_tokens")},
+            "linea": {"backend": None, "detalle": "Hexelion station, through the app's loopback door",
+                      "prompt": prompt, "generacion": gen, "ttft": None, "sha256": None, "firma": None},
+            "huecos": huecos}
+
+
 def desde_paquete(paquete, ventana=None):
     """Traduce un paquete de `metricas` al esquema de `medidas.json`.
 

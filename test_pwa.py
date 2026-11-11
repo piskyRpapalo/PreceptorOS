@@ -1372,7 +1372,8 @@ class HexelionStationContract(unittest.TestCase):
         result = hexelion_proxy.ask("hola", endpoint="http://127.0.0.1:11434",
                                     opener=opener, clock=lambda: next(ticks))
         self.assertEqual(result, {"estado": "MEASURED", "texto": "respuesta medida",
-                                  "modelo": "hexelion:latest", "ms": 23.0})
+                                  "modelo": "hexelion:latest", "ms": 23.0,
+                                  "medida": {}})  # APP-LIVE-07: the fixture reports no token counters, so no rate
         self.assertEqual([call.kwargs["timeout"] for call in opener.call_args_list], [3, 120])
         sent = json.loads(opener.call_args_list[1].args[0].data)
         self.assertEqual(sent["think"], "low")

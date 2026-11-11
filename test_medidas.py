@@ -213,5 +213,55 @@ class TestMedidas(unittest.TestCase):
         self.assertTrue(d["maquina"].strip())
 
 
+
+class TestEstacion(unittest.TestCase):
+    """The Hexelion station's last turn as a row of the same table."""
+
+    def test_proxy_reads_only_counters_that_exist(self):
+        import hexelion_proxy as HP
+        full = HP.medida({"eval_count": 50, "eval_duration": 2_000_000_000,
+                          "prompt_eval_count": 300, "prompt_eval_duration": 1_500_000_000,
+                          "load_duration": 12_345_678})
+        self.assertEqual(full, {"gen_tokens": 50, "gen_tok_s": 25.0, "prompt_tokens": 300,
+                                "prompt_tok_s": 200.0, "carga_ms": 12.3})
+        for broken in ({}, None, {"eval_count": 50}, {"eval_count": 0, "eval_duration": 5},
+                       {"eval_count": 50, "eval_duration": 0}, {"eval_count": "50", "eval_duration": 5},
+                       {"eval_count": True, "eval_duration": 5}):
+            self.assertNotIn("gen_tok_s", HP.medida(broken))
+
+    def test_no_turn_is_no_data_with_its_cause(self):
+        for nothing in (None, {}, {"medida": None}, "x"):
+            d = MD.estacion(nothing)
+            self.assertEqual(d["estado"], "NO_DATA")
+            self.assertEqual(d["causa"], "no station turn measured since this app started")
+            self.assertIsNone(d["linea"])
+
+    def test_a_measured_turn_fills_its_row_and_names_what_is_missing(self):
+        d = MD.estacion({"modelo": "hexelion:latest", "ms": 3400.5,
+                         "medida": {"gen_tokens": 50, "gen_tok_s": 25.0, "prompt_tokens": 300,
+                                    "prompt_tok_s": 200.0, "carga_ms": 12.3}})
+        self.assertEqual(d["estado"], "MEDIDO")
+        self.assertEqual((d["linea"]["generacion"], d["linea"]["prompt"]), (25.0, 200.0))
+        self.assertEqual(d["tokens"], {"prompt": 300, "generacion": 50})
+        self.assertEqual(sorted(d["linea"]), sorted(["backend", "detalle", "prompt", "generacion",
+                                                      "ttft", "sha256", "firma"]))
+        self.assertIsNone(d["linea"]["backend"])
+        self.assertIsNone(d["linea"]["ttft"])
+        named = [h["que"] for h in d["huecos"]]
+        self.assertEqual(named, ["backend", "TTFT", "media por hora"])
+        self.assertTrue(all(h["causa"].strip() for h in d["huecos"]))
+
+    def test_a_turn_without_counters_stays_no_data_and_never_divides(self):
+        d = MD.estacion({"modelo": "hexelion:latest", "ms": 900.0, "medida": {}})
+        self.assertEqual(d["estado"], "NO_DATA")
+        self.assertIsNone(d["linea"]["generacion"])
+        self.assertIsNone(d["linea"]["prompt"])
+        self.assertEqual([h["que"] for h in d["huecos"]][:2], ["generacion (tok/s)", "prompt (tok/s)"])
+
+    def test_the_report_keeps_the_local_row_untouched(self):
+        d = MD.desde_paquete({"esquema": 1, "norma": {}, "metricas": []})
+        self.assertNotIn("estacion", d)   # the station rides in the route, not in the translator
+
+
 if __name__ == "__main__":
     unittest.main()
