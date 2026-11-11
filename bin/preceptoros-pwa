@@ -1115,6 +1115,9 @@ class PWA(BaseHTTPRequestHandler):
                   else _hexelion_proxy.ask(prompt))
         if result.get("estado") != "MEASURED":
             return no_data(result.get("causa") or "station_unavailable")
+        # A measured turn is a measurement whether or not its quotes verify below.
+        self.server.estacion_turno = {"modelo": result.get("modelo"), "ms": result.get("ms"),
+                                      "medida": result.get("medida")}
         model, duration, answer = result.get("modelo"), result.get("ms"), result.get("texto")
         if (model != _hexelion_proxy.MODEL or type(duration) not in (int, float)
                 or duration <= 0 or not isinstance(answer, str) or not answer.strip()):
@@ -1373,7 +1376,11 @@ class PWA(BaseHTTPRequestHandler):
             cerebro=cerebro,
             turno=getattr(self.server, "ultimo_turno", None),
             tokens_sesion=getattr(self.server, "tokens_sesion", 0))
-        return self._json(200, MED.desde_paquete(paquete))
+        informe = MED.desde_paquete(paquete)
+        # The Hexelion station is a second measured engine: its last turn rides
+        # beside the local brain's row, in its own key, with its own gaps.
+        informe["estacion"] = MED.estacion(getattr(self.server, "estacion_turno", None))
+        return self._json(200, informe)
 
     # --- el cerebro · la unica eleccion de modelo que hace la persona -------
     #
