@@ -51,6 +51,7 @@ sys.path.insert(0, AQUI)
 import bandeja_lectura as _bandeja
 import medidas as MED
 import metricas as MET
+import energia_estado as _energia_estado
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
@@ -376,7 +377,7 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta == "/api/bandeja"):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia")):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -460,6 +461,21 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta in ("/api/energia", "/api/hexelion/energia"):
+            # Same metal, same snapshot for machine readers and the mini-HTML.
+            # Reject LAN and browser cross-site access, including DNS rebinding.
+            host = self.headers.get("Host", "")
+            port = str(self.server.server_port)
+            local_host = host in ("localhost:" + port, "127.0.0.1:" + port,
+                                  "[::1]:" + port)
+            origin = self.headers.get("Origin")
+            site = self.headers.get("Sec-Fetch-Site")
+            if (not self._es_loopback(self.client_address[0]) or not local_host or
+                    site not in (None, "none", "same-origin") or
+                    (origin is not None and not self._nodo_local_autorizado())):
+                return self._json(403, {"estado": "NO_DATA",
+                                        "causa": "local_origin_required"})
+            return self._json(200, _energia_estado.respuesta())
         if ruta == "/api/bandeja":
             origin = self.headers.get("Origin")
             site = self.headers.get("Sec-Fetch-Site")
