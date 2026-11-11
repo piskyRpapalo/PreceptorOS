@@ -29,11 +29,21 @@ def _utc(value):
         return None
 
 
+def _symlink_in_path(path):
+    """Reject a symbolic link in any existing path component, including ancestors.
+
+    This closes ordinary ancestor-alias bypasses. A hostile concurrent path
+    replacement remains outside this check's guarantee: it is not an openat gate.
+    """
+    path = Path(path).absolute()
+    return any(part.is_symlink() for part in (path, *path.parents))
+
+
 def _load(directory, name):
     """Fixed basename only; no symlinks, duplicated keys or oversized records."""
     path = directory / (name + ".json")
     try:
-        if path.is_symlink() or directory.is_symlink():
+        if _symlink_in_path(path):
             return None, "symlink_forbidden"
         if not path.is_file():
             return None, "file_missing"

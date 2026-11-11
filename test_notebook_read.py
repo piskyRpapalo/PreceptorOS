@@ -81,6 +81,22 @@ class NotebookReadTests(unittest.TestCase):
             (self.root / "notebook" / "wbr.json").symlink_to(outside)
             self.assertEqual(N.read(self.root, NOW)["reports"][0]["cause"], "symlink_forbidden")
 
+    def test_intermediate_ancestor_symlink_is_rejected(self):
+        with tempfile.TemporaryDirectory() as other:
+            root = Path(other)
+            actual = root / "real" / "inner" / "notebook"
+            actual.mkdir(parents=True)
+            (actual / "wbr.json").write_text(json.dumps({
+                "schema": "preceptoros.wbr/1", "period": "2026-W46",
+                "summary": "Synthetic receipt", "measured_at": "2026-11-11T09:59:00Z",
+                "receipt_sha256": SHA
+            }), encoding="utf-8")
+            (root / "alias").symlink_to(root / "real", target_is_directory=True)
+            state = N.read(root / "alias" / "inner", NOW)
+            self.assertEqual(state["reports"][0]["status"], "NO_DATA")
+            self.assertEqual(state["reports"][0]["cause"], "symlink_forbidden")
+            self.assertEqual(state["agents_cause"], "symlink_forbidden")
+
     def test_oversized_and_invalid_agent_census(self):
         (self.root / "notebook" / "agents.json").write_bytes(b"x" * 9000)
         self.assertEqual(N.read(self.root, NOW)["agents_cause"], "file_oversized")
