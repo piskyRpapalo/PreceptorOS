@@ -147,5 +147,27 @@ class LocalEnergyRoutes(unittest.TestCase):
         self.assertEqual(got["code"], 200)
 
 
+class MiniHtmlEnergyContract(unittest.TestCase):
+    def test_card_script_and_cache_are_the_same_app(self):
+        from pathlib import Path
+        from test_pwa import PWA
+        root = Path(__file__).resolve().parent
+        html = (root / "interface/app.html").read_text(encoding="utf-8")
+        js = (root / "interface/energia_ui.js").read_text(encoding="utf-8")
+        sw = (root / "interface/sw.js").read_text(encoding="utf-8")
+        self.assertIn('id="energy-read"', html)
+        self.assertIn('id="energy-status" role="status" aria-live="polite"', html)
+        self.assertIn('id="energy-json"', html)
+        self.assertIn('src="/energia_ui.js?v=1"', html)
+        self.assertIn('"/energia_ui.js?v=1"', sw)
+        self.assertIn('preceptoros-armazon-v159', sw)
+        self.assertIn("/energia_ui.js", PWA.ESTATICOS)
+        self.assertIn('cache: "no-store"', js)
+        self.assertIn('spoken.textContent = data.texto', js)
+        self.assertNotIn('setInterval(', js)
+        self.assertNotIn('cmnd=Power', js)
+        self.assertNotIn('fetch("http', js)
+
+
 if __name__ == "__main__":
     unittest.main()
