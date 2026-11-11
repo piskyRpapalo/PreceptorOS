@@ -66,6 +66,34 @@ def _failure(exc):
     return "station_unavailable"
 
 
+def medida(answer):
+    """The station's own counters for one turn, or nothing.
+
+    Ollama reports how many tokens it read and wrote and how long each phase took.
+    A rate is given only when both of its counters are positive integers; a missing
+    counter leaves its rate out, so the meter says NO_DATA with a cause instead of
+    dividing by a guess. Pure: no clock, no network.
+    """
+    out = {}
+    if not isinstance(answer, dict):
+        return out
+    def rate(count_key, time_key):
+        count, nanos = answer.get(count_key), answer.get(time_key)
+        if type(count) is int and type(nanos) is int and count > 0 and nanos > 0:
+            return count, round(count * 1_000_000_000 / nanos, 1)
+        return None, None
+    tokens, speed = rate("eval_count", "eval_duration")
+    if speed is not None:
+        out["gen_tokens"], out["gen_tok_s"] = tokens, speed
+    tokens, speed = rate("prompt_eval_count", "prompt_eval_duration")
+    if speed is not None:
+        out["prompt_tokens"], out["prompt_tok_s"] = tokens, speed
+    load = answer.get("load_duration")
+    if type(load) is int and load >= 0:
+        out["carga_ms"] = round(load / 1_000_000, 1)
+    return out
+
+
 def ask(text, *, endpoint=None, opener=None, clock=time.monotonic, output_format=None):
     """Probe tags, then generate once. Results contain no target or exception text."""
     base, cause = _base(os.environ.get(ENDPOINT_ENV) if endpoint is None else endpoint)
@@ -123,6 +151,6 @@ def ask(text, *, endpoint=None, opener=None, clock=time.monotonic, output_format
         if len(response.encode("utf-8")) > 640:
             return {"estado": "NO_DATA", "causa": "station_response_exceeds_receipt_budget"}
         return {"estado": "MEASURED", "texto": response.strip(),
-                "modelo": MODEL, "ms": generation_ms}
+                "modelo": MODEL, "ms": generation_ms, "medida": medida(answer)}
     except Exception as exc:
         return {"estado": "NO_DATA", "causa": _failure(exc)}
