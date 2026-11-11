@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import glob
 import json
+import math
 import os
 import subprocess
 import urllib.error
@@ -130,7 +131,8 @@ def _consumo_w():
     try:
         with urllib.request.urlopen(url, timeout=2) as r:
             datos = json.loads(r.read().decode("utf-8"))
-        w = datos["StatusSNS"]["ENERGY"]["Power"]
+        energia = datos["StatusSNS"]["ENERGY"]
+        w = energia["Power"]
     except (urllib.error.URLError, OSError, ValueError) as e:
         # La causa es la frase fija que el Soberano quiere leer en el panel; el
         # TIPO de averia va en `detalle`, porque «tardo mas de 2 s» y «me
@@ -144,7 +146,21 @@ def _consumo_w():
         return sin_dato("consumo_w",
                         f"Nous A1T responde en {ENCHUFE_IP} pero sin "
                         "StatusSNS.ENERGY.Power", "W", f"{type(e).__name__}: {e}")
-    return medido("consumo_w", w, "W", "Nous A1T por HTTP local")
+    # A plug reports watts, but that field alone is not a validated rack
+    # measurement. Compare the electric triangle before calling it MEDIDO.
+    # A new solar topology must not silently publish inconsistent wattage.
+    v, a, factor = (energia.get("Voltage"), energia.get("Current"),
+                    energia.get("Factor"))
+    fields = (w, v, a, factor)
+    if not all(type(x) in (int, float) and math.isfinite(x) for x in fields):
+        return sin_dato("consumo_w", "meter electrical reference incomplete", "W")
+    if w < 0 or v <= 0 or a < 0 or not 0 <= factor <= 1:
+        return sin_dato("consumo_w", "meter electrical values invalid", "W")
+    expected = v * a * factor
+    if abs(w - expected) > max(8.0, 0.20 * max(w, expected)):
+        return sin_dato("consumo_w", "meter electrical fields incoherent", "W")
+    return medido("consumo_w", round(float(w), 2), "W",
+                  "Nous A1T Status8 (Power, Voltage, Current, Factor)")
 
 
 def _modelos_cargados():

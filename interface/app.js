@@ -21,6 +21,13 @@ const paneles = window.PreceptorZonas.zonas;
  * El idioma lo manda la memoria, no el navegador. */
 const textos = {
   es: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "comprobando…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Firmas HITL", hitl_intro: "Los PRs que esperan tu firma. Nada se firma hasta que pulsas «Sí, firmo y fusiono».", hitl_recargar: "Actualizar lista", hitl_estado: "NO_DATA: la lista se lee al abrir Boundary.", hitl_si: "Sí, firmo y fusiono", hitl_no: "No",
     tab_cuaderno: "Notebook", lo_que_dices: "Lo que dices",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -68,6 +75,13 @@ const textos = {
     nodo_export_titulo: 'Identidad del nodo', nodo_export_ayuda: 'Selecciona una cédula ya firmada. Esta app no firma; el envío ocurre solo al pulsar el botón.', nodo_export_archivo: 'Cédula firmada (.json)', nodo_export_boton: 'Enviar a la aduana', nodo_export_espera: 'Sin cédula seleccionada. No se ha enviado nada.', nodo_export_enviando: 'Verificando y enviando la cédula firmada…', nodo_export_ok: 'La aduana recibió el paquete.', nodo_export_error: 'No se confirmó el envío. Revisa la cédula firmada y la conexión.', nodo_export_causas: {cuerpo_invalido: 'Archivo o formato de cédula inválido.', firma_no_disponible: 'No hay firma verificable disponible; la persona debe traer la cédula firmada.', firma_rechazada: 'La firma de la cédula no verifica.', plan_no_coincide: 'La cédula no coincide con el plan firmado.', aduana_rechazo: 'La aduana rechazó la solicitud.', aduana_no_disponible: 'No se pudo alcanzar la aduana.', paquete_invalido: 'La respuesta no contiene un paquete válido.', general: 'Archivo o formato de cédula inválido.', clave_publica_no_configurada: 'La aduana no tiene configurada la clave pública.', plan_firmado_no_configurado: 'La aduana no tiene configurado un plan firmado.', registro_no_disponible: 'El registro de auditoría no está disponible; no se registró nada.', firma_cedula_rechazada: 'La firma de la cédula no verifica.', cedula_mal_formada: 'Los campos de la cédula no son válidos.', cuerpo_fuera_de_rango: 'La cédula supera el tamaño permitido.'}
   },
   en: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "checking…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "HITL signatures", hitl_intro: "The PRs waiting for your signature. Nothing is signed until you press «Yes, sign and merge».", hitl_recargar: "Refresh list", hitl_estado: "NO_DATA: the list is read when Boundary opens.", hitl_si: "Yes, sign and merge", hitl_no: "No",
     tab_cuaderno: "Notebook", lo_que_dices: "What you say",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -118,6 +132,13 @@ const textos = {
    * `textos.py`. Traducidas por Claude; nadie con oido nativo las ha leido.
    * El arabe se escribe de derecha a izquierda: lo pone `pintarEstaticos`. */
   fr: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "vérification…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Signatures HITL", hitl_intro: "Les PR qui attendent ta signature. Rien n’est signé avant que tu appuies sur «Oui, je signe et fusionne».", hitl_recargar: "Actualiser la liste", hitl_estado: "NO_DATA : la liste est lue à l’ouverture de Boundary.", hitl_si: "Oui, je signe et fusionne", hitl_no: "Non",
     tab_cuaderno: "Notebook", lo_que_dices: "Ce que tu dis",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -166,6 +187,13 @@ const textos = {
     nodo_export_titulo: 'Identité du nœud', nodo_export_ayuda: 'Choisis un justificatif déjà signé. Cette app ne signe pas ; l’envoi ne part qu’après ton clic.', nodo_export_archivo: 'Justificatif signé (.json)', nodo_export_boton: 'Envoyer à la douane', nodo_export_espera: 'Aucun justificatif choisi. Rien n’a été envoyé.', nodo_export_enviando: 'Vérification et envoi du justificatif signé…', nodo_export_ok: 'La douane a reçu le paquet.', nodo_export_error: 'Envoi non confirmé. Vérifie le justificatif et la connexion.', nodo_export_causas: {cuerpo_invalido: 'Fichier ou format du justificatif invalide.', firma_no_disponible: 'Aucune signature vérifiable ; apporte un justificatif signé.', firma_rechazada: 'La signature du justificatif n’est pas valide.', plan_no_coincide: 'Le justificatif ne correspond pas au plan signé.', aduana_rechazo: 'La douane a rejeté la demande.', aduana_no_disponible: 'La douane est injoignable.', paquete_invalido: 'La réponse ne contient pas de paquet valide.', general: 'Fichier ou format du justificatif invalide.', clave_publica_no_configurada: 'La clé publique n’est pas configurée dans la douane.', plan_firmado_no_configurado: 'Aucun plan signé n’est configuré dans la douane.', registro_no_disponible: 'Le registre d’audit est indisponible ; rien n’a été enregistré.', firma_cedula_rechazada: 'La signature du justificatif n’est pas valide.', cedula_mal_formada: 'Les champs du justificatif sont invalides.', cuerpo_fuera_de_rango: 'Le justificatif dépasse la taille autorisée.'}
   },
   pt: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "a verificar…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Assinaturas HITL", hitl_intro: "Os PRs à espera da tua assinatura. Nada é assinado até carregares em «Sim, assino e fundo».", hitl_recargar: "Atualizar lista", hitl_estado: "NO_DATA: a lista é lida ao abrir Boundary.", hitl_si: "Sim, assino e fundo", hitl_no: "Não",
     tab_cuaderno: "Notebook", lo_que_dices: "O que dizes",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -213,6 +241,13 @@ const textos = {
     nodo_export_titulo: 'Identidade do nó', nodo_export_ayuda: 'Escolhe uma cédula já assinada. Esta app não assina; o envio só ocorre quando carregas no botão.', nodo_export_archivo: 'Cédula assinada (.json)', nodo_export_boton: 'Enviar para a alfândega', nodo_export_espera: 'Nenhuma cédula selecionada. Nada foi enviado.', nodo_export_enviando: 'A verificar e enviar a cédula assinada…', nodo_export_ok: 'A alfândega recebeu o pacote.', nodo_export_error: 'O envio não foi confirmado. Verifica a cédula e a ligação.', nodo_export_causas: {cuerpo_invalido: 'Ficheiro ou formato da cédula inválido.', firma_no_disponible: 'Não há assinatura verificável; traz uma cédula assinada.', firma_rechazada: 'A assinatura da cédula não foi verificada.', plan_no_coincide: 'A cédula não corresponde ao plano assinado.', aduana_rechazo: 'A alfândega rejeitou o pedido.', aduana_no_disponible: 'Não foi possível contactar a alfândega.', paquete_invalido: 'A resposta não contém um pacote válido.', general: 'Ficheiro ou formato da cédula inválido.', clave_publica_no_configurada: 'A chave pública não está configurada na alfândega.', plan_firmado_no_configurado: 'Não há um plano assinado configurado na alfândega.', registro_no_disponible: 'O registo de auditoria está indisponível; nada foi registado.', firma_cedula_rechazada: 'A assinatura da cédula não foi verificada.', cedula_mal_formada: 'Os campos da cédula são inválidos.', cuerpo_fuera_de_rango: 'A cédula excede o tamanho permitido.'}
   },
   it: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "verifica…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Firme HITL", hitl_intro: "Le PR che aspettano la tua firma. Nulla è firmato finché non premi «Sì, firmo e unisco».", hitl_recargar: "Aggiorna elenco", hitl_estado: "NO_DATA: l’elenco si legge all’apertura di Boundary.", hitl_si: "Sì, firmo e unisco", hitl_no: "No",
     tab_cuaderno: "Notebook", lo_que_dices: "Quello che dici",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -260,6 +295,13 @@ const textos = {
     nodo_export_titulo: 'Identità del nodo', nodo_export_ayuda: 'Scegli una credenziale già firmata. Questa app non firma; l’invio parte solo dopo il tuo clic.', nodo_export_archivo: 'Credenziale firmata (.json)', nodo_export_boton: 'Invia alla dogana', nodo_export_espera: 'Nessuna credenziale selezionata. Non è stato inviato nulla.', nodo_export_enviando: 'Verifica e invio della credenziale firmata…', nodo_export_ok: 'La dogana ha ricevuto il pacchetto.', nodo_export_error: 'Invio non confermato. Controlla la credenziale e la connessione.', nodo_export_causas: {cuerpo_invalido: 'File o formato della credenziale non valido.', firma_no_disponible: 'Nessuna firma verificabile; porta una credenziale firmata.', firma_rechazada: 'La firma della credenziale non è valida.', plan_no_coincide: 'La credenziale non corrisponde al piano firmato.', aduana_rechazo: 'La dogana ha rifiutato la richiesta.', aduana_no_disponible: 'La dogana non è raggiungibile.', paquete_invalido: 'La risposta non contiene un pacchetto valido.', general: 'File o formato della credenziale non valido.', clave_publica_no_configurada: 'La chiave pubblica non è configurata nella dogana.', plan_firmado_no_configurado: 'Nessun piano firmato è configurato nella dogana.', registro_no_disponible: 'Il registro di audit non è disponibile; non è stato registrato nulla.', firma_cedula_rechazada: 'La firma della credenziale non è valida.', cedula_mal_formada: 'I campi della credenziale non sono validi.', cuerpo_fuera_de_rango: 'La credenziale supera la dimensione consentita.'}
   },
   de: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "wird geprüft…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "HITL-Signaturen", hitl_intro: "Die PRs, die auf deine Signatur warten. Nichts wird signiert, bevor du «Ja, signieren und zusammenführen» drückst.", hitl_recargar: "Liste aktualisieren", hitl_estado: "NO_DATA: die Liste wird beim Öffnen von Boundary gelesen.", hitl_si: "Ja, signieren und zusammenführen", hitl_no: "Nein",
     tab_cuaderno: "Notebook", lo_que_dices: "Was du sagst",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -307,6 +349,13 @@ const textos = {
     nodo_export_titulo: 'Knotenidentität', nodo_export_ayuda: 'Wähle einen bereits signierten Nachweis. Diese App signiert nicht; gesendet wird erst nach deinem Klick.', nodo_export_archivo: 'Signierter Nachweis (.json)', nodo_export_boton: 'An die Zollstelle senden', nodo_export_espera: 'Kein Nachweis ausgewählt. Es wurde nichts gesendet.', nodo_export_enviando: 'Signierten Nachweis prüfen und senden…', nodo_export_ok: 'Die Zollstelle hat das Paket empfangen.', nodo_export_error: 'Der Versand wurde nicht bestätigt. Prüfe Nachweis und Verbindung.', nodo_export_causas: {cuerpo_invalido: 'Datei oder Nachweisformat ungültig.', firma_no_disponible: 'Keine überprüfbare Signatur verfügbar; bringe einen signierten Nachweis mit.', firma_rechazada: 'Die Signatur des Nachweises ist ungültig.', plan_no_coincide: 'Der Nachweis stimmt nicht mit dem signierten Plan überein.', aduana_rechazo: 'Die Zollstelle hat die Anfrage abgelehnt.', aduana_no_disponible: 'Die Zollstelle ist nicht erreichbar.', paquete_invalido: 'Die Antwort enthält kein gültiges Paket.', general: 'Datei oder Nachweisformat ungültig.', clave_publica_no_configurada: 'Der Zollstelle fehlt der öffentliche Schlüssel.', plan_firmado_no_configurado: 'Bei der Zollstelle ist kein signierter Plan eingerichtet.', registro_no_disponible: 'Das Auditprotokoll ist nicht verfügbar; es wurde nichts erfasst.', firma_cedula_rechazada: 'Die Signatur des Nachweises ist ungültig.', cedula_mal_formada: 'Die Nachweisfelder sind ungültig.', cuerpo_fuera_de_rango: 'Der Nachweis überschreitet die zulässige Größe.'}
   },
   ru: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "проверка…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Подписи HITL", hitl_intro: "PR, ожидающие твоей подписи. Ничего не подписывается, пока ты не нажмёшь «Да, подписать и слить».", hitl_recargar: "Обновить список", hitl_estado: "NO_DATA: список читается при открытии Boundary.", hitl_si: "Да, подписать и слить", hitl_no: "Нет",
     tab_cuaderno: "Notebook", lo_que_dices: "Что ты говоришь",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -354,6 +403,13 @@ const textos = {
     nodo_export_titulo: 'Идентификатор узла', nodo_export_ayuda: 'Выбери уже подписанное удостоверение. Приложение не подписывает; отправка начнётся только после нажатия.', nodo_export_archivo: 'Подписанное удостоверение (.json)', nodo_export_boton: 'Отправить в шлюз', nodo_export_espera: 'Удостоверение не выбрано. Ничего не отправлено.', nodo_export_enviando: 'Проверка и отправка подписанного удостоверения…', nodo_export_ok: 'Шлюз получил пакет.', nodo_export_error: 'Отправка не подтверждена. Проверь удостоверение и соединение.', nodo_export_causas: {cuerpo_invalido: 'Файл или формат удостоверения недействителен.', firma_no_disponible: 'Нет проверяемой подписи; предоставь подписанное удостоверение.', firma_rechazada: 'Подпись удостоверения не прошла проверку.', plan_no_coincide: 'Удостоверение не соответствует подписанному плану.', aduana_rechazo: 'Шлюз отклонил запрос.', aduana_no_disponible: 'Шлюз недоступен.', paquete_invalido: 'В ответе нет действительного пакета.', general: 'Файл или формат удостоверения недействителен.', clave_publica_no_configurada: 'В шлюзе не настроен открытый ключ.', plan_firmado_no_configurado: 'В шлюзе не настроен подписанный план.', registro_no_disponible: 'Журнал аудита недоступен; запись не выполнена.', firma_cedula_rechazada: 'Подпись удостоверения не прошла проверку.', cedula_mal_formada: 'Поля удостоверения недействительны.', cuerpo_fuera_de_rango: 'Размер удостоверения превышает допустимый.'}
   },
   el: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "έλεγχος…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "Υπογραφές HITL", hitl_intro: "Τα PR που περιμένουν την υπογραφή σου. Τίποτα δεν υπογράφεται μέχρι να πατήσεις «Ναι, υπογράφω και συγχωνεύω».", hitl_recargar: "Ανανέωση λίστας", hitl_estado: "NO_DATA: η λίστα διαβάζεται όταν ανοίγει το Boundary.", hitl_si: "Ναι, υπογράφω και συγχωνεύω", hitl_no: "Όχι",
     tab_cuaderno: "Notebook", lo_que_dices: "Τι λες",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -400,6 +456,13 @@ const textos = {
     nodo_export_titulo: 'Ταυτότητα κόμβου', nodo_export_ayuda: 'Επίλεξε διαπιστευτήριο που έχεις ήδη υπογράψει. Η εφαρμογή δεν υπογράφει· η αποστολή γίνεται μόνο με το πάτημά σου.', nodo_export_archivo: 'Υπογεγραμμένο διαπιστευτήριο (.json)', nodo_export_boton: 'Αποστολή στην πύλη', nodo_export_espera: 'Δεν επιλέχθηκε διαπιστευτήριο. Δεν στάλθηκε τίποτα.', nodo_export_enviando: 'Έλεγχος και αποστολή του υπογεγραμμένου διαπιστευτηρίου…', nodo_export_ok: 'Η πύλη έλαβε το πακέτο.', nodo_export_error: 'Η αποστολή δεν επιβεβαιώθηκε. Έλεγξε το διαπιστευτήριο και τη σύνδεση.', nodo_export_causas: {cuerpo_invalido: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', firma_no_disponible: 'Δεν υπάρχει επαληθεύσιμη υπογραφή· φέρε υπογεγραμμένο διαπιστευτήριο.', firma_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', plan_no_coincide: 'Το διαπιστευτήριο δεν ταιριάζει με το υπογεγραμμένο σχέδιο.', aduana_rechazo: 'Η πύλη απέρριψε το αίτημα.', aduana_no_disponible: 'Δεν ήταν δυνατή η σύνδεση με την πύλη.', paquete_invalido: 'Η απάντηση δεν περιέχει έγκυρο πακέτο.', general: 'Μη έγκυρο αρχείο ή σχήμα διαπιστευτηρίου.', clave_publica_no_configurada: 'Δεν έχει ρυθμιστεί δημόσιο κλειδί στην πύλη.', plan_firmado_no_configurado: 'Δεν έχει ρυθμιστεί υπογεγραμμένο σχέδιο στην πύλη.', registro_no_disponible: 'Το αρχείο ελέγχου δεν είναι διαθέσιμο· δεν καταγράφηκε τίποτα.', firma_cedula_rechazada: 'Η υπογραφή του διαπιστευτηρίου δεν επαληθεύτηκε.', cedula_mal_formada: 'Τα πεδία του διαπιστευτηρίου δεν είναι έγκυρα.', cuerpo_fuera_de_rango: 'Το διαπιστευτήριο υπερβαίνει το επιτρεπόμενο μέγεθος.'}
   },
   ar: {
+    energy_title: "Rack energy · read only",
+    energy_help: "Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.",
+    energy_read: "Read energy",
+    energy_not_checked: "NO_DATA: not checked.",
+    energy_receipt: "Machine-readable receipt",
+    energy_checking: "Reading the local meter…",
+    energy_unavailable: "NO_DATA: local energy unavailable.",
     comprobando: "جارٍ التحقق…", tab_mando: "Command", tab_chat: "Talk", tab_frontera: "Boundary", hitl_titulo: "توقيعات HITL", hitl_intro: "طلبات الدمج التي تنتظر توقيعك. لا يُوقَّع شيء حتى تضغط «نعم، أوقّع وأدمج».", hitl_recargar: "تحديث القائمة", hitl_estado: "NO_DATA: تُقرأ القائمة عند فتح Boundary.", hitl_si: "نعم، أوقّع وأدمج", hitl_no: "لا",
     tab_cuaderno: "Notebook", lo_que_dices: "ما تقوله",
     tab_lab: "Lab", tab_harness: "Harness", tab_puerta: "Public gate",
@@ -448,6 +511,9 @@ const textos = {
   },
 };
 let t = textos.es;
+// Shared, already selected locale for the independent local-energy card.
+window.PreceptorEnergyText = (key) =>
+  typeof t[key] === "string" ? t[key] : textos.en[key] || key;
 window.PreceptorNodeRegistrationText = (key) =>
   typeof t[key] === "string" ? t[key] : key;
 window.PreceptorNodeBuildingText = (key, values = {}) => {
@@ -833,7 +899,19 @@ $("form-chat").addEventListener("submit", async (e) => {
     const d = await r.json();
     esperando.remove();
     const respuesta = d.respuesta;
-    if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
+    const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
+    if (r.ok && d.estado === "LECTURA_LOCAL" && local &&
+        local.esquema === "preceptoros.energy-read/1" && local.solo_lectura === true &&
+        (local.estado === "PARCIAL" || local.estado === "NO_DATA") &&
+        local.consumo && (local.consumo.estado === "MEDIDO" || local.consumo.estado === "NO_DATA") &&
+        typeof local.texto === "string" && local.texto.startsWith("Energy: ") &&
+        local.texto.length <= 420) {
+      // The local sensor is not the model; no fabricated citations or model timing.
+      $("estado").textContent = "Local energy tool · " + local.estado + " · model not invoked";
+      modelosWeb.setActiveModel(null, null, "local_energy_tool_model_not_invoked");
+      const fila = burbuja("Hexelion · local sensor (model not invoked): " + local.texto);
+      fila.lang = "en";
+    } else if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
         typeof respuesta.texto === "string" && respuesta.texto.trim() &&
         Array.isArray(respuesta.fuentes) && respuesta.fuentes.length > 0 &&
         respuesta.fuentes.every((f) => Number.isSafeInteger(f.id) && typeof f.updated_at === "string" && /^[a-f0-9]{64}$/.test(f.sha256))) {

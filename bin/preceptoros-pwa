@@ -51,6 +51,8 @@ sys.path.insert(0, AQUI)
 import bandeja_lectura as _bandeja
 import medidas as MED
 import metricas as MET
+import energia_estado as _energia_estado
+import energia_intencion as _energia_intencion
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
@@ -254,6 +256,7 @@ ESTATICOS = {
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/creation_publish.js": ("creation_publish.js", "application/javascript; charset=utf-8"),
     "/creation_voice.js": ("creation_voice.js", "application/javascript; charset=utf-8"),
+    "/energia_ui.js": ("energia_ui.js", "application/javascript; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/modelos_web.js": ("modelos_web.js", "application/javascript; charset=utf-8"),
@@ -376,7 +379,7 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta == "/api/bandeja"):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia")):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -460,6 +463,21 @@ class PWA(BaseHTTPRequestHandler):
     # --- estáticos ---------------------------------------------------------
     def do_GET(self):
         ruta = self.path.split("?")[0]
+        if ruta in ("/api/energia", "/api/hexelion/energia"):
+            # Same metal, same snapshot for machine readers and the mini-HTML.
+            # Reject LAN and browser cross-site access, including DNS rebinding.
+            host = self.headers.get("Host", "")
+            port = str(self.server.server_port)
+            local_host = host in ("localhost:" + port, "127.0.0.1:" + port,
+                                  "[::1]:" + port)
+            origin = self.headers.get("Origin")
+            site = self.headers.get("Sec-Fetch-Site")
+            if (not self._es_loopback(self.client_address[0]) or not local_host or
+                    site not in (None, "none", "same-origin") or
+                    (origin is not None and not self._nodo_local_autorizado())):
+                return self._json(403, {"estado": "NO_DATA",
+                                        "causa": "local_origin_required"})
+            return self._json(200, _energia_estado.respuesta())
         if ruta == "/api/bandeja":
             origin = self.headers.get("Origin")
             site = self.headers.get("Sec-Fetch-Site")
@@ -1084,6 +1102,29 @@ class PWA(BaseHTTPRequestHandler):
                 return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
+        # Exact sensor-intent queries use the local measurement tool, never
+        # the station model. Keep model citations mandatory in the other path.
+        if _energia_intencion.es_consulta(text.strip()):
+            try:
+                lectura = _energia_estado.respuesta()
+                receipt = {
+                    "estado": "LECTURA_LOCAL",
+                    "respuesta": {"tipo": "energia_local", "lectura": lectura},
+                    "causa": "local_energy_tool;model_not_invoked",
+                }
+                _estado_compacto.serializar_objeto(receipt)
+            except (TypeError, ValueError, UnicodeError, OverflowError):
+                return no_data("local_energy_receipt_invalid")
+            except Exception:
+                return no_data("local_energy_tool_failed")
+            try:
+                _canales.di("orquesta", "orquestador", lectura["texto"],
+                            sello="DECLARADO", rol="Local energy sensor (not model)",
+                            maquina={"via": "local_energy_tool", "esquema": lectura["esquema"],
+                                     "estado": lectura["estado"]}, base=_casa.raiz())
+            except _canales.CanalRechazado:
+                return no_data("thread_append_refused")
+            return self._json(200, receipt)
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
         # (indice_rack, built by bin/indice-rack). Both are exact quotes under the same budget.
         evidence = _indice_rack.unir(_memory_lookup.buscar(text.strip(), self.server.ruta_db),
