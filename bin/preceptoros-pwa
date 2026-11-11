@@ -255,6 +255,7 @@ ESTATICOS = {
     "/app.html": ("app.html", "text/html; charset=utf-8"),
     "/creation_publish.js": ("creation_publish.js", "application/javascript; charset=utf-8"),
     "/creation_voice.js": ("creation_voice.js", "application/javascript; charset=utf-8"),
+    "/energia_ui.js": ("energia_ui.js", "application/javascript; charset=utf-8"),
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/modelos_web.js": ("modelos_web.js", "application/javascript; charset=utf-8"),
