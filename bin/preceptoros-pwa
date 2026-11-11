@@ -1091,7 +1091,11 @@ class PWA(BaseHTTPRequestHandler):
         prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence, panel=panel, estilo=estilo)
         if prepared.get("estado") != "MEASURED" or prompt is None:
             return no_data(prepared.get("causa") or "memory_evidence_unavailable")
-        result = _hexelion_proxy.ask(prompt)
+        # Ollama structured output restricts quotations to actual verified
+        # source fragments. It does NOT replace the SHA/exact-quote judge below.
+        formato = _hexelion_book.formato_citas(prepared["fuentes"])
+        result = (_hexelion_proxy.ask(prompt, output_format=formato) if formato
+                  else _hexelion_proxy.ask(prompt))
         if result.get("estado") != "MEASURED":
             return no_data(result.get("causa") or "station_unavailable")
         model, duration, answer = result.get("modelo"), result.get("ms"), result.get("texto")

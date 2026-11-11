@@ -66,7 +66,7 @@ def _failure(exc):
     return "station_unavailable"
 
 
-def ask(text, *, endpoint=None, opener=None, clock=time.monotonic):
+def ask(text, *, endpoint=None, opener=None, clock=time.monotonic, output_format=None):
     """Probe tags, then generate once. Results contain no target or exception text."""
     base, cause = _base(os.environ.get(ENDPOINT_ENV) if endpoint is None else endpoint)
     if cause:
@@ -78,6 +78,14 @@ def ask(text, *, endpoint=None, opener=None, clock=time.monotonic):
             return {"estado": "NO_DATA", "causa": "prompt_exceeds_context_budget"}
     except UnicodeError:
         return {"estado": "NO_DATA", "causa": "prompt_invalid_utf8"}
+
+    if output_format is not None:
+        try:
+            encoded_format = json.dumps(output_format, ensure_ascii=False).encode("utf-8")
+        except (TypeError, ValueError, UnicodeError, RecursionError):
+            return {"estado": "NO_DATA", "causa": "station_format_invalid"}
+        if type(output_format) is not dict or len(encoded_format) > 3072:
+            return {"estado": "NO_DATA", "causa": "station_format_invalid"}
 
     open_url = opener or urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect()).open
     try:
@@ -92,9 +100,13 @@ def ask(text, *, endpoint=None, opener=None, clock=time.monotonic):
                 isinstance(item, dict) and item.get("name") == MODEL for item in models):
             return {"estado": "NO_DATA", "causa": "station_model_unavailable"}
 
-        payload = json.dumps({"model": MODEL, "prompt": text, "stream": False,
-                              "think": "low", "options": {"num_predict": 512}},
-                             ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        request_body = {"model": MODEL, "prompt": text, "stream": False,
+                        "think": "low", "options": {"num_predict": 512}}
+        if output_format is not None:
+            request_body["format"] = output_format
+            request_body["options"]["temperature"] = 0
+        payload = json.dumps(request_body, ensure_ascii=False,
+                             separators=(",", ":")).encode("utf-8")
         req = urllib.request.Request(base + "/api/generate", data=payload,
                                      headers={"Content-Type": "application/json",
                                               "Accept": "application/json"}, method="POST")

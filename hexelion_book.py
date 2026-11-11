@@ -1,6 +1,7 @@
 """Verified, bounded extractive context for the Hexelion station."""
 import hashlib
 import json
+import re
 
 SCHEMA = "preceptoros.memory-search/1"
 MAX_SOURCES = 3
@@ -97,6 +98,53 @@ def construir_prompt(turno, evidencia, panel=None, estilo=None):
         return _no_data("memory_context_prompt_budget_exceeded"), None
     return {"estado": "MEASURED", "fuentes": selected,
             "texto_fuentes_b": source_bytes, "prompt_b": len(prompt_bytes)}, prompt
+
+
+def formato_citas(fuentes):
+    """Constrain generation to short, verbatim fragments of already-verified sources.
+
+    This does not validate a model response: verificar_citas is still mandatory.
+    The caller must pass the sources returned by construir_prompt, after SHA-256
+    verification. Never derive a candidate from user instructions or panel text.
+    """
+    if not isinstance(fuentes, list) or not fuentes:
+        return None
+    ids, quotes = [], []
+    for fuente in fuentes[:MAX_SOURCES]:
+        if type(fuente) is not dict or type(fuente.get("id")) is not int or not isinstance(fuente.get("texto"), str):
+            return None
+        ids.append(fuente["id"])
+        propios = 0
+        for sentence in re.split(r"(?<=[.!?])\s+|\n+", fuente["texto"]):
+            # Preserve original whitespace between words so each emitted piece
+            # remains an exact substring of its SHA-verified source.
+            current = ""
+            for word in re.findall(r"\S+\s*", sentence):
+                if len((current + word).strip().encode("utf-8")) > 150:
+                    candidate = current.strip()
+                    if 8 <= len(candidate.encode("utf-8")) <= 150 and candidate not in quotes:
+                        quotes.append(candidate)
+                        propios += 1
+                    current = ""
+                    if propios >= 4:
+                        break
+                current += word
+            if propios < 4:
+                candidate = current.strip()
+                if 8 <= len(candidate.encode("utf-8")) <= 150 and candidate not in quotes:
+                    quotes.append(candidate)
+                    propios += 1
+            if propios >= 4:
+                break
+    if not quotes:
+        return None  # Existing unconstrained path, still verified, remains available.
+    return {"type": "object", "properties": {"citas": {
+        "type": "array", "maxItems": 2,
+        "items": {"type": "object",
+                  "properties": {"id": {"type": "integer", "enum": ids},
+                                 "quote": {"type": "string", "enum": quotes}},
+                  "required": ["id", "quote"], "additionalProperties": False}}},
+        "required": ["citas"], "additionalProperties": False}
 
 
 def verificar_citas(raw_answer, sources):
