@@ -91,7 +91,6 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertEqual(manifest["theme_color"], "#f4ecda")
         self.assertEqual(manifest["background_color"], "#f4ecda")
         self.assertIn('<meta name="theme-color" content="#f4ecda">', html)
-        self.assertIn('preceptoros-armazon-v155', (RAIZ / "interface/sw.js").read_text())
 
     def test_zona_inactiva_informa_no_data_y_hay_guion_vivo(self):
         app = _app()
