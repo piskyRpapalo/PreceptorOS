@@ -8,10 +8,13 @@
   const spoken = document.getElementById("energy-status");
   const machine = document.getElementById("energy-json");
   if (!button || !spoken || !machine) return;
+  const tr = (key) => typeof window.PreceptorEnergyText === "function"
+    ? window.PreceptorEnergyText(key) : key;
 
   button.addEventListener("click", async () => {
     button.disabled = true;
-    spoken.textContent = "Consultando el medidor local…";
+    spoken.removeAttribute("lang");
+    spoken.textContent = tr("energy_checking");
     machine.textContent = "";
     const abort = new AbortController();
     const timeout = setTimeout(() => abort.abort(), 4000);
@@ -24,10 +27,13 @@
           typeof data.texto !== "string" || data.solo_lectura !== true) {
         throw new Error("energy_snapshot_invalid");
       }
+      // Machine text originates on the server; declare its language for
+      // screen readers rather than pretending it is translated client-side.
+      spoken.lang = "en";
       spoken.textContent = data.texto;
       machine.textContent = JSON.stringify(data, null, 2);
     } catch {
-      spoken.textContent = "Energía: NO_DATA (local_energy_endpoint_unavailable).";
+      spoken.textContent = tr("energy_unavailable");
     } finally {
       clearTimeout(timeout);
       button.disabled = false;
