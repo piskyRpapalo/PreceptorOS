@@ -89,11 +89,26 @@
     <p class="pie" id="a2a-politica" role="status" lang="en">NO_DATA: this node has no A2A policy written yet. Boundary is where you will write how other agents may reach it. The redaction filter now lives in Ajustes.</p>
   </section>
 
-  <!-- cuaderno -->
-  <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Cuaderno" hidden>
-    <p class="pie" id="recuento">…</p>
-    <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
-    <ul class="turnos" id="turnos"></ul>
+  <!-- Notebook is an observational projection: receipts are source, not a new scheduler. -->
+  <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Notebook" hidden>
+    <header class="notebook-heading">
+      <h2>Notebook · Hexelion</h2>
+      <p class="pie">Agentes, bucles e informes con fuentes. Un recibo declarado no demuestra que un proceso siga ejecutándose.</p>
+      <button type="button" class="probar" id="notebook-refresh">Actualizar lecturas</button>
+      <p class="pie" id="notebook-status" role="status" aria-live="polite">NO_DATA: el Notebook no se ha leído todavía.</p>
+    </header>
+    <section class="notebook-section" aria-labelledby="notebook-agents-title">
+      <h3 id="notebook-agents-title">Agentes observados</h3>
+      <div id="notebook-agents" class="notebook-grid"></div>
+    </section>
+    <section class="notebook-section" aria-labelledby="notebook-loops-title">
+      <h3 id="notebook-loops-title">Bucles del nodo</h3>
+      <div id="notebook-loops" class="notebook-grid"></div>
+    </section>
+    <section class="notebook-section" aria-labelledby="notebook-reports-title">
+      <h3 id="notebook-reports-title">Revisiones · WBR / MBR</h3>
+      <div id="notebook-reports" class="notebook-grid"></div>
+    </section>
   </section>
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
@@ -137,6 +152,12 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <details id="captura-consent" class="tarjeta">
+      <summary>Consentimiento para entrenamiento · registro histórico</summary>
+      <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
+      <p class="pie" id="recuento">NO_DATA: pulsa Ajustes para consultar el registro.</p>
+      <ul class="turnos" id="turnos"></ul>
+    </details>
     <div class="tarjeta" id="tarjeta-frontera" role="group" aria-labelledby="redaccion-titulo">
       <h3 id="redaccion-titulo" data-i18n="aria_redaccion">Redacción</h3>
       <div class="fila-switch">
@@ -286,7 +307,8 @@
 <script src="/team.js?v=2"></script>
 <script src="/firmas.js?v=1"></script>
 <script src="/hitl.js?v=5"></script>
-<script src="/app.js?v=16"></script>
+<script src="/notebook.js?v=1"></script>
+<script src="/app.js?v=19"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
