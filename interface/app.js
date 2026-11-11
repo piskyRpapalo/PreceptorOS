@@ -899,7 +899,19 @@ $("form-chat").addEventListener("submit", async (e) => {
     const d = await r.json();
     esperando.remove();
     const respuesta = d.respuesta;
-    if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
+    const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
+    if (r.ok && d.estado === "LECTURA_LOCAL" && local &&
+        local.esquema === "preceptoros.energy-read/1" && local.solo_lectura === true &&
+        (local.estado === "PARCIAL" || local.estado === "NO_DATA") &&
+        local.consumo && (local.consumo.estado === "MEDIDO" || local.consumo.estado === "NO_DATA") &&
+        typeof local.texto === "string" && local.texto.startsWith("Energy: ") &&
+        local.texto.length <= 420) {
+      // The local sensor is not the model; no fabricated citations or model timing.
+      $("estado").textContent = "Local energy tool · " + local.estado + " · model not invoked";
+      modelosWeb.setActiveModel(null, null, "local_energy_tool_model_not_invoked");
+      const fila = burbuja("Hexelion · local sensor (model not invoked): " + local.texto);
+      fila.lang = "en";
+    } else if (r.ok && respuesta && respuesta.estado === "MEASURED" && respuesta.voz === "hexelion" &&
         typeof respuesta.texto === "string" && respuesta.texto.trim() &&
         Array.isArray(respuesta.fuentes) && respuesta.fuentes.length > 0 &&
         respuesta.fuentes.every((f) => Number.isSafeInteger(f.id) && typeof f.updated_at === "string" && /^[a-f0-9]{64}$/.test(f.sha256))) {

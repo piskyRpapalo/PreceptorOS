@@ -52,6 +52,7 @@ import bandeja_lectura as _bandeja
 import medidas as MED
 import metricas as MET
 import energia_estado as _energia_estado
+import energia_intencion as _energia_intencion
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
@@ -1101,6 +1102,29 @@ class PWA(BaseHTTPRequestHandler):
                 return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
+        # Exact sensor-intent queries use the local measurement tool, never
+        # the station model. Keep model citations mandatory in the other path.
+        if _energia_intencion.es_consulta(text.strip()):
+            try:
+                lectura = _energia_estado.respuesta()
+                receipt = {
+                    "estado": "LECTURA_LOCAL",
+                    "respuesta": {"tipo": "energia_local", "lectura": lectura},
+                    "causa": "local_energy_tool;model_not_invoked",
+                }
+                _estado_compacto.serializar_objeto(receipt)
+            except (TypeError, ValueError, UnicodeError, OverflowError):
+                return no_data("local_energy_receipt_invalid")
+            except Exception:
+                return no_data("local_energy_tool_failed")
+            try:
+                _canales.di("orquesta", "orquestador", lectura["texto"],
+                            sello="DECLARADO", rol="Local energy sensor (not model)",
+                            maquina={"via": "local_energy_tool", "esquema": lectura["esquema"],
+                                     "estado": lectura["estado"]}, base=_casa.raiz())
+            except _canales.CanalRechazado:
+                return no_data("thread_append_refused")
+            return self._json(200, receipt)
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
         # (indice_rack, built by bin/indice-rack). Both are exact quotes under the same budget.
         evidence = _indice_rack.unir(_memory_lookup.buscar(text.strip(), self.server.ruta_db),
