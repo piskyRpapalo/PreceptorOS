@@ -84,8 +84,9 @@
 // v159 (app-energy-01): local energy observation in Settings, one no-store read.
 // v160 (app-energy-01): English-only controls, metadata and source/read parity.
 // v161 (app-energy-02): local sensor answers appear in Talk without model inference.
-const Cache = "preceptoros-armazon-v161";
-const Armazon = ["/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=20", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=5", "/hitl.css?v=4", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// v162 (app-en-freeze-01): active English-only language on profile failure.
+const Cache = "preceptoros-armazon-v162";
+const Armazon = ["/assets/icono-192.png", "/assets/icono-512.png", "/assets/icono-512-maskable.png", "/", "/app", "/app.html", "/app.css?v=13", "/app.js?v=21", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=5", "/hitl.css?v=4", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
