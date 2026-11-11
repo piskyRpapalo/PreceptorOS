@@ -177,8 +177,9 @@
         activeModel = { model: model.trim(), ms: Number.isFinite(ms) && ms > 0 ? ms : null };
         const duration = activeModel.ms === null ? "" : ` · ${activeModel.ms} ms`;
         activeStatus.textContent = `${text("model_last_reply", "Último modelo que respondió")}: ${activeModel.model}${duration}`;
-      } else {
-        activeModel = null;
+      } else if (!activeModel) {
+        // A failed attempt has its cause in Talk's live status. It must not
+        // erase the last independently verified reply from this panel.
         activeStatus.textContent = noData(typeof cause === "string" && cause ? cause : "hexelion_model_not_measured");
       }
     }

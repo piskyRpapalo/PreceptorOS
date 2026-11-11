@@ -86,8 +86,16 @@ class Cara(unittest.TestCase):
         # [deprecated 2026-11-08] the scraped block left Command; HITL in Boundary replaces it.
         self.assertNotIn('id="firmas"', html)
         self.assertIn('id="hitl"', html)
-        self.assertLess(html.index("/acho_motion.js"), html.index("/firmas.js?v=1"))
-        self.assertIn('"/firmas.js?v=1"', (raiz / "interface" / "sw.js").read_text(encoding="utf-8"))
+        # Deprecated renderer remains in source for history, but it must not
+        # execute or consume offline cache in the sole live app.
+        self.assertNotIn('<script src="/firmas.js', html)
+        self.assertIn('<script src="/hitl.js?v=5"></script>', html)
+        sw = (raiz / "interface" / "sw.js").read_text(encoding="utf-8")
+        self.assertNotIn('"/firmas.js?v=1"', sw)
+        import re
+        cache = re.search(r'const Cache = "preceptoros-armazon-v(\d+)"', sw)
+        self.assertIsNotNone(cache)
+        self.assertGreaterEqual(int(cache.group(1)), 156)
         self.assertIn('if ruta == "/api/firmas":', server)
         self.assertNotIn("POST", js); self.assertNotIn("buzon", js)
         self.assertIn("preceptoros-firmar", js)

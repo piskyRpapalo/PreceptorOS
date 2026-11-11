@@ -1380,6 +1380,29 @@ class HexelionStationContract(unittest.TestCase):
         self.assertEqual(sent["model"], "hexelion:latest")
         self.assertEqual(sent["options"]["num_predict"], 512)
 
+    def test_structured_format_only_on_explicit_call(self):
+        import hexelion_proxy
+        class Response:
+            def __init__(self, body): self.body = body
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self, limit): return self.body
+        schema = {"type": "object", "properties": {"citas": {"type": "array"}}}
+        opener = mock.Mock(side_effect=[
+            Response(b'{"models":[{"name":"hexelion:latest"}]}'),
+            Response(b'{"model":"hexelion:latest","response":"{\\\"citas\\\":[]}","total_duration":23000000}')
+        ])
+        ticks = iter((10.0, 10.01))
+        result = hexelion_proxy.ask("hello", endpoint="http://127.0.0.1:11434",
+                                    output_format=schema, opener=opener,
+                                    clock=lambda: next(ticks))
+        self.assertEqual(result["estado"], "MEASURED")
+        sent = json.loads(opener.call_args_list[1].args[0].data)
+        self.assertEqual(sent["format"], schema)
+        self.assertEqual(sent["options"]["temperature"], 0)
+        self.assertEqual(sent["think"], "low")
+        self.assertEqual(sent["options"]["num_predict"], 512)
+
     def test_estacion_caida_no_entrega_placeholder(self):
         import hexelion_proxy
         opener = mock.Mock(side_effect=TimeoutError())
@@ -1417,6 +1440,9 @@ class HexelionStationContract(unittest.TestCase):
         person.assert_called_once_with("orquesta", "¿Qué dice el archivo?", base="unused")
         search.assert_called_once_with("¿Qué dice el archivo?", "unused")
         prompt = ask.call_args.args[0]
+        fmt = ask.call_args.kwargs["output_format"]
+        self.assertEqual(fmt["properties"]["citas"]["items"]["properties"]["id"]["enum"], [9])
+        self.assertIn(source_text, fmt["properties"]["citas"]["items"]["properties"]["quote"]["enum"])
         self.assertIn(source_text, prompt)
         self.assertIn("¿Qué dice el archivo?", prompt)
         self.assertIn("active app panel id is lab", prompt)

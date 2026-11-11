@@ -53,6 +53,21 @@ class HexelionBookTests(unittest.TestCase):
         self.assertEqual(result, {"estado": "NO_DATA", "causa": "memory_context_prompt_budget_exceeded"})
         self.assertIsNone(prompt)
 
+    def test_json_format_draws_candidates_only_from_verified_sources(self):
+        rows = [source(7, "Local model: hexelion:latest. Talk is local."),
+                source(8, "The Notebook lists captured turns. Consent is separate.")]
+        prepared, prompt = book.construir_prompt("What does Notebook do?", self.evidence(rows))
+        self.assertEqual(prepared["estado"], "MEASURED")
+        schema = book.formato_citas(prepared["fuentes"])
+        self.assertIsNotNone(schema)
+        quotes = schema["properties"]["citas"]["items"]["properties"]["quote"]["enum"]
+        self.assertLessEqual(len(quotes), 12)
+        for quote in quotes:
+            self.assertLessEqual(len(quote.encode("utf-8")), 150)
+            self.assertTrue(any(quote in row["texto"] for row in rows))
+        self.assertIsNone(book.formato_citas([source(1, "x" * 400)]))
+        self.assertLess(len(json.dumps(schema, ensure_ascii=False).encode()), 3072)
+
     def test_only_exact_utf8_source_substrings_are_accepted(self):
         row = source(7, "The archive states: arco 🌙 is measured.")
         valid = json.dumps({"citas": [{"id": 7, "quote": "arco 🌙"}]}, ensure_ascii=False)
@@ -103,12 +118,13 @@ class HexelionBookTests(unittest.TestCase):
     def test_no_quote_and_quote_over_320_bytes_fail_closed(self):
         row = source(1, "x" * 400)
         for answer, cause in (
-                ('{"citas":[]}', "station_extract_not_verified"),
+                ('{"citas":[]}', "no_exact_quote_in_sources"),
                 (json.dumps({"citas": [{"id": 1, "quote": "x" * 321}]}),
                  "station_extract_not_verified")):
             with self.subTest(cause=cause):
                 result, citations = book.verificar_citas(answer, [row])
                 self.assertEqual(result["estado"], "NO_DATA")
+                self.assertEqual(result["causa"], cause)
                 self.assertIsNone(citations)
 
     def test_three_citation_receipt_with_320_byte_quote_is_886_bytes(self):
