@@ -744,9 +744,11 @@ async function estado() {
   try {
     const r = await fetch("/api/estado");
     const d = await r.json();
-    $("estado").textContent = d.motor
-      ? t.memoria(d.turnos.turnos, d.turnos.consentidos)
-      : t.sin_cerebro;
+    const cuenta = d && d.turnos;
+    $("estado").textContent = cuenta && Number.isSafeInteger(cuenta.turnos) &&
+      Number.isSafeInteger(cuenta.consentidos)
+      ? t.memoria(cuenta.turnos, cuenta.consentidos)
+      : "NO_DATA: memory_counts_not_verified";
   } catch {
     $("estado").textContent = t.sin_servidor;
   }
@@ -850,11 +852,13 @@ $("form-chat").addEventListener("submit", async (e) => {
       const causa = typeof d.causa === "string" && d.causa ? d.causa : t.chat_edad_nd;
       $("estado").textContent = t.chat_sin_respuesta(causa);
       modelosWeb.setActiveModel(null, null, causa);
+      if (!$("dicho").value.trim()) $("dicho").value = escrito;
     }
   } catch {
     esperando.remove();
     $("estado").textContent = t.chat_sin_respuesta(t.chat_edad_nd);
     modelosWeb.setActiveModel(null, null, "hexelion_chat_transport_unavailable");
+    if (!$("dicho").value.trim()) $("dicho").value = escrito;
   }
   $("enviar").disabled = false;
 });

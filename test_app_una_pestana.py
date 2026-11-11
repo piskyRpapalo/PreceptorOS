@@ -75,6 +75,13 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertIn('$("estado").textContent = t.chat_sin_respuesta(causa)', js)
         self.assertIn('respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)))', js)
 
+    def test_talk_no_confunde_motor_antiguo_y_conserva_borrador(self):
+        js = (RAIZ / "interface/app.js").read_text(encoding="utf-8")
+        self.assertIn('Number.isSafeInteger(cuenta.turnos)', js)
+        self.assertIn('"NO_DATA: memory_counts_not_verified"', js)
+        self.assertNotIn('$("estado").textContent = d.motor', js)
+        self.assertEqual(js.count('if (!$("dicho").value.trim()) $("dicho").value = escrito;'), 2)
+
     def test_zona_inactiva_informa_no_data_y_hay_guion_vivo(self):
         app = _app()
         for zona in ("lab", "harness", "puerta", "modelos", "ajustes"):
