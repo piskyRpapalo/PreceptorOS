@@ -497,6 +497,10 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # Las cabeceras del panel de la cara llevan su sello como el marco de
         # la terminal canon (LIVE, STALE o NO_DATA): estado, no politica.
         INTRINSECOS |= {"LIVE"}
+        # Sensor-derived status vocabulary, not redaction policies. The Talk
+        # local-energy path may name ONLY these three wire states; an arbitrary
+        # new uppercase name still fails the same guard below.
+        INTRINSECOS |= {"LECTURA_LOCAL", "PARCIAL", "MEDIDO"}
         # EMULADO es el sello honesto de lo heuristico (CLAUDE.md de la web):
         # la regla de crecimiento del cangrejo de la cara lo lleva escrito.
         INTRINSECOS |= {"EMULADO"}
