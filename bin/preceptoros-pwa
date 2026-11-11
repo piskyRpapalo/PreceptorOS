@@ -52,6 +52,7 @@ import bandeja_lectura as _bandeja
 import medidas as MED
 import metricas as MET
 import energia_estado as _energia_estado
+import energia_intencion as _energia_intencion
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
@@ -1101,6 +1102,32 @@ class PWA(BaseHTTPRequestHandler):
                 return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
+        # An exact, finite energy query is a sensor-tool turn, not an
+        # answer fabricated by a language model or a retrieved memory.
+        # Unknown/mixed queries continue into the verified-memory path below.
+        if _energia_intencion.es_consulta(text.strip()):
+            lectura = _energia_estado.respuesta()
+            receipt = {
+                "estado": "LECTURA_LOCAL",
+                "respuesta": {"tipo": "energia_local", "estado": lectura["estado"],
+                              "texto": lectura["texto"], "lectura": lectura},
+                "causa": "local_energy_tool; model_not_invoked",
+            }
+            try:
+                _estado_compacto.serializar_objeto(receipt)
+            except (TypeError, ValueError, UnicodeError):
+                return no_data("energy_receipt_exceeds_budget")
+            try:
+                _canales.di("orquesta", "hexelion", lectura["texto"],
+                            sello="DECLARADO",
+                            rol="Local energy tool, model not invoked",
+                            maquina={"via": "local_energy_tool",
+                                     "esquema": lectura["esquema"],
+                                     "estado": lectura["estado"]},
+                            base=_casa.raiz())
+            except _canales.CanalRechazado:
+                return no_data("thread_append_refused")
+            return self._json(200, receipt)
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
         # (indice_rack, built by bin/indice-rack). Both are exact quotes under the same budget.
         evidence = _indice_rack.unir(_memory_lookup.buscar(text.strip(), self.server.ruta_db),
