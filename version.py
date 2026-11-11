@@ -32,7 +32,7 @@ AUSENTE = "NO_DATA"
 ARMAZON = (
     "interface/install.js",
     "interface/app.html", "interface/app.css", "interface/app.js",
-    "interface/modelos_web.js",
+    "interface/modelos_web.js", "interface/energia_ui.js",
     "interface/keep_device.js",
     "interface/transicion.js",
     "interface/sting.js",
