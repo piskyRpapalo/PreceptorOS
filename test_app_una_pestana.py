@@ -1,4 +1,5 @@
 """Contrato de la carcasa reorganizable de la app."""
+import json
 from html.parser import HTMLParser
 from pathlib import Path
 import re
@@ -81,6 +82,16 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertIn('"NO_DATA: memory_counts_not_verified"', js)
         self.assertNotIn('$("estado").textContent = d.motor', js)
         self.assertEqual(js.count('if (!$("dicho").value.trim()) $("dicho").value = escrito;'), 2)
+
+    def test_tema_instalado_coincide_con_cara_crema(self):
+        html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")
+        manifest = json.loads((RAIZ / "interface/manifest.json").read_text(encoding="utf-8"))
+        css = (RAIZ / "interface/app.css").read_text(encoding="utf-8")
+        self.assertIn("--ground: #f4ecda", css)
+        self.assertEqual(manifest["theme_color"], "#f4ecda")
+        self.assertEqual(manifest["background_color"], "#f4ecda")
+        self.assertIn('<meta name="theme-color" content="#f4ecda">', html)
+        self.assertIn('preceptoros-armazon-v155', (RAIZ / "interface/sw.js").read_text())
 
     def test_zona_inactiva_informa_no_data_y_hay_guion_vivo(self):
         app = _app()
