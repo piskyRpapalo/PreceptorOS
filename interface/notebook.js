@@ -1,5 +1,5 @@
 /* Notebook operativo · one read-only projection of receipt-bearing agents, loops and reviews.
- * Existing agents in Harness are PROMPT STYLES, not processes; never call them live.
+ * Existing agents in Harness are prompt styles, not processes; never call them live.
  * No arbitrary remote fetch, eval, signer, scheduler or local-store duplicate.
  */
 (function (root) {
