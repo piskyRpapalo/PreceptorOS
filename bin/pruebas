@@ -160,7 +160,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_superficie test_memory_lookup test_hexelion_book test_atlas_riesgo test_pwa_bind test_lora_signed_download test_lora_dataset
           test_rutas_unicas
           # Every suite is counted separately; test_superficie catches omissions.
-          test_huella test_metricas test_energia_estado test_herramientas test_empieza_aqui test_soberano
+          test_huella test_metricas test_energia_estado test_energia_intencion test_herramientas test_empieza_aqui test_soberano
           test_importar test_medidas test_cifras test_compliance
           # test_linea y test_normas: el registro encadenado y la tabla de
           # anclas legislativas. Entran en su mismo commit. La primera lleva
