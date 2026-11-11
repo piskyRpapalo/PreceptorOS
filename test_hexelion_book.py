@@ -118,12 +118,13 @@ class HexelionBookTests(unittest.TestCase):
     def test_no_quote_and_quote_over_320_bytes_fail_closed(self):
         row = source(1, "x" * 400)
         for answer, cause in (
-                ('{"citas":[]}', "station_extract_not_verified"),
+                ('{"citas":[]}', "no_exact_quote_in_sources"),
                 (json.dumps({"citas": [{"id": 1, "quote": "x" * 321}]}),
                  "station_extract_not_verified")):
             with self.subTest(cause=cause):
                 result, citations = book.verificar_citas(answer, [row])
                 self.assertEqual(result["estado"], "NO_DATA")
+                self.assertEqual(result["causa"], cause)
                 self.assertIsNone(citations)
 
     def test_three_citation_receipt_with_320_byte_quote_is_886_bytes(self):

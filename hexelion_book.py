@@ -168,6 +168,10 @@ def verificar_citas(raw_answer, sources):
         if type(parsed) is not dict or set(parsed) != {"citas"}:
             raise ValueError("shape")
         quotes = parsed["citas"]
+        if isinstance(quotes, list) and not quotes:
+            # A well-formed, empty extraction is the station saying it found nothing
+            # to quote. That is an honest outcome with its own name, not a broken reply.
+            return _no_data("no_exact_quote_in_sources"), None
         if not isinstance(quotes, list) or not 1 <= len(quotes) <= MAX_SOURCES:
             raise ValueError("empty_or_excess_citations")
         by_id = {source["id"]: source for source in sources}
