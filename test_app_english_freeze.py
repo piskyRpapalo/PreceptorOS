@@ -22,8 +22,8 @@ class EnglishOnlyApp(unittest.TestCase):
         self.assertNotRegex(self.html, r'(?m)^<html lang="es">')
 
     def test_active_dictionary_is_english_even_if_profile_is_unreachable(self):
-        self.assertIn("let t = textos.en;", self.js)
-        self.assertNotIn("let t = textos.es;", self.js)
+        self.assertTrue("let t = textos.en;" in self.js, "active default must be English")
+        self.assertFalse("let t = textos.es;" in self.js, "Spanish must not be the active default")
         start = self.js.index("async function fijarIdioma()")
         end = self.js.index("let panelActual", start)
         renderer = self.js[start:end]
