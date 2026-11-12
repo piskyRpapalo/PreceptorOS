@@ -125,6 +125,39 @@ class Door(unittest.TestCase):
         self.assertEqual((out["code"], out["body"]["causa"]), (403, "actions_person_only"))
 
 
+class Phrases(Door):
+    """One sentence, no typing (NORTE §4): exact phrases name READ actions only; nothing else changes path."""
+
+    def test_exact_phrases_in_three_languages_name_only_read_actions(self):
+        for said, order in (("¿Cómo está el rack?", "/estado"), ("How is the rack?", "/estado"),
+                            ("o que podes fazer", "/capacidades"), ("Qué has hecho", "/registro 5")):
+            self.assertEqual(A.frase(said), order, said)
+        for other in ("como esta el rack ahora", "borra el rack", "/estado", "what is the cache version", "x" * 200):
+            self.assertIsNone(A.frase(other), other)
+        tools = {A.interpreta(order)[0] for order in A.FRASES}
+        self.assertEqual(tools, {"state", "capabilities", "audit_last"})          # never exec or write_file
+
+    def test_the_person_says_a_phrase_and_hexelion_acts_and_the_thread_keeps_the_words(self):
+        out = self.person("¿Cómo está el rack?")
+        self.assertEqual(out["body"]["estado"], "ACCION_LOCAL")
+        acc = out["body"]["respuesta"]["accion"]
+        self.assertEqual((acc["herramienta"], acc["frase"]), ("state", "/estado"))
+        msgs = self.thread()
+        self.assertEqual(msgs[0]["texto"], "¿Cómo está el rack?")
+        self.assertEqual(msgs[1]["maquina"]["frase"], "/estado")
+
+    def test_a_cli_agent_saying_a_phrase_still_asks_a_question(self):
+        with self.env, mock.patch.object(PWA._hexelion_proxy, "ask", side_effect=AssertionError("model asked")):
+            out = chat(self.base, {"texto": "what can you do", "voz": "codex"}, {})
+        self.assertNotEqual(out["body"].get("causa"), "actions_person_only")
+        self.assertNotEqual(out["body"].get("estado"), "ACCION_LOCAL")
+
+    def test_the_question_mark_list_says_the_phrases(self):
+        html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
+        self.assertIn('id="comandos-hexelion-frases"', html)
+        self.assertIn("«how is the rack?»", html)
+
+
 class Shell(unittest.TestCase):
     def test_talk_has_a_question_mark_with_the_commands_and_the_chat_paints_actions(self):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
@@ -138,7 +171,7 @@ class Shell(unittest.TestCase):
         self.assertIn('#comandos-hexelion [data-comando]', app)
         self.assertIn('"ACTED", "ACTION_REFUSED"', (ROOT / "interface/notebook.js").read_text(encoding="utf-8"))
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
-        self.assertIn("preceptoros-armazon-v170", sw)
+        self.assertIn("preceptoros-armazon-v171", sw)
         for asset in ('"/app.js?v=28"', '"/app.css?v=19"', '"/notebook.js?v=6"'):
             self.assertIn(asset, sw)
 

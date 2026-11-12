@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 import time
+import unicodedata
 from pathlib import Path
 
 VOZ = "hexelion"
@@ -37,6 +38,43 @@ ACCIONES = {
     "escribe": "write_file", "write": "write_file",
 }
 AYUDA = "/estado · /capacidades · /registro [n] · /ejecuta [@worktree] <command> · /escribe @worktree <path> :: <text>"
+
+
+# One sentence, no typing (NORTE §4: «si el Soberano es ciego, NO tiene que teclear»). Exact phrases only, and only
+# READ actions: a phrase never writes, runs a command or picks a tool by model. Anything else stays a question.
+FRASES = {
+    "/estado": (
+        "estado del rack", "como esta el rack", "como va el rack", "estado de la casa", "como esta la casa",
+        "que servicios fallan", "que esta caido", "hay algo caido", "estado de los servicios",
+        "rack state", "rack status", "how is the rack", "what is down", "is anything down", "house status",
+        "estado do rack", "como esta o rack", "o que esta em baixo",
+    ),
+    "/capacidades": (
+        "que puedes hacer", "que puede hacer hexelion", "tus capacidades", "que te esta permitido",
+        "what can you do", "your capabilities", "what are you allowed to do",
+        "o que podes fazer", "o que voce pode fazer",
+    ),
+    "/registro 5": (
+        "que has hecho", "ultimas acciones", "tus ultimas acciones", "registro de acciones", "que hiciste",
+        "what did you do", "last actions", "recent actions", "your last actions",
+        "o que fizeste", "ultimas acoes",
+    ),
+}
+_FRASE = {f: orden for orden, frases in FRASES.items() for f in frases}
+
+
+def normaliza(texto):
+    norm = unicodedata.normalize("NFKD", texto.casefold())
+    norm = "".join(c for c in norm if not unicodedata.combining(c))
+    norm = norm.strip().strip("¿?¡! .,")
+    return re.sub(r"\s+", " ", norm)
+
+
+def frase(texto):
+    """The read action an exact phrase names, or None (then it is an ordinary question)."""
+    if not isinstance(texto, str) or not 0 < len(texto) <= 120:
+        return None
+    return _FRASE.get(normaliza(texto))
 
 
 def es_accion(texto):
