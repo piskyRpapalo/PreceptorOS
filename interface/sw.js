@@ -91,8 +91,10 @@
 // painted one. The cache name stays v161 (two open PRs and two tests pin it); this file changing refreshes the list.
 // 2026-11-11: 3DFabrik takes the public gate's tab (the gate moves to Settings); Lab and Notebook fold by category.
 // app.js and app.css carry a new version; the cache name moves to v162 (pinned by tests).
+// 2026-11-12: Notebook operativo (read-only agents, cycles, WBR/MBR) reconciled onto this shell: notebook.js enters
+// the list, app.js and app.css carry a new version. The cache name stays v162 (pinned by tests).
 const Cache = "preceptoros-armazon-v162";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=14", "/app.js?v=21", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=15", "/app.js?v=22", "/notebook.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=1", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.
