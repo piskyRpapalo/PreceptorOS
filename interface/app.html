@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png?v=2">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png?v=2">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=18">
+<link rel="stylesheet" href="/app.css?v=19">
 <link rel="stylesheet" href="/hitl.css?v=5">
 </head>
 <body>
@@ -69,7 +69,21 @@
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Talk">
     <header class="panel-cabecera"><h2 class="sr" id="h-conversacion">Talk</h2>
       <p class="pie conv-destinos" id="conv-destinos" role="status" aria-live="polite">NO_DATA: the shared thread has not been read yet.</p>
-      <button type="button" class="refrescar" data-refrescar="conversacion" aria-label="Refresh the shared thread" title="Refresh the shared thread">↻</button></header>
+      <button type="button" class="refrescar" data-refrescar="conversacion" aria-label="Refresh the shared thread" title="Refresh the shared thread">↻</button>
+      <details class="comandos" id="comandos-hexelion">
+        <summary class="refrescar" id="comandos-hexelion-abrir" aria-label="Hexelion commands" title="Hexelion commands">?</summary>
+        <div class="comandos-lista" id="comandos-hexelion-lista">
+          <p class="pie" id="comandos-hexelion-nota">A message that starts with / is an action: Hexelion runs it in its own worktrees and proposes; it never merges or signs. No model runs. Tap one to write it.</p>
+          <ul>
+            <li><button type="button" data-comando="/estado" id="cmd-estado"><code id="cmd-estado-texto">/estado</code> rack and house services</button></li>
+            <li><button type="button" data-comando="/capacidades" id="cmd-capacidades"><code id="cmd-capacidades-texto">/capacidades</code> what Hexelion may do</button></li>
+            <li><button type="button" data-comando="/registro 5" id="cmd-registro"><code id="cmd-registro-texto">/registro 5</code> last receipts</button></li>
+            <li><button type="button" data-comando="/ejecuta @hexelion- git status" id="cmd-ejecuta"><code id="cmd-ejecuta-texto">/ejecuta [@worktree] &lt;command&gt;</code> run one command</button></li>
+            <li><button type="button" data-comando="/escribe @hexelion- notes.md :: " id="cmd-escribe"><code id="cmd-escribe-texto">/escribe @worktree &lt;path&gt; :: &lt;text&gt;</code> write one file</button></li>
+            <li><button type="button" data-comando="@ayuda " id="cmd-ayuda"><code id="cmd-ayuda-texto">@ayuda</code> help for this panel</button></li>
+          </ul>
+        </div>
+      </details></header>
     <ol class="hilo" id="hilo" aria-live="polite" aria-label="Shared thread: you, Hexelion and the rack preceptors"></ol>
   </section>
 
@@ -444,8 +458,8 @@
 <script src="/acho_motion.js?v=2"></script>
 <script src="/team.js?v=2"></script>
 <script src="/hitl.js?v=6"></script>
-<script src="/notebook.js?v=5"></script>
-<script src="/app.js?v=27"></script>
+<script src="/notebook.js?v=6"></script>
+<script src="/app.js?v=28"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>

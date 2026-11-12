@@ -943,7 +943,16 @@ $("form-chat").addEventListener("submit", async (e) => {
     esperando.remove();
     const respuesta = d.respuesta;
     const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
-    if (r.ok && d.estado === "LECTURA_LOCAL" && local &&
+    const accion = respuesta && respuesta.tipo === "accion_hexelion" ? respuesta.accion : null;
+    if (r.ok && d.estado === "ACCION_LOCAL" && accion && accion.estado === "MEASURED" &&
+        typeof accion.herramienta === "string" && typeof accion.texto === "string" && accion.texto.length <= 1600) {
+      // An action, not an answer: the native MCP ran it as Hexelion inside its fences. No model, no citations.
+      $("estado").textContent = "Hexelion action · " + accion.herramienta + " · " +
+        (accion.ok ? "done" : "refused or failed") + " · model not invoked";
+      modelosWeb.setActiveModel(null, null, "hexelion_action_model_not_invoked");
+      const fila = burbuja("Hexelion · action " + accion.herramienta + ": " + accion.texto);
+      fila.lang = "en"; fila.dataset.accion = accion.ok ? "ok" : "refused";
+    } else if (r.ok && d.estado === "LECTURA_LOCAL" && local &&
         local.esquema === "preceptoros.energy-read/1" && local.solo_lectura === true &&
         (local.estado === "PARCIAL" || local.estado === "NO_DATA") &&
         local.consumo && (local.consumo.estado === "MEDIDO" || local.consumo.estado === "NO_DATA") &&
@@ -984,6 +993,14 @@ $("form-chat").addEventListener("submit", async (e) => {
   }
   $("enviar").disabled = false;
   if (window.PreceptorConversacion) window.PreceptorConversacion.sync({ replaceLocal: true });
+});
+/* «?» commands: a tap writes the command in the box; the person still presses Dilo. */
+document.querySelectorAll("#comandos-hexelion [data-comando]").forEach((boton) => {
+  boton.addEventListener("click", () => {
+    $("dicho").value = boton.dataset.comando;
+    $("comandos-hexelion").open = false;
+    $("dicho").focus();
+  });
 });
 if (window.PreceptorConversacion) {
   window.PreceptorConversacion.sync();

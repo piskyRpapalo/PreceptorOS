@@ -25,6 +25,8 @@ NEXT = {
     "ANSWERED": "Read the sources before acting on it.",
     "ANSWERED_UNVERIFIED": "Treat it as unverified; ask again for a sourced answer.",
     "LOCAL_SENSOR": "Nothing to do: it is a reading, not advice.",
+    "ACTED": "Check the result in the thread; anything to merge arrives as a draft HITL PR for you.",
+    "ACTION_REFUSED": "Read the cause; the fence held, nothing changed.",
     "NO_ANSWER": "Fix the cause or ask again later; nothing is working on this request now.",
     "REPLIED": "Read the reply; it is a message, not a permission.",
     "NO_REPLY_RECORDED": "Nothing is recorded as working on it. Ask again, or ask on the Mesa.",
@@ -38,6 +40,20 @@ CAUSES = {
     "station_unavailable": "The local model did not respond, so nobody answered.",
     "station_timeout": "The local model took too long and was stopped, so nobody answered.",
     "no_matches": "Your memory has nothing on this yet, so Hexelion did not ask the model.",
+    "actions_person_only": "Only the person acts through Hexelion; a CLI agent uses its own tools.",
+    "action_unknown": "That «/» action does not exist; the «?» button lists the ones that do.",
+    "action_invalid": "That «/» action could not be read.",
+    "action_takes_no_arguments": "That «/» action takes nothing after it.",
+    "audit_count_1_to_20": "/registro takes a number from 1 to 20.",
+    "worktree_name_invalid": "The worktree after @ is not a valid name.",
+    "command_missing": "/ejecuta needs a command after it.",
+    "write_needs_worktree": "/escribe needs @worktree first.",
+    "write_path_or_separator_invalid": "/escribe needs a relative path, then « :: », then the text.",
+    "mcp_nativo_missing": "The native MCP server is not installed on this rack, so Hexelion could not act.",
+    "mcp_s3_not_installed": "The installed native MCP server is the read-only one (S-1); Hexelion needs S-3 to act.",
+    "mcp_nativo_timeout": "The action took too long and was stopped.",
+    "mcp_nativo_unrunnable": "The native MCP server could not be started.",
+    "mcp_reply_invalid": "The native MCP server answered something unreadable, so nothing is claimed.",
     "quote_not_relevant": "Hexelion found exact quotes, but none shares a word with your question, so it gave no answer.",
 }
 
@@ -63,6 +79,15 @@ def _close(turn, reply):
     elif voice == "orquestador":
         turn.update(state="LOCAL_SENSOR", evidence="local sensor reading; no model",
                     sentence="A local sensor answered; no model ran.")
+    elif voice == "hexelion" and m.get("via") == "mcp_nativo":
+        tool = str(m.get("herramienta") or "?")[:24]
+        if m.get("ok") is True:
+            turn.update(state="ACTED", evidence="native MCP receipt; no model",
+                        sentence="Hexelion ran the action «%s» through the native MCP; no model ran." % tool)
+        else:
+            cause = str(m.get("causa") or "rc %s" % m.get("rc"))[:80]
+            turn.update(state="ACTION_REFUSED", cause=cause, evidence="native MCP receipt; no model",
+                        sentence="Hexelion's action «%s» did not succeed: %s." % (tool, cause))
     elif voice == "hexelion":
         model, ms = m.get("modelo"), _ms(m)
         sources = m.get("fuentes") if isinstance(m.get("fuentes"), list) else []

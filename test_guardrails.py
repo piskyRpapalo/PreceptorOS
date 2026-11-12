@@ -519,6 +519,8 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         INTRINSECOS |= {"ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"}
         # Command receipts in the Notebook: the producer's states (notebook_receipts.py), not policy names.
         INTRINSECOS |= {"DECLARED"}
+        # Hexelion actions from Talk (2026-11-12): the door's reply state and the two action turn states, not policy names.
+        INTRINSECOS |= {"ACCION_LOCAL", "ACTED", "ACTION_REFUSED"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):
