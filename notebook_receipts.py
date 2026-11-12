@@ -41,6 +41,23 @@ _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 _TOOL = re.compile(r"^[a-z][a-z_]{0,23}$")
 _CMD_SHA = re.compile(r"^[0-9a-f]{16}$")
 _INTS = {"rc": (-255, 255), "ms": (0, 3_600_000), "out_bytes": (0, 1 << 31)}
+_VOICE = re.compile(r"^[a-z][a-z0-9-]{1,23}$")
+
+
+def optional(raw):
+    """S-3 receipts (2026-11-12) say WHO acted (`voz`) and whether the fence refused it (`denied`). Both are optional:
+    a receipt without them keeps its old fingerprint. The refusal cause is never copied (it can hold typed text)."""
+    extra = {}
+    voice = raw.get("voz", raw.get("voice"))
+    if isinstance(voice, str) and _VOICE.fullmatch(voice) and voice != "none":
+        extra["voice"] = voice
+    if raw.get("denied") is True:
+        extra["denied"] = True
+    return extra
+
+
+def result(record):
+    return "refused" if record.get("denied") else ("ok" if record["rc"] == 0 else "failed")
 
 
 def _utc(value):
@@ -90,7 +107,8 @@ def clean(line):
         if type(value) is not int or not low <= value <= high:
             return None, "invalid_" + name
         record[name] = value
-    record["result"] = "ok" if record["rc"] == 0 else "failed"
+    record.update(optional(raw))
+    record["result"] = result(record)
     record["receipt_sha256"] = _digest(record)
     return record, None
 
@@ -184,6 +202,19 @@ def write(root, projection):
             pass
         raise
     return target
+
+
+def refresh(root, source=None):
+    """Re-project the private log into <root>/notebook/receipts.json now (the Notebook calls this when it opens).
+    Returns the projection status, or NO_DATA with its cause; never raises."""
+    try:
+        home = Path(os.environ.get("PRECEPTOROS_MCP_HOME") or Path.home() / ".preceptoros-mcp")
+        lines, cause = read_source(source or home / "audit.jsonl")
+        projection = project(lines, dt.datetime.now(dt.timezone.utc), source_cause=cause)
+        write(root, projection)
+        return projection["status"], projection["cause"]
+    except (OSError, ValueError) as e:
+        return "NO_DATA", "refresh_failed_" + type(e).__name__
 
 
 def main(argv=None):
