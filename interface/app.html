@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png?v=2">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png?v=2">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=13">
+<link rel="stylesheet" href="/app.css?v=14">
 <link rel="stylesheet" href="/hitl.css?v=5">
 </head>
 <body>
@@ -32,6 +32,8 @@
       <ul class="turnos" id="modelos-lista"></ul>
     </section>
   </div>
+<div class="carril-pestanas">
+<button type="button" class="flecha" id="panel-anterior" aria-label="Previous panel" title="Previous panel" aria-controls="pestanas">←</button>
 <nav class="pestanas" id="pestanas" role="tablist" aria-orientation="horizontal" aria-label="Zonas">
   <button id="tab-mando" role="tab" aria-controls="panel-mando" aria-selected="false" tabindex="-1" data-panel="mando" data-i18n="tab_mando" aria-label="Command" title="Command">Command</button>
   <button id="tab-conversacion" role="tab" aria-controls="panel-conversacion" aria-selected="true" tabindex="0" data-panel="conversacion" data-i18n="tab_chat" aria-label="Talk" title="Talk">Talk</button>
@@ -39,10 +41,12 @@
   <button id="tab-cuaderno" role="tab" aria-controls="panel-cuaderno" aria-selected="false" tabindex="-1" data-panel="cuaderno" data-i18n="tab_cuaderno" aria-label="Notebook" title="Notebook">Notebook</button>
   <button id="tab-lab" role="tab" aria-controls="panel-lab" aria-selected="false" tabindex="-1" data-panel="lab" data-i18n="tab_lab" aria-label="Lab" title="Lab">Lab</button>
   <button id="tab-harness" role="tab" aria-controls="panel-harness" aria-selected="false" tabindex="-1" data-panel="harness" data-i18n="tab_harness" aria-label="Harness" title="Harness">Harness</button>
-  <button id="tab-puerta" role="tab" aria-controls="panel-puerta" aria-selected="false" tabindex="-1" data-panel="puerta" data-i18n="tab_puerta" aria-label="Public gate" title="Public gate">Public gate</button>
+  <button id="tab-puerta" role="tab" aria-controls="panel-puerta" aria-selected="false" tabindex="-1" data-panel="puerta" data-i18n="tab_puerta" aria-label="3DFabrika" title="3DFabrika">3DFabrika</button>
   <button id="tab-modelos" role="tab" aria-controls="panel-modelos" aria-selected="false" tabindex="-1" data-panel="modelos" data-i18n="tab_mundo" aria-label="World" title="World">World</button>
   <button id="tab-ajustes" role="tab" aria-controls="panel-ajustes" aria-selected="false" tabindex="-1" data-panel="ajustes" data-i18n="tab_ajustes" aria-label="Settings" title="Settings">Settings</button>
 </nav>
+<button type="button" class="flecha" id="panel-siguiente" aria-label="Next panel" title="Next panel" aria-controls="pestanas">→</button>
+</div>
 </header>
 
 <main id="carril" class="carril">
@@ -91,20 +95,56 @@
 
   <!-- cuaderno -->
   <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Cuaderno" hidden>
-    <p class="pie" id="recuento">…</p>
-    <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
-    <ul class="turnos" id="turnos"></ul>
+    <h2 id="tx-01">Notebook</h2>
+    <p id="tx-02" class="pie">What the house produces, by kind. A line that is not measured says so, with its cause.</p>
+    <details class="grupo" open>
+      <summary><h3 id="tx-03">Benchmarks</h3></summary>
+      <ul class="turnos"><li id="tx-25">NO_DATA: the benchmark receipts live in the lab folder and no reader is connected to this tab yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-04">Weekly and monthly reviews</h3></summary>
+      <ul class="turnos"><li id="tx-26">NO_DATA: no review file has been written to this device yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-05">Command receipts</h3></summary>
+      <ul class="turnos"><li id="tx-27">NO_DATA: no receipt projection has been written to this device yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-06">Studies and proposals</h3></summary>
+      <ul class="turnos"><li id="tx-28">NO_DATA: studies are published in their own repository; no local copy is read here</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-07">3D designs</h3></summary>
+      <ul class="turnos"><li id="tx-29">NO_DATA: no design has been found on this machine</li></ul>
+      <button id="tx-08" type="button" class="ir" data-ir="puerta">Open 3DFabrika</button>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-09">Captured turns and training consent</h3></summary>
+      <p class="pie" id="recuento">…</p>
+      <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
+      <ul class="turnos" id="turnos"></ul>
+    </details>
   </section>
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
     <h2 data-i18n="tab_lab">Lab</h2>
-    <h3 data-i18n="lab_canales_titulo">Canales recientes</h3>
     <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
     <p class="pie" id="lab-rack-estado" role="status" aria-live="polite" hidden></p>
     <a id="lab-rack-enlace" href="#" target="_blank" rel="noopener noreferrer" hidden>Rack Lab</a>
-    <ul class="turnos" id="lab-canales"></ul>
-    <h3 data-i18n="lab_modelos_titulo">Modelos locales</h3>
-    <ul class="turnos" id="lab-modelos"></ul>
+    <details class="grupo" open>
+      <summary><h3 data-i18n="lab_canales_titulo">Canales recientes</h3></summary>
+      <ul class="turnos" id="lab-canales"></ul>
+    </details>
+    <details class="grupo" open>
+      <summary><h3 data-i18n="lab_modelos_titulo">Modelos locales</h3></summary>
+      <ul class="turnos" id="lab-modelos"></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-10">Loops and their documents</h3></summary>
+      <p id="tx-11" class="pie">Each loop of the lab says when it last ran and how it ended. Its documents are read in the Notebook.</p>
+      <div class="ir-fila"><button id="tx-12" type="button" class="ir" data-ir="harness">See the loops</button>
+      <button id="tx-13" type="button" class="ir" data-ir="cuaderno">Open the Notebook</button></div>
+    </details>
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
     <h2 data-i18n="tab_harness">Harness</h2>
@@ -116,16 +156,57 @@
       <ul class="turnos" id="harness-bucles"></ul>
     </details>
   </section>
-  <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="Puerta pública" hidden>
-    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
-    <h2 data-i18n="tab_puerta">Puerta pública</h2>
-    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
-    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
-    <pre class="payload" id="puerta-llave"></pre>
-    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
-    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
-    <pre class="payload" id="puerta-documento"></pre>
-    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
+  <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="3DFabrika" hidden>
+    <h2 data-i18n="tab_puerta">3DFabrika</h2>
+    <p class="pie" id="fab-que">Describe a part in plain words. A local model writes its shape, the shape is checked, and you get a file ready for a printer.</p>
+    <p class="fab-linea" id="fab-linea" role="status" aria-live="polite">NO_DATA: this panel has not started yet.</p>
+    <ol class="fab-pasos" id="fab-pasos" aria-label="Create, review, prepare to print">
+      <li class="fab-paso" id="fab-paso-crear">
+        <h3 id="fab-crear-titulo" tabindex="-1">1 · Create</h3>
+        <form id="fab-form" novalidate aria-labelledby="fab-crear-titulo">
+          <label id="fab-desc-rotulo" for="fab-desc">What part do you need?</label>
+          <textarea id="fab-desc" rows="3" maxlength="400" aria-describedby="fab-desc-ayuda fab-error" placeholder="A wall hook for a bicycle helmet"></textarea>
+          <p class="pie" id="fab-desc-ayuda">Say what it is for and anything it must fit. Up to 400 characters.</p>
+          <fieldset class="fab-medidas" aria-describedby="fab-medidas-ayuda fab-error">
+            <legend id="fab-medidas-rotulo">Size in millimetres (optional)</legend>
+            <label id="fab-ancho-rotulo" for="fab-ancho">Width</label><input id="fab-ancho" type="number" inputmode="decimal" min="1" max="300" step="0.1">
+            <label id="fab-fondo-rotulo" for="fab-fondo">Depth</label><input id="fab-fondo" type="number" inputmode="decimal" min="1" max="300" step="0.1">
+            <label id="fab-alto-rotulo" for="fab-alto">Height</label><input id="fab-alto" type="number" inputmode="decimal" min="1" max="300" step="0.1">
+          </fieldset>
+          <p class="pie" id="fab-medidas-ayuda">Each side between 1 and 300 mm. Leave them empty to let the description decide.</p>
+          <p class="fab-error" id="fab-error" role="alert" hidden></p>
+          <button type="submit" id="fab-crear">Create project</button>
+        </form>
+      </li>
+      <li class="fab-paso" id="fab-paso-revisar">
+        <h3 id="fab-revisar-titulo" tabindex="-1">2 · Review</h3>
+        <p class="pie" id="fab-vacio">No project yet. Create one above; it stays on this device.</p>
+        <ul class="fab-proyectos" id="fab-proyectos" aria-label="Your projects"></ul>
+        <div id="fab-detalle" hidden>
+          <p id="fab-pedido"></p>
+          <ul class="turnos" id="fab-etapas" aria-label="Stages of this project"></ul>
+          <p class="fab-siguiente" id="fab-siguiente"></p>
+          <div class="ir-fila">
+            <button type="button" id="fab-copiar">Copy the request</button>
+            <button type="button" id="fab-quitar">Remove this project</button>
+            <button type="button" id="fab-deshacer" hidden>Undo the removal</button>
+          </div>
+        </div>
+      </li>
+      <li class="fab-paso" id="fab-paso-imprimir">
+        <h3 id="fab-imprimir-titulo" tabindex="-1">3 · Prepare to print</h3>
+        <p id="fab-imprimir-estado">NO_DATA: no project is selected.</p>
+        <p class="pie" id="fab-imprimir-ley">Nothing is sent to a printer from this screen. A file is offered only when its check has passed and its fingerprint is known.</p>
+      </li>
+    </ol>
+    <details class="grupo" id="fab-maquina-grupo">
+      <summary id="fab-maquina-rotulo">Machine reading of this panel</summary>
+      <pre class="payload" id="fab-maquina" tabindex="0" aria-label="The same state, as data"></pre>
+    </details>
+    <div class="ir-fila">
+      <button type="button" id="fab-voz">Read the state aloud</button>
+      <button type="button" class="ir" id="fab-ir-cuaderno" data-ir="cuaderno">Open the Notebook</button>
+    </div>
   </section>
   <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="OpenWorld" hidden>
     <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p>
@@ -137,6 +218,17 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <details class="tarjeta grupo" id="puerta-ajustes">
+      <summary id="tx-24">Public gate</summary>
+    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
+    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
+    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
+    <pre class="payload" id="puerta-llave"></pre>
+    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
+    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
+    <pre class="payload" id="puerta-documento"></pre>
+    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
+    </details>
     <section class="tarjeta" aria-labelledby="energy-title">
       <h3 id="energy-title" data-i18n="energy_title">Rack energy · read only</h3>
       <p class="pie" data-i18n="energy_help">Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.</p>
