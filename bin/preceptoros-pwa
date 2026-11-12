@@ -1281,7 +1281,9 @@ class PWA(BaseHTTPRequestHandler):
         verified, citations = _hexelion_book.verificar_citas(answer, prepared["fuentes"])
         if verified.get("estado") != "MEASURED" or not citations:
             return no_data(verified.get("causa") or "station_extract_not_verified")
-        answer = verified["texto"]
+        answer, citations = _hexelion_book.pertinentes(verified["texto"], citations, text, prepared["fuentes"])
+        if not answer:
+            return no_data("quote_not_relevant")
         response = {"estado": "MEASURED", "respuesta": {
             "estado": "MEASURED", "texto": answer, "voz": "hexelion",
             "maquina": {"modelo": model, "ms": duration}, "fuentes": citations},

@@ -202,3 +202,45 @@ def verificar_citas(raw_answer, sources):
         return _no_data("station_extract_not_verified"), None
     return {"estado": "MEASURED", "texto": "\n".join(texts),
             "fuentes": citations}, citations
+
+
+def _stems(text):
+    """Accent-free lowercase words of 3+ letters, cut to 5 so «nodo» and «nodos» meet; function words dropped."""
+    import unicodedata
+    import memory_lookup
+    plain = unicodedata.normalize("NFKD", memory_lookup.contenido(text).lower())
+    plain = "".join(ch for ch in plain if not unicodedata.combining(ch))
+    return {w[:5] for w in re.findall(r"[a-z0-9]{3,}", plain) if w not in memory_lookup.FUNCION}
+
+
+def relevante(quotes, question, sources=()):
+    """A verified quote answers only if the sentence of its source that holds it shares a content word with the
+    question. Exact is not enough: an exact line about something else is not an answer (cause quote_not_relevant).
+    The quote's own sentence counts, so «measured seed 17» from «The archive says: measured seed 17.» answers
+    «what does the archive say?»; the rest of the source does not count."""
+    if not isinstance(quotes, str) or not isinstance(question, str):
+        return False
+    asked = _stems(question)
+    texts = [f["texto"] for f in sources if isinstance(f, dict) and isinstance(f.get("texto"), str)]
+    for quote in filter(None, (q.strip() for q in quotes.split("\n"))):
+        context = [sentence for text in texts for sentence in re.split(r"(?<=[.!?])\s+|\n+", text) if quote in sentence]
+        if _stems(" ".join([quote] + context)) & asked:
+            return True
+    return False
+
+
+def pertinentes(texto, citations, question, sources):
+    """Keep only the verified quotes whose own sentence shares a content word with the question, and only the
+    citations of the sources that hold a kept quote. -> (texto, citations), or (None, None) when none is kept."""
+    if not isinstance(texto, str) or not isinstance(citations, list):
+        return None, None
+    by_id = {f["id"]: f for f in sources if isinstance(f, dict) and isinstance(f.get("texto"), str)}
+    kept, ids = [], set()
+    for quote in filter(None, (q.strip() for q in texto.split("\n"))):
+        holders = [c["id"] for c in citations if c.get("id") in by_id and quote in by_id[c["id"]]["texto"]]
+        if holders and relevante(quote, question, [by_id[i] for i in holders]):
+            kept.append(quote)
+            ids.update(holders)
+    if not kept:
+        return None, None
+    return "\n".join(kept), [c for c in citations if c.get("id") in ids]

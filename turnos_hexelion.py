@@ -38,6 +38,7 @@ CAUSES = {
     "station_unavailable": "The local model did not respond, so nobody answered.",
     "station_timeout": "The local model took too long and was stopped, so nobody answered.",
     "no_matches": "Your memory has nothing on this yet, so Hexelion did not ask the model.",
+    "quote_not_relevant": "Hexelion found exact quotes, but none shares a word with your question, so it gave no answer.",
 }
 
 

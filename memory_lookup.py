@@ -2,6 +2,7 @@
 from contextlib import closing
 import hashlib
 import json
+import re
 from pathlib import Path
 import sqlite3
 
@@ -19,6 +20,7 @@ FUNCION = frozenset('''
     de del al a en y o u e ni por para con sin sobre se le les me te mi mis tu tus su sus
     what which who whom whose how where when why is are was were be been the a an of to in
     on at and or for with by from does do did can could it its this that these those
+    cuantos cuántos cuantas cuántas many much please favor dime tell me i we you
 '''.split())
 
 
@@ -26,9 +28,13 @@ def _bare(word):
     return ''.join(ch for ch in word.lower() if ch.isalnum())
 
 
+_TAG = re.compile(r"\[[^\]\s]{1,24}\]")
+
+
 def contenido(consulta):
-    """The content words of a question, in its own spelling; the original if none is left."""
-    kept = [w for w in consulta.split() if _bare(w) and _bare(w) not in FUNCION]
+    """The content words of a question, in its own spelling; the original if none is left.
+    A bracketed tag such as «[probe]» is a label of the asker, not a word of the question."""
+    kept = [w for w in _TAG.sub(" ", consulta).split() if _bare(w) and _bare(w) not in FUNCION]
     words = [w.strip('¿?¡!.,;:«»"()') for w in kept]
     words = [w for w in words if w]
     return ' '.join(words) if words else consulta
