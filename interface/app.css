@@ -466,3 +466,16 @@ button.ir { min-height: 44px; margin: 6px 0 12px; }
   border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 1.1rem; cursor: pointer; }
 .panel-cabecera .refrescar:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 #panel-cuaderno .notebook-heading.panel-cabecera { grid-template-columns: minmax(0, 1fr); }
+
+/* «?» Hexelion commands (2026-11-12): a native disclosure at the top of Talk; each command writes itself in the box. */
+#panel-conversacion .panel-cabecera { grid-template-columns: minmax(0, 1fr) auto auto; position: relative; }
+.comandos { grid-column: 3; grid-row: 1; }
+.comandos > summary { display: grid; place-items: center; list-style: none; font-weight: 700; }
+.comandos > summary::-webkit-details-marker { display: none; }
+.comandos[open] > summary { background: var(--acento); color: var(--paper); }
+.comandos-lista { position: absolute; top: 100%; left: 0; right: 0; z-index: 5; padding: .5rem;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radio); }
+.comandos-lista ul { list-style: none; margin: .25rem 0 0; padding: 0; }
+.comandos-lista button { width: 100%; min-height: 44px; text-align: left; padding: .35rem .5rem; margin: 2px 0;
+  border: 1px solid var(--line); border-radius: var(--radio); background: var(--paper); color: var(--ink); cursor: pointer; }
+.comandos-lista button:focus-visible { outline: 3px solid var(--acento); outline-offset: 1px; }

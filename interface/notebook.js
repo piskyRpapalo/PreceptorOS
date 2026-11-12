@@ -176,7 +176,7 @@
   /* What happened to each request (meta-harness 01). One projection from /api/hexelion/turnos feeds the screen, the
    * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
    * machine state, and the status line speaks only when the summary changed (no announcement on every refresh). */
-  const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
+  const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "ACTED", "ACTION_REFUSED", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
   function projectTurns(raw) {
     if (!raw || raw.schema !== "preceptoros.hexelion-turns/1" || !Array.isArray(raw.turns)) return null;
     return {

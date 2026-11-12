@@ -55,6 +55,7 @@ import medidas as MED
 import metricas as MET
 import energia_estado as _energia_estado
 import energia_intencion as _energia_intencion
+import hexelion_acciones as _hexelion_acciones
 
 import memory as M                                          # noqa: E402
 import guardrails as G                                      # noqa: E402
@@ -1241,6 +1242,25 @@ class PWA(BaseHTTPRequestHandler):
         if isinstance(asked, dict) and isinstance(asked.get("n"), int):
             turno["n"] = asked["n"]
         pregunta = {"pregunta_n": turno["n"]} if turno["n"] is not None else {}
+        # «/…» is an ACTION (Sovereign 2026-11-12: Hexelion executes and proposes, never asks for signatures). The
+        # person types it; the native MCP server runs it as voice hexelion inside its fences. The model is not asked.
+        if _hexelion_acciones.es_accion(text):
+            if not persona:   # a rack CLI agent has its own tools; it never acts through Hexelion's hands
+                return no_data("actions_person_only", 403)
+            accion = _hexelion_acciones.ejecuta(text)
+            if accion["estado"] != "MEASURED":
+                return no_data(accion["causa"], 400 if accion.get("ayuda") else 503)
+            try:
+                _canales.di(turno["hilo"], _hexelion_acciones.VOZ, accion["texto"],
+                            sello="MEDIDO" if accion["ok"] else "NO_DATA", rol="Hexelion action via MCP nativo (not model)",
+                            maquina={**pregunta, "via": "mcp_nativo", "herramienta": accion["herramienta"],
+                                     "ok": accion["ok"], "rc": accion["rc"], "ms": accion["ms"],
+                                     "causa": accion["causa"], "allowlist_version": accion["allowlist_version"]},
+                            base=_casa.raiz())
+            except _canales.CanalRechazado:
+                return no_data("thread_append_refused")
+            return self._json(200, {"estado": "ACCION_LOCAL", "causa": "mcp_nativo;model_not_invoked",
+                                    "respuesta": {"tipo": "accion_hexelion", "accion": accion}})
         # Exact sensor-intent queries use the local measurement tool, never
         # the station model. Keep model citations mandatory in the other path.
         if _energia_intencion.es_consulta(text.strip()):
