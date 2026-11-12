@@ -999,7 +999,7 @@ class TestVistaLab(unittest.TestCase):
         app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
         panel = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
         self.assertIn('fetch("/api/lab", { cache: "no-store" })', app)
-        self.assertIn('paneles[panelActual].id === "lab"', app)
+        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack()]),', app)   # common header table
         self.assertIn("modelos.mini", app)
         self.assertIn("modelos.grande", app)
         self.assertIn("modelos.eleccion", app)
@@ -1092,7 +1092,7 @@ class TestZonaPuerta(unittest.TestCase):
     def test_puerta_presenta_el_documento_servido_y_conserva_copia_fiel(self):
         app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
         html = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
-        self.assertIn('paneles[panelActual].id === "puerta"', app)
+        self.assertIn('const hechos = await Promise.allSettled([cargarCuaderno(), cargarPuerta()]);', app)   # the gate lives in Settings
         self.assertIn('fetch(`/api/empieza-aqui?', app)
         self.assertIn("d.pegable", app)
         self.assertIn("d.llave", app)
@@ -1657,7 +1657,8 @@ class LabRackPuertaContrato(unittest.TestCase):
         js = (pathlib.Path(AQUI) / "interface/app.js").read_text(encoding="utf-8")
         self.assertIn('id="lab-rack-enlace"', html)
         self.assertIn('id="lab-rack-enlace" href="#"', html)
-        self.assertIn('if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }', js)
+        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack()]),', js)
+        self.assertIn('cargarPanel(paneles[panelActual].id);', js)
         self.assertIn('fetch("/api/lab-rack", { cache: "no-store" })', js)
         self.assertIn('d.estado !== "MEASURED"', js)
 
