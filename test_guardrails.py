@@ -510,6 +510,7 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # HITL es el nombre del comando de firma del Soberano (doctrina 2026-11-08): el bloque de Boundary
         # lo nombra porque lo ejecuta; es un comando, no una politica.
         INTRINSECOS |= {"HITL", "ROJO"}  # ROJO: the checks state the HITL list shows, in words (a status, not a policy)
+        INTRINSECOS |= {"SCHEMA", "ENGINE", "STAGES", "SIDES", "MIN_MM", "MAX_MM", "MAX_WORDS", "DONE"}  # 3DFabrika data-contract identifiers and stage status, not redaction policies.
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):
