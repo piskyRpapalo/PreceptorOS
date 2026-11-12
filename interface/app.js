@@ -1230,7 +1230,209 @@ if (exportForm) {
   });
 }
 
-// Buttons that walk to another tab (Lab -> loops, Lab -> Notebook, Notebook -> 3DFabrik): they press the real tab.
+// Buttons that walk to another tab (Lab -> loops, Lab -> Notebook, Notebook -> 3DFabrika): they press the real tab.
 document.querySelectorAll("button.ir[data-ir]").forEach((b) => b.addEventListener("click", () => {
   const tab = document.getElementById("tab-" + b.dataset.ir); if (tab) tab.click();
 }));
+
+/* <fabrika3d> 3DFabrika · create -> review -> prepare to print.
+ * One state object feeds the three readers: the status line (eye and screen reader), the spoken line (ear) and the
+ * machine reading (data) are all made from it, so they cannot disagree. The 3D engine (TextCAD) is not connected to
+ * this app: every stage after the request says NO_DATA with that cause, and nothing here claims a built part.
+ * Pure core: no clock, no network, no random numbers. Projects stay in this browser. */
+const PreceptorFabrika = (function () {
+  const SCHEMA = "preceptoros.fabrika3d/1", MAX = 12, MIN_MM = 1, MAX_MM = 300, MAX_WORDS = 400;
+  const ENGINE = Object.freeze({ state: "NO_DATA", cause: "engine_not_connected_to_this_app" });
+  const STAGES = Object.freeze([
+    ["request", "Request written"], ["shape", "Shape written by a local model"], ["file", "Printable file made"],
+    ["check", "Shape checked"], ["verdict", "Your verdict"]]);
+  const SIDES = Object.freeze([["width", "Width", "fab-ancho"], ["depth", "Depth", "fab-fondo"], ["height", "Height", "fab-alto"]]);
+  function empty() { return { schema: SCHEMA, next: 1, selected: null, projects: [], removed: null }; }
+  // validate(input) -> { ok: true, description, size } or { ok: false, field, error }: the first thing to fix, and where.
+  function validate(input) {
+    const description = String((input && input.description) || "").replace(/\s+/g, " ").trim();
+    if (!description) return { ok: false, field: "fab-desc", error: "Write what part you need. One sentence is enough." };
+    if (description.length > MAX_WORDS) return { ok: false, field: "fab-desc", error: "The description is too long. Keep it under " + MAX_WORDS + " characters." };
+    const size = {};
+    for (const [key, name, field] of SIDES) {
+      const raw = String((input && input[key]) == null ? "" : input[key]).trim();
+      if (!raw) { size[key] = null; continue; }
+      const value = Number(raw);
+      if (!Number.isFinite(value) || value < MIN_MM || value > MAX_MM) {
+        return { ok: false, field, error: name + " must be a number between " + MIN_MM + " and " + MAX_MM + " millimetres, or empty." };
+      }
+      size[key] = Math.round(value * 10) / 10;
+    }
+    return { ok: true, description, size };
+  }
+  function stages() {
+    return STAGES.map(([id, name]) => id === "request" ? { id, name, state: "DONE", cause: "" }
+      : { id, name, state: "NO_DATA", cause: id === "verdict" ? "nothing_to_judge_yet" : ENGINE.cause });
+  }
+  function create(state, input) {
+    const v = validate(input);
+    if (!v.ok) return { state, error: v };
+    if (state.projects.length >= MAX) {
+      return { state, error: { ok: false, field: "fab-desc", error: "This device keeps " + MAX + " projects. Remove one to make room." } };
+    }
+    const project = { id: "p" + state.next, description: v.description, size: v.size };
+    return { state: { ...state, next: state.next + 1, selected: project.id, projects: state.projects.concat([project]), removed: null }, error: null };
+  }
+  function select(state, id) { return state.projects.some((p) => p.id === id) ? { ...state, selected: id } : state; }
+  function remove(state, id) {
+    const at = state.projects.findIndex((p) => p.id === id);
+    if (at < 0) return state;
+    const projects = state.projects.filter((p) => p.id !== id), near = projects[Math.min(at, projects.length - 1)];
+    return { ...state, projects, selected: near ? near.id : null, removed: { project: state.projects[at], at } };
+  }
+  function undo(state) {
+    if (!state.removed || state.projects.length >= MAX) return state;
+    const projects = state.projects.slice(); projects.splice(Math.min(state.removed.at, projects.length), 0, state.removed.project);
+    return { ...state, projects, selected: state.removed.project.id, removed: null };
+  }
+  function chosen(state) { return state.projects.find((p) => p.id === state.selected) || null; }
+  function sizeText(size) {
+    const parts = SIDES.filter(([key]) => size[key] != null).map(([key, name]) => size[key] + " mm " + name.toLowerCase());
+    return parts.length ? parts.join(", ") : "";
+  }
+  // request(project) -> the exact line the engine takes today, typed on the rack.
+  function request(project) {
+    const size = sizeText(project.size), words = project.description.replace(/["`$\\]/g, "'");
+    return 'textcad "' + words + (size ? ", " + size : "") + '"';
+  }
+  function printState(project) {
+    return project ? "NO_DATA: this project has no printable file yet, because the 3D engine has not run."
+      : "NO_DATA: no project is selected.";
+  }
+  function nextStep(project) {
+    return project ? "Next step: copy the request and run it on the rack, where the 3D engine lives. This app cannot run it yet."
+      : "Next step: describe a part and press Create project.";
+  }
+  // line(state) -> the one sentence for the eye and the ear.
+  function line(state) {
+    const p = chosen(state), total = state.projects.length;
+    if (!p) return "3DFabrika has no project selected. " + nextStep(null) + " The 3D engine is not connected to this app.";
+    const at = state.projects.indexOf(p) + 1;
+    return "Project " + at + " of " + total + ": " + p.description + ". The request is written; the part is not built. " + nextStep(p);
+  }
+  // machine(state) -> the same state as data, with the same sentence inside it.
+  function machine(state) {
+    const p = chosen(state);
+    return { schema: SCHEMA, engine: ENGINE, line: line(state), selected: p ? p.id : null,
+      print: { state: "NO_DATA", cause: p ? "no_printable_file" : "no_project_selected" },
+      projects: state.projects.map((x) => ({ id: x.id, description: x.description, size_mm: x.size, request: request(x), stages: stages().map((e) => ({ id: e.id, state: e.state, cause: e.cause })) })) };
+  }
+  // load(text) -> a valid state from what the browser kept; anything malformed starts empty, never half-read.
+  function load(text) {
+    try {
+      const d = JSON.parse(text);
+      if (!d || d.schema !== SCHEMA || !Array.isArray(d.projects) || !Number.isSafeInteger(d.next) || d.next < 1) return empty();
+      let state = empty();
+      for (const x of d.projects.slice(0, MAX)) {
+        const v = validate({ description: x && x.description, ...(x && x.size) });
+        if (!v.ok || typeof x.id !== "string" || !/^p[1-9][0-9]{0,8}$/.test(x.id) || state.projects.some((p) => p.id === x.id)) return empty();
+        state.projects.push({ id: x.id, description: v.description, size: v.size });
+      }
+      state.next = Math.max(d.next, ...state.projects.map((p) => Number(p.id.slice(1)) + 1));
+      state.selected = state.projects.some((p) => p.id === d.selected) ? d.selected : (state.projects[0] ? state.projects[0].id : null);
+      return state;
+    } catch (e) { return empty(); }
+  }
+  function dump(state) { return JSON.stringify({ schema: SCHEMA, next: state.next, selected: state.selected, projects: state.projects }); }
+  return Object.freeze({ SCHEMA, MAX, ENGINE, empty, validate, create, select, remove, undo, chosen, stages, request, printState, nextStep, line, machine, load, dump });
+})();
+/* </fabrika3d> */
+
+/* 3DFabrika · the panel. It only paints what the core says. */
+(function () {
+  const F = PreceptorFabrika, KEY = "preceptoros.fabrika3d";
+  if (!$("fab-form")) return;
+  let kept = true, state = F.empty();
+  try { state = F.load(window.localStorage.getItem(KEY) || ""); } catch (e) { kept = false; }
+  function keep() { try { window.localStorage.setItem(KEY, F.dump(state)); kept = true; } catch (e) { kept = false; } }
+  function item(text) { const li = document.createElement("li"); li.textContent = text; return li; }
+  function paint(said) {
+    const p = F.chosen(state), list = $("fab-proyectos");
+    list.replaceChildren();
+    state.projects.forEach((x, n) => {
+      const li = document.createElement("li"), b = document.createElement("button");
+      b.type = "button"; b.className = "fab-proyecto"; b.setAttribute("aria-pressed", String(x.id === state.selected));
+      b.textContent = (n + 1) + " · " + x.description;
+      b.addEventListener("click", () => { state = F.select(state, x.id); keep(); paint(); });
+      li.appendChild(b); list.appendChild(li);
+    });
+    $("fab-vacio").hidden = state.projects.length > 0;
+    $("fab-detalle").hidden = !p && !state.removed;
+    $("fab-pedido").textContent = p ? F.request(p) : "";
+    $("fab-etapas").replaceChildren(...(p ? F.stages().map((e) => item(e.name + " · " + (e.state === "DONE" ? "done" : "NO_DATA: " + e.cause.replace(/_/g, " ")))) : []));
+    $("fab-siguiente").textContent = F.nextStep(p);
+    $("fab-copiar").hidden = !p; $("fab-quitar").hidden = !p; $("fab-deshacer").hidden = !state.removed;
+    $("fab-imprimir-estado").textContent = F.printState(p);
+    const line = (said ? said + " " : "") + F.line(state) + (kept ? "" : " NO_DATA: this browser does not keep projects; they last until the page closes.");
+    $("fab-linea").textContent = line;
+    $("fab-maquina").textContent = JSON.stringify({ ...F.machine(state), line, kept_on_device: kept }, null, 1);
+  }
+  $("fab-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const error = $("fab-error");
+    const r = F.create(state, { description: $("fab-desc").value, width: $("fab-ancho").value, depth: $("fab-fondo").value, height: $("fab-alto").value });
+    ["fab-desc", "fab-ancho", "fab-fondo", "fab-alto"].forEach((id) => $(id).removeAttribute("aria-invalid"));
+    if (r.error) {   // say what is wrong, mark the field and go to it; what was typed stays
+      error.textContent = r.error.error; error.hidden = false;
+      $(r.error.field).setAttribute("aria-invalid", "true"); $(r.error.field).focus();
+      return;
+    }
+    error.hidden = true; error.textContent = "";
+    state = r.state; keep();
+    ["fab-desc", "fab-ancho", "fab-fondo", "fab-alto"].forEach((id) => { $(id).value = ""; });
+    paint("Project created.");
+    $("fab-revisar-titulo").focus();
+  });
+  $("fab-copiar").addEventListener("click", async () => {
+    const p = F.chosen(state); if (!p) return;
+    try { await navigator.clipboard.writeText(F.request(p)); paint("Request copied."); }
+    catch (e) { paint("NO_DATA: this browser did not allow copying. The request is the line shown under Review; select it by hand."); }
+  });
+  $("fab-quitar").addEventListener("click", () => {
+    if (!F.chosen(state)) return;
+    state = F.remove(state, state.selected); keep(); paint("Project removed. You can undo it.");
+    $("fab-deshacer").focus();
+  });
+  $("fab-deshacer").addEventListener("click", () => {
+    state = F.undo(state); keep(); paint("Project restored.");
+    $("fab-revisar-titulo").focus();
+  });
+  $("fab-voz").addEventListener("click", () => {
+    const text = $("fab-linea").textContent, S = window.speechSynthesis, U = window.SpeechSynthesisUtterance;
+    if (!S || !U) { paint("NO_DATA: this browser has no voice. A screen reader reads the same line."); return; }
+    try { S.cancel(); S.speak(new U(text)); } catch (e) { paint("NO_DATA: the voice of this browser refused to speak."); }
+  });
+  paint();
+})();
+
+/* The two arrows of the tab rail: previous panel, next panel. They press nothing but the tab change that the tabs
+ * themselves do; at either end the arrow stays focusable and says it has nowhere to go. */
+(function () {
+  const before = $("panel-anterior"), after = $("panel-siguiente");
+  if (!before || !after) return;
+  const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function ends() {
+    before.setAttribute("aria-disabled", String(panelActual === 0));
+    after.setAttribute("aria-disabled", String(panelActual === paneles.length - 1));
+  }
+  function go(step) {
+    const to = panelActual + step;
+    if (to < 0 || to >= paneles.length) return;
+    mostrar(to);
+    const tab = document.querySelector(`[data-panel="${paneles[panelActual].id}"]`);
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({ inline: "nearest", block: "nearest", behavior: calm ? "auto" : "smooth" });
+    ends();
+  }
+  before.addEventListener("click", () => go(-1));
+  after.addEventListener("click", () => go(1));
+  document.querySelectorAll(".pestanas [role=tab]").forEach((b) => {
+    b.addEventListener("click", ends); b.addEventListener("keyup", ends);
+  });
+  window.addEventListener("hashchange", () => setTimeout(ends, 0));
+  ends();
+})();

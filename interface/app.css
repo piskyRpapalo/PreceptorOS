@@ -392,3 +392,33 @@ details.grupo > :not(summary) { margin-left: 12px; margin-right: 12px; }
 details.grupo > .turnos { margin-bottom: 12px; }
 button.ir { min-height: 44px; margin: 6px 0 12px; }
 .ir-fila { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* The tab rail with its two arrows: the arrows never shrink the tabs; the rail scrolls between them. */
+.carril-pestanas { display: flex; align-items: stretch; gap: 4px; min-width: 0; }
+.carril-pestanas > .pestanas { flex: 1 1 auto; min-width: 0; }
+.flecha { flex: 0 0 44px; min-width: 44px; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.flecha:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.flecha[aria-disabled="true"] { opacity: .45; cursor: default; }
+@media (forced-colors: active) { .flecha { border: 2px solid ButtonText; } .flecha[aria-disabled="true"] { border-style: dashed; opacity: 1; } }
+
+/* 3DFabrika: three steps down the page; the state line is the loudest thing after the title. */
+.fab-linea { font-weight: 600; border-left: 4px solid var(--ink); padding: 8px 12px; background: var(--paper); border-radius: 0 12px 12px 0; }
+.fab-pasos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fab-paso { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--paper); display: flex; flex-direction: column; gap: 8px; }
+.fab-paso h3 { margin: 0; }
+.fab-paso h3:focus-visible, #fab-maquina:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+#fab-form { display: flex; flex-direction: column; gap: 8px; }
+#fab-form label, .fab-medidas legend { font-weight: 600; }
+#fab-desc { width: 100%; min-height: 88px; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); }
+.fab-medidas { border: 1px solid var(--line); border-radius: 8px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; align-items: center; padding: 8px 12px; min-width: 0; }
+.fab-medidas input { min-height: 44px; min-width: 0; font: inherit; padding: 0 8px; border-radius: 8px; border: 1px solid var(--line); }
+#fab-form [aria-invalid="true"] { border: 2px solid var(--warn); }
+.fab-error { font-weight: 600; border: 2px solid var(--warn); border-radius: 8px; padding: 8px 12px; margin: 0; }
+.fab-error::before { content: "Fix this: "; }
+#fab-form button, #fab-detalle button, #fab-voz { min-height: 44px; }
+.fab-proyectos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.fab-proyecto { width: 100%; min-height: 44px; text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: inherit; font: inherit; overflow-wrap: anywhere; }
+.fab-proyecto[aria-pressed="true"] { border: 2px solid var(--ink); font-weight: 600; }
+.fab-proyecto[aria-pressed="true"]::before { content: "Selected · "; }
+#fab-pedido { font-family: ui-monospace, monospace; overflow-wrap: anywhere; background: var(--paper); border: 1px dashed var(--line); border-radius: 8px; padding: 8px; user-select: all; }
+.fab-siguiente { font-weight: 600; }
