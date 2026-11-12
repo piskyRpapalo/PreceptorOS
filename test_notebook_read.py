@@ -132,13 +132,13 @@ class NotebookShellTests(unittest.TestCase):
         self.assertIn('"/notebook.js": ("notebook.js", "application/javascript; charset=utf-8")', pwa)
         self.assertIn('ruta == "/api/notebook"', pwa)
         self.assertIn('ruta in ("/api/bandeja", "/api/energia", "/api/notebook")', pwa)
-        self.assertIn("preceptoros-armazon-v164", sw)
-        self.assertIn('<script src="/app.js?v=23"></script>', html)
-        self.assertIn('"/app.js?v=23"', sw)
-        self.assertIn('<link rel="stylesheet" href="/app.css?v=16">', html)
-        self.assertIn('"/app.css?v=16"', sw)
+        self.assertIn("preceptoros-armazon-v165", sw)
+        self.assertIn('<script src="/app.js?v=24"></script>', html)
+        self.assertIn('"/app.js?v=24"', sw)
+        self.assertIn('<link rel="stylesheet" href="/app.css?v=17">', html)
+        self.assertIn('"/app.css?v=17"', sw)
         self.assertIn('window.PreceptorNotebook.load()', app)
-        self.assertIn('if (paneles[panelActual].id === "ajustes") cargarCuaderno()', app)
+        self.assertIn('Promise.allSettled([cargarCuaderno(), cargarPuerta()])', app)
 
 
 if __name__ == "__main__":

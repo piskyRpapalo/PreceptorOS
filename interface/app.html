@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png?v=2">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png?v=2">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=16">
+<link rel="stylesheet" href="/app.css?v=17">
 <link rel="stylesheet" href="/hitl.css?v=5">
 </head>
 <body>
@@ -52,7 +52,8 @@
 <main id="carril" class="carril">
 
   <!-- la brujula · sensor de tu memoria, nunca actuador -->
-  <section class="panel" id="panel-mando" role="tabpanel" aria-labelledby="tab-mando" tabindex="0" aria-label="Mando personal" hidden>
+  <section class="panel" id="panel-mando" role="tabpanel" aria-labelledby="tab-mando" tabindex="0" aria-label="Command" hidden>
+    <header class="panel-cabecera"><h2 class="sr" id="h-mando">Command</h2></header>
     <div id="compass-container">
       <div id="compass-svg-hueco"></div>
       <p id="compass-rango"></p>
@@ -65,13 +66,17 @@
   </section>
 
   <!-- hablar -->
-  <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar">
-    <p class="pie conv-destinos" id="conv-destinos" role="status" aria-live="polite">NO_DATA: the shared thread has not been read yet.</p>
+  <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Talk">
+    <header class="panel-cabecera"><h2 class="sr" id="h-conversacion">Talk</h2>
+      <p class="pie conv-destinos" id="conv-destinos" role="status" aria-live="polite">NO_DATA: the shared thread has not been read yet.</p>
+      <button type="button" class="refrescar" data-refrescar="conversacion" aria-label="Refresh the shared thread" title="Refresh the shared thread">↻</button></header>
     <ol class="hilo" id="hilo" aria-live="polite" aria-label="Shared thread: you, Hexelion and the rack preceptors"></ol>
   </section>
 
   <!-- frontera -->
-  <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" data-i18n-aria="aria_frontera" aria-label="Frontera del nodo" hidden>
+  <section class="panel" id="panel-gobierno" role="tabpanel" aria-labelledby="tab-gobierno" tabindex="0" data-i18n-aria="aria_frontera" aria-label="Boundary" hidden>
+    <header class="panel-cabecera"><h2 data-i18n="tab_frontera" id="h-gobierno">Boundary</h2>
+      <button type="button" class="refrescar" data-refrescar="gobierno" aria-label="Refresh the signature list" title="Refresh the signature list">↻</button></header>
     <section class="hitl" id="hitl" aria-labelledby="hitl-titulo">
       <button type="button" class="hitl-cabecera" id="hitl-cabecera" aria-expanded="false" aria-controls="hitl-cuerpo"><span id="hitl-titulo"><span data-i18n="hitl_titulo">Firmas HITL</span> · <span id="hitl-n">…</span></span></button>
       <div class="hitl-cuerpo" id="hitl-cuerpo" hidden>
@@ -90,17 +95,16 @@
         <p class="pie hitl-resultado" id="hitl-resultado" role="status" aria-live="polite"></p>
       </div>
     </section>
-    <h2 data-i18n="tab_frontera">Frontera</h2>
     <p class="pie" id="a2a-politica" role="status" lang="en">NO_DATA: this node has no A2A policy written yet. Boundary is where you will write how other agents may reach it. The redaction filter now lives in Ajustes.</p>
   </section>
 
   <!-- Notebook is an observational projection: receipts are source, not a new scheduler. Live lists (agents, loops,
        reviews) come from notebook.js; a category with no reader yet says NO_DATA with its cause. -->
   <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Notebook" hidden>
-    <header class="notebook-heading">
+    <header class="notebook-heading panel-cabecera">
       <h2 id="notebook-title">Notebook · Hexelion</h2>
       <p class="pie" id="notebook-subtitle">Agents, loops and reviews with their sources. A declared receipt does not prove that a process is still running.</p>
-      <button type="button" class="probar" id="notebook-refresh">Refresh readings</button>
+      <button type="button" class="probar" id="notebook-refresh" data-refrescar="cuaderno">Refresh readings</button>
       <p class="pie" id="notebook-status" role="status" aria-live="polite">NO_DATA: the Notebook has not been read yet.</p>
     </header>
     <details class="grupo" open>
@@ -135,8 +139,9 @@
   </section>
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
-    <h2 data-i18n="tab_lab">Lab</h2>
-    <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
+    <header class="panel-cabecera"><h2 data-i18n="tab_lab" id="h-lab">Lab</h2>
+      <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
+      <button type="button" class="refrescar" data-refrescar="lab" aria-label="Refresh the Lab" title="Refresh the Lab">↻</button></header>
     <p class="pie" id="lab-rack-estado" role="status" aria-live="polite" hidden></p>
     <a id="lab-rack-enlace" href="#" target="_blank" rel="noopener noreferrer" hidden>Rack Lab</a>
     <details class="grupo" open>
@@ -155,19 +160,20 @@
     </details>
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
-    <h2 data-i18n="tab_harness">Harness</h2>
+    <header class="panel-cabecera"><h2 data-i18n="tab_harness" id="h-harness">Harness</h2>
+      <p class="pie" id="harness-frescura" role="status" aria-live="polite" data-i18n="harness_cargando">Consultando los ciclos locales…</p>
+      <button type="button" class="refrescar" data-refrescar="harness" aria-label="Refresh the loops and the team" title="Refresh the loops and the team">↻</button></header>
     <div class="team" id="team"></div>
     <details class="harness-motor">
       <summary data-i18n="harness_motor">Engine: measured cycles</summary>
-      <p class="pie" id="harness-frescura" role="status" aria-live="polite" data-i18n="harness_cargando">Consultando los ciclos locales…</p>
       <p class="pie" id="harness-causa" hidden></p>
       <ul class="turnos" id="harness-bucles"></ul>
     </details>
   </section>
   <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="3DFabrika" hidden>
-    <h2 data-i18n="tab_puerta">3DFabrika</h2>
+    <header class="panel-cabecera"><h2 data-i18n="tab_puerta" id="h-puerta">3DFabrika</h2>
+      <p class="fab-linea" id="fab-linea" role="status" aria-live="polite">NO_DATA: this panel has not started yet.</p></header>
     <p class="pie" id="fab-que">Describe a part in plain words. A local model writes its shape, the shape is checked, and you get a file ready for a printer.</p>
-    <p class="fab-linea" id="fab-linea" role="status" aria-live="polite">NO_DATA: this panel has not started yet.</p>
     <ol class="fab-pasos" id="fab-pasos" aria-label="Create, review, prepare to print">
       <li class="fab-paso" id="fab-paso-crear">
         <h3 id="fab-crear-titulo" tabindex="-1">1 · Create</h3>
@@ -216,16 +222,19 @@
       <button type="button" class="ir" id="fab-ir-cuaderno" data-ir="cuaderno">Open the Notebook</button>
     </div>
   </section>
-  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="OpenWorld" hidden>
-    <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p>
+  <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="World" hidden>
+    <header class="panel-cabecera"><h2 class="sr" id="h-modelos">World</h2>
+      <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p></header>
     <button id="openworld-retry" type="button" class="probar" data-i18n="world_retry" hidden>Reintentar OpenWorld</button>
     <iframe id="openworld-frame" data-i18n-aria="world_frame_title" title="OpenWorld · mapa, partida efímera y Acho" loading="lazy"
             referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
             allow="autoplay; fullscreen" hidden></iframe>
     <a class="openworld-fallback" data-i18n="world_open_new" href="https://preceptoros.org/openworld/" target="_blank" rel="noopener noreferrer">Abrir OpenWorld en otra pestaña</a>
   </section>
-  <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
-    <h2 data-i18n="tab_ajustes">Ajustes</h2>
+  <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Settings" hidden>
+    <header class="panel-cabecera"><h2 data-i18n="tab_ajustes" id="h-ajustes">Settings</h2>
+      <p class="pie" id="ajustes-estado" role="status" aria-live="polite">NO_DATA: Settings are read when this tab opens.</p>
+      <button type="button" class="refrescar" data-refrescar="ajustes" aria-label="Refresh Settings" title="Refresh Settings">↻</button></header>
     <details class="tarjeta grupo" id="puerta-ajustes">
       <summary id="tx-24">Public gate</summary>
     <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
@@ -402,7 +411,7 @@
 <script src="/team.js?v=2"></script>
 <script src="/hitl.js?v=6"></script>
 <script src="/notebook.js?v=2"></script>
-<script src="/app.js?v=23"></script>
+<script src="/app.js?v=24"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>

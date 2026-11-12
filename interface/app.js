@@ -607,13 +607,33 @@ function mostrar(i, opciones = {}) {
     transicionVista = { origen: paneles[panelActual].id, destino: paneles[panelActual].id, tau: 1000000 };
   }
   if (opciones.enfocar) document.querySelector(`[data-panel="${paneles[panelActual].id}"]`).focus();
-  if (paneles[panelActual].id === "cuaderno" && window.PreceptorNotebook) window.PreceptorNotebook.load();
-  if (paneles[panelActual].id === "ajustes") cargarCuaderno();
-  if (paneles[panelActual].id === "lab") { cargarLab(); cargarLabRack(); }
-  if (paneles[panelActual].id === "harness") { cargarHarness(); if (window.PreceptorTeam) window.PreceptorTeam.load(); }
   if (paneles[panelActual].id === "modelos") modelosWeb.openWorld();
-  if (paneles[panelActual].id === "puerta" || paneles[panelActual].id === "ajustes") cargarPuerta();  // the public gate lives in Settings since 2026-11-11
+  cargarPanel(paneles[panelActual].id);
 }
+/* One loader per panel (common header, 2026-11-12): opening a panel and pressing its ↻ run the same readers.
+ * A panel that reads no source (Command, 3DFabrika, World) has no entry and no button. */
+const cargadores = {
+  conversacion: () => window.PreceptorConversacion && window.PreceptorConversacion.sync(),
+  gobierno: () => { const b = $("hitl-recargar"); if (b && !b.disabled) b.click(); },
+  cuaderno: () => window.PreceptorNotebook && window.PreceptorNotebook.load(),
+  lab: () => Promise.all([cargarLab(), cargarLabRack()]),
+  harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null]),
+  ajustes: async () => {   // the public gate lives in Settings since 2026-11-11
+    $("ajustes-estado").textContent = "Reading the local node…";
+    const hechos = await Promise.allSettled([cargarCuaderno(), cargarPuerta()]);
+    const fallos = hechos.filter((h) => h.status === "rejected").length;
+    $("ajustes-estado").textContent = fallos ? `NO_DATA: ${fallos} of 2 readings did not answer` : "Read just now from this node.";
+  },
+};
+function cargarPanel(id) {
+  const cargar = cargadores[id];
+  if (!cargar) return;
+  try { Promise.resolve(cargar()).catch(() => {}); } catch { /* each reader paints its own NO_DATA */ }
+}
+document.addEventListener("click", (e) => {
+  const boton = e.target.closest && e.target.closest("button.refrescar[data-refrescar]");
+  if (boton) cargarPanel(boton.dataset.refrescar);
+});
 document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
   b.addEventListener("keydown", (e) => {
