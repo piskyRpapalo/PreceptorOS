@@ -253,6 +253,9 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # test_turnos_hexelion: que paso con cada peticion (META-HARNESS-01); la puerta deja recibo de fallo
           # con su propia voz, se empareja pregunta y respuesta, y nunca se dice que algo sigue corriendo.
           test_turnos_hexelion
+          # test_lab_bench: recibos bench-repro-01-v1 del LAB; huellas y claves de comparacion recalculadas,
+          # tiempos separados por muestra, NO_DATA con causa, lectura por git show sin tocar la copia.
+          test_lab_bench
           test_contratos_decision
           # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
           # cerrado; el orquestador contesta con su voz y por tuberia; registro
