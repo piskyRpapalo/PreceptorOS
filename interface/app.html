@@ -251,17 +251,8 @@
     <header class="panel-cabecera"><h2 data-i18n="tab_ajustes" id="h-ajustes">Settings</h2>
       <p class="pie" id="ajustes-estado" role="status" aria-live="polite">NO_DATA: Settings are read when this tab opens.</p>
       <button type="button" class="refrescar" data-refrescar="ajustes" aria-label="Refresh Settings" title="Refresh Settings">↻</button></header>
-    <details class="tarjeta grupo" id="puerta-ajustes">
-      <summary id="tx-24">Public gate</summary>
-    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
-    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
-    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
-    <pre class="payload" id="puerta-llave"></pre>
-    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
-    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
-    <pre class="payload" id="puerta-documento"></pre>
-    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
-    </details>
+    <details class="grupo ajustes-grupo" id="ajustes-dispositivo" open>
+      <summary><h3 id="ajustes-dispositivo-titulo">This device and privacy</h3></summary>
     <section class="tarjeta" aria-labelledby="energy-title">
       <h3 id="energy-title" data-i18n="energy_title">Rack energy · read only</h3>
       <p class="pie" data-i18n="energy_help">Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.</p>
@@ -323,6 +314,9 @@
       <button type="button" id="keep-device" class="probar">Keep it</button>
       <p class="pie" id="keep-device-status" role="status" aria-live="polite">Not asked yet.</p>
     </section>
+    </details>
+    <details class="grupo ajustes-grupo" id="ajustes-voz">
+      <summary><h3 id="ajustes-voz-titulo">Voice and creations</h3></summary>
     <section class="tarjeta" lang="en" aria-labelledby="creation-voice-title">
       <h3 id="creation-voice-title">Creation voice</h3>
       <p id="creation-voice-help">Generate the drawing guidance and your author statement with one local voice.</p>
@@ -334,6 +328,19 @@
       <p id="creation-voice-status" role="status" aria-live="polite">Nothing generated yet.</p>
       <div id="creation-voice-downloads"></div>
     </section>
+    <section class="tarjeta" aria-labelledby="creation-publish-title">
+      <h3 id="creation-publish-title">Publicar una creación firmada</h3>
+      <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
+      <form id="creation-publish-form">
+        <label id="creation-publish-label" for="creation-publish-file">Paquete de creación (.json, hasta 25 MiB)</label>
+        <input id="creation-publish-file" type="file" accept="application/json,.json" required>
+        <button id="creation-publish-send" type="submit" disabled>Verificar e importar</button>
+      </form>
+      <p class="pie" id="creation-publish-status" role="status" aria-live="polite">No se ha seleccionado ni enviado ninguna creación.</p>
+    </section>
+    </details>
+    <details class="grupo ajustes-grupo" id="ajustes-nodo">
+      <summary><h3 id="ajustes-nodo-titulo">Node identity</h3></summary>
     <section class="tarjeta" aria-labelledby="nodo-export-title">
       <h3 id="nodo-export-title" data-i18n="nodo_export_titulo">Identidad del nodo</h3>
       <p class="pie" data-i18n="nodo_export_ayuda">Elige una cédula ya firmada por ti. Esta app no firma.</p>
@@ -384,20 +391,25 @@
       </form>
       <p id="node-building-status" role="status" aria-live="polite" data-i18n="node_building_none">No se ha declarado ningún edificio desde esta pantalla.</p>
     </section>
-    <section class="tarjeta" aria-labelledby="creation-publish-title">
-      <h3 id="creation-publish-title">Publicar una creación firmada</h3>
-      <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
-      <form id="creation-publish-form">
-        <label id="creation-publish-label" for="creation-publish-file">Paquete de creación (.json, hasta 25 MiB)</label>
-        <input id="creation-publish-file" type="file" accept="application/json,.json" required>
-        <button id="creation-publish-send" type="submit" disabled>Verificar e importar</button>
-      </form>
-      <p class="pie" id="creation-publish-status" role="status" aria-live="polite">No se ha seleccionado ni enviado ninguna creación.</p>
-    </section>
+    </details>
+    <details class="grupo ajustes-grupo" id="ajustes-puerta">
+      <summary><h3 id="ajustes-puerta-titulo">Public gate and local tray</h3></summary>
+    <details class="tarjeta grupo" id="puerta-ajustes">
+      <summary id="tx-24">Public gate</summary>
+    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
+    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
+    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
+    <pre class="payload" id="puerta-llave"></pre>
+    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
+    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
+    <pre class="payload" id="puerta-documento"></pre>
+    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
+    </details>
   <section aria-labelledby="tray-heading"><h3 id="tray-heading">Bandeja</h3>
     <button type="button" id="tray-read">Leer bandeja local</button>
     <pre id="tray-result" role="status" aria-live="polite">Sin consultar.</pre>
   </section>
+    </details>
   </section>
 </main>
 
