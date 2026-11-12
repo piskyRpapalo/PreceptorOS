@@ -20,6 +20,7 @@ from contextlib import closing
 from pathlib import Path
 
 SCHEMA = "preceptoros.memory-search/1"
+ORIGEN_HECHOS = "rack: facts (live, from main)"
 ID_BASE = 1_000_000_000
 CHUNK_B = 340          # one chunk; two of them fit the 768 B source budget with memory beside
 MAX_DOC_B = 65536      # a file larger than this is read only up to here
@@ -79,8 +80,55 @@ def construir(db, documentos):
 
 
 def _consulta_fts(consulta):
-    palabras = [w for w in re.findall(r"[\w#.-]+", consulta, re.UNICODE) if len(w) > 2][:12]
-    return " OR ".join('"' + w.replace('"', "") + '"' for w in palabras)
+    """Content words only, OR-joined. Function words («how», «which», «the») and bracketed tags made every
+    chunk a match and let a third-party corpus outrank the house (probe 2026-11-12)."""
+    palabras = _palabras(consulta)
+    # A long word is searched by its 5-letter root («waiting» answers «waits»); the re-rank below keeps precision.
+    return " OR ".join(('"%s"*' % w[:5]) if len(w) >= 6 else '"%s"' % w for w in palabras)
+
+
+def _palabras(texto):
+    """Content words of a question: 3+ letters, or a 2-letter acronym such as «PR»; no function words."""
+    import memory_lookup
+    out = [w.replace('"', "") for w in re.findall(r"[\w#.-]+", memory_lookup.contenido(texto), re.UNICODE)
+           if len(w) > 2 or (len(w) == 2 and w.isupper())]
+    return list(dict.fromkeys(out))[:12]
+
+
+def _raices(texto):
+    import unicodedata
+    plano = "".join(ch for ch in unicodedata.normalize("NFKD", texto.lower()) if not unicodedata.combining(ch))
+    return {w[:5] for w in re.findall(r"\w+", plano)}
+
+
+def _cubre(texto, raices):
+    """How many distinct roots of the question a chunk holds."""
+    return len(raices & _raices(texto))
+
+
+def hechos(app_sw, app_html, web_sw, prs, medido):
+    """Live facts of the house as plain sentences Hexelion can quote exactly. Each value is read from main by
+    the builder; a value that cannot be read is said as NO_DATA with its cause, never guessed.
+    prs: [(repo, number, title, head_sha)] of open pull requests."""
+    def uno(patron, texto, causa):
+        m = re.search(patron, texto or "")
+        return m.group(1) if m else "NO_DATA (%s)" % causa
+    lineas = [
+        "Measured from main at %s." % medido,
+        "The current app cache version on main is %s (interface/sw.js)." % uno(r'const Cache = "([^"]+)"', app_sw, "app sw.js unreadable"),
+        "The current app script version on main is app.js?v=%s and notebook.js?v=%s (interface/app.html)." % (
+            uno(r"app\.js\?v=(\d+)", app_html, "app.html unreadable"), uno(r"notebook\.js\?v=(\d+)", app_html, "app.html unreadable")),
+        "The current web service worker version on main is %s (public/sw.js)." % uno(r"const VERSION = '([^']+)'", web_sw, "web sw.js unreadable"),
+        "To run the app gate: bin/pruebas --rapido for the fast gate, bin/pruebas for the full gate (AGENTS.md).",
+        "To run the web gate: python3 test_web.py, then node atlas/version_sw_gate.mjs (preceptoros-web).",
+    ]
+    hitl = [(r, n, t, h) for r, n, t, h in prs if str(t).startswith("HITL")]
+    if hitl:
+        lineas.append("Each open PR that waits for signature (HITL) now: " + "; ".join(
+            "%s #%d %s at head %s" % (r, n, str(t)[7:90], str(h)[:8]) for r, n, t, h in hitl) + ".")
+    else:
+        lineas.append("Each open PR that waits for signature (HITL) now: none.")
+    return "\n\n".join(lineas)
 
 
 def no_data(causa):
@@ -101,7 +149,12 @@ def buscar(consulta, db, limite=4):
         with closing(sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True, timeout=1.0)) as con:
             con.execute("pragma query_only=on")
             filas = con.execute("select rowid, texto, actualizado from trozos where trozos match ?"
-                                " order by bm25(trozos, 4.0, 2.0, 1.0) limit ?", (q, int(limite))).fetchall()
+                                " order by bm25(trozos, 4.0, 2.0, 1.0) limit ?", (q, int(limite) * 12)).fetchall()
+        # Re-rank: the chunk that holds MORE distinct words of the question comes first; bm25 breaks ties (stable
+        # sort). Plain bm25 let a PR body that repeats one word beat the one line that holds all of them.
+        raices = {w.lower()[:5] for w in _palabras(consulta)}
+        # At equal coverage a live fact measured from main beats a document that talks about the same value.
+        filas = sorted(filas, key=lambda f: (-_cubre(f[1], raices), not f[1].startswith(ORIGEN_HECHOS)))[:int(limite)]
     except (OSError, sqlite3.Error, ValueError):
         return no_data("rack_index_read_failed")
     if not filas:
