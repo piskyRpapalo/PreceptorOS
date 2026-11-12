@@ -18,6 +18,15 @@ class Core(unittest.TestCase):
         self.assertIn("# pass 11", r.stdout)
         self.assertIn("# fail 0", r.stdout)
 
+    def test_the_service_worker_parses_after_reconciliation(self):
+        worker = (ROOT / "interface" / "sw.js").read_text(encoding="utf-8")
+        parsed = subprocess.run(["node", "--check"], input=worker, text=True,
+                                capture_output=True, timeout=30)
+        self.assertEqual(parsed.returncode, 0, parsed.stderr[-1000:])
+        sabotaged = subprocess.run(["node", "--check"], input=worker + "\nconst Cache = 'duplicate';",
+                                  text=True, capture_output=True, timeout=30)
+        self.assertNotEqual(sabotaged.returncode, 0)
+
 
 class Panel(unittest.TestCase):
     def test_the_tab_is_named_for_every_reader(self):
