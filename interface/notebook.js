@@ -238,15 +238,15 @@
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return runs;
   }
-  async function loadTurns(listId, statusId, limit) {
+  async function loadTurns(listId, statusId, limit, thread) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
     let p = null;
-    try { p = projectTurns(await request("/api/hexelion/turnos")); } catch { p = null; }
+    try { p = projectTurns(await request("/api/hexelion/turnos" + (thread === "cli" ? "?thread=cli" : ""))); } catch { p = null; }
     list.replaceChildren();
     let summary;
     if (!p) summary = "NO_DATA: the requests could not be read (the app server did not answer).";
-    else if (!p.turns.length) summary = "NO_DATA: " + (p.cause || "no request in the shared thread yet");
+    else if (!p.turns.length) summary = "NO_DATA: " + (p.cause || (thread === "cli" ? "no agent has asked Hexelion yet" : "no request in the shared thread yet"));
     else {
       p.turns.slice(0, limit).forEach(x => list.append(turnCard(x)));
       const last = p.turns[0];

@@ -619,7 +619,8 @@ const cargadores = {
   lab: () => Promise.all([cargarLab(), cargarLabRack(),
     window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("lab-turno", "lab-turno-status", 1) : null,
     window.PreceptorNotebook ? window.PreceptorNotebook.loadBench("lab-bench", "lab-bench-status") : null]),
-  harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null]),
+  harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null,
+    window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("harness-cli-turns", "harness-cli-status", 6, "cli") : null]),
   ajustes: async () => {   // the public gate lives in Settings since 2026-11-11
     $("ajustes-estado").textContent = "Reading the local node…";
     const hechos = await Promise.allSettled([cargarCuaderno(), cargarPuerta()]);

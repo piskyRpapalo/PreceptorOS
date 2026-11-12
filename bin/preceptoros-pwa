@@ -43,6 +43,7 @@ import subprocess
 import sys
 import threading
 import urllib.error
+import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -1115,10 +1116,13 @@ class PWA(BaseHTTPRequestHandler):
         return self._json(200, _conversacion.project(lectura, now, since=max(0, since)))
 
     def _turnos_leer(self):
-        """What happened to each request (META-HARNESS-01): read-only, this machine only, from the shared thread."""
+        """What happened to each request (META-HARNESS-01): read-only, this machine only, from the shared thread
+        or, with ?thread=cli, from the agents' thread."""
         if not self._es_loopback(self.client_address[0]):
             return self._json(403, {"state": "NO_DATA", "cause": "loopback_only"})
-        lectura = _canales.lee(_conversacion.THREAD, 0, base=_casa.raiz())
+        hilo = "cli" if urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("thread") == ["cli"] \
+            else _conversacion.THREAD
+        lectura = _canales.lee(hilo, 0, base=_casa.raiz())
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         return self._json(200, _turnos.project(lectura, now))
 
@@ -1163,14 +1167,16 @@ class PWA(BaseHTTPRequestHandler):
 
     def _hexelion_chat(self):
         """Append the person's turn, then proxy one bounded local station call."""
-        turno = {"n": None}   # the question's number in the shared thread, once it is written there
+        # The question's number once written, and the thread it lives in: the person asks in «orquesta»; a rack CLI
+        # agent asks in «cli», so agent questions never fill the person's thread or the 12-turn view.
+        turno = {"n": None, "hilo": "orquesta"}
 
         def no_data(cause, code=503):
             # A question that got no answer leaves a receipt in the thread (META-HARNESS-01), written by the door,
             # never in Hexelion's voice: Notebook and Lab can then say what happened instead of guessing.
             if isinstance(turno["n"], int):
                 try:
-                    _canales.di_recibo_puerta("orquesta", turno["n"], cause, base=_casa.raiz())
+                    _canales.di_recibo_puerta(turno["hilo"], turno["n"], cause, base=_casa.raiz())
                 except _canales.CanalRechazado:
                     pass
             return self._json(code, {"estado": "NO_DATA", "causa": cause,
@@ -1226,7 +1232,8 @@ class PWA(BaseHTTPRequestHandler):
             elif (voz in AGENT_VOICES and self._es_loopback(self.client_address[0])
                   and not self.headers.get("Origin")):
                 # A CLI agent on this rack (Claude, Codex…) asks in its own voice; never the person's.
-                asked = _canales.di("orquesta", voz, text.strip(), rol="rack CLI agent", base=_casa.raiz())
+                turno["hilo"] = "cli"
+                asked = _canales.di("cli", voz, text.strip(), rol="rack CLI agent", base=_casa.raiz())
             else:
                 return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
@@ -1250,7 +1257,7 @@ class PWA(BaseHTTPRequestHandler):
             except Exception:
                 return no_data("local_energy_tool_failed")
             try:
-                _canales.di("orquesta", "orquestador", lectura["texto"],
+                _canales.di(turno["hilo"], "orquestador", lectura["texto"],
                             sello="DECLARADO", rol="Local energy sensor (not model)",
                             maquina={**pregunta, "via": "local_energy_tool", "esquema": lectura["esquema"],
                                      "estado": lectura["estado"]}, base=_casa.raiz())
@@ -1294,7 +1301,7 @@ class PWA(BaseHTTPRequestHandler):
         except (TypeError, ValueError, UnicodeError):
             return no_data("station_reply_exceeds_receipt_budget")
         try:
-            _canales.di("orquesta", "hexelion", answer.strip(), sello="DECLARADO",
+            _canales.di(turno["hilo"], "hexelion", answer.strip(), sello="DECLARADO",
                         rol="Hexelion local station",
                         maquina={**pregunta, "modelo": model, "ms": duration, "via": "loopback station",
                                  "fuentes": citations},
