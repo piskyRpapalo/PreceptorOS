@@ -68,6 +68,7 @@
     if (f.checks === "ROJO") resultado.textContent = "Hay checks en rojo: no se puede firmar hasta que se arreglen.";
     try { $("hitl-resumen").textContent = (await leerJson("/api/hitl/" + f.numero)).texto || "(sin resumen)"; }
     catch (e) { $("hitl-resumen").textContent = "No se pudo leer el resumen: " + e.message; }
+    porque(f);
     detalle.scrollIntoView({ block: "nearest" });
   }
   async function firmar() {
@@ -81,6 +82,35 @@
     } catch (e) { resultado.textContent = "No se pudo contactar con la app: " + e.message; }
     finally { ocupado = false; cerrar(); lista.after(detalle); cargar(); }
   }
+  // Why is it not advancing? One fixed-order verdict from GET /api/hitl/<n>/why (read-only). The question for
+  // Hexelion is built by the server from those facts; its answer is a suggestion and is labelled so.
+  const why = el("p", "pie hitl-why"), ask = el("button", "hitl-ask", "Ask Hexelion what to do"), answer = el("p", "pie hitl-answer");
+  why.id = "hitl-why"; why.setAttribute("role", "status"); ask.type = "button"; ask.id = "hitl-ask"; ask.hidden = true;
+  answer.id = "hitl-answer"; answer.setAttribute("role", "status"); answer.setAttribute("aria-live", "polite");
+  $("hitl-resumen").after(why, ask, answer);
+  let pregunta = "";
+  async function porque(f) {
+    why.textContent = "Reading why it waits…"; ask.hidden = true; answer.textContent = ""; pregunta = "";
+    try {
+      const d = await leerJson("/api/hitl/" + f.numero + "/why");
+      if (numero !== f.numero) return;
+      why.textContent = (d.line || "") + (d.signing ? " · " + d.signing : "");
+      pregunta = d.question || ""; ask.hidden = !pregunta;
+    } catch (e) { why.textContent = "NO_DATA: the reason could not be read (" + e.message + ")"; }
+  }
+  ask.addEventListener("click", async () => {
+    if (!pregunta || ask.disabled) return;
+    ask.disabled = true; answer.textContent = "Asking Hexelion… on local hardware this can take a minute.";
+    try {
+      const r = await fetch("/api/hexelion/chat", { method: "POST", cache: "no-store",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto: pregunta }) });
+      const d = await r.json().catch(() => ({})), x = d.respuesta || {};
+      const texto = typeof x === "string" ? x : (x.texto || x.respuesta || "");
+      answer.textContent = texto ? "Hexelion suggests (not a decision): " + texto
+        : "NO_DATA: Hexelion did not answer (" + (x.causa || d.causa || "HTTP " + r.status) + ")";
+    } catch (e) { answer.textContent = "NO_DATA: the app could not be reached (" + e.message + ")"; }
+    finally { ask.disabled = false; }
+  });
   function rechazar() { cerrar(); resultado.textContent = "No firmado: nada hecho."; }
   $("hitl-recargar").addEventListener("click", cargar);
   si.addEventListener("click", firmar);

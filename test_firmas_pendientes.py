@@ -89,7 +89,7 @@ class Cara(unittest.TestCase):
         # Deprecated renderer remains in source for history, but it must not
         # execute or consume offline cache in the sole live app.
         self.assertNotIn('<script src="/firmas.js', html)
-        self.assertIn('<script src="/hitl.js?v=5"></script>', html)
+        self.assertIn('<script src="/hitl.js?v=6"></script>', html)
         sw = (raiz / "interface" / "sw.js").read_text(encoding="utf-8")
         self.assertNotIn('"/firmas.js?v=1"', sw)
         import re
