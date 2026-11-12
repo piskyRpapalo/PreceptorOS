@@ -232,10 +232,16 @@ def di(canal, voz, texto, sello="DECLARADO", rol="", maquina=None, base=None):
     return _anexar(canal, voz, texto, sello, rol, maquina, base)
 
 
-def di_soberano(canal, texto, sello="DECLARADO", base=None):
+def di_soberano(canal, texto, sello="DECLARADO", base=None, para=None):
     """La persona escribe desde la app. Solo la llama la puerta de la PWA.
-    Tampoco esto concede nada: una frase no es una firma."""
-    return _anexar(canal, VOZ_RESERVADA, texto, sello, "persona", {"via": "app"}, base)
+    Tampoco esto concede nada: una frase no es una firma. `para` nombra a quién
+    va dirigido (un slug); dirigir un mensaje no da permiso a nadie."""
+    maquina = {"via": "app"}
+    if para is not None:
+        if not isinstance(para, str) or not _SLUG.match(para) or es_soberano(para):
+            raise CanalRechazado("`para` es el slug de un agente")
+        maquina["para"] = para
+    return _anexar(canal, VOZ_RESERVADA, texto, sello, "persona", maquina, base)
 
 
 def _filas(base, sql, args):

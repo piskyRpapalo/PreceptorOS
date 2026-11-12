@@ -1595,8 +1595,8 @@ class InsertorAncladoContrato(unittest.TestCase):
         sw = (root / "interface/sw.js").read_text(encoding="utf-8")
         server = (root / "bin/preceptoros-pwa").read_text(encoding="utf-8")
         versions = (root / "version.py").read_text(encoding="utf-8")
-        self.assertIn('<script src="/insertor.js?v=1"></script>', html)
-        self.assertIn('"/insertor.js?v=1"', sw)
+        self.assertIn('<script src="/insertor.js?v=2"></script>', html)
+        self.assertIn('"/insertor.js?v=2"', sw)
         self.assertIn('"/insertor.js": ("insertor.js",', server)
         self.assertIn('"interface/insertor.js"', versions)
         for pieza in ('app.css', 'app.js'):  # [deprecated 2026-11-08] pinned v=13/v=15: the rule is that page and cache agree

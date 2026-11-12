@@ -1,7 +1,9 @@
 (function (root) {
   "use strict";
 
-  function rutear(texto, zonas, activa) {
+  // `preceptores` (optional): { id: route } from /api/conversacion. A tag that names a preceptor addresses it;
+  // route "none" means no transport on this node, so nothing is sent (NO_DATA with its cause).
+  function rutear(texto, zonas, activa, preceptores) {
     if (typeof texto !== "string" || !Array.isArray(zonas) || !zonas.includes(activa)) {
       return { estado: "nodata", causa: "insertor_input_invalid" };
     }
@@ -14,6 +16,12 @@
     const tag = partes[1];
     const nota = (partes[2] || "").trim();
     if (tag === "ayuda") return { estado: "medido", carril: "ayuda", panel: activa, nota };
+    const rutas = preceptores && typeof preceptores === "object" ? preceptores : {};
+    if (!zonas.includes(tag) && Object.prototype.hasOwnProperty.call(rutas, tag)) {
+      if (rutas[tag] === "none") return { estado: "nodata", causa: "no_transport", para: tag };
+      if (!nota) return { estado: "nodata", causa: "text_missing", para: tag };
+      return { estado: "medido", carril: "preceptor", panel: activa, para: tag, ruta: rutas[tag], texto: nota };
+    }
     if (!zonas.includes(tag)) return { estado: "nodata", causa: "tag_not_declared" };
     return { estado: "medido", carril: "chat", panel: tag, texto: nota };
   }

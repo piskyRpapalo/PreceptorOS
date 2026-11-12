@@ -139,6 +139,16 @@ body {
                border-color: transparent; }
 .hilo li.espera { color: var(--ink-soft); font-style: italic; }
 .hilo li.malo { border-color: var(--stop); color: var(--stop); }
+/* One conversation (app router piece 01): each message names its voice in words; the edge only repeats it. */
+.hilo li.hilo-msg { display: flex; flex-direction: column; gap: .2rem; border-left-width: 4px; }
+.hilo .quien { font-size: .75rem; font-weight: 600; letter-spacing: .01em; }
+.hilo .hilo-meta, .hilo .hilo-fuente { font-size: .72rem; opacity: .8; }
+.hilo li.hilo-meta { align-self: center; background: transparent; border: 0; }
+.hilo li:has(.quien-private) { border-left-color: var(--acento); }
+.hilo li:has(.quien-rack-cli) { border-left-color: #348ea2; border-left-style: double; border-left-width: 6px; }
+.hilo li:has(.quien-sensor) { border-left-style: dashed; }
+.hilo li:has(.quien-unknown) { border-left-style: dotted; border-left-color: var(--stop); }
+.conv-destinos { margin: 0 0 .4rem; font-size: .75rem; }
 
 /* Keep composition visible while the conversation itself scrolls. */
 #panel-conversacion { overflow: hidden; }

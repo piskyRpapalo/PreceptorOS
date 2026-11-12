@@ -245,6 +245,9 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # guardrails; «firmado» en un texto no cambia el estado. Con su
           # `--sabotaje`.
           test_canales
+          # test_conversacion_comun: una conversacion, varios preceptores (APP-ROUTER-01).
+          # Hablar lee el hilo comun con identidad explicita; @nombre entrega al hilo; sin transporte, NO_DATA.
+          test_conversacion_comun
           test_contratos_decision
           # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
           # cerrado; el orquestador contesta con su voz y por tuberia; registro

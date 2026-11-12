@@ -51,3 +51,23 @@ test('insertor has no network or storage capability', () => {
   const source = require('node:fs').readFileSync(require.resolve('../interface/insertor.js'), 'utf8');
   assert.doesNotMatch(source, /fetch\s*\(|localStorage|sessionStorage|sendBeacon/);
 });
+
+const rutas = { hexelion: 'station', claude: 'thread', codex: 'thread', chatgpt: 'none' };
+
+test('@preceptor addresses one preceptor in the shared thread (APP-ROUTER-01)', () => {
+  assert.deepEqual(insertor.rutear('@claude  read the Lab receipt ', zones, 'lab', rutas), {
+    estado: 'medido', carril: 'preceptor', panel: 'lab', para: 'claude', ruta: 'thread', texto: 'read the Lab receipt',
+  });
+  assert.equal(insertor.rutear('@hexelion hi', zones, 'conversacion', rutas).ruta, 'station');
+});
+
+test('a preceptor without transport, or without words, sends nothing', () => {
+  assert.deepEqual(insertor.rutear('@chatgpt hello', zones, 'lab', rutas), { estado: 'nodata', causa: 'no_transport', para: 'chatgpt' });
+  assert.deepEqual(insertor.rutear('@codex', zones, 'lab', rutas), { estado: 'nodata', causa: 'text_missing', para: 'codex' });
+});
+
+test('panel tags keep their meaning and an unlisted name is still refused', () => {
+  assert.equal(insertor.rutear('@lab what?', zones, 'conversacion', Object.assign({ lab: 'thread' }, rutas)).carril, 'chat');
+  assert.equal(insertor.rutear('@gemini hi', zones, 'lab', rutas).causa, 'tag_not_declared');
+  assert.equal(insertor.rutear('@claude hi', zones, 'lab').causa, 'tag_not_declared');
+});
