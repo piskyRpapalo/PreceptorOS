@@ -37,6 +37,7 @@ import ipaddress
 import os
 import re
 import secrets
+import datetime
 import sqlite3
 import subprocess
 import sys
@@ -80,6 +81,7 @@ import estado_compacto as _estado_compacto                   # noqa: E402
 import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
+import pr_blockers as _pr_blockers
 import indice_rack as _indice_rack
 AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -503,6 +505,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._hitl_listar()
         if re.fullmatch(r"/api/hitl/\d{1,7}", ruta):
             return self._hitl_resumen(ruta.rsplit("/", 1)[1])
+        if re.fullmatch(r"/api/hitl/\d{1,7}/why", ruta):
+            return self._hitl_why(ruta.split("/")[3])
         if ruta == "/api/firmas":
             return self._firmas_read()
         if ruta == "/api/captura":
@@ -960,6 +964,50 @@ class PWA(BaseHTTPRequestHandler):
         return self._json(200 if rc != 124 else 504, {
             "esquema": "preceptoros.hitl-resumen/1", "numero": int(n),
             "texto": "\n".join(lineas)[:4096]})
+
+    def _hitl_gh(self, args, timeout=30):
+        """One read-only gh call. Returns (rc, text); never raises."""
+        env = dict(os.environ)
+        env["PATH"] = os.path.expanduser("~/.local/bin") + os.pathsep + env.get("PATH", "/usr/bin:/bin")
+        try:
+            r = subprocess.run(["gh"] + args, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                               stderr=subprocess.DEVNULL, timeout=timeout, env=env, start_new_session=True)
+            return r.returncode, r.stdout.decode("utf-8", "replace")
+        except (subprocess.TimeoutExpired, OSError):
+            return 124, ""
+
+    def _hitl_why(self, n):
+        """Read-only: which fact holds this PR, in a fixed order (pr_blockers). Nothing is signed or merged."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"estado": "NO_DATA", "causa": "solo_loopback"})
+        campos = "number,title,state,headRefOid,headRefName,baseRefName,mergeable,mergeStateStatus,statusCheckRollup,files"
+        rc, texto = self._hitl_gh(["pr", "view", n, "-R", VIGIA_REPO, "--json", campos])
+        try:
+            pr = json.loads(texto) if rc == 0 else None
+        except ValueError:
+            pr = None
+        behind, ambos = None, []
+        if isinstance(pr, dict) and pr.get("headRefName") and pr.get("state") == "OPEN":
+            ruta = "repos/%s/compare/%s...%s" % (VIGIA_REPO, pr.get("baseRefName") or "main", pr["headRefName"])
+            rc, texto = self._hitl_gh(["api", ruta, "-q", ".behind_by"])
+            if rc == 0 and texto.strip().isdigit():
+                behind = int(texto.strip())
+            if pr.get("mergeable") == "CONFLICTING":
+                # Files main changed since the branch left it, that the branch changes too.
+                ruta = "repos/%s/compare/%s...%s" % (VIGIA_REPO, pr["headRefName"], pr.get("baseRefName") or "main")
+                rc, texto = self._hitl_gh(["api", ruta, "-q", ".files[].filename"])
+                propios = {f.get("path") for f in pr.get("files") or [] if isinstance(f, dict)}
+                ambos = [x for x in texto.splitlines() if x in propios] if rc == 0 else []
+        try:
+            firmando = subprocess.run(["pgrep", "-f", "preceptoros-firmar web %s$" % n], stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.DEVNULL, timeout=5).returncode == 0
+        except (subprocess.TimeoutExpired, OSError):
+            firmando = False
+        d = _pr_blockers.diagnose(pr, behind, datetime.datetime.now(datetime.timezone.utc),
+                                  signing_running=firmando, both_touched=ambos)
+        d["line"] = _pr_blockers.line(d)
+        d["question"] = _pr_blockers.question(d, (pr or {}).get("title") or "")
+        return self._json(200, d)
 
     def _hitl_firmar(self, ruta):
         if not self._es_loopback(self.client_address[0]):
