@@ -9,7 +9,7 @@
   "use strict";
   const doc = root.document;
   const kinds = { person: "person", private: "private", "rack-cli": "rack CLI", sensor: "sensor (not a model)",
-    external: "external", unknown: "unknown voice" };
+    external: "external", door: "door (not a model)", unknown: "unknown voice" };
   let seen = 0, routes = {}, names = {}, busy = false, timer = null;
 
   function chip(m) {

@@ -515,6 +515,8 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         INTRINSECOS |= {"OBSERVADO", "DECLARADO"}
         # One conversation (app router piece 01): wire states of the shared thread, never privacy policy names.
         INTRINSECOS |= {"DELIVERED_TO_THREAD", "MEASURED"}
+        # What happened to each request (meta-harness 01): turn states of turnos_hexelion.py, not policy names.
+        INTRINSECOS |= {"ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"}
         # Command receipts in the Notebook: the producer's states (notebook_receipts.py), not policy names.
         INTRINSECOS |= {"DECLARED"}
         for fichero in self.ficheros():
