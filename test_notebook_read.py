@@ -127,12 +127,12 @@ class NotebookShellTests(unittest.TestCase):
         sw = (self.ROOT / "interface/sw.js").read_text(encoding="utf-8")
         pwa = (self.ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8")
         app = (self.ROOT / "interface/app.js").read_text(encoding="utf-8")
-        self.assertIn('<script src="/notebook.js?v=1"></script>', html)
-        self.assertIn('"/notebook.js?v=1"', sw)
+        self.assertIn('<script src="/notebook.js?v=2"></script>', html)
+        self.assertIn('"/notebook.js?v=2"', sw)
         self.assertIn('"/notebook.js": ("notebook.js", "application/javascript; charset=utf-8")', pwa)
         self.assertIn('ruta == "/api/notebook"', pwa)
         self.assertIn('ruta in ("/api/bandeja", "/api/energia", "/api/notebook")', pwa)
-        self.assertIn("preceptoros-armazon-v163", sw)
+        self.assertIn("preceptoros-armazon-v164", sw)
         self.assertIn('<script src="/app.js?v=23"></script>', html)
         self.assertIn('"/app.js?v=23"', sw)
         self.assertIn('<link rel="stylesheet" href="/app.css?v=16">', html)
@@ -143,3 +143,56 @@ class NotebookShellTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NotebookReceiptsReadTests(unittest.TestCase):
+    """APP-NB-03: the Notebook reads receipts.json from its producer and re-checks every row."""
+    def setUp(self):
+        import notebook_receipts as P
+        self.P = P
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        lines = [json.dumps({"ts": "2026-11-11T09:5%d:00Z" % i, "tool": "exec", "cmd_sha": "%016x" % i, "cmd": "secret text",
+                             "rc": i % 2, "ms": 25 + i, "out_bytes": 100 * i}) for i in range(3)]
+        P.write(self.root, P.project(lines, NOW))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_producer_to_reader_round_trip_recomputes_state_from_now(self):
+        fresh = N.read(self.root, NOW)
+        self.assertIsNone(fresh["receipts_cause"])
+        self.assertEqual([(r["result"], r["status"]) for r in fresh["receipts"]],
+                         [("ok", "DECLARED"), ("failed", "DECLARED"), ("ok", "DECLARED")])
+        later = N.read(self.root, NOW + dt.timedelta(hours=1))
+        self.assertEqual({r["status"] for r in later["receipts"]}, {"STALE"})
+        self.assertNotIn("secret text", json.dumps(later))
+
+    def test_a_tampered_row_drops_the_whole_list(self):
+        path = self.root / "notebook" / "receipts.json"
+        data = json.loads(path.read_text())
+        data["receipts"][0]["ms"] = 1
+        path.write_text(json.dumps(data))
+        state = N.read(self.root, NOW)
+        self.assertEqual((state["receipts"], state["receipts_cause"]), ([], "receipt_fingerprint_mismatch"))
+        data["receipts"][0]["ms"] = "1"
+        path.write_text(json.dumps(data))
+        self.assertEqual(N.read(self.root, NOW)["receipts_cause"], "receipt_invalid")
+        data["schema"] = "preceptoros.notebook-receipts/9"
+        path.write_text(json.dumps(data))
+        self.assertEqual(N.read(self.root, NOW)["receipts_cause"], "schema_invalid")
+
+    def test_missing_and_future_are_no_data(self):
+        (self.root / "notebook" / "receipts.json").unlink()
+        self.assertEqual(N.read(self.root, NOW)["receipts_cause"], "file_missing")
+        self.P.write(self.root, self.P.project([json.dumps({"ts": "2026-11-11T09:00:00Z", "tool": "exec",
+                     "cmd_sha": "0" * 16, "rc": 0, "ms": 1, "out_bytes": 1})], NOW))
+        past = N.read(self.root, NOW - dt.timedelta(days=1))
+        self.assertEqual((past["receipts"][0]["status"], past["receipts"][0]["cause"]), ("NO_DATA", "future_timestamp"))
+
+    def test_the_tab_has_a_place_for_them(self):
+        html = Path(__file__).with_name("interface").joinpath("app.html").read_text(encoding="utf-8")
+        js = Path(__file__).with_name("interface").joinpath("notebook.js").read_text(encoding="utf-8")
+        self.assertIn('id="notebook-receipts"', html)
+        self.assertIn('getElementById("notebook-receipts")', js)
+        self.assertIn("not that its output was right", js)

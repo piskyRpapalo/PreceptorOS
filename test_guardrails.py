@@ -515,6 +515,8 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         INTRINSECOS |= {"OBSERVADO", "DECLARADO"}
         # One conversation (app router piece 01): wire states of the shared thread, never privacy policy names.
         INTRINSECOS |= {"DELIVERED_TO_THREAD", "MEASURED"}
+        # Command receipts in the Notebook: the producer's states (notebook_receipts.py), not policy names.
+        INTRINSECOS |= {"DECLARED"}
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

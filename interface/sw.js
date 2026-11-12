@@ -95,8 +95,9 @@
 // the list, app.js and app.css carry a new version. The cache name stays v162 (pinned by tests).
 // 2026-11-12 (app router piece 01): Talk shows the shared thread with explicit identities and @name addresses a rack
 // preceptor. conversacion.js enters the list; insertor.js, app.js and app.css carry new versions; the cache moves to v163.
-const Cache = "preceptoros-armazon-v163";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=16", "/app.js?v=23", "/notebook.js?v=1", "/conversacion.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-12 (notebook receipts 03): Notebook reads command receipts (notebook.js v2). Cache v164.
+const Cache = "preceptoros-armazon-v164";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=16", "/app.js?v=23", "/notebook.js?v=2", "/conversacion.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

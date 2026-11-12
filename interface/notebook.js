@@ -15,7 +15,8 @@
       timer: "Timer", wbr: "WBR · Semana", mbr: "MBR · Mes",
       declared: "Declarado; aún sin verificación independiente", unavailable: "NO_DATA",
       stale: "Dato antiguo", observed: "Observado; no se ha verificado el proceso",
-      updated: "Lectura terminada. El estado pertenece a las fuentes, no a esta pantalla."
+      updated: "Lectura terminada. El estado pertenece a las fuentes, no a esta pantalla.",
+      receipts: "Recibos de órdenes", receiptsNote: "Un recibo dice que una orden corrió y cómo terminó; no que su salida fuera correcta."
     },
     en: {
       title: "Operations Notebook", subtitle: "Sourced agents, cycles and reviews. A declaration does not prove a running process.",
@@ -27,7 +28,8 @@
       timer: "Timer", wbr: "WBR · Week", mbr: "MBR · Month",
       declared: "Declared; independent verification pending", unavailable: "NO_DATA",
       stale: "Stale reading", observed: "Observed; running process unverified",
-      updated: "Read complete. State belongs to sources, not this screen."
+      updated: "Read complete. State belongs to sources, not this screen.",
+      receipts: "Command receipts", receiptsNote: "A receipt says a command ran and how it ended; not that its output was right."
     }
   };
   function lang() {
@@ -51,6 +53,13 @@
         cause: clean(r.cause, 100), period: clean(r.period, 16),
         summary: clean(r.summary, 420), stamp: clean(r.measured_at, 40),
         receipt: clean(r.receipt_sha256, 64)
+      })),
+      receiptsCause: clean(raw.receipts_cause, 72),
+      receipts: (Array.isArray(raw.receipts) ? raw.receipts : []).filter(r => r && typeof r === "object").slice(-20).map(r => ({
+        tool: clean(r.tool, 24), result: r.result === "ok" ? "ok" : "failed",
+        status: ["DECLARED", "STALE"].includes(r.status) ? r.status : "NO_DATA", cause: clean(r.cause, 72),
+        ms: Number.isSafeInteger(r.ms) ? r.ms : null, bytes: Number.isSafeInteger(r.out_bytes) ? r.out_bytes : null,
+        stamp: clean(r.measured_at, 40), receipt: clean(r.receipt_sha256, 64)
       }))
     };
   }
@@ -146,6 +155,19 @@
       }
       rList.append(c);
     });
+    const xList = document.getElementById("notebook-receipts");
+    if (xList) {
+      xList.replaceChildren();
+      const rows = notes ? notes.receipts : [];
+      if (rows.length) {
+        const last = rows[rows.length - 1];
+        const c = card(t.receipts + " · " + rows.length, last.status, t.receiptsNote);
+        rows.slice(-6).reverse().forEach(r => c.append(elem("p", "notebook-fact",
+          [r.stamp.replace("T", " ").replace("Z", " UTC"), r.tool, r.result, r.ms === null ? "NO_DATA" : r.ms + " ms",
+            r.bytes === null ? "NO_DATA" : r.bytes + " B", r.status, r.receipt.slice(0, 12)].join(" · "))));
+        xList.append(c);
+      } else xList.append(card(t.receipts, "NO_DATA", notes ? notes.receiptsCause || "no_valid_receipt" : "notebook_endpoint_unavailable"));
+    }
     status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
     button.disabled = false;
   }
