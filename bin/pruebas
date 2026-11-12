@@ -259,6 +259,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # test_hexelion_shelf: el indice del rack sin clones de terceros, consulta solo con palabras de contenido,
           # re-orden por cobertura, ficha de hechos vivos y candidatas que contienen la pregunta.
           test_hexelion_shelf
+          # test_hexelion_cli_thread: los agentes CLI preguntan a Hexelion en el hilo cli; el hilo de la persona queda suyo.
+          test_hexelion_cli_thread
           # test_lab_bench: recibos bench-repro-01-v1 del LAB; huellas y claves de comparacion recalculadas,
           # tiempos separados por muestra, NO_DATA con causa, lectura por git show sin tocar la copia.
           test_lab_bench

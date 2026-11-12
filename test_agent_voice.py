@@ -28,7 +28,7 @@ class AgentVoice(unittest.TestCase):
 
     def test_agent_path_uses_di_and_needs_loopback_without_origin(self):
         bloque = SRC[SRC.index('voz = data.get("voz")'):SRC.index('return no_data("agent_voice_refused", 403)')]
-        self.assertIn("_canales.di(\"orquesta\", voz", bloque)
+        self.assertIn("_canales.di(\"cli\", voz", bloque)   # 2026-11-12: agents ask in their own thread
         self.assertIn("self._es_loopback(self.client_address[0])", bloque)
         self.assertIn('not self.headers.get("Origin")', bloque)
 
@@ -76,7 +76,7 @@ class TestAgentVoiceDoorLive(unittest.TestCase):
         got, person, agent, _ = self._walk({"texto": "caravan states", "voz": "claude"})
         self.assertNotEqual(got.get("body", {}).get("causa"), "local_origin_required", got)
         person.assert_not_called()
-        self.assertEqual(agent.call_args.args[:3], ("orquesta", "claude", "caravan states"))
+        self.assertEqual(agent.call_args.args[:3], ("cli", "claude", "caravan states"))   # own thread since 2026-11-12
 
     def test_cli_without_voice_never_speaks_as_the_person(self):
         got, person, agent, _ = self._walk({"texto": "hola"})

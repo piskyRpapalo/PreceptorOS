@@ -52,7 +52,7 @@ class Wiring(unittest.TestCase):
         src = (Path(__file__).resolve().parent / 'bin/preceptoros-pwa').read_text(encoding='utf-8')
         verify = src.index('_hexelion_book.verificar_citas(answer')
         relevant = src.index('_hexelion_book.pertinentes(verified["texto"], citations, text, prepared["fuentes"])')
-        said = src.index('_canales.di("orquesta", "hexelion"')
+        said = src.index('_canales.di(turno["hilo"], "hexelion"')
         self.assertLess(verify, relevant)
         self.assertLess(relevant, said)
         self.assertIn('return no_data("quote_not_relevant")', src[relevant:said])

@@ -51,7 +51,7 @@ except ImportError:                                  # pragma: no cover
 
 ESQUEMA = "preceptoros.canal/2"
 TIPO = "mensaje"
-CANALES = ("orquesta", "app", "web", "lab")          # hilos dentro del canal único
+CANALES = ("orquesta", "app", "web", "lab", "cli")   # hilos dentro del canal único; cli: preguntas de agentes a Hexelion
 SELLOS = ("MEDIDO", "EMULADO", "NO_DATA", "PROPUESTA", "REQUIERE_FIRMA", "DECLARADO")
 VOZ_RESERVADA = "soberano"
 _SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,60}$")     # el mismo `SLUG` del registro

@@ -22,8 +22,8 @@ def builder():
     return mod
 
 
-APP_SW = 'const Cache = "preceptoros-armazon-v168";'
-APP_HTML = '<script src="/app.js?v=26"></script><script src="/notebook.js?v=4"></script>'
+APP_SW = 'const Cache = "preceptoros-armazon-v169";'
+APP_HTML = '<script src="/app.js?v=27"></script><script src="/notebook.js?v=5"></script>'
 WEB_SW = "const VERSION = 'preceptoros-2026-25-hi';"
 PRS = [("preceptoros-web", 814, "HITL · Radio layer 2 on /openworld/", "311e8d99a2e9"), ("lab", 9, "Draft: notes", "abc")]
 
@@ -62,8 +62,8 @@ class Query(unittest.TestCase):
 class Facts(unittest.TestCase):
     def test_live_facts_are_plain_quotable_sentences(self):
         text = I.hechos(APP_SW, APP_HTML, WEB_SW, PRS, "2026-11-12 15:00 UTC")
-        for line in ("The current app cache version on main is preceptoros-armazon-v168 (interface/sw.js).",
-                     "The current app script version on main is app.js?v=26 and notebook.js?v=4 (interface/app.html).",
+        for line in ("The current app cache version on main is preceptoros-armazon-v169 (interface/sw.js).",
+                     "The current app script version on main is app.js?v=27 and notebook.js?v=5 (interface/app.html).",
                      "The current web service worker version on main is preceptoros-2026-25-hi (public/sw.js).",
                      "To run the app gate: bin/pruebas --rapido for the fast gate, bin/pruebas for the full gate (AGENTS.md)."):
             self.assertIn(line, text)

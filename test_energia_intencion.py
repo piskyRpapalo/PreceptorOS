@@ -89,8 +89,9 @@ class LocalEnergyChat(unittest.TestCase):
              mock.patch.object(PWA._hexelion_proxy, "ask") as model:
             PWA.PWA._hexelion_chat(h)
         person.assert_not_called()
-        self.assertEqual(log.call_args_list[0].args[:2], ("orquesta", "codex"))
-        self.assertEqual(log.call_args_list[1].args[:2], ("orquesta", "orquestador"))
+        # 2026-11-12 (cli thread): a CLI agent asks in «cli», and the sensor answers it there.
+        self.assertEqual(log.call_args_list[0].args[:2], ("cli", "codex"))
+        self.assertEqual(log.call_args_list[1].args[:2], ("cli", "orquestador"))
         model.assert_not_called()
         self.assertEqual(out["code"], 200)
 
@@ -138,9 +139,9 @@ class LocalEnergyChat(unittest.TestCase):
         html = (base / "interface/app.html").read_text(encoding="utf-8")
         js = (base / "interface/app.js").read_text(encoding="utf-8")
         sw = (base / "interface/sw.js").read_text(encoding="utf-8")
-        self.assertIn('src="/app.js?v=26"', html)
-        self.assertIn('"/app.js?v=26"', sw)
-        self.assertIn("preceptoros-armazon-v168", sw)
+        self.assertIn('src="/app.js?v=27"', html)
+        self.assertIn('"/app.js?v=27"', sw)
+        self.assertIn("preceptoros-armazon-v169", sw)
         self.assertIn('local.esquema === "preceptoros.energy-read/1"', js)
         self.assertIn('respuesta.estado === "MEASURED"', js)
         self.assertIn('Array.isArray(respuesta.fuentes)', js)
