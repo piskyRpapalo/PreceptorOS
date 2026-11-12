@@ -379,3 +379,16 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
 .firma-acciones button, .firma-acciones a { min-height: 44px; min-width: 44px; padding: 0 .8rem; border-radius: 12px; display: inline-flex; align-items: center;
   border: 1px solid var(--agente); background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
 @media (forced-colors: active) { .firma { border-color: CanvasText; } }
+
+/* Foldable groups (Lab, Notebook, 3DFabrik, the public gate in Settings): one tap opens, the heading is the handle. */
+details.grupo { border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; background: var(--paper); }
+details.grupo > summary { min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 12px; cursor: pointer; font-weight: 600; list-style: none; }
+details.grupo > summary::-webkit-details-marker { display: none; }
+details.grupo > summary::before { content: "+"; width: 1em; text-align: center; }
+details.grupo[open] > summary::before { content: "\2212"; }
+details.grupo > summary h3 { margin: 0; font-size: 1rem; }
+details.grupo > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+details.grupo > :not(summary) { margin-left: 12px; margin-right: 12px; }
+details.grupo > .turnos { margin-bottom: 12px; }
+button.ir { min-height: 44px; margin: 6px 0 12px; }
+.ir-fila { display: flex; flex-wrap: wrap; gap: 8px; }

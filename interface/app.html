@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=13">
+<link rel="stylesheet" href="/app.css?v=14">
 <link rel="stylesheet" href="/hitl.css?v=4">
 </head>
 <body>
@@ -91,20 +91,56 @@
 
   <!-- cuaderno -->
   <section class="panel" id="panel-cuaderno" role="tabpanel" aria-labelledby="tab-cuaderno" tabindex="0" aria-label="Cuaderno" hidden>
-    <p class="pie" id="recuento">…</p>
-    <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
-    <ul class="turnos" id="turnos"></ul>
+    <h2 id="tx-01">Notebook</h2>
+    <p id="tx-02" class="pie">What the house produces, by kind. A line that is not measured says so, with its cause.</p>
+    <details class="grupo" open>
+      <summary><h3 id="tx-03">Benchmarks</h3></summary>
+      <ul class="turnos"><li id="tx-25">NO_DATA: the benchmark receipts live in the lab folder and no reader is connected to this tab yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-04">Weekly and monthly reviews</h3></summary>
+      <ul class="turnos"><li id="tx-26">NO_DATA: no review file has been written to this device yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-05">Command receipts</h3></summary>
+      <ul class="turnos"><li id="tx-27">NO_DATA: no receipt projection has been written to this device yet</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-06">Studies and proposals</h3></summary>
+      <ul class="turnos"><li id="tx-28">NO_DATA: studies are published in their own repository; no local copy is read here</li></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-07">3D designs</h3></summary>
+      <ul class="turnos"><li id="tx-29">NO_DATA: no design has been found on this machine</li></ul>
+      <button id="tx-08" type="button" class="ir" data-ir="puerta">Open 3DFabrik</button>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-09">Captured turns and training consent</h3></summary>
+      <p class="pie" id="recuento">…</p>
+      <p class="pie" data-i18n="pie_captura">Un turno capturado no es un turno consentido. Nada entra en un entrenamiento hasta que lo marcas tú, de uno en uno, y se puede retirar.</p>
+      <ul class="turnos" id="turnos"></ul>
+    </details>
   </section>
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
     <h2 data-i18n="tab_lab">Lab</h2>
-    <h3 data-i18n="lab_canales_titulo">Canales recientes</h3>
     <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
     <p class="pie" id="lab-rack-estado" role="status" aria-live="polite" hidden></p>
     <a id="lab-rack-enlace" href="#" target="_blank" rel="noopener noreferrer" hidden>Rack Lab</a>
-    <ul class="turnos" id="lab-canales"></ul>
-    <h3 data-i18n="lab_modelos_titulo">Modelos locales</h3>
-    <ul class="turnos" id="lab-modelos"></ul>
+    <details class="grupo" open>
+      <summary><h3 data-i18n="lab_canales_titulo">Canales recientes</h3></summary>
+      <ul class="turnos" id="lab-canales"></ul>
+    </details>
+    <details class="grupo" open>
+      <summary><h3 data-i18n="lab_modelos_titulo">Modelos locales</h3></summary>
+      <ul class="turnos" id="lab-modelos"></ul>
+    </details>
+    <details class="grupo">
+      <summary><h3 id="tx-10">Loops and their documents</h3></summary>
+      <p id="tx-11" class="pie">Each loop of the lab says when it last ran and how it ended. Its documents are read in the Notebook.</p>
+      <div class="ir-fila"><button id="tx-12" type="button" class="ir" data-ir="harness">See the loops</button>
+      <button id="tx-13" type="button" class="ir" data-ir="cuaderno">Open the Notebook</button></div>
+    </details>
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
     <h2 data-i18n="tab_harness">Harness</h2>
@@ -116,16 +152,26 @@
       <ul class="turnos" id="harness-bucles"></ul>
     </details>
   </section>
-  <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="Puerta pública" hidden>
-    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
-    <h2 data-i18n="tab_puerta">Puerta pública</h2>
-    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
-    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
-    <pre class="payload" id="puerta-llave"></pre>
-    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
-    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
-    <pre class="payload" id="puerta-documento"></pre>
-    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
+  <section class="panel" id="panel-puerta" role="tabpanel" aria-labelledby="tab-puerta" tabindex="0" aria-label="3DFabrik" hidden>
+    <h2 data-i18n="tab_puerta">3DFabrik</h2>
+    <p id="tx-14" class="pie">A part described in plain words becomes a printable file: a local model writes the shape as code, the code is compiled and exported, and a check sends faults back to the model.</p>
+    <details class="grupo" open>
+      <summary id="tx-15">State on this rack</summary>
+      <ul class="turnos">
+        <li id="tx-16">Engine · NO_DATA: the 3D engine is not installed on this machine</li>
+        <li id="tx-17">Designs · NO_DATA: no design file made since 2026-11-01 was found on this machine</li>
+        <li id="tx-18">Local models used · NO_DATA: no receipt names the model of a design</li>
+      </ul>
+    </details>
+    <details class="grupo">
+      <summary id="tx-19">What a finished design will show here</summary>
+      <ul class="turnos">
+        <li id="tx-20">The words that asked for the part</li>
+        <li id="tx-21">The model that wrote it and the machine it ran on</li>
+        <li id="tx-22">Its measures and the fingerprint of the file</li>
+      </ul>
+    </details>
+    <button id="tx-23" type="button" class="ir" data-ir="cuaderno">Open the Notebook</button>
   </section>
   <section class="panel" id="panel-modelos" role="tabpanel" aria-labelledby="tab-modelos" tabindex="0" aria-label="OpenWorld" hidden>
     <p class="pie" id="openworld-status" role="status" aria-live="polite">OpenWorld no se solicita hasta abrir esta zona.</p>
@@ -137,6 +183,17 @@
   </section>
   <section class="panel" id="panel-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" tabindex="0" aria-label="Ajustes" hidden>
     <h2 data-i18n="tab_ajustes">Ajustes</h2>
+    <details class="tarjeta grupo" id="puerta-ajustes">
+      <summary id="tx-24">Public gate</summary>
+    <p class="pie" id="puerta-estado" role="status" aria-live="polite" data-i18n="puerta_cargando">Leyendo la puerta local…</p>
+    <p class="pie" data-i18n="puerta_fiel">La vista traduce las marcas de ausencia; los botones copian el texto fuente exacto.</p>
+    <h3 data-i18n="puerta_llave_titulo">Llave de entrada</h3>
+    <pre class="payload" id="puerta-llave"></pre>
+    <button type="button" id="puerta-copiar-llave" data-i18n="puerta_copiar_llave">Copiar llave</button>
+    <h3 data-i18n="puerta_documento_titulo">Documento que lee la IA</h3>
+    <pre class="payload" id="puerta-documento"></pre>
+    <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
+    </details>
     <section class="tarjeta" aria-labelledby="energy-title">
       <h3 id="energy-title" data-i18n="energy_title">Rack energy · read only</h3>
       <p class="pie" data-i18n="energy_help">Local meter reading. Battery, solar generation and allocation remain unmeasured; no power switching.</p>
@@ -294,7 +351,7 @@
 <script src="/acho_motion.js?v=2"></script>
 <script src="/team.js?v=2"></script>
 <script src="/hitl.js?v=5"></script>
-<script src="/app.js?v=20"></script>
+<script src="/app.js?v=21"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
