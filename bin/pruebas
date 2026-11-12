@@ -256,6 +256,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # test_lab_bench: recibos bench-repro-01-v1 del LAB; huellas y claves de comparacion recalculadas,
           # tiempos separados por muestra, NO_DATA con causa, lectura por git show sin tocar la copia.
           test_lab_bench
+          # test_ajustes_grupos: Ajustes en cuatro grupos plegables, cada tarjeta en el suyo, marcado equilibrado.
+          test_ajustes_grupos
           test_contratos_decision
           # test_lab: el Lab hablando (2026-10-04). Quien habla en vocabulario
           # cerrado; el orquestador contesta con su voz y por tuberia; registro
