@@ -139,7 +139,7 @@ echo
 # El reparto. Si anades una suite, va aqui: es la unica lista.
 UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_device test_transicion_app test_estado_app test_estado_compacto test_ficha_cartucho test_orquestador_rag test_orquestador_respuesta test_lab_frase test_lab_avisos test_afinado test_captura test_descarga test_pwa test_modelos_web test_llms test_restaurar test_estado test_fuga test_guardrails test_privacidad_arbol test_ideas18oct_contracts test_lexical_projection
           test_interprete test_leitmotivs test_silencio test_voz_cyber test_voz_creacion test_creacion_import test_creacion_publicacion test_creacion_voz_route test_creacion_recorrido test_path test_casa test_entorno
-          test_compass test_exportar
+          test_compass test_exportar test_notebook_receipts
           # Las trece que el corredor dejaba fuera (deuda S4). Escondieron
           # dos roturas reales: el renombrado del output-guard y el de la
           # identidad del arquetipo. Una suite que existe y no corre es una
@@ -158,10 +158,10 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # exige que el camino por defecto sea stdlib puro. Entra aqui en su
           # mismo commit por la misma razon: un candado que no corre no cierra.
           test_superficie test_memory_lookup test_hexelion_book test_atlas_riesgo test_pwa_bind test_lora_signed_download test_lora_dataset
-          test_rutas_unicas
+          test_rutas_unicas test_notebook_reports
           # Every suite is counted separately; test_superficie catches omissions.
           test_huella test_metricas test_energia_estado test_energia_intencion test_herramientas test_empieza_aqui test_soberano
-          test_importar test_medidas test_cifras test_compliance
+          test_importar test_medidas test_cifras test_compliance test_icons_emblem
           # test_linea y test_normas: el registro encadenado y la tabla de
           # anclas legislativas. Entran en su mismo commit. La primera lleva
           # dentro la prueba del SABOTEADOR --se manipula una fila por debajo y
