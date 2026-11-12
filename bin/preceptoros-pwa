@@ -1260,13 +1260,14 @@ class PWA(BaseHTTPRequestHandler):
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
         # (indice_rack, built by bin/indice-rack). Both are exact quotes under the same budget.
         evidence = _indice_rack.unir(_memory_lookup.buscar(text.strip(), self.server.ruta_db),
-                                     _indice_rack.buscar(text.strip(), os.path.join(str(_casa.raiz()), "indice", "rack.db")))
+                                     _indice_rack.buscar(text.strip(), os.environ.get(
+                                         "PRECEPTOROS_INDICE_RACK", os.path.join(str(_casa.raiz()), "indice", "rack.db"))))
         prepared, prompt = _hexelion_book.construir_prompt(text.strip(), evidence, panel=panel, estilo=estilo)
         if prepared.get("estado") != "MEASURED" or prompt is None:
             return no_data(prepared.get("causa") or "memory_evidence_unavailable")
         # Ollama structured output restricts quotations to actual verified
         # source fragments. It does NOT replace the SHA/exact-quote judge below.
-        formato = _hexelion_book.formato_citas(prepared["fuentes"])
+        formato = _hexelion_book.formato_citas(prepared["fuentes"], text)
         result = (_hexelion_proxy.ask(prompt, output_format=formato) if formato
                   else _hexelion_proxy.ask(prompt))
         if result.get("estado") != "MEASURED":

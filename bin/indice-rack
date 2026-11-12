@@ -2,7 +2,8 @@
 """indice-rack · builds Hexelion's rack + GitHub index (read only everywhere).
 
 Sources: docs/ and odd/ of PreceptorOS and preceptoros-web as they stand on origin/main (read
-from the local git stores, no checkout), p0x mente/ propuestas/ hexelion/ (.md, .txt), and
+from the local git stores, no checkout), p0x mente/ propuestas/ hexelion/ (.md, .txt; nested git clones
+of third-party repositories skipped), the preceptors' handoff notes, one live facts document, and
 GitHub: open + last merged PRs of the house repos, the signature book and the mailboxes.
 Writes ~/.preceptoros/indice/rack.db atomically. A failed source is printed as NO_DATA.
 """
@@ -16,6 +17,7 @@ CASA = Path.home()
 SALIDA = Path(os.environ.get("PRECEPTOROS_INDICE_RACK", CASA / ".preceptoros" / "indice" / "rack.db"))
 GITS = {"PreceptorOS": CASA / "PreceptorOS", "preceptoros-web": CASA / "preceptoros-web"}
 P0X = CASA / "p0x"
+MEMORIA = CASA / ".claude" / "projects" / "-home-pisky" / "memory"
 DUENO = "piskyRpapalo"
 REPOS = ("PreceptorOS", "preceptoros-web", "roadmap", "p0x", "firmas", "lab")
 BUZONES = (30, 53, 19)
@@ -41,16 +43,54 @@ def desde_git(nombre, raiz):
             yield ("rack: " + nombre + "/" + ruta, ruta, texto, fecha)
 
 
+def clonado(p, tope):
+    """True inside a nested git clone (a third-party repository copied under p0x): 77 % of the index on
+    2026-11-12 came from one such folder, and none of it is about the house."""
+    for d in p.parents:
+        if d == tope or tope not in d.parents:
+            return False
+        if (d / ".git").exists():
+            return True
+    return False
+
+
 def desde_p0x():
     for sub in ("mente", "propuestas", "hexelion"):
         for p in sorted((P0X / sub).rglob("*")):
-            if p.suffix in (".md", ".txt") and p.is_file() and not p.is_symlink() and p.stat().st_size < 400_000:
+            if p.suffix in (".md", ".txt") and p.is_file() and not p.is_symlink() and p.stat().st_size < 400_000 \
+                    and not clonado(p, P0X / sub):
                 try:
                     texto = p.read_text(encoding="utf-8", errors="ignore")
                 except OSError:
                     continue
                 fecha = datetime.datetime.fromtimestamp(p.stat().st_mtime, datetime.timezone.utc).isoformat()
                 yield ("rack: p0x/" + str(p.relative_to(P0X)), p.name, texto, fecha)
+
+
+def desde_memoria():
+    """The preceptors' own handoff notes (auto-memory): what was built, what waits, what failed."""
+    for p in sorted(MEMORIA.glob("*.md")):
+        if p.is_file() and not p.is_symlink() and p.stat().st_size < 65536:
+            fecha = datetime.datetime.fromtimestamp(p.stat().st_mtime, datetime.timezone.utc).isoformat()
+            yield ("rack: memory/" + p.name, p.stem, p.read_text(encoding="utf-8", errors="ignore"), fecha)
+
+
+def desde_hechos():
+    """One short document of live facts read from main (versions, gate commands, HITL heads)."""
+    def main(raiz, ruta):
+        try:
+            return sh("git", "-C", str(raiz), "show", "origin/main:" + ruta)
+        except RuntimeError:
+            return ""
+    prs = []
+    for nombre in ("preceptoros-app", "preceptoros-web", "lab"):
+        for pr in gh("pr", "list", "-R", DUENO + "/" + nombre, "--state", "open", "-L", "30",
+                     "--json", "number,title,headRefOid") or []:
+            prs.append((nombre, pr["number"], pr["title"], pr["headRefOid"]))
+    ahora = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    texto = I.hechos(main(GITS["PreceptorOS"], "interface/sw.js"), main(GITS["PreceptorOS"], "interface/app.html"),
+                     main(GITS["preceptoros-web"], "public/sw.js"), prs, ahora)
+    yield (I.ORIGEN_HECHOS, "House facts", texto, ahora)
 
 
 def gh(*a):
@@ -74,7 +114,8 @@ def desde_github():
 
 
 def todo():
-    fuentes = [(n, desde_git(n, r)) for n, r in GITS.items()] + [("p0x", desde_p0x()), ("github", desde_github())]
+    fuentes = ([("facts", desde_hechos())] + [(n, desde_git(n, r)) for n, r in GITS.items()]
+               + [("p0x", desde_p0x()), ("memory", desde_memoria()), ("github", desde_github())])
     for nombre, gen in fuentes:
         k = 0
         try:

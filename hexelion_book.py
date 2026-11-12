@@ -100,7 +100,7 @@ def construir_prompt(turno, evidencia, panel=None, estilo=None):
             "texto_fuentes_b": source_bytes, "prompt_b": len(prompt_bytes)}, prompt
 
 
-def formato_citas(fuentes):
+def formato_citas(fuentes, pregunta=None):
     """Constrain generation to short, verbatim fragments of already-verified sources.
 
     This does not validate a model response: verificar_citas is still mandatory.
@@ -110,12 +110,17 @@ def formato_citas(fuentes):
     if not isinstance(fuentes, list) or not fuentes:
         return None
     ids, quotes = [], []
+    asked = _stems(pregunta) if isinstance(pregunta, str) else set()
     for fuente in fuentes[:MAX_SOURCES]:
         if type(fuente) is not dict or type(fuente.get("id")) is not int or not isinstance(fuente.get("texto"), str):
             return None
         ids.append(fuente["id"])
         propios = 0
-        for sentence in re.split(r"(?<=[.!?])\s+|\n+", fuente["texto"]):
+        sentences = re.split(r"(?<=[.!?])\s+|\n+", fuente["texto"])
+        # The sentences that hold a word of the question come first (stable order otherwise): the 4 candidate
+        # slots used to go to a source's opening lines, so the line that answered was often not on the list.
+        sentences.sort(key=lambda sentence: 0 if asked and _stems(sentence) & asked else 1)
+        for sentence in sentences:
             # Preserve original whitespace between words so each emitted piece
             # remains an exact substring of its SHA-verified source.
             current = ""
