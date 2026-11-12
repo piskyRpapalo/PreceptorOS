@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 MAX_AGENTS = 12
-_LIMIT = {"agents": 8192, "wbr": 4096, "mbr": 4096}
+_LIMIT = {"agents": 8192, "wbr": 4096, "mbr": 4096, "receipts": 8320}
 _ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,39}$")
 _SHA = re.compile(r"^[0-9a-f]{64}$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$")
@@ -129,6 +129,36 @@ def _report(obj, name, now):
             "measured_at": obj["measured_at"], "receipt_sha256": sha}
 
 
+def _receipts(obj, now):
+    """Command receipts (producer: notebook_receipts.py). Every row is re-checked here: fields, its own fingerprint,
+    and its state from `now` (the file's state was true when written, not now). A receipt says a command ran and how
+    it ended; it never says the output was right."""
+    import notebook_receipts as P
+    if not isinstance(obj, dict) or obj.get("schema") != P.SCHEMA or not isinstance(obj.get("receipts"), list):
+        return [], "schema_invalid"
+    rows = []
+    for raw in obj["receipts"][-P.MAX_RECEIPTS:]:
+        if not isinstance(raw, dict):
+            return [], "receipt_invalid"
+        record = {"measured_at": raw.get("measured_at"), "tool": raw.get("tool"), "cmd_sha": raw.get("cmd_sha")}
+        if (P._utc(record["measured_at"]) is None or not isinstance(record["tool"], str)
+                or not P._TOOL.fullmatch(record["tool"]) or not isinstance(record["cmd_sha"], str)
+                or not P._CMD_SHA.fullmatch(record["cmd_sha"])):
+            return [], "receipt_invalid"
+        for name, (low, high) in P._INTS.items():
+            value = raw.get(name)
+            if type(value) is not int or not low <= value <= high:
+                return [], "receipt_invalid"
+            record[name] = value
+        record["result"] = "ok" if record["rc"] == 0 else "failed"
+        if raw.get("result") != record["result"] or raw.get("receipt_sha256") != P._digest(record):
+            return [], "receipt_fingerprint_mismatch"
+        record["receipt_sha256"] = raw["receipt_sha256"]
+        record["status"], record["cause"] = P._state(record, now, frozenset())
+        rows.append(record)
+    return rows, None if rows else "no_valid_receipt"
+
+
 def read(root, now=None):
     """Sanitized projection for the APP. No process-live or signing claims."""
     now = now or dt.datetime.now(dt.timezone.utc)
@@ -142,7 +172,10 @@ def read(root, now=None):
         if obj is None:
             report["cause"] = error
         reports.append(report)
+    receipts_obj, receipts_error = _load(directory, "receipts")
+    receipts, receipts_cause = _receipts(receipts_obj, now) if receipts_obj is not None else ([], receipts_error)
     return {"schema": "preceptoros.notebook-readonly/0",
             "observed_at": now.isoformat().replace("+00:00", "Z"),
             "agents": agents, "agents_status": "DECLARADO" if agents_obj is not None and agent_cause is None else "NO_DATA",
-            "agents_cause": agent_cause, "reports": reports}
+            "agents_cause": agent_cause, "reports": reports,
+            "receipts": receipts, "receipts_cause": receipts_cause}
