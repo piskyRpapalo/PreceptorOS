@@ -147,6 +147,7 @@ body {
 .hilo li:has(.quien-private) { border-left-color: var(--acento); }
 .hilo li:has(.quien-rack-cli) { border-left-color: #348ea2; border-left-style: double; border-left-width: 6px; }
 .hilo li:has(.quien-sensor) { border-left-style: dashed; }
+.hilo li:has(.quien-door) { border-left-style: dashed; border-left-color: var(--stop); }
 .hilo li:has(.quien-unknown) { border-left-style: dotted; border-left-color: var(--stop); }
 .conv-destinos { margin: 0 0 .4rem; font-size: .75rem; }
 

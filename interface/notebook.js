@@ -168,14 +168,62 @@
         xList.append(c);
       } else xList.append(card(t.receipts, "NO_DATA", notes ? notes.receiptsCause || "no_valid_receipt" : "notebook_endpoint_unavailable"));
     }
+    await loadTurns("notebook-turns", "notebook-turns-status", 12);
     status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
     button.disabled = false;
+  }
+  /* What happened to each request (meta-harness 01). One projection from /api/hexelion/turnos feeds the screen, the
+   * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
+   * machine state, and the status line speaks only when the summary changed (no announcement on every refresh). */
+  const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
+  function projectTurns(raw) {
+    if (!raw || raw.schema !== "preceptoros.hexelion-turns/1" || !Array.isArray(raw.turns)) return null;
+    return {
+      state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80),
+      turns: raw.turns.filter(x => x && typeof x === "object" && Number.isSafeInteger(x.n)).slice(0, 12).map(x => ({
+        n: x.n, state: turnStates.includes(x.state) ? x.state : "NO_DATA", asked: clean(x.asked_at, 24),
+        by: clean(x.asked_by_name, 24), to: clean(x.to_name, 24), question: clean(x.question, 160),
+        sentence: clean(x.sentence, 200), next: clean(x.next, 160), who: clean(x.answered_by_name, 24),
+        evidence: clean(x.evidence, 60), cause: clean(x.cause, 80), answer: Number.isSafeInteger(x.answer_n) ? x.answer_n : null
+      }))
+    };
+  }
+  function turnCard(x) {
+    const when = x.asked.replace("T", " ").replace("Z", " UTC");
+    const c = card(x.by + " asked " + x.to + " · " + when, x.state, x.sentence);
+    c.dataset.n = String(x.n); c.dataset.state = x.state;
+    c.append(elem("p", "notebook-fact", "«" + x.question + "»"));
+    field(c, "Answered by", x.who || "nobody recorded");
+    field(c, "Evidence", x.evidence || "none");
+    if (x.cause) field(c, "Cause", x.cause);
+    field(c, "Thread", "message " + x.n + (x.answer ? " → " + x.answer : ""));
+    c.append(elem("p", "notebook-fact notebook-next", x.next));
+    return c;
+  }
+  const spoken = {};
+  async function loadTurns(listId, statusId, limit) {
+    const list = document.getElementById(listId), status = document.getElementById(statusId);
+    if (!list) return null;
+    let p = null;
+    try { p = projectTurns(await request("/api/hexelion/turnos")); } catch { p = null; }
+    list.replaceChildren();
+    let summary;
+    if (!p) summary = "NO_DATA: the requests could not be read (the app server did not answer).";
+    else if (!p.turns.length) summary = "NO_DATA: " + (p.cause || "no request in the shared thread yet");
+    else {
+      p.turns.slice(0, limit).forEach(x => list.append(turnCard(x)));
+      const last = p.turns[0];
+      summary = "Last request: " + last.by + " asked " + last.to + ". " + last.sentence;
+    }
+    if (!p || !p.turns.length) list.append(card("Requests", "NO_DATA", summary));
+    if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
+    return p;
   }
   function mount() {
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, loadTurns });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();

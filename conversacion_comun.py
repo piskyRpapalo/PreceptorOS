@@ -46,7 +46,8 @@ DESTINATIONS = (
 )
 BY_ID = {d["id"]: d for d in DESTINATIONS}
 # Voices that speak in the thread but are not addressed: the person, and local tools that are not a model.
-SPEAKERS = {"soberano": ("You", "person"), "orquestador": ("Local sensor", "sensor")}
+SPEAKERS = {"soberano": ("You", "person"), "orquestador": ("Local sensor", "sensor"),
+            "hexelion-door": ("Hexelion door", "door")}
 
 
 def _age_seconds(stamp, now):

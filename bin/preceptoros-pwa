@@ -84,6 +84,7 @@ import team as _team
 import pr_blockers as _pr_blockers
 import notebook_read as _notebook_read
 import conversacion_comun as _conversacion
+import turnos_hexelion as _turnos
 import indice_rack as _indice_rack
 AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -507,6 +508,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._json(200, _notebook_read.read(_casa.raiz()))
         if ruta == "/api/conversacion":
             return self._conversacion_leer()
+        if ruta == "/api/hexelion/turnos":
+            return self._turnos_leer()
         if ruta == "/api/team":
             return self._team_read()
         if ruta == "/api/hitl":
@@ -1111,6 +1114,14 @@ class PWA(BaseHTTPRequestHandler):
         now = datetime.datetime.now(datetime.timezone.utc)
         return self._json(200, _conversacion.project(lectura, now, since=max(0, since)))
 
+    def _turnos_leer(self):
+        """What happened to each request (META-HARNESS-01): read-only, this machine only, from the shared thread."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"state": "NO_DATA", "cause": "loopback_only"})
+        lectura = _canales.lee(_conversacion.THREAD, 0, base=_casa.raiz())
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return self._json(200, _turnos.project(lectura, now))
+
     def _conversacion_enviar(self):
         """The person addresses one rack preceptor. The message goes to the shared thread with `para`; nobody is
         woken and no reply is promised: the recipient reads the thread on its own turn. Never authority."""
@@ -1152,7 +1163,16 @@ class PWA(BaseHTTPRequestHandler):
 
     def _hexelion_chat(self):
         """Append the person's turn, then proxy one bounded local station call."""
+        turno = {"n": None}   # the question's number in the shared thread, once it is written there
+
         def no_data(cause, code=503):
+            # A question that got no answer leaves a receipt in the thread (META-HARNESS-01), written by the door,
+            # never in Hexelion's voice: Notebook and Lab can then say what happened instead of guessing.
+            if isinstance(turno["n"], int):
+                try:
+                    _canales.di_recibo_puerta("orquesta", turno["n"], cause, base=_casa.raiz())
+                except _canales.CanalRechazado:
+                    pass
             return self._json(code, {"estado": "NO_DATA", "causa": cause,
                                      "respuesta": {"estado": "NO_DATA", "causa": cause}})
         # Two doors. The person's window carries a same-host Origin; a rack CLI agent is loopback with NO Origin
@@ -1202,15 +1222,18 @@ class PWA(BaseHTTPRequestHandler):
             if voz is None:
                 if not persona:   # a CLI without a voice never speaks as the person
                     return no_data("local_origin_required", 403)
-                _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
+                asked = _canales.di_soberano("orquesta", text.strip(), base=_casa.raiz())
             elif (voz in AGENT_VOICES and self._es_loopback(self.client_address[0])
                   and not self.headers.get("Origin")):
                 # A CLI agent on this rack (Claude, Codex…) asks in its own voice; never the person's.
-                _canales.di("orquesta", voz, text.strip(), rol="rack CLI agent", base=_casa.raiz())
+                asked = _canales.di("orquesta", voz, text.strip(), rol="rack CLI agent", base=_casa.raiz())
             else:
                 return no_data("agent_voice_refused", 403)
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
+        if isinstance(asked, dict) and isinstance(asked.get("n"), int):
+            turno["n"] = asked["n"]
+        pregunta = {"pregunta_n": turno["n"]} if turno["n"] is not None else {}
         # Exact sensor-intent queries use the local measurement tool, never
         # the station model. Keep model citations mandatory in the other path.
         if _energia_intencion.es_consulta(text.strip()):
@@ -1229,7 +1252,7 @@ class PWA(BaseHTTPRequestHandler):
             try:
                 _canales.di("orquesta", "orquestador", lectura["texto"],
                             sello="DECLARADO", rol="Local energy sensor (not model)",
-                            maquina={"via": "local_energy_tool", "esquema": lectura["esquema"],
+                            maquina={**pregunta, "via": "local_energy_tool", "esquema": lectura["esquema"],
                                      "estado": lectura["estado"]}, base=_casa.raiz())
             except _canales.CanalRechazado:
                 return no_data("thread_append_refused")
@@ -1270,7 +1293,7 @@ class PWA(BaseHTTPRequestHandler):
         try:
             _canales.di("orquesta", "hexelion", answer.strip(), sello="DECLARADO",
                         rol="Hexelion local station",
-                        maquina={"modelo": model, "ms": duration, "via": "loopback station",
+                        maquina={**pregunta, "modelo": model, "ms": duration, "via": "loopback station",
                                  "fuentes": citations},
                         base=_casa.raiz())
         except _canales.CanalRechazado:

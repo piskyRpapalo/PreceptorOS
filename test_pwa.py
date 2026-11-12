@@ -999,7 +999,7 @@ class TestVistaLab(unittest.TestCase):
         app = pathlib.Path(AQUI, "interface", "app.js").read_text(encoding="utf-8")
         panel = pathlib.Path(AQUI, "interface", "app.html").read_text(encoding="utf-8")
         self.assertIn('fetch("/api/lab", { cache: "no-store" })', app)
-        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack()]),', app)   # common header table
+        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack(),', app)   # common header table
         self.assertIn("modelos.mini", app)
         self.assertIn("modelos.grande", app)
         self.assertIn("modelos.eleccion", app)
@@ -1657,7 +1657,7 @@ class LabRackPuertaContrato(unittest.TestCase):
         js = (pathlib.Path(AQUI) / "interface/app.js").read_text(encoding="utf-8")
         self.assertIn('id="lab-rack-enlace"', html)
         self.assertIn('id="lab-rack-enlace" href="#"', html)
-        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack()]),', js)
+        self.assertIn('lab: () => Promise.all([cargarLab(), cargarLabRack(),', js)
         self.assertIn('cargarPanel(paneles[panelActual].id);', js)
         self.assertIn('fetch("/api/lab-rack", { cache: "no-store" })', js)
         self.assertIn('d.estado !== "MEASURED"', js)

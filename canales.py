@@ -244,6 +244,19 @@ def di_soberano(canal, texto, sello="DECLARADO", base=None, para=None):
     return _anexar(canal, VOZ_RESERVADA, texto, sello, "persona", maquina, base)
 
 
+VOZ_PUERTA = "hexelion-door"
+
+
+def di_recibo_puerta(canal, pregunta_n, causa, base=None):
+    """The Hexelion door records that a question got no answer, and why. Never Hexelion's voice, never a model:
+    the actor is the door itself, the seal is NO_DATA, and the cause is a short code (slug-like) from the door."""
+    if type(pregunta_n) is not int or pregunta_n <= 0:
+        raise CanalRechazado("`pregunta_n` es el n de la pregunta")
+    causa = re.sub(r"[^a-z0-9_;.:-]+", "_", str(causa or "").lower())[:80].strip("_") or "cause_not_given"
+    return _anexar(canal, VOZ_PUERTA, "No answer · " + causa, "NO_DATA", "Hexelion door (not a model)",
+                   {"via": "hexelion_door", "pregunta_n": pregunta_n, "causa": causa}, base)
+
+
 def _filas(base, sql, args):
     destino = ruta_canal(base)
     if not destino.is_file():
