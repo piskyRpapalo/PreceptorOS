@@ -8,7 +8,7 @@
     Object.freeze({ id: "cuaderno", panel: "cuaderno", titulo: "Cuaderno" }),
     Object.freeze({ id: "lab", panel: "lab", titulo: "Lab" }),
     Object.freeze({ id: "harness", panel: "harness", titulo: "Harness" }),
-    Object.freeze({ id: "puerta", panel: "puerta", titulo: "3DFabrik" }),
+    Object.freeze({ id: "puerta", panel: "puerta", titulo: "3DFabrika" }),
     Object.freeze({ id: "modelos", panel: "modelos", titulo: "Modelos" }),
     Object.freeze({ id: "ajustes", panel: "ajustes", titulo: "Ajustes" }),
   ]);
