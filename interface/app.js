@@ -510,7 +510,7 @@ const textos = {
     nodo_export_titulo: 'هوية العقدة', nodo_export_ayuda: 'اختر وثيقة وقّعتها مسبقًا. هذا التطبيق لا يوقّع؛ لا يتم الإرسال إلا بعد ضغطك.', nodo_export_archivo: 'وثيقة موقعة (.json)', nodo_export_boton: 'إرسال إلى البوابة', nodo_export_espera: 'لم تُحدد وثيقة. لم يُرسل شيء.', nodo_export_enviando: 'جارٍ التحقق من الوثيقة الموقعة وإرسالها…', nodo_export_ok: 'استلمت البوابة الحزمة.', nodo_export_error: 'لم يتأكد الإرسال. تحقق من الوثيقة والاتصال.', nodo_export_causas: {cuerpo_invalido: 'ملف الوثيقة أو تنسيقها غير صالح.', firma_no_disponible: 'لا يتوفر توقيع يمكن التحقق منه؛ أحضر وثيقة موقعة.', firma_rechazada: 'تعذر التحقق من توقيع الوثيقة.', plan_no_coincide: 'لا تتطابق الوثيقة مع الخطة الموقعة.', aduana_rechazo: 'رفضت البوابة الطلب.', aduana_no_disponible: 'تعذر الوصول إلى البوابة.', paquete_invalido: 'لا تحتوي الاستجابة على حزمة صالحة.', general: 'ملف الوثيقة أو تنسيقها غير صالح.', clave_publica_no_configurada: 'لم يُضبط المفتاح العام في البوابة.', plan_firmado_no_configurado: 'لم تُضبط خطة موقعة في البوابة.', registro_no_disponible: 'سجل التدقيق غير متاح؛ لم يُسجل شيء.', firma_cedula_rechazada: 'تعذر التحقق من توقيع الوثيقة.', cedula_mal_formada: 'حقول الوثيقة غير صالحة.', cuerpo_fuera_de_rango: 'تتجاوز الوثيقة الحجم المسموح.'}
   },
 };
-let t = textos.es;
+let t = textos.en;
 // Shared, already selected locale for the independent local-energy card.
 window.PreceptorEnergyText = (key) =>
   typeof t[key] === "string" ? t[key] : textos.en[key] || key;
@@ -548,13 +548,10 @@ function pintarEstaticos() {
 }
 
 async function fijarIdioma() {
-  try {
-    const r = await fetch("/api/perfil");
-    const d = await r.json();
-    const l = (d.campos || d).language || d.idioma;
-    // Nueve lenguas desde el 2026-09-23; una que no hay, al castellano de fabrica.
-    t = textos[l] || textos.en;
-  } catch { /* sin respuesta, se queda el de fabrica */ }
+  // APP-only English presentation freeze (2026-11-11): the profile may
+  // retain a historical language preference, but no live app renderer
+  // depends on that request or selects a non-English dictionary.
+  t = textos.en;
   pintarEstaticos();
   modelosWeb.refreshLabels();
   actualizarGuionZona();

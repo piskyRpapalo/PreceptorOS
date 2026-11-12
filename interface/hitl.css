@@ -25,3 +25,8 @@
 .hitl-fila[aria-expanded="true"]{outline:3px solid currentColor;outline-offset:2px}
 .hitl-resumen{white-space:pre-wrap;overflow-wrap:anywhere;max-height:50vh;overflow:auto}
 .hitl-vigia{font-size:14px;font-weight:600}
+
+/* Why a PR waits, and the optional question to Hexelion. */
+.hitl-why { font-weight: 600; }
+.hitl-ask { min-height: 44px; margin: 6px 0; }
+.hitl-answer:empty { display: none; }
