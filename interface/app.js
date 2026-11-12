@@ -617,7 +617,8 @@ const cargadores = {
   gobierno: () => { const b = $("hitl-recargar"); if (b && !b.disabled) b.click(); },
   cuaderno: () => window.PreceptorNotebook && window.PreceptorNotebook.load(),
   lab: () => Promise.all([cargarLab(), cargarLabRack(),
-    window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("lab-turno", "lab-turno-status", 1) : null]),
+    window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("lab-turno", "lab-turno-status", 1) : null,
+    window.PreceptorNotebook ? window.PreceptorNotebook.loadBench("lab-bench", "lab-bench-status") : null]),
   harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null]),
   ajustes: async () => {   // the public gate lives in Settings since 2026-11-11
     $("ajustes-estado").textContent = "Reading the local node…";

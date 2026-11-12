@@ -99,8 +99,10 @@
 // 2026-11-12 (common panel header): every panel opens with title, status and refresh; app.js v24, app.css v17. Cache v165.
 // 2026-11-12 (meta-harness 01): Notebook and Lab say what happened to each request (notebook.js v3), the door's
 // no-answer receipts have their own identity (conversacion.js v2). app.js v25, app.css v18. Cache v166.
-const Cache = "preceptoros-armazon-v166";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=18", "/app.js?v=25", "/notebook.js?v=3", "/conversacion.js?v=2", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-12 (lab bench reader): Lab and Notebook show LAB bench-repro-01-v1 runs re-checked by lab_bench.py
+// (notebook.js v4, app.js v26). Cache v167.
+const Cache = "preceptoros-armazon-v167";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=18", "/app.js?v=26", "/notebook.js?v=4", "/conversacion.js?v=2", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

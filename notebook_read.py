@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 MAX_AGENTS = 12
-_LIMIT = {"agents": 8192, "wbr": 4096, "mbr": 4096, "receipts": 8320}
+_LIMIT = {"agents": 8192, "wbr": 4096, "mbr": 4096, "receipts": 8320, "bench": 8448}
 _ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,39}$")
 _SHA = re.compile(r"^[0-9a-f]{64}$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$")
@@ -159,6 +159,18 @@ def _receipts(obj, now):
     return rows, None if rows else "no_valid_receipt"
 
 
+def _bench(obj):
+    """Lab benchmark runs (producer: lab_bench.py). The projection's own fingerprint is recomputed; the runs keep
+    the producer's checks (receipt fingerprint and comparison key, each RECHECKED or MISMATCH)."""
+    import lab_bench as B
+    if not isinstance(obj, dict) or obj.get("schema") != B.SCHEMA or not isinstance(obj.get("runs"), list):
+        return [], "schema_invalid", None
+    if obj.get("projection_sha256") != B.projection_fingerprint(obj["runs"]):
+        return [], "projection_fingerprint_mismatch", None
+    runs = [r for r in obj["runs"] if isinstance(r, dict) and isinstance(r.get("sentence"), str)][-B.MAX_RUNS:]
+    return runs, None if runs else "no_valid_bench_receipt", obj.get("observed_at")
+
+
 def read(root, now=None):
     """Sanitized projection for the APP. No process-live or signing claims."""
     now = now or dt.datetime.now(dt.timezone.utc)
@@ -174,8 +186,11 @@ def read(root, now=None):
         reports.append(report)
     receipts_obj, receipts_error = _load(directory, "receipts")
     receipts, receipts_cause = _receipts(receipts_obj, now) if receipts_obj is not None else ([], receipts_error)
+    bench_obj, bench_error = _load(directory, "bench")
+    bench, bench_cause, bench_at = _bench(bench_obj) if bench_obj is not None else ([], bench_error, None)
     return {"schema": "preceptoros.notebook-readonly/0",
             "observed_at": now.isoformat().replace("+00:00", "Z"),
             "agents": agents, "agents_status": "DECLARADO" if agents_obj is not None and agent_cause is None else "NO_DATA",
             "agents_cause": agent_cause, "reports": reports,
-            "receipts": receipts, "receipts_cause": receipts_cause}
+            "receipts": receipts, "receipts_cause": receipts_cause,
+            "bench": bench, "bench_cause": bench_cause, "bench_observed_at": bench_at}

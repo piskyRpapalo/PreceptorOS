@@ -169,6 +169,7 @@
       } else xList.append(card(t.receipts, "NO_DATA", notes ? notes.receiptsCause || "no_valid_receipt" : "notebook_endpoint_unavailable"));
     }
     await loadTurns("notebook-turns", "notebook-turns-status", 12);
+    await loadBench("notebook-bench", "notebook-bench-status", notesResult.status === "fulfilled" ? notesResult.value : null);
     status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
     button.disabled = false;
   }
@@ -201,6 +202,42 @@
     return c;
   }
   const spoken = {};
+  /* Lab benchmark runs (LAB bench-repro-01-v1, via lab_bench.py). Each card is one execution: the runner's
+   * sentence, then the checks the app re-did and the fields nobody measured, each with its cause. */
+  function benchCard(r) {
+    const c = card((clean(r.model, 40) || "NO_DATA") + " · " + clean(r.date, 25).replace("T", " ").slice(0, 16) + " UTC",
+      clean(r.state, 12) || "NO_DATA", clean(r.sentence, 420));
+    c.dataset.receipt = clean(r.receipt, 16);
+    field(c, "Receipt fingerprint", clean(r.fingerprint, 12) + " · " + clean(r.receipt, 16));
+    field(c, "Comparison key (controls only)", clean(r.comparison_key, 12));
+    field(c, "Source", "commit " + (clean(r.commit, 12) || "NO_DATA") + " · runner " + (clean(r.runner, 12) || "NO_DATA"));
+    field(c, "Model", (clean(r.model_digest, 12) || "NO_DATA") + (r.model_stable === true ? " · stable across samples" : " · stability NO_DATA"));
+    (Array.isArray(r.samples) ? r.samples : []).slice(0, 4).forEach((x) => field(c, "Sample " + (x.attempt || "?"),
+      (x.tokens_per_s == null ? "NO_DATA" : Number(x.tokens_per_s).toFixed(1) + " tokens/s") + " · wall " +
+      (x.wall_ms == null ? "NO_DATA" : x.wall_ms + " ms") + " · load " + (x.load_ms == null ? "NO_DATA" : x.load_ms + " ms")));
+    const missing = (Array.isArray(r.not_measured) ? r.not_measured : []).map((m) => clean(m.field, 24) + " (" + clean(m.cause, 60) + ")");
+    if (missing.length) field(c, "Not measured", missing.join(", "));
+    return c;
+  }
+  async function loadBench(listId, statusId, raw) {
+    const list = document.getElementById(listId), status = document.getElementById(statusId);
+    if (!list) return null;
+    let d = raw;
+    if (!d) { try { d = await request("/api/notebook"); } catch { d = null; } }
+    const runs = d && Array.isArray(d.bench) ? d.bench.filter((r) => r && typeof r === "object") : [];
+    list.replaceChildren();
+    let summary;
+    if (!d) summary = "NO_DATA: the benchmark reading did not answer (app server).";
+    else if (!runs.length) summary = "NO_DATA: " + (clean(d.bench_cause, 72) || "no benchmark receipt read yet");
+    else {
+      runs.slice().reverse().forEach((r) => list.append(benchCard(r)));
+      summary = runs.length + " run" + (runs.length === 1 ? "" : "s") + " from the Lab, fingerprints re-checked here. Read " +
+        clean(d.bench_observed_at, 24).replace("T", " ").replace("Z", " UTC") + ". Each card says what was not measured.";
+    }
+    if (!runs.length) list.append(card("Benchmarks", "NO_DATA", summary));
+    if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
+    return runs;
+  }
   async function loadTurns(listId, statusId, limit) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
@@ -223,7 +260,7 @@
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, loadTurns });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, loadTurns, loadBench });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();
