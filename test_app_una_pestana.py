@@ -81,7 +81,8 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertIn('Number.isSafeInteger(cuenta.turnos)', js)
         self.assertIn('"NO_DATA: memory_counts_not_verified"', js)
         self.assertNotIn('$("estado").textContent = d.motor', js)
-        self.assertEqual(js.count('if (!$("dicho").value.trim()) $("dicho").value = escrito;'), 2)
+        # Three failure paths keep the draft: station error, transport error, and an addressed send that was not delivered.
+        self.assertEqual(js.count('if (!$("dicho").value.trim()) $("dicho").value = escrito;'), 3)
 
     def test_tema_instalado_coincide_con_cara_crema(self):
         html = (RAIZ / "interface/app.html").read_text(encoding="utf-8")

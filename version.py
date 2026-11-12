@@ -37,6 +37,7 @@ ARMAZON = (
     "interface/transicion.js",
     "interface/sting.js",
     "interface/insertor.js",
+    "interface/conversacion.js",
     "interface/compass.js", "interface/sw.js",
     "interface/manifest.json", "assets/compass.svg",
     "interface/creation_publish.js",

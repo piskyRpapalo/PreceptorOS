@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png?v=2">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png?v=2">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=15">
+<link rel="stylesheet" href="/app.css?v=16">
 <link rel="stylesheet" href="/hitl.css?v=5">
 </head>
 <body>
@@ -66,7 +66,8 @@
 
   <!-- hablar -->
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Hablar">
-    <ol class="hilo" id="hilo" aria-live="polite"></ol>
+    <p class="pie conv-destinos" id="conv-destinos" role="status" aria-live="polite">NO_DATA: the shared thread has not been read yet.</p>
+    <ol class="hilo" id="hilo" aria-live="polite" aria-label="Shared thread: you, Hexelion and the rack preceptors"></ol>
   </section>
 
   <!-- frontera -->
@@ -384,7 +385,7 @@
   <p id="ayuda-efimera-nota"></p>
 </section>
 <form class="redactar redactar-anclado" id="form-chat" aria-describedby="insertor-instrucciones">
-  <p class="sr" id="insertor-instrucciones" data-i18n="insertor_instrucciones">Use an @panel tag to route a question, or @ayuda for local temporary help.</p>
+  <p class="sr" id="insertor-instrucciones" data-i18n="insertor_instrucciones">Use an @panel tag to route a question, @ayuda for local temporary help, or @name to address a preceptor in the shared thread.</p>
   <label class="sr" for="dicho" data-i18n="lo_que_dices">Lo que dices</label>
   <textarea id="dicho" rows="2" maxlength="600" data-i18n-ph="ph_dicho" placeholder="Escribe tu respuesta…"></textarea>
   <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
@@ -395,12 +396,13 @@
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
 <script src="/modelos_web.js?v=3"></script>
-<script src="/insertor.js?v=1"></script>
+<script src="/insertor.js?v=2"></script>
+<script src="/conversacion.js?v=1"></script>
 <script src="/acho_motion.js?v=2"></script>
 <script src="/team.js?v=2"></script>
 <script src="/hitl.js?v=6"></script>
 <script src="/notebook.js?v=1"></script>
-<script src="/app.js?v=22"></script>
+<script src="/app.js?v=23"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>

@@ -83,6 +83,7 @@ import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
 import pr_blockers as _pr_blockers
 import notebook_read as _notebook_read
+import conversacion_comun as _conversacion
 import indice_rack as _indice_rack
 AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -267,6 +268,7 @@ ESTATICOS = {
     "/acho_motion.js": ("acho_motion.js", "application/javascript; charset=utf-8"),
     "/team.js": ("team.js", "application/javascript; charset=utf-8"),
     "/notebook.js": ("notebook.js", "application/javascript; charset=utf-8"),
+    "/conversacion.js": ("conversacion.js", "application/javascript; charset=utf-8"),
     "/firmas.js": ("firmas.js", "application/javascript; charset=utf-8"),
     "/hitl.js": ("hitl.js", "application/javascript; charset=utf-8"),
     "/hitl.css": ("hitl.css", "text/css; charset=utf-8"),
@@ -383,7 +385,7 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook")):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook") or ruta == "/api/conversacion"):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -503,6 +505,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._harness_leer()
         if ruta == "/api/notebook":
             return self._json(200, _notebook_read.read(_casa.raiz()))
+        if ruta == "/api/conversacion":
+            return self._conversacion_leer()
         if ruta == "/api/team":
             return self._team_read()
         if ruta == "/api/hitl":
@@ -641,6 +645,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._creacion_voz()
         if ruta == "/api/hexelion/chat":
             return self._hexelion_chat()
+        if ruta == "/api/conversacion":
+            return self._conversacion_enviar()
         if ruta in ("/api/hexelion/search", "/api/hexelion/decision"):
             return self._hexelion_consulta(ruta)
         if ruta == "/api/orquestador":
@@ -1092,6 +1098,57 @@ class PWA(BaseHTTPRequestHandler):
         except (OSError, ValueError):
             return self._json(503, {"estado": "NO_DATA", "causa": "lab_shelf_unwritable"})
         return self._json(200, {"estado": "PROPUESTA", "ficha": ficha, "en_el_lab": len(filas)})
+
+    def _conversacion_leer(self):
+        """The shared thread with explicit identities (APP-ROUTER-01). Read-only; this machine only."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"state": "NO_DATA", "cause": "loopback_only"})
+        try:
+            since = int((self._consulta().get("desde") or ["0"])[0])
+        except ValueError:
+            return self._json(400, {"state": "NO_DATA", "cause": "since_not_integer"})
+        lectura = _canales.lee(_conversacion.THREAD, 0, base=_casa.raiz())
+        now = datetime.datetime.now(datetime.timezone.utc)
+        return self._json(200, _conversacion.project(lectura, now, since=max(0, since)))
+
+    def _conversacion_enviar(self):
+        """The person addresses one rack preceptor. The message goes to the shared thread with `para`; nobody is
+        woken and no reply is promised: the recipient reads the thread on its own turn. Never authority."""
+        def refuse(code, cause):
+            return self._json(code, {"state": "NO_DATA", "cause": cause})
+        if not self._nodo_local_autorizado():
+            return refuse(403, "local_origin_required")
+        if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+            return refuse(415, "json_required")
+        try:
+            size = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            size = 0
+        if not 0 < size < 1024:
+            self.close_connection = True
+            return refuse(413, "request_size")
+        raw = self.rfile.read(size)
+        try:
+            def unique(pairs):
+                out = {}
+                for key, value in pairs:
+                    if key in out:
+                        raise ValueError()
+                    out[key] = value
+                return out
+            data = json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=unique)
+        except (UnicodeError, ValueError, RecursionError):
+            return refuse(400, "request_invalid")
+        para, texto, cause = _conversacion.check_send(data)
+        if cause:
+            return refuse(409 if cause in ("no_transport", "use_station_door") else 400, cause)
+        try:
+            m = _canales.di_soberano(_conversacion.THREAD, texto, base=_casa.raiz(), para=para)
+        except _canales.CanalRechazado:
+            return refuse(503, "thread_append_refused")
+        return self._json(200, {"state": "DELIVERED_TO_THREAD", "n": m["n"], "to": para,
+                                "delivery": _conversacion.BY_ID[para]["transport"],
+                                "reply": "NO_DATA: not promised; the recipient reads the thread on its own turn"})
 
     def _hexelion_chat(self):
         """Append the person's turn, then proxy one bounded local station call."""

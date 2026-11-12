@@ -822,6 +822,7 @@ async function estado() {
 function burbuja(texto, clase) {
   const li = document.createElement("li");
   if (clase) li.className = clase;
+  li.classList.add("local");   // drawn by this window; the shared thread's copy replaces it (conversacion.js)
   li.textContent = texto;
   $("hilo").appendChild(li);
   li.scrollIntoView({ block: "end" });
@@ -864,11 +865,32 @@ $("form-chat").addEventListener("submit", async (e) => {
   e.preventDefault();
   const escrito = $("dicho").value.trim();
   if (!escrito) return;
-  const ruta = insertor.rutear(escrito, paneles.map((fila) => fila.id), paneles[panelActual].id);
+  const conversacion = window.PreceptorConversacion;
+  const ruta = insertor.rutear(escrito, paneles.map((fila) => fila.id), paneles[panelActual].id,
+    conversacion ? conversacion.routes() : undefined);
   if (ruta.estado !== "medido") {
-    $("estado").textContent = `${t.zona_no_data} · ${ruta.causa}`;
+    $("estado").textContent = ruta.para
+      ? `@${ruta.para} · NO_DATA · ${ruta.causa === "no_transport" ? "no authorized connector on this node; nothing was sent" : "write the message after the name"}`
+      : `${t.zona_no_data} · ${ruta.causa}`;
     return;
   }
+  if (ruta.carril === "preceptor" && ruta.ruta === "thread") {
+    // A rack preceptor: the message goes to the shared thread, addressed. It reads it on its own turn.
+    $("dicho").value = "";
+    burbuja(escrito, "mio");
+    $("enviar").disabled = true;
+    const sent = await conversacion.send(ruta.para, ruta.texto);
+    $("enviar").disabled = false;
+    if (sent.ok) {
+      $("estado").textContent = `Delivered to the shared thread for ${conversacion.name(ruta.para)} · message ${sent.n} · no reply is promised`;
+      conversacion.sync({ replaceLocal: true });
+    } else {
+      $("estado").textContent = `@${ruta.para} · NO_DATA · ${sent.cause} · nothing was delivered`;
+      if (!$("dicho").value.trim()) $("dicho").value = escrito;
+    }
+    return;
+  }
+  if (ruta.carril === "preceptor") ruta.carril = "chat";   // @hexelion: the station door below
   if (ruta.carril === "ayuda") {
     $("dicho").value = "";
     abrirAyuda(ruta.panel, ruta.nota);
@@ -938,7 +960,12 @@ $("form-chat").addEventListener("submit", async (e) => {
     if (!$("dicho").value.trim()) $("dicho").value = escrito;
   }
   $("enviar").disabled = false;
+  if (window.PreceptorConversacion) window.PreceptorConversacion.sync({ replaceLocal: true });
 });
+if (window.PreceptorConversacion) {
+  window.PreceptorConversacion.sync();
+  window.PreceptorConversacion.watch($("panel-conversacion"));
+}
 
 /* --- frontera ---------------------------------------------------------- */
 const sw = $("switch");
