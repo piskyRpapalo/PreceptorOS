@@ -85,6 +85,36 @@ The walk runs in headless Chrome against its own server (temporary HOME, fake MC
 - English first paint for the Lab and Harness reading lines; " · Bucles:" became " · loops:".
 - Arrows, Home and End are unchanged (walk step 7).
 
+## ACCESSIBILITY-PROOF (delivered after PANEL-FLOW)
+
+Measured in walk steps 16–19 (headless Chrome, its own server, 2026-11-13):
+
+- **Forced colours:** focus stays visible on the tab, Send, the message box and ↻ (outline `auto` or 3 px solid; no
+  focus ring relies on a box shadow). The Acho mark and the card edges switch to system colours and keep their
+  line pattern.
+- **Larger screens:** at 768×1024, 1440×900 and 1920×1080 there is no sideways scroll, all nine tabs are on screen,
+  and the longest panel paragraph is about 650 px wide.
+- **Source failures** (each reader overridden with http 500). Fixed:
+  - Settings said "Read just now from this node." while both of its readings had failed. Its readers now report the
+    failure, and it says `NO_DATA: 2 of 2 readings did not answer`.
+  - The header said "cannot reach the server" when the server had answered with an error. It now says
+    `NO_DATA: the server answered http 500 without a reading.`
+  - Lab, the Lab rack, Harness and the local gate now read `NO_DATA: …` with their cause, as the Notebook already did.
+  - Spanish under failure is gone: the Boundary's reading messages, the tray, and the rack cause codes
+    `local_connection_unavailable` / `invalid_answer`.
+- **State words:** across the nine panels only the canonical forms appear (`NO_DATA`, `DECLARED`, `OBSERVED`). No
+  second spelling was seen ("NO DATA", "No data").
+- **Missing receipts and UNKNOWN:** the uncertain task fixture (step 11) reads the same in Talk and the Notebook, with
+  its references behind a disclosure. `NO_RESULT_RECORDED` and `OUTCOME_UNKNOWN` use the `uncertain` class
+  (ACHO-EXPRESSION). REFUSED and VERIFIED come from the turn table (`fence`/`exec_fail`, `ok`+ACTED).
+
+Open question for the Mesa (lawful default in brackets): the Boundary's signing flow still speaks Spanish
+(«Firmando…», «No firmado: nada hecho.», «PR espera tu firma», «listo para firmar»). [Left untouched: this is the
+Sovereign's signing wording. Only the reading messages were translated.]
+
+Still NO_DATA: a screen reader in use (Orca or TalkBack: no assistive technology ran) · sound heard on a speaker ·
+an on-screen keyboard on a real phone · a dark scheme (the app declares light only).
+
 ## Levels kept apart
 
 DOM inspection (measured, headless Chrome) ≠ a screen reader in use (NO_DATA) · Web Audio graph ran ≠ sound heard
