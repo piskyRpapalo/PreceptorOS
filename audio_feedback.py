@@ -73,6 +73,8 @@ ACHO_CLASSES = {
     "exec_fail": (3, "STALE"),
     "empty": (3, "NO_DATA"),
     "bridge_down": (4, "NO_DATA"),
+    # It may have happened, and nobody can say: a wavering tone (vibrato) on the highest degree, heard nowhere else.
+    "uncertain": (4, "PROPOSED"),
 }
 
 

@@ -30,8 +30,9 @@ CASES = {
     "exec_fail": [act(ok=False, rc=2)],
     "bridge_down": [turn(msg(2, "hexelion-door", "x", pregunta_n=1, causa="mcp_nativo_missing")),
                     turn(msg(2, "hexelion-door", "x", pregunta_n=1, causa="station_unavailable"))],
-    "empty": [act(ok=True, rc=None), act(ok="true", rc=0),
-              turn(msg(2, "hexelion-door", "x", pregunta_n=1, causa="no_exact_quote_in_sources")),
+    # An action whose receipt does not prove it may still have happened: its own cue, never silence or success.
+    "uncertain": [act(ok=True, rc=None), act(ok="true", rc=0)],
+    "empty": [turn(msg(2, "hexelion-door", "x", pregunta_n=1, causa="no_exact_quote_in_sources")),
               turn(msg(2, "hexelion", "words"))],
     "unanswered": [T.turns([msg(1, "soberano", "q")])[0]],
 }

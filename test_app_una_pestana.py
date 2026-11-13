@@ -80,7 +80,8 @@ class CarcasaUnaPestana(unittest.TestCase):
     def test_talk_no_confunde_motor_antiguo_y_conserva_borrador(self):
         js = (RAIZ / "interface/app.js").read_text(encoding="utf-8")
         self.assertIn('Number.isSafeInteger(cuenta.turnos)', js)
-        self.assertIn('"NO_DATA: memory_counts_not_verified"', js)
+        self.assertIn('"memory_counts_not_verified"', js)
+        self.assertIn('"NO_DATA: " + String((d && d.causa)', js)       # the server's own cause, never "unreachable"
         self.assertNotIn('$("estado").textContent = d.motor', js)
         # Three failure paths keep the draft: station error, transport error, and an addressed send that was not delivered.
         self.assertEqual(js.count('if (!$("dicho").value.trim()) $("dicho").value = escrito;'), 3)

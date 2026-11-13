@@ -125,14 +125,16 @@ class Reader(unittest.TestCase):
         path.unlink()
         self.assertEqual(N.read(self.root, NOW)["bench_cause"], "file_missing")
 
-    def test_views_show_the_same_runs_in_lab_and_notebook(self):
+    def test_runs_have_one_home_in_lab_and_the_notebook_points_there(self):
+        """Visual coherence (2026-11-13): measured runs live in Lab only; the Notebook says where, once."""
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         js = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         app = (ROOT / "interface/app.js").read_text(encoding="utf-8")
-        for ident in ("lab-bench", "lab-bench-status", "notebook-bench", "notebook-bench-status"):
+        for ident in ("lab-bench", "lab-bench-status", "notebook-bench-pointer"):
             self.assertIn('id="%s"' % ident, html)
+        self.assertNotIn('id="notebook-bench"', html)
         self.assertIn('loadBench("lab-bench", "lab-bench-status")', app)
-        self.assertIn('loadBench("notebook-bench", "notebook-bench-status"', js)
+        self.assertNotIn('loadBench("notebook-bench"', js)
         block = js[js.index("function benchCard"):js.index("async function loadTurns")]
         self.assertIn('"Not measured"', block)
         self.assertIn("spoken[statusId] !== summary", block)

@@ -275,10 +275,10 @@ def lee(canal, desde=0, base=None, tope=TOPE_LECTURA):
         filas = _filas(base, "select n, ts, actor, cuerpo_json from eventos where tipo = ?"
                              " order by n", (TIPO,))
     except sqlite3.Error as e:
-        return {"canal": hilo, "estado": "NO_DATA", "causa": f"el canal no se pudo leer ({type(e).__name__})",
+        return {"canal": hilo, "estado": "NO_DATA", "causa": f"channel_unreadable_{type(e).__name__}",
                 "mensajes": [], "corruptas": 0, "ultimo": 0}
     if filas is None:
-        return {"canal": hilo, "estado": "NO_DATA", "causa": "el canal aún no tiene mensajes",
+        return {"canal": hilo, "estado": "NO_DATA", "causa": "channel_has_no_messages",  # a code: every surface words it in English
                 "mensajes": [], "corruptas": 0, "ultimo": 0}
     mensajes, corruptas, ultimo = [], 0, 0
     for n, ts, actor, cj in filas:

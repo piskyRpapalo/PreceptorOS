@@ -958,7 +958,7 @@ class PWA(BaseHTTPRequestHandler):
         except subprocess.TimeoutExpired:
             return 124, "tiempo agotado: comprueba el PR con HITL"
         except OSError as e:
-            return 127, "no se pudo ejecutar HITL: " + type(e).__name__
+            return 127, "HITL could not run: " + type(e).__name__
 
     def _hitl_listar(self):
         if not self._es_loopback(self.client_address[0]):
@@ -1844,9 +1844,15 @@ class PWA(BaseHTTPRequestHandler):
         return self._json(200, paquete)
 
     def _estado(self):
-        with M.abrir(self.server.ruta_db) as c:
-            perfil = M.leer_perfil(c)
-            cuenta = C.recuento(c)
+        # A home without its memory file is a reading with a cause, not a dropped connection: the page must not
+        # say "cannot reach the server" while the server answers every other panel (visual coherence audit).
+        try:
+            with M.abrir(self.server.ruta_db) as c:
+                perfil = M.leer_perfil(c)
+                cuenta = C.recuento(c)
+        except Exception as e:  # sqlite3.OperationalError on a fresh or unreadable home
+            return self._json(200, {"estado": "NO_DATA", "causa": "memory_db_unavailable_" + type(e).__name__,
+                                    "turnos": None})
         motor = _charla.motor_disponible()
         ruta = self.server.modelo
         hay = bool(ruta and os.path.isfile(ruta))

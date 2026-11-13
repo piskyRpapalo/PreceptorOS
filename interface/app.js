@@ -114,15 +114,15 @@ const textos = {
     anidar_no: "could not nest",
     pie_anidar: "What gets saved is the redacted text, never the one you pasted. The filter runs again on the server when saving: this screen does not decide what is clean.",
     chat_sin_cita: "Hexelion read your memory and found no exact quote for that. Try naming what you are looking for.", chat_sin_respuesta: (cause) => "Hexelion did not reply · {cause}".replace("{cause}", cause), chat_edad_nd: "cause unavailable", chat_modelo_nd: "model unconfirmed", chat_modelo: (modelo) => `Hexelion · ${modelo}`, chat_fuente: (id, date, sha) => `Source ${id} · ${date} · SHA-256 ${sha}`,
-    lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "Could not read the local Lab.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_soberano_coder: "Sovereign coder", lab_eleccion: "Selection model",
+    lab_canales_titulo: "Recent channels", lab_modelos_titulo: "Local models", lab_cargando: "Checking the local Lab…", lab_actualizado: "Reading updated.", lab_error: "NO_DATA: the local Lab did not answer.", lab_estado_live: "Available now", lab_estado_stale: "Stale data", lab_estado_ausente: "Unavailable", lab_mensaje_vacio: "Message has no text", lab_causa_vacia: "No cause declared", lab_mini: "Mini orchestrator", lab_grande: "Large orchestrator", lab_soberano_coder: "Sovereign coder", lab_eleccion: "Selection model",
     aria_frontera: "Node boundary",
     cuaderno_consentir: "Consent", cuaderno_retirar: "Withdraw", cuaderno_consentido: "Consented", cuaderno_sin_consentir: "Not consented", cuaderno_recibo_pendiente: "No recent changes", cuaderno_recibo_ok: "Receipt received: turn {id}, {estado}.", cuaderno_recibo_error: "This turn could not be changed.", cuaderno_recibo_red: "No receipt arrived; no changes are confirmed.", cuaderno_sin_texto: "Turn text unavailable", cuaderno_recuento: "{t} turns · {c} consented · {r} corrected",
-    harness_motor: 'Engine: measured cycles', harness_cargando: 'Reading local cycles…', harness_error: 'Could not read local cycles.',
+    harness_motor: 'Engine: measured cycles', harness_cargando: 'Reading local cycles…', harness_error: 'NO_DATA: the local cycles could not be read.',
     harness_frescura_live: (age) => `Updated ${age} ago · live`,
     harness_frescura_stale: (age) => `Stale · ${age} ago`,
     harness_vacio: 'No cycles declared', harness_ultima: 'Last run', harness_proxima: 'Next run', harness_causa: 'Cause', harness_hora_ausente: 'The source did not supply this schedule',
     modelos_cargando: 'Checking local models…', modelos_error: 'Could not read local models.', modelos_live: 'Available now', modelos_stale: 'Stale data', modelos_ausente: 'Unavailable', modelos_causa: 'Cause', modelos_causa_vacia: 'No cause declared', modelos_tier1: 'Tier one', modelos_tier2: 'Tier two', modelos_adaptador: 'Adapter',
-    puerta_cargando: "Reading the local gate…", puerta_error: "Could not read the local gate.", puerta_fiel: "The view translates absence markers; the buttons copy the exact source text.", puerta_llave_titulo: "Entry key", puerta_copiar_llave: "Copy key", puerta_llave_ok: "Key copied.", puerta_copia_error: "Could not copy the key.", puerta_documento_titulo: "Document the AI reads", puerta_copiar_documento: "Copy source document", puerta_documento_ok: "Document copied.", puerta_documento_error: "Could not copy the document.", puerta_sin_dato: "Data unavailable",
+    puerta_cargando: "Reading the local gate…", puerta_error: "NO_DATA: the local gate could not be read.", puerta_fiel: "The view translates absence markers; the buttons copy the exact source text.", puerta_llave_titulo: "Entry key", puerta_copiar_llave: "Copy key", puerta_llave_ok: "Key copied.", puerta_copia_error: "Could not copy the key.", puerta_documento_titulo: "Document the AI reads", puerta_copiar_documento: "Copy source document", puerta_documento_ok: "Document copied.", puerta_documento_error: "Could not copy the document.", puerta_sin_dato: "Data unavailable",
 
     node_building_title: "Local node identity and building", node_building_help: "The ID is stored only at this local door. The heartbeat key never reaches the browser. Aduana receives a declaration only after confirmation.", node_building_read: "Read local identity", node_building_node_id: "Canonical node ID (fleet/2)", node_building_provision_consent: "Store this ID in this PWA's local configuration.", node_building_provision: "Provision local identity", node_building_unread: "Local identity has not been read yet.", node_building_declare_consent: "I confirm that I want to declare the building assigned to this node. This sends a request to Aduana.", node_building_declare: "Declare assigned building", node_building_none: "No building has been declared from this screen.", node_building_saved: "Local identity provisioned: {id}", node_building_no_assignment: "NO_DATA: this node has no building assignment in this piece.", node_building_saving: "Saving identity at this door…", node_building_cause: "NO_DATA: {cause}", node_building_unavailable: "NO_DATA: local door unavailable.", node_building_sending: "Sending the confirmed declaration to Aduana…", node_building_received: "Building received: {building} · node {node} · receipt {receipt}", node_building_failed: "NO_DATA: {cause}", node_building_not_confirmed: "NO_DATA: declaration not confirmed.",
     node_registration_title: "Create a node (proposal)", node_registration_help: "The rack keeps firma:null. This submission remains pending and untrusted; it is not a verified catalog entry until the Sovereign's rack ceremony and trust-anchor review.", node_registration_name: "Proposed node name", node_registration_preview: "Preview canonical credential", node_registration_consent: "I explicitly consent to submit this unsigned pending cédula. It may create a pending intake record, but it does not prove trust or create a verified catalog entry.", node_registration_submit: "Submit pending cédula", node_registration_signer_pending: "Signer pending. The phone never signs; the Sovereign must be present at the rack ceremony.", node_registration_draft: "Draft only. Nothing has been sent.", node_registration_preview_aria: "Canonical pending credential preview", node_registration_draft_ready: "Preview ready. Review the canonical cédula and its consequences before consenting.", node_registration_invalid: "Invalid node name; no request was created.", node_registration_sending: "Submitting the pending cédula. No signature is being created.", node_registration_pending: "Received as pending and untrusted. Cause:", node_registration_unavailable: "No confirmed receipt. Cause:",
@@ -569,10 +569,15 @@ const modelosWeb = window.PreceptorModelosWeb.mount({
 const insertor = window.PreceptorInsertor;
 
 /* --- reorganización · zonas en una sola pestaña ----------------------- */
+let enfocandoPestana = false;   // set by mostrar(): the tab itself is receiving focus
 function actualizarGuionZona() {
   const zona = paneles[panelActual];
   const boton = document.querySelector(`[data-panel="${zona.id}"]`);
-  $("guion-zona").textContent = `${t.zona_activa} ${boton.textContent.trim()}.`;
+  const linea = `${t.zona_activa} ${boton.textContent.trim()}.`;
+  // A focused tab is already spoken by the screen reader ("Talk, tab, selected"); saying the zone again would be the
+  // same event twice. The line speaks only when the zone changed some other way (a link, a swipe, the address).
+  if (enfocandoPestana || document.activeElement === boton || $("guion-zona").textContent === linea) return;
+  $("guion-zona").textContent = linea;
 }
 function mostrar(i, opciones = {}) {
   const indiceAnterior = panelActual;
@@ -587,6 +592,7 @@ function mostrar(i, opciones = {}) {
   if (indiceAnterior !== panelActual && $("ayuda-efimera") && !$("ayuda-efimera").hidden) {
     cerrarAyuda(false);
   }
+  enfocandoPestana = !!opciones.enfocar;
   actualizarGuionZona();
   if (indiceAnterior !== panelActual && window.PreceptorSting) {
     window.PreceptorSting.tocar().catch(() => {});
@@ -613,26 +619,40 @@ function mostrar(i, opciones = {}) {
 /* One loader per panel (common header, 2026-11-12): opening a panel and pressing its ↻ run the same readers.
  * A panel that reads no source (Command, 3DFabrika, World) has no entry and no button. */
 const cargadores = {
-  conversacion: () => window.PreceptorConversacion && window.PreceptorConversacion.sync(),
+  conversacion: () => Promise.all([window.PreceptorConversacion && window.PreceptorConversacion.sync(),
+    window.PreceptorNotebook ? window.PreceptorNotebook.talkTasks("talk-tasks") : null]),
   gobierno: () => { const b = $("hitl-recargar"); if (b && !b.disabled) b.click(); },
   cuaderno: () => window.PreceptorNotebook && window.PreceptorNotebook.load(),
   lab: () => Promise.all([cargarLab(), cargarLabRack(),
-    window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("lab-turno", "lab-turno-status", 1) : null,
     window.PreceptorNotebook ? window.PreceptorNotebook.loadBench("lab-bench", "lab-bench-status") : null]),
   harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null,
     window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("harness-cli-turns", "harness-cli-status", 6, "cli") : null]),
   ajustes: async () => {   // the public gate lives in Settings since 2026-11-11
     $("ajustes-estado").textContent = "Reading the local node…";
     const hechos = await Promise.allSettled([cargarCuaderno(), cargarPuerta()]);
-    const fallos = hechos.filter((h) => h.status === "rejected").length;
+    const fallos = hechos.filter((h) => h.status === "rejected" || h.value === false).length;
     $("ajustes-estado").textContent = fallos ? `NO_DATA: ${fallos} of 2 readings did not answer` : "Read just now from this node.";
   },
 };
+/* Panel flow · one voice per reading. While a reading panel loads, its sections keep painting their own lines (visible,
+ * reachable by reading the panel) but stay quiet; when the reading settles, the panel's own line speaks once, as a new
+ * text node. Later changes (a new task, a control just used) speak as before. Measured in the browser walk, step 15. */
+const vozDelPanel = { cuaderno: "notebook-status", lab: "lab-estado", harness: "harness-frescura", ajustes: "ajustes-estado" };
 function cargarPanel(id) {
   const cargar = cargadores[id];
   if (!cargar) return;
-  try { Promise.resolve(cargar()).catch(() => {}); } catch { /* each reader paints its own NO_DATA */ }
+  const voz = vozDelPanel[id] && $(vozDelPanel[id]), panel = $("panel-" + id);
+  const callados = voz && panel ? [...panel.querySelectorAll('[aria-live="polite"]')] : [];
+  callados.forEach((el) => el.setAttribute("aria-live", "off"));
+  const decir = () => {
+    callados.forEach((el) => el.setAttribute("aria-live", "polite"));
+    if (voz && voz.textContent) voz.replaceChildren(document.createTextNode(voz.textContent));
+  };
+  let lectura;
+  try { lectura = Promise.resolve(cargar()); } catch { lectura = Promise.resolve(); /* each reader paints its own NO_DATA */ }
+  lectura.catch(() => {}).finally(decir);
 }
+window.PreceptorPanelFlow = Object.freeze({ load: cargarPanel });
 document.addEventListener("click", (e) => {
   const boton = e.target.closest && e.target.closest("button.refrescar[data-refrescar]");
   if (boton) cargarPanel(boton.dataset.refrescar);
@@ -735,15 +755,15 @@ async function cargarLabRack() {
     const r = await fetch("/api/lab-rack", { cache: "no-store" });
     const d = await r.json();
     if (!r.ok || !d || typeof d !== "object" || d.estado !== "MEASURED") {
-      const causa = d && typeof d.causa === "string" ? d.causa : "respuesta_invalida";
-      estado.textContent = `${t.lab_error} ${causa}`;
+      const causa = d && typeof d.causa === "string" ? d.causa : "invalid_answer";
+      estado.textContent = `${t.lab_error} (${causa})`;
       return;
     }
     enlace.href = `${location.protocol}//${location.hostname}:8790/`;
     enlace.hidden = false;
     estado.textContent = t.lab_actualizado;
   } catch {
-    estado.textContent = `${t.lab_error} conexion_local_no_disponible`;
+    estado.textContent = `${t.lab_error} (local_connection_unavailable)`;
   }
 }
 
@@ -772,6 +792,7 @@ async function cargarPuerta() {
     estadoVista.textContent = typeof d.bienvenida === "string" ? d.bienvenida : t.tab_puerta;
   } catch {
     estadoVista.textContent = t.puerta_error;
+    return false;   // the reading failed: the panel line must not say "read just now"
   }
 }
 
@@ -829,16 +850,19 @@ async function cargarHarness() {
 
 /* --- estado ------------------------------------------------------------ */
 async function estado() {
+  let r = null;
   try {
-    const r = await fetch("/api/estado");
+    r = await fetch("/api/estado");
     const d = await r.json();
     const cuenta = d && d.turnos;
+    // The server answered: say what it said (its cause), never "cannot reach the server".
     $("estado").textContent = cuenta && Number.isSafeInteger(cuenta.turnos) &&
       Number.isSafeInteger(cuenta.consentidos)
       ? t.memoria(cuenta.turnos, cuenta.consentidos)
-      : "NO_DATA: memory_counts_not_verified";
+      : "NO_DATA: " + String((d && d.causa) || (r.ok ? "memory_counts_not_verified" : "http_" + r.status)).replace(/_/g, " ") + ".";
   } catch {
-    $("estado").textContent = t.sin_servidor;
+    // An answer that is not a reading is the server's failure, not an unreachable server (accessibility proof).
+    $("estado").textContent = r ? "NO_DATA: the server answered http " + r.status + " without a reading." : t.sin_servidor;
   }
 }
 
@@ -943,6 +967,8 @@ $("form-chat").addEventListener("submit", async (e) => {
   burbuja(escrito, "mio");
   $("enviar").disabled = true;
   const esperando = burbuja("thinking… on a phone this can take minutes", "espera");
+  // Waiting is drawn still: nothing is known to be running until the turn says so.
+  if (window.AchoMotion) window.AchoMotion.express($("acho-estado"), null, "waiting");
   esperando.lang = "en";
   try {
     const r = await fetch("/api/hexelion/chat", {
@@ -959,6 +985,7 @@ $("form-chat").addEventListener("submit", async (e) => {
       : (d && d.turno !== undefined ? { state: "NO_DATA", cause: "turn_reader_missing", line: "NO_DATA: the turn reader did not load." } : null);
     $("estado").dataset.state = turno ? turno.state : "";
     $("estado").dataset.acho = turno ? turno.acho : "";   // how this turn sounds
+    if (window.AchoMotion) window.AchoMotion.express($("acho-estado"), turno && turno.sentence ? turno.acho : null, turno ? turno.state : "");
     // The tone follows the words: only a turn with its sentence (already in the aria-live line) may sound, and only if
     // the person turned sounds on in Settings. A cut or missing turn stays silent.
     if (turno && turno.sentence && window.PreceptorAchoSonido) window.PreceptorAchoSonido.play(d.turno.acho).catch(() => {});
@@ -1230,6 +1257,7 @@ async function cargarCuaderno() {
     }
   } catch {
     $("recuento").textContent = t.sin_servidor;
+    return false;
   }
 }
 

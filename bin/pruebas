@@ -267,6 +267,16 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_p2_mirror_contract
           # test_mcp_turns_proposal: propuesta S5 sintetica; resumen de turnos en una linea MCP; nada conectado
           test_mcp_turns_proposal
+          # test_uncertainty_presentation: tarea incierta (LAB #186) igual en JSON, Cuaderno, Talk y Acho; nada firmado ni conectado
+          test_uncertainty_presentation
+          # test_visual_coherence: una verdad, nueve paneles; un anuncio por evento; primera pintura en inglés
+          test_visual_coherence
+          # test_acho_expression: forma, trazo y tono por momento; nada se mueve sin evidencia; la incertidumbre suena aparte
+          test_acho_expression
+          # test_panel_flow: una voz por lectura de panel; el foco se queda en el botón que refresca
+          test_panel_flow
+          # test_a11y_proof: un fallo se lee NO_DATA con causa, nunca fresco; mensajes de lectura en inglés
+          test_a11y_proof
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall

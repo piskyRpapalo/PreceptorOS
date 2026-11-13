@@ -117,6 +117,25 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   and sentence + counts + tasks state, always under the 1,024 B MCP line (sentence gives way first). Prerequisites:
   allowlist version bump by its owner, H4 provenance log for server-file changes, the 6-tool baseline re-measured.
   Synthetic tests: `test_mcp_turns_proposal.py`. Server, permissions and tool list unchanged.
+- Uncertain tasks (LAB #188 UNCERTAINTY-PROJECTION-01, presentation only; replaces the #186 proposal reading): a
+  record may carry the host's `kind=projection` record. The APP recomputes `projection_ref` with LAB's canonical
+  encoding (integrity, not authority) and says the host's `summary` as the sentence in every modality, plus the next
+  step by acknowledgement: HITL_REQUIRED → your decision on the host (Acho needs_you); HUMAN_ACKNOWLEDGED → host
+  reports it, re-read, never cached (empty); AUTHORITY_NOT_VERIFIED → not approved (fence). Reservation RETAINED +
+  tokens or NO_DATA(cause). TTL 0 / no retry / promotion NOT_AUTHORIZED are checked per row and stated once per
+  projection. Notebook: compact card, full refs in a disclosure. Talk #talk-tasks only when something waits.
+  Budgets kept apart, each measured: host record < 1,024 B (LAB; fixture max 738 B) · told row < 1,024 B (worst
+  1,005 B, 32-char run id; the unused per-row Acho motif removed, the class decides the cue) · MCP line < 1,024 B ·
+  chat envelope 1,023 B. Route still NO_DATA(p2_mirror_not_built).
+- Accessibility measures (same walk, 2026-11-13 rack, headless Chrome): nine tabs by ArrowRight/Left (wrap),
+  Home, End, roving tabindex, every panel named · contrast 232 text elements, light, min 5.01:1 after the agent
+  badge glyph fix (was 1.36:1; app.css v21, cache v186); dark NO_DATA(app_declares_light_only) · sound switch by
+  keyboard (Enter opens the group, Tab, Space) on → Web Audio graph ran, off → silent · 420×680: no sideways
+  scroll, Send 60×44 px, box on screen, `interactive-widget=resizes-content` present; on-screen keyboard NO_DATA.
+  Screen reader: NO_DATA until an authorised environment exists.
+- Uncertain task in a real DOM (walk step 11): the browser is handed the fixture projection (route intercepted; the
+  server route still answers NO_DATA(p2_mirror_not_built), asserted). Talk's #talk-tasks = Notebook status, word for
+  word; compact card, full refs after opening its disclosure by keyboard; Acho needs_you; no button. Level: SIMULATED data, real DOM.
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
