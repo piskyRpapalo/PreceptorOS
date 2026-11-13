@@ -76,11 +76,12 @@ UNCERTAINTY_SCHEMA = "preceptoros.lab.uncertainty-ack/1"
 _PROJECTION_KEYS = frozenset({"schema", "kind", "state", "cause", "acknowledgement", "observed_at", "journal_id",
                               "task_ref", "resolution_ref", "reservation", "ttl_seconds", "no_retry", "promotion",
                               "summary", "projection_ref"})
-# The acknowledgement word the host reported -> what comes next, and its Acho class. None of them is shown as approval.
+# The acknowledgement word the host reported -> what comes next. None of them is shown as approval; the Acho class
+# stays the state's own (`uncertain`): the outcome is unknown whatever was acknowledged.
 ACKNOWLEDGEMENT = {
-    "HITL_REQUIRED": ("Your decision, on the host: review projection %s; only you can acknowledge it.", "needs_you"),
-    "HUMAN_ACKNOWLEDGED": ("Host reports an acknowledgement (projection %s); re-read, never cached here.", "empty"),
-    "AUTHORITY_NOT_VERIFIED": ("Treat projection %s as not approved; the host could not verify its witness.", "fence"),
+    "HITL_REQUIRED": "Your decision, on the host: review projection %s; only you can acknowledge it.",
+    "HUMAN_ACKNOWLEDGED": "Host reports an acknowledgement (projection %s); re-read, never cached here.",
+    "AUTHORITY_NOT_VERIFIED": "Treat projection %s as not approved; the host could not verify its witness.",
 }
 
 
@@ -94,7 +95,9 @@ def _canonical_ref(record):
                                      allow_nan=False).encode("utf-8")).hexdigest()
 
 
-ACHO = {"DONE_CHECKED": "ok", "NEEDS_YOUR_AUTHORIZATION": "needs_you", "FAILED": "exec_fail"}
+# Uncertainty has its own cue: a claim that may have run is neither a failure nor a silence.
+ACHO = {"DONE_CHECKED": "ok", "NEEDS_YOUR_AUTHORIZATION": "needs_you", "FAILED": "exec_fail",
+        "OUTCOME_UNKNOWN": "uncertain", "NO_RESULT_RECORDED": "uncertain"}
 
 
 def _uncertainty(ref, raw):
@@ -132,15 +135,15 @@ def _uncertain(state, run_id, ref, cause, sentence, raw):
     u, said = _uncertainty(ref, raw)
     if u is None:
         return _no_data(run_id, said)
-    words, clase = ACKNOWLEDGEMENT[u["acknowledgement"]]
     # The host's sentence is the sentence, for every modality; the row adds only what comes next.
-    return _task(state, run_id, cause, said, words % u["projection_ref"][:12], uncertainty=u, acho_class=clase)
+    return _task(state, run_id, cause, said, ACKNOWLEDGEMENT[u["acknowledgement"]] % u["projection_ref"][:12],
+                 uncertainty=u)
 
 
-def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None, acho_class=None):
+def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None):
     if replayed and state in ("DONE_CHECKED", "DONE_UNCHECKED", "FAILED"):
         sentence += " The result was recovered after a restart; it was not run again."
-    clase = acho_class or ACHO.get(state, "empty")
+    clase = ACHO.get(state, "empty")
     t = {"run_id": run_id, "state": state, "cause": cause, "sentence": sentence, "next": next_step,
          "reader": "Task %s. %s %s" % (run_id or "unnamed", sentence, next_step), "replayed": bool(replayed),
          # The class alone decides the cue (audio_feedback.cue_for_turn derives the motif); no task row is played.

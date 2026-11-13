@@ -115,7 +115,7 @@ class OneRecordEverywhere(unittest.TestCase):
         t, got = self.t, surfaces(self.raw)
         words = t["sentence"] + " " + t["next"]
         self.assertEqual(got["parsed"]["projection"], self.p["projection_ref"])
-        self.assertEqual((got["state"], got["acho"]), ("OUTCOME_UNKNOWN", "needs_you"))
+        self.assertEqual((got["state"], got["acho"]), ("OUTCOME_UNKNOWN", "uncertain"))
         self.assertIn("details", got["tags"])                      # full refs one disclosure away
         for fact in (self.p["projection_ref"], TASK, "HITL_REQUIRED", "Retained: 64 tokens.", "Not authorized.",
                      "valid for this reading only", self.p["summary"]):
@@ -124,11 +124,11 @@ class OneRecordEverywhere(unittest.TestCase):
         self.assertEqual(got["talk"], got["status"])
         self.assertTrue(got["talk"].startswith("New tasks wait"))
         cue = AF.cue_for_turn(t)
-        self.assertEqual((cue["clase"], cue["texto"], cue["sonido"]), ("needs_you", t["reader"], "INACTIVO"))
+        self.assertEqual((cue["clase"], cue["texto"], cue["sonido"]), ("uncertain", t["reader"], "INACTIVO"))
         self.assertIn(self.p["summary"], cue["texto"])
 
     def test_each_acknowledgement_is_said_as_the_host_said_it(self):
-        for ack, acho in (("HUMAN_ACKNOWLEDGED", "empty"), ("AUTHORITY_NOT_VERIFIED", "fence")):
+        for ack, acho in (("HUMAN_ACKNOWLEDGED", "uncertain"), ("AUTHORITY_NOT_VERIFIED", "uncertain")):
             raw = told(event(projection(ack)))
             t = raw["tasks"][0]
             self.assertEqual((t["sentence"], t["acho"]["class"], raw["decisions_for_you"], raw["blocks_new_work"]),
@@ -200,7 +200,7 @@ class ProjectionNegatives(unittest.TestCase):
         p = told(event())
         t = p["tasks"][0]
         self.assertEqual((t["state"], t["acho"]["class"], p["decisions_for_you"], p["blocks_new_work"]),
-                         ("OUTCOME_UNKNOWN", "empty", 0, 1))
+                         ("OUTCOME_UNKNOWN", "uncertain", 0, 1))
 
     def test_a_claim_with_no_receipt_can_carry_it(self):
         t = told(event(projection(), unknown_receipt=False))["tasks"][0]

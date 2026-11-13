@@ -136,8 +136,11 @@
 // 2026-11-13 (measured contrast): the agent badge glyph is ink on its tint (app.css v21). Cache v186.
 // 2026-11-13 (visual coherence): one announcement per event in Talk, no duplicate sections across Notebook and Lab,
 // English first paint (app.js v35, notebook.js v14, conversacion.js v4, consola.js v5). Cache v187.
-const Cache = "preceptoros-armazon-v187";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=21", "/app.js?v=35", "/notebook.js?v=14", "/acho_sonido.js?v=1", "/conversacion.js?v=4", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=2", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-13 (Acho expression): uncertainty has its own class; the status mark says waiting, answer, verified,
+// needs you, uncertain, refused or silent by form, line and tone (acho_motion.js v3, app.js v36, app.css v22,
+// notebook.js v15, acho_sonido.js v2). Cache v188.
+const Cache = "preceptoros-armazon-v188";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=22", "/app.js?v=36", "/notebook.js?v=15", "/acho_sonido.js?v=2", "/conversacion.js?v=4", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=3", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=2", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

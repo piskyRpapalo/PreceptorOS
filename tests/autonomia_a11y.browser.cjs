@@ -281,9 +281,11 @@ async function waitServer(child) {
     await page.keyboard.press('Enter');
     const opened = await page.locator('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]').innerText();
     for (const ref of [t.uncertainty.task_ref, t.uncertainty.projection_ref]) assert(opened.includes(ref), 'ref missing after opening');
-    assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'needs_you', 0]);
+    assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'uncertain', 0]);
     assert(!/\b(signed|refunded|released|returned|approved)\b/i.test(u.talk + opened), 'claims something unseen');
     receipt.checks.uncertain_task_same_in_talk_and_notebook = 'SIMULATED_DATA_REAL_DOM';
+    const border = await page.$eval('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]', (c) => getComputedStyle(c).borderInlineStartStyle);
+    assert.equal(border, 'dashed', 'uncertainty is drawn as a dashed line, not by colour alone');
     await page.unroute('**/api/hexelion/tareas');
 
     // 12 · One announcement per event. A Talk turn hands each message's words to a reader once: the person's draft,
@@ -302,6 +304,21 @@ async function waitServer(child) {
     assert.deepEqual(repeats, [], 'the same words were announced twice in one turn');
     assert(!said.some((x) => x[0] === 'conv-destinos'), 'unchanged destinations re-announced');
     receipt.checks.turn_announcements = said.map((x) => x[0]);
+
+    // 14 · Acho expression: the mark beside the status says what just happened; it never moves without evidence.
+    assert.equal(await page.$eval('#acho-estado', (m) => m.dataset.expression), 'verified', 'an ACTED turn is drawn as verified');
+    assert.equal(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length), 0,
+      'reduced motion: nothing moves');
+    const lively = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+    await lively.goto(ORIGIN + '/app');
+    const moves = await lively.evaluate(() => { const m = document.getElementById('acho-estado'), A = window.AchoMotion;
+      const count = () => m.getAnimations().length, out = {};
+      for (const [cls, state] of [[null, 'waiting'], ['uncertain', 'OUTCOME_UNKNOWN'], ['ok', 'ACTED'], ['ok', 'ACTED']]) {
+        const before = count(); const name = A.express(m, cls, state); out[name + (out[name] !== undefined ? '_again' : '')] = count() - before; }
+      return out; });
+    await lively.close();
+    assert.deepEqual(moves, { waiting: 0, uncertain: 0, verified: 1, verified_again: 0 }, 'moves once, only for a confirmed result');
+    receipt.checks.acho_expression = moves;
 
     // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.
     // `canal:<thread>` is lab.py's source identifier (data, pinned by test_lab), not prose; it is not matched.

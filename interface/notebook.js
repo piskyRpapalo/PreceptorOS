@@ -179,7 +179,7 @@
    * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
    * machine state, and the status line speaks only when the summary changed (no announcement on every refresh). */
   // Acho classes (autonomy parity): how a turn sounds, decided by turnos_hexelion with its sentence. Unknown -> empty.
-  const achoClasses = ["ok", "needs_you", "unanswered", "fence", "exec_fail", "empty", "bridge_down"];
+  const achoClasses = ["ok", "needs_you", "unanswered", "fence", "exec_fail", "empty", "bridge_down", "uncertain"];
   function acho(x) { const c = x && x.acho && x.acho.class; return achoClasses.includes(c) ? c : "empty"; }
   const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "ACTED", "ACTION_REFUSED", "ACTION_UNVERIFIED", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
   function projectTurns(raw) {

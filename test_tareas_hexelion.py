@@ -49,8 +49,8 @@ class Told(unittest.TestCase):
              "needs_you", "permission"),
             (rec(receipt("failed", "NOT_STARTED", "TRANSPORT", "NO_DATA", None)), "FAILED", "exec_fail", "transport"),
             (rec(receipt("cancelled", "UNKNOWN", "CANCELLED", "NO_DATA", None)), "CANCELLED", "empty", "cancelled"),
-            (rec(receipt("failed", "UNKNOWN", "UNKNOWN", "NO_DATA", None)), "OUTCOME_UNKNOWN", "empty", "unknown"),
-            (rec(None), "NO_RESULT_RECORDED", "empty", "claim_without_receipt"),
+            (rec(receipt("failed", "UNKNOWN", "UNKNOWN", "NO_DATA", None)), "OUTCOME_UNKNOWN", "uncertain", "unknown"),
+            (rec(None), "NO_RESULT_RECORDED", "uncertain", "claim_without_receipt"),
         ]
         for record, state, clase, cause in cases:
             t = K.task(record)
@@ -181,7 +181,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=14"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=15"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):
