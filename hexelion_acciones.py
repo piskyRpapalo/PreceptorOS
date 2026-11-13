@@ -443,7 +443,7 @@ _LECTORES = {"signatures": (_firmas, "firmas/pendientes.json"), "lab": (_lab, "n
              "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json"),
              "devices": (_dispositivos, "federado/dispositivos.json + LAB node receipts"),
              "models": (_modelos, "LAB node receipts"),
-             "report": (lambda base, now: _informe(base, now), "thread + tasks reading + firmas/pendientes.json")}
+             "report": (lambda base, now: _informe(base, now), "thread, tasks, signatures")}
 
 
 def cabe(texto, tope=TOPE_LOCAL_B):
