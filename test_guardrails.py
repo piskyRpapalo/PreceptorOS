@@ -521,6 +521,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         INTRINSECOS |= {"DECLARED"}
         # Hexelion actions from Talk (2026-11-12): the door's reply state and the two action turn states, not policy names.
         INTRINSECOS |= {"ACCION_LOCAL", "ACTED", "ACTION_REFUSED", "ACTION_UNVERIFIED"}
+        # Delegated tasks (tareas_hexelion.py): the states a journal receipt is told as, not policy names.
+        INTRINSECOS |= {"DONE_CHECKED", "DONE_UNCHECKED", "NEEDS_YOUR_AUTHORIZATION", "FAILED", "CANCELLED",
+                        "OUTCOME_UNKNOWN", "NO_RESULT_RECORDED"}
         # Evidence chip (evidence_chip.js): the vocabulary of how much a figure can be trusted (VERIFIED,
         # OBSERVED, DECLARED, STALE, NO_DATA, REFUSED) and its Spanish input aliases. States, not policies.
         INTRINSECOS |= {"VERIFIED", "OBSERVED", "DECLARED", "STALE", "NO_DATA", "DATA", "REFUSED", "DENEGADO"}  # DATA is the second word of the visible NO DATA

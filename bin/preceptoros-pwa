@@ -89,6 +89,7 @@ import notebook_read as _notebook_read
 import notebook_receipts as _notebook_receipts
 import conversacion_comun as _conversacion
 import turnos_hexelion as _turnos
+import tareas_hexelion as _tareas
 import indice_rack as _indice_rack
 AGENT_VOICES = frozenset({"claude", "codex", "gemini", "mistral"})                                     # noqa: E402
 import creacion_import as _creacion_import                   # noqa: E402
@@ -521,6 +522,8 @@ class PWA(BaseHTTPRequestHandler):
             return self._conversacion_leer()
         if ruta == "/api/hexelion/turnos":
             return self._turnos_leer()
+        if ruta == "/api/hexelion/tareas":
+            return self._tareas_leer()
         if ruta == "/api/team":
             return self._team_read()
         if ruta == "/api/hitl":
@@ -1135,6 +1138,14 @@ class PWA(BaseHTTPRequestHandler):
         lectura = _canales.lee(hilo, 0, base=_casa.raiz())
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         return self._json(200, _turnos.project(lectura, now))
+
+    def _tareas_leer(self):
+        """Delegated tasks from the P2 journal (autonomy parity S4): same access as the turns. The journal is Codex
+        CLI's and nothing hands its records to this app yet, so this says so instead of guessing."""
+        if not self._es_loopback(self.client_address[0]):
+            return self._json(403, {"state": "NO_DATA", "cause": "loopback_only"})
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return self._json(200, _tareas.project(None, now, source_cause="p2_mirror_not_built"))
 
     def _conversacion_enviar(self):
         """The person addresses one rack preceptor. The message goes to the shared thread with `para`; nobody is

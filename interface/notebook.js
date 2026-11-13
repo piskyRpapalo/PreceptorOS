@@ -171,6 +171,7 @@
       } else xList.append(card(t.receipts, "NO_DATA", notes ? notes.receiptsCause || "no_valid_receipt" : "notebook_endpoint_unavailable"));
     }
     await loadTurns("notebook-turns", "notebook-turns-status", 12);
+    await loadTasks("notebook-tasks", "notebook-tasks-status");
     await loadBench("notebook-bench", "notebook-bench-status", notesResult.status === "fulfilled" ? notesResult.value : null);
     status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
     button.disabled = false;
@@ -179,7 +180,7 @@
    * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
    * machine state, and the status line speaks only when the summary changed (no announcement on every refresh). */
   // Acho classes (autonomy parity): how a turn sounds, decided by turnos_hexelion with its sentence. Unknown -> empty.
-  const achoClasses = ["ok", "unanswered", "fence", "exec_fail", "empty", "bridge_down"];
+  const achoClasses = ["ok", "needs_you", "unanswered", "fence", "exec_fail", "empty", "bridge_down"];
   function acho(x) { const c = x && x.acho && x.acho.class; return achoClasses.includes(c) ? c : "empty"; }
   const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "ACTED", "ACTION_REFUSED", "ACTION_UNVERIFIED", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
   function projectTurns(raw) {
@@ -216,6 +217,43 @@
         line: "NO_DATA: the turn for this request could not be read; the Notebook keeps the thread." };
     }
     return { state, n: x.n, cause: clean(x.cause, 80), sentence, next, acho: acho(x), line: next ? sentence + " " + next : sentence };
+  }
+  /* Delegated tasks (autonomy parity, task slice): the delegation journal's receipts told by tareas_hexelion. The Notebook only paints
+   * them; it never claims, retries or authorises. Unknown states are NO_DATA; unknown Acho classes are empty. */
+  const taskStates = ["DONE_CHECKED", "DONE_UNCHECKED", "NEEDS_YOUR_AUTHORIZATION", "FAILED", "CANCELLED", "OUTCOME_UNKNOWN", "NO_RESULT_RECORDED", "NO_DATA"];
+  function projectTasks(raw) {
+    if (!raw || raw.schema !== "preceptoros.hexelion-tasks/1" || !Array.isArray(raw.tasks)) return null;
+    const tasks = raw.tasks.slice(0, 12).filter(x => x && typeof x === "object").map(x => {
+      const state = taskStates.includes(x.state) ? x.state : "NO_DATA";
+      const sentence = clean(x.sentence, 240), next = clean(x.next, 160);
+      return { run: clean(x.run_id, 32) || "unnamed", state: sentence ? state : "NO_DATA", cause: clean(x.cause, 80),
+        sentence: sentence || "NO_DATA: this task could not be read.", next, acho: state === x.state ? acho(x) : "empty" };
+    });
+    const needs = tasks.filter(x => x.state === "NEEDS_YOUR_AUTHORIZATION").length;
+    return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs };
+  }
+  function taskSummary(p) {
+    if (!p) return "NO_DATA: the tasks could not be read (the app server did not answer).";
+    if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
+    const head = p.needs ? p.needs + (p.needs === 1 ? " task needs" : " tasks need") + " your authorization. " : "";
+    return head + "Last task: " + p.tasks[0].sentence;
+  }
+  async function loadTasks(listId, statusId) {
+    const list = document.getElementById(listId), status = document.getElementById(statusId);
+    if (!list) return null;
+    let p = null;
+    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch { p = null; }
+    list.replaceChildren();
+    (p ? p.tasks : []).forEach(x => {
+      const c = card("Task " + x.run, x.state, x.sentence);
+      c.dataset.state = x.state; c.dataset.acho = x.acho;
+      if (x.next) field(c, "Next", x.next);
+      list.append(c);
+    });
+    const summary = taskSummary(p);
+    if (!p || !p.tasks.length) list.append(card("Delegated tasks", "NO_DATA", summary));
+    if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
+    return p;
   }
   function turnCard(x) {
     const when = x.asked.replace("T", " ").replace("Z", " UTC");
@@ -288,7 +326,7 @@
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, loadTurns, loadBench });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, projectTasks, taskSummary, loadTasks, loadTurns, loadBench });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();
