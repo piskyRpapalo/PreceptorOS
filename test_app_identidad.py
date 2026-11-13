@@ -66,7 +66,8 @@ class Update(unittest.TestCase):
 
     def test_the_cache_name_moved_with_the_identity(self):
         # The manifest is served cache-first; without a new cache an install keeps the old name forever.
-        self.assertIn('const Cache = "preceptoros-armazon-v174";', SW)
+        version = int(re.search(r'const Cache = "preceptoros-armazon-v(\d+)";', SW).group(1))
+        self.assertGreaterEqual(version, 174)          # v174 carried the rename; later shells keep it
         self.assertIn("(install identity)", SW)
 
 
