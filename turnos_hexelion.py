@@ -144,7 +144,7 @@ def _close(turn, reply):
             missing = [k for k in REPORT_ANSWERS if answers[k] != "MEASURED"]
             turn.update(state="ACTED", evidence=evidence, answers=answers,
                         cause="report_has_no_data" if missing else None,
-                        sentence="Hexelion answered the four questions from its own records; no model ran."
+                        sentence="Hexelion answered from its own records; no model ran."
                                  + (" NO_DATA: %s." % ", ".join(missing) if missing else ""))
         elif state == "ACTED":
             turn.update(state="ACTED", evidence=evidence,
@@ -196,6 +196,10 @@ def acho_class(turn):
 
 
 MAX_TURN_B = 1024
+# The self-report's text budget: inside the chat envelope (1,023 B, estado_compacto) the reply still carries the action
+# fields, the report_ref and at least the cut turn (measured: test_self_report, a report at its full budget).
+REPORT_TEXT_B = 480
+REPORT_NEXT = "Read the four answers in the thread."
 # What a chat reply carries to Talk: the Notebook row's own state, cause and words (autonomy parity), nothing else.
 TALK_FIELDS = ("n", "state", "cause", "sentence", "next", "acho")
 
@@ -242,7 +246,8 @@ def turns(messages, now_iso=""):
         if voice in open_addressed and open_addressed[voice]:
             _close(open_addressed[voice].pop(0), m)
     for t in out:
-        t["next"] = NEXT[t["state"]]
+        # A report proposes nothing to merge: its next step is to read its four answers (and it keeps the row bounded).
+        t["next"] = REPORT_NEXT if "answers" in t else NEXT[t["state"]]
         t["reader"] = "%s asked %s. %s %s" % (t["asked_by_name"], t["to_name"], t["sentence"], t["next"])
         clase = acho_class(t)
         t["acho"] = {"class": clase, "motif": AF.motif_for_class(clase), "sound": "off_until_turned_on",
@@ -406,18 +411,20 @@ def self_report(turns_projection, tasks_projection, signatures, is_report=lambda
              "sentence": ("Needs from you: nothing now (measured)." if clear else "Needs from you: " + "; ".join(parts) + ".")}
 
     answers = {"doing": doing, "achieved": achieved, "how": how, "needs": needs}
-    # The chat envelope keeps a local read under 560 B (hexelion_acciones.TOPE_LOCAL_B): the quoted last request gives
-    # way first, so the four answers are never cut.
+    # The four answers are never cut: within REPORT_TEXT_B the quoted last request gives way first, then the reference
+    # to it, then lists of message numbers become counts (refs.turns keeps them), then the standing "never running".
     size = lambda: len(" ".join(v["sentence"] for v in answers.values()).encode("utf-8"))
-    if last and size() > 540:
+    if last and size() > REPORT_TEXT_B:
         doing["sentence"] = doing["sentence"][:doing["sentence"].index(" Your last request")] + \
             " Your last request is message %d." % last["n"]
-    if last and size() > 540:
+    if last and size() > REPORT_TEXT_B:
         doing["sentence"] = doing["sentence"][:doing["sentence"].index(" Your last request")]
-    if size() > 540:                     # then lists of message numbers become counts; the refs stay in `refs.turns`
+    if size() > REPORT_TEXT_B:                     # then lists of message numbers become counts; the refs stay in `refs.turns`
         achieved["sentence"] = re.sub(r" \(messages [^)]*\)", "", achieved["sentence"])
         needs["sentence"] = re.sub(r"check message\(s\) [^;.]*? yourself", "check %d message(s) yourself" % len(unclear),
                                    needs["sentence"])
+    if size() > REPORT_TEXT_B:
+        doing["sentence"] = doing["sentence"].replace(" I never say a process is running.", "")
     refs = {"turns": [t["n"] for t in rows], "tasks_cause": kp.get("cause"), "counters": counters.get("state"),
             "signatures_cause": s_cause}
     body = {"schema": REPORT_SCHEMA, "answers": {k: {"state": v["state"], "cause": v["cause"]} for k, v in answers.items()},

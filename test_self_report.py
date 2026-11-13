@@ -145,7 +145,8 @@ class OneRefForEveryReader(unittest.TestCase):
         partial = K.project(runs(*[rec(receipt())] * 11 + [rec(None)] * 2), STAMP, complete_ref="c" * 64)
         for kp in (K.live(STAMP), partial):                      # the longest wording: a partial window
             text = report(tp, kp, sig=(False, "signatures_rows_unreadable", None))["text"]
-            self.assertLessEqual(len(text.encode("utf-8")), A.TOPE_LOCAL_B)
+            self.assertLessEqual(len(text.encode("utf-8")), T.REPORT_TEXT_B)
+            self.assertLessEqual(T.REPORT_TEXT_B, A.TOPE_LOCAL_B)
             self.assertEqual(A.cabe(text), text)
             self.assertIn("Needs from you:", text)
 
@@ -180,6 +181,51 @@ class ThroughTheDoor(unittest.TestCase):
         self.assertIn("NO_DATA: doing", row["sentence"])
         self.assertIn(row["sentence"], row["reader"])
         self.assertIsNone(CLEAR.search(acc["texto"]))
+
+    def test_after_earlier_turns_the_reply_still_fits_and_talk_says_it(self):
+        # Found by the walk (12b): on a thread with turns, the reply passed the 1,023 B chat envelope, Talk said
+        # "did not reply" while the thread held the report, and the turn lost its quoted question to its size bound.
+        HA.LocalReads.firmas(self, "2026-11-13T21:55:00Z", [
+            {"repo": "o/app", "n": 290 + i, "title": "HITL · " + "x" * 60, "checks": "green", "action": "sign"}
+            for i in range(4)])
+        with mock.patch.object(A, "_edad", wraps=lambda s, now: 300.0):
+            for _ in range(3):
+                self.person("What awaits my signature?")
+            out = self.person("What are you doing?")
+        self.assertEqual((out["code"], out["body"]["estado"]), (200, "ACCION_LOCAL"))
+        turno = out["body"]["turno"]
+        row = T.project(canales.lee("orquesta", 0, base=self.base), STAMP)["turns"][0]
+        # The door's own envelope rule: the turn gives way before the answer. Talk keeps the state, cause and ref
+        # (and says the Notebook has the sentence); it is the same turn the Notebook reads.
+        self.assertEqual({k: turno[k] for k in ("n", "state", "cause")}, {k: row[k] for k in ("n", "state", "cause")})
+        self.assertEqual((turno["state"], turno["cause"]), ("ACTED", "report_has_no_data"))
+        self.assertTrue(row["sentence"].startswith("Hexelion answered from its own records"))
+        self.assertEqual(row["next"], T.REPORT_NEXT)                            # a report proposes nothing to merge
+        self.assertIn("Needs from you:", out["body"]["respuesta"]["accion"]["texto"])
+        self.assertEqual(self.thread()[-1]["texto"], out["body"]["respuesta"]["accion"]["texto"])
+        self.assertEqual(row["question"], "What are you doing?")
+        self.assertNotIn("question_truncated", row)
+
+    def test_a_report_at_its_full_budget_still_replies_and_keeps_its_evidence_in_the_thread(self):
+        # The longest text self_report may write, with every answer NO_DATA: the reply never becomes the 503
+        # "outside the envelope". The turn gives way first, then the reply's evidence (to its report_ref); the
+        # thread keeps the whole evidence, so Notebook and Lab still read it.
+        real = T.self_report
+
+        def longest(*a, **kw):
+            r = real(*a, **kw)
+            return dict(r, text=("Doing: NO_DATA (" + "y" * T.REPORT_TEXT_B)[:T.REPORT_TEXT_B - 1] + ")")
+
+        with mock.patch.object(T, "self_report", longest), mock.patch.object(A, "_edad", wraps=lambda s, now: 300.0):
+            for q in ("What awaits my signature?",) * 2 + ("What are you doing?",):
+                out = self.person(q)
+        self.assertEqual((out["code"], out["body"]["estado"]), (200, "ACCION_LOCAL"))
+        acc = out["body"]["respuesta"]["accion"]
+        self.assertEqual(len(acc["texto"].encode("utf-8")), T.REPORT_TEXT_B)            # the answers, uncut
+        self.assertIn("turno", out["body"])
+        ev = self.thread()[-1]["maquina"]["evidencia"]
+        self.assertEqual(acc["evidencia"]["report_ref"], ev["report_ref"])
+        self.assertEqual(set(ev), {"fuente", "informe", "report_ref"})
 
 
 if __name__ == "__main__":

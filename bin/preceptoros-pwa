@@ -1207,12 +1207,20 @@ class PWA(BaseHTTPRequestHandler):
                 full = ({k: fila[k] for k in _turnos.TALK_FIELDS if k in fila} if fila is not None
                         else {"state": "NO_DATA", "cause": "turn_not_projected"})
                 cut = dict({k: full[k] for k in ("n", "state", "cause") if k in full}, cut="envelope")
-                for candidate in (full, cut):
+                # Then the reply's copy of the evidence gives way to its ref: the thread just written keeps the whole
+                # evidence (Notebook and Lab read it there), so a long local read is still said instead of a 503.
+                bodies = [payload]
+                accion = (payload.get("respuesta") or {}).get("accion")
+                if isinstance(accion, dict) and isinstance(accion.get("evidencia"), dict) and accion["evidencia"]:
+                    ev = accion["evidencia"]
+                    bodies.append(dict(payload, respuesta=dict(payload["respuesta"], accion=dict(
+                        accion, evidencia=dict({k: ev[k] for k in ("report_ref",) if k in ev}, cut="envelope")))))
+                for body, candidate in ((b, c) for c in (full, cut) for b in bodies):
                     try:
-                        _estado_compacto.serializar_objeto(dict(payload, turno=candidate))
+                        _estado_compacto.serializar_objeto(dict(body, turno=candidate))
                     except ValueError:
                         continue
-                    payload = dict(payload, turno=candidate)
+                    payload = dict(body, turno=candidate)
                     break
             return self._json(code, payload)
 

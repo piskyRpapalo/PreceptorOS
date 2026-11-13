@@ -440,13 +440,16 @@ async function waitServer(child) {
     // MCP), recorded as one turn. Talk's status, the thread, the Notebook row, Acho and the JSON say the same report.
     await page.locator('#tab-conversacion').click();
     await page.locator('#dicho').fill('What are you doing?'); await page.locator('#enviar').click();
-    await page.waitForFunction(() => /four questions/.test(document.querySelector('#estado').textContent), null, { timeout: 15000 });
+    // The report's four answers fill most of the 1,023 B chat reply, so the door's envelope rule gives Talk the cut
+    // turn (state, cause, ref): Talk says that state and request and sends the person to the Notebook for the sentence.
+    await page.waitForFunction(() => /^ACTED: .*request \d+/.test(document.querySelector('#estado').textContent), null, { timeout: 15000 });
     await page.waitForTimeout(1500);
     const rep = await page.evaluate(async () => { const t = (await (await fetch('/api/hexelion/turnos')).json()).turns[0];
       return { t, estado: document.querySelector('#estado').textContent, state: document.querySelector('#estado').dataset.state,
         acho: document.querySelector('#acho-estado').dataset.expression, thread: document.querySelector('#hilo').textContent }; });
     assert.deepEqual([rep.t.state, rep.t.cause, rep.state], ['ACTED', 'report_has_no_data', 'ACTED']);
-    assert(rep.estado.startsWith(rep.t.sentence), 'Talk status and the JSON row word the report differently');
+    assert(rep.t.sentence.startsWith('Hexelion answered from its own records'), 'the JSON row lost the report sentence');
+    assert(rep.estado.endsWith('request ' + rep.t.n + '.'), 'Talk status names another request than the JSON row');
     assert.equal(rep.acho, 'silent', 'a report of missing evidence drew a success mark');
     for (const part of ['Doing: NO_DATA', 'Achieved:', 'How I know:', 'Needs from you:'])
       assert(rep.thread.includes(part), 'Talk lacks: ' + part);
@@ -454,7 +457,7 @@ async function waitServer(child) {
     await page.locator('#tab-cuaderno').click();
     await page.waitForFunction((s) => [...document.querySelectorAll('#notebook-turns [data-state="ACTED"]')]
       .some((c) => c.textContent.includes(s)), rep.t.sentence, { timeout: 10000 });
-    receipt.checks.self_report_e2e = 'MEASURED(headless_chrome; isolated server; temp home; talk == json == notebook; acho silent)';
+    receipt.checks.self_report_e2e = 'MEASURED(headless_chrome; isolated server; temp home; talk state+ref == json == notebook sentence; acho silent)';
     await page.locator('#tab-conversacion').click();
 
     // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.

@@ -19,7 +19,7 @@ THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, roun
   (the sha256 of the report body) in the thread's machine layer.
 - No engine, dashboard, route, served asset or agent state of its own.
 
-## Rules (pinned in `test_self_report`, 10 tests)
+## Rules (pinned in `test_self_report`, 15 tests)
 
 - **An answer it cannot read is NO_DATA with its source's cause.** Today "doing" is always
   `NO_DATA(p2_mirror_not_built)`, and it never says a process is running.
@@ -35,9 +35,16 @@ THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, roun
   - With none visible, it is "no task visible", never "0 tasks".
   - A legacy projection with `state=MEASURED` but no `counters` is `counters_not_stated`.
 - **The report's own turns are not work.**
-- **The four answers always fit the chat envelope uncut** (560 B), including the longest wording (a partial window).
+- **The four answers always fit uncut** in `REPORT_TEXT_B` (480 B), including the longest wording (a partial window).
   The quoted last request gives way first, then the reference to it, then lists of message numbers become counts
-  (the refs stay in `refs.turns`).
+  (the refs stay in `refs.turns`), then the standing "I never say a process is running".
+- **The reply always fits the door's 1,023 B envelope** (found by walk step 12b: on a thread with earlier turns the
+  reply measured 1,084 B with no turn at all, and Talk said "did not reply" while the thread held the report).
+  - The door's existing rule: the turn gives way first (to state, cause and ref), never the answer.
+  - Then the reply's copy of the evidence gives way to its `report_ref`. The thread keeps the whole evidence.
+  - Talk then says "ACTED: the full sentence did not fit this reply; the Notebook shows it for request N".
+  - The row keeps the person's question: the report's next step is "Read the four answers in the thread." (a report
+    proposes nothing to merge), and its sentence is shorter.
 - **Acho:** a report with any NO_DATA answer is drawn as missing evidence (`empty` → silent), never the success
   mark. The sentence names the NO_DATA answers.
 
@@ -46,9 +53,10 @@ THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, roun
 | | Before (`main` `18bf0d4`) | After |
 |---|---|---|
 | "What are you doing?" | an ordinary question to the model (no phrase, no reader) | local read, no model |
-| `test_self_report` | 10/10 fail (2 fail, 8 error) | 13/13 pass |
+| `test_self_report` | 10/10 fail (2 fail, 8 error) | 15/15 pass |
 | Round 8 fixtures on `747971d`: 12 visible done + a 13th unresolved; MEASURED without `counters`; positive control | 3/3 fail ("doing" MEASURED; "0 task(s) recorded") | 3/3 pass |
-| Walk step 12b (headless Chrome, isolated server, temp home) | not present | Talk == JSON == Notebook row; Acho silent |
+| Envelope fixtures on `20baf2e`: three firmas reads then the report; a report at its full budget | 2/2 fail (no turn in the reply; a 503 "outside the envelope") | 2/2 pass |
+| Walk step 12b (headless Chrome, isolated server, temp home) | not present; on `20baf2e` FAIL ×2 (Talk: "did not reply") | PASS: Talk state + ref == JSON == Notebook sentence; Acho silent |
 
 ## NO_DATA
 
