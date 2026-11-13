@@ -124,6 +124,12 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   `not_visible` (NO_DATA). No ACK/authorise control. Changed terms, forged fields, a proposal on a known outcome →
   NO_DATA. Per-task bound 1,536 B (measured 1,198 B worst case; MCP lines and thread messages keep 1,024 B).
   The proposal's hash is the journal's check, not the APP's. Route still NO_DATA(p2_mirror_not_built).
+- Accessibility measures (same walk, 2026-11-13 rack, headless Chrome): nine tabs by ArrowRight/Left (wrap),
+  Home, End, roving tabindex, every panel named · contrast 232 text elements, light, min 5.01:1 after the agent
+  badge glyph fix (was 1.36:1; app.css v21, cache v186); dark NO_DATA(app_declares_light_only) · sound switch by
+  keyboard (Enter opens the group, Tab, Space) on → Web Audio graph ran, off → silent · 420×680: no sideways
+  scroll, Send 60×44 px, box on screen, `interactive-widget=resizes-content` present; on-screen keyboard NO_DATA.
+  Screen reader: NO_DATA until an authorised environment exists.
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·

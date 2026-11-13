@@ -58,7 +58,7 @@ async function waitServer(child) {
   const server = spawn('python3', [path.join(ROOT, 'bin/preceptoros-pwa')], { cwd: ROOT, env, stdio: 'ignore' });
   const receipt = { schema: 'preceptoros.a11y-walk/1', head: null, levels: {
     synthetic_tool: 'SIMULATED', real_browser: null, screen_reader: 'NO_DATA(no_assistive_technology_ran)',
-    physical_audio: 'NO_DATA(no_speaker_listened)' }, checks: {} };
+    physical_audio: 'NO_DATA(no_speaker_listened)', virtual_keyboard: null }, checks: {} };
   let browser;
   try {
     await waitServer(server);
@@ -67,15 +67,16 @@ async function waitServer(child) {
     // 1 · What is served is what was tested: shell, scripts and service worker byte-identical to this checkout.
     const html = fs.readFileSync(path.join(ROOT, 'interface/app.html'), 'utf8');
     const scripts = [...html.matchAll(/<script src="(\/[a-z_]+\.js\?v=\d+)"><\/script>/g)].map((m) => m[1]);
+    const styles = [...html.matchAll(/<link rel="stylesheet" href="(\/[a-z_]+\.css\?v=\d+)">/g)].map((m) => m[1]);
     const served = {};
-    for (const url of ['/sw.js', ...scripts]) {
+    for (const url of ['/sw.js', ...scripts, ...styles]) {
       const r = await fetch(ORIGIN + url); assert.equal(r.status, 200, url);
       const local = fs.readFileSync(path.join(ROOT, 'interface', url.split('?')[0].slice(1)));
       assert.equal(sha(Buffer.from(await r.arrayBuffer())), sha(local), 'served differs from checkout: ' + url);
       served[url] = sha(local).slice(0, 12);
     }
     const sw = fs.readFileSync(path.join(ROOT, 'interface/sw.js'), 'utf8');
-    for (const url of scripts.filter((u) => /app\.js|notebook\.js|acho_sonido\.js/.test(u))) assert(sw.includes('"' + url + '"'), 'sw lacks ' + url);
+    for (const url of [...styles, ...scripts.filter((u) => /app\.js|notebook\.js|acho_sonido\.js/.test(u))]) assert(sw.includes('"' + url + '"'), 'sw lacks ' + url);
     receipt.checks.assets_match_checkout = Object.keys(served).length;
 
     browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, headless: true, args: ['--no-sandbox'] });
@@ -152,6 +153,93 @@ async function waitServer(child) {
       await window.PreceptorSting.tocar()]);
     assert.equal(sound[0].state, 'off'); assert.equal(sound[1], 0); assert.equal(sound[2].estado, 'inactivo');
     receipt.checks.sound_off_and_reduced_motion = true;
+
+    // 7 · Nine panels by keyboard: Home, End and arrows reach every tab in order; only its panel is shown; wraps both ways.
+    await page.locator('#tab-mando').click();
+    await page.locator('#tab-mando').focus();
+    const tabs = await page.$$eval('.pestanas [role=tab]', (ts) => ts.map((t) => [t.id, t.getAttribute('aria-controls')]));
+    assert.equal(tabs.length, 9, 'nine panels');
+    const at = () => page.evaluate(() => { const a = document.activeElement;
+      const shown = [...document.querySelectorAll('[role=tabpanel]')].filter((p) => !p.hidden && p.offsetParent !== null).map((p) => p.id);
+      return [a.id, a.getAttribute('aria-selected'), a.tabIndex, shown]; });
+    const walk = [];
+    for (let i = 1; i <= tabs.length; i++) {
+      await page.keyboard.press('ArrowRight');
+      const [id, sel, tabindex, shown] = await at(); const want = tabs[i % tabs.length];
+      assert.deepEqual([id, sel, tabindex, shown], [want[0], 'true', 0, [want[1]]], 'ArrowRight step ' + i);
+      walk.push(id);
+    }
+    await page.keyboard.press('ArrowLeft');
+    assert.equal((await at())[0], tabs[tabs.length - 1][0], 'ArrowLeft wraps to the last tab');
+    await page.keyboard.press('Home'); assert.equal((await at())[0], tabs[0][0]);
+    await page.keyboard.press('End'); assert.equal((await at())[0], tabs[tabs.length - 1][0]);
+    const others = await page.$$eval('.pestanas [role=tab]', (ts) => ts.filter((t) => t.getAttribute('aria-selected') !== 'true').map((t) => t.tabIndex));
+    assert(others.every((x) => x === -1), 'unselected tabs leave the Tab order (roving tabindex)');
+    const unnamed = await page.$$eval('[role=tabpanel]', (ps) => ps.filter((p) => !(p.getAttribute('aria-label') || p.getAttribute('aria-labelledby'))).map((p) => p.id));
+    assert.deepEqual(unnamed, [], 'every panel has a name');
+    receipt.checks.nine_panels_keyboard = walk.length;
+
+    // 8 · Contrast, light and dark: visible text against its painted background (WCAG 2.x formula, 4.5:1 normal text).
+    const contrast = async () => page.evaluate(() => {
+      const rgb = (c) => { const m = c.match(/[\d.]+/g); return m ? m.map(Number) : null; };
+      const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; })
+        .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+      const bg = (el) => { for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor);
+        if (c && (c.length < 4 || c[3] > 0.95)) return c.slice(0, 3); if (getComputedStyle(e).backgroundImage !== 'none') return null; }
+        return [255, 255, 255]; };
+      const out = [];
+      for (const el of document.querySelectorAll('[role=tab], #estado, #talk-tasks, #conv-destinos, .notebook-status, .notebook-fact, button, label, h2, h3, h4, p')) {
+        if (!el.offsetParent || !el.textContent.trim() || el.closest('[hidden]')) continue;
+        const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+        if (!own) continue;
+        const b = bg(el); const f = rgb(getComputedStyle(el).color);
+        if (!b || !f) continue;
+        const [L1, L2] = [lum(f.slice(0, 3)), lum(b)].sort((a, c) => c - a);
+        out.push([el.id || el.className || el.tagName, +((L1 + 0.05) / (L2 + 0.05)).toFixed(2), el.textContent.trim().slice(0, 30)]);
+      }
+      return out;
+    });
+    // The app declares `color-scheme: light` only, so a dark pass would measure the same page: NO_DATA, not a second pass.
+    const rows = [];
+    for (const tab of ['#tab-conversacion', '#tab-cuaderno', '#tab-ajustes']) {
+      await page.locator(tab).click(); await page.waitForTimeout(300); rows.push(...await contrast());
+    }
+    const low = rows.filter((r) => r[1] < 4.5);
+    receipt.checks.contrast_light = { elements: rows.length, min: Math.min(...rows.map((r) => r[1])), below_4_5: low.slice(0, 8) };
+    receipt.checks.contrast_dark = 'NO_DATA(app_declares_light_only)';
+    assert.deepEqual(low, [], 'text below 4.5:1');
+
+    // 9 · Sound by keyboard: Settings switch turns turn sounds on, says so, and off again; off means silent.
+    await page.locator('#tab-ajustes').click();
+    await page.locator('#ajustes-voz > summary').focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'acho-sonido', 'Tab from the group opens onto the switch');
+    const soundNow = async () => page.evaluate(async () => [document.querySelector('#acho-sonido').checked,
+      document.querySelector('#acho-sonido-estado').textContent, (await window.PreceptorAchoSonido.play({ class: 'ok',
+        motif: { portadora: 220, moduladora: 440, indice: 20, dur: 0.05, vibrato: false } })).state]);
+    await page.keyboard.press('Space'); const on = await soundNow();
+    await page.keyboard.press('Space'); const off = await soundNow();
+    assert.equal(on[0], true); assert(/are on/.test(on[1]), on[1]); assert(['played', 'NO_DATA'].includes(on[2]), on[2]);
+    assert.deepEqual([off[0], /are off/.test(off[1]), off[2]], [false, true, 'off']);
+    receipt.checks.sound_switch_by_keyboard = { on: on[2], off: off[2] };
+
+    // 10 · Phone size 420 x 680: Talk fits without sideways scroll; the box and Send stay on screen and big enough.
+    const phone = await browser.newPage({ viewport: { width: 420, height: 680 }, reducedMotion: 'reduce', hasTouch: true, isMobile: true });
+    await phone.goto(ORIGIN + '/app');
+    await phone.locator('#tab-conversacion').click();
+    await phone.locator('#dicho').focus();
+    const fit = await phone.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect();
+      const d = r('#dicho'), e = r('#enviar');
+      return { scroll: document.documentElement.scrollWidth, width: innerWidth, dicho: [d.top, d.bottom, d.height],
+        enviar: [e.top, e.bottom, e.width, e.height], viewport: document.querySelector('meta[name=viewport]').content }; });
+    assert(fit.scroll <= fit.width, 'sideways scroll at 420 px: ' + fit.scroll);
+    assert(fit.dicho[0] >= 0 && fit.dicho[1] <= 680 && fit.enviar[1] <= 680, 'box or Send off screen');
+    assert(fit.enviar[2] >= 24 && fit.enviar[3] >= 24, 'Send smaller than 24 px');
+    assert(/interactive-widget=resizes-content/.test(fit.viewport));
+    receipt.checks.phone_420x680 = { scroll_width: fit.scroll, send_px: fit.enviar.slice(2).map(Math.round), box_bottom: Math.round(fit.dicho[1]) };
+    receipt.levels.virtual_keyboard = 'NO_DATA(headless_has_no_on_screen_keyboard)';
+    await phone.close();
 
     // The arrow walk passes through World, whose panel loads the public OpenWorld page by design; anything else fails.
     const declared = ['https://preceptoros.org/openworld/'];
