@@ -76,6 +76,8 @@
     verified: { form: "easy", line: "double", tone: "ok", moves: true },
     needs_you: { form: "steps", line: "solid", tone: "warn", moves: true },
     uncertain: { form: "free", line: "dashed", tone: "warn", moves: false },
+    // Proposed or simulated: a question's form on a provisional line. Quiet and still: nothing was measured.
+    proposed: { form: "ask_me", line: "dashed", tone: "quiet", moves: false },
     refused: { form: "tips", line: "solid", tone: "stop", moves: true },
     silent: { form: "key_points", line: "dotted", tone: "quiet", moves: false },
   };
@@ -83,7 +85,7 @@
     if (!cls) return state === "waiting" ? "waiting" : "silent";   // a hint from Talk, not a data state
     if (cls === "ok") return state === "ACTED" || state === "DONE_CHECKED" ? "verified" : "answer";
     if (cls === "fence" || cls === "exec_fail") return "refused";
-    if (cls === "needs_you" || cls === "uncertain") return cls;
+    if (cls === "needs_you" || cls === "uncertain" || cls === "proposed") return cls;
     return "silent";                                      // unanswered, empty, bridge_down, anything unknown
   }
   function express(node, cls, state) {

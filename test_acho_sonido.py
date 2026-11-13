@@ -76,10 +76,10 @@ class Sound(unittest.TestCase):
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('<input type="checkbox" id="acho-sonido" aria-describedby="acho-sonido-estado">', html)
         self.assertIn('<p class="pie" id="acho-sonido-estado" role="status" aria-live="polite">', html)
-        self.assertLess(html.index('src="/acho_sonido.js?v=2"'), html.index('src="/app.js?v=38"'))
+        self.assertLess(html.index('src="/acho_sonido.js?v=3"'), html.index('src="/app.js?v=38"'))
         self.assertIn("if (turno && turno.sentence && window.PreceptorAchoSonido)", js)   # never without the words
-        self.assertIn('"/acho_sonido.js?v=2"', sw)
-        self.assertIn('const Cache = "preceptoros-armazon-v192";', sw)
+        self.assertIn('"/acho_sonido.js?v=3"', sw)
+        self.assertIn('const Cache = "preceptoros-armazon-v193";', sw)
         self.assertIn('"/acho_sonido.js": ("acho_sonido.js"', (ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8"))
         src = (ROOT / "interface/acho_sonido.js").read_text(encoding="utf-8")
         for word in ("fetch(", "XMLHttpRequest", "sendBeacon"):

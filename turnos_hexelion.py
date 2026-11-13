@@ -167,7 +167,8 @@ def _close(turn, reply):
 BRIDGE_CAUSES = frozenset({"mcp_nativo_missing", "mcp_nativo_timeout", "mcp_nativo_unrunnable", "mcp_s3_not_installed",
                            "mcp_reply_invalid", "station_endpoint_not_configured", "station_unavailable",
                            "station_timeout"})
-ACHO = {"ANSWERED": "ok", "ACTED": "ok", "LOCAL_SENSOR": "ok", "REPLIED": "ok", "ANSWERED_UNVERIFIED": "empty",
+# REPLIED is another voice's own words, checked by nobody here: a proposal, never the success class (APP-P1-ACHO).
+ACHO = {"ANSWERED": "ok", "ACTED": "ok", "LOCAL_SENSOR": "ok", "REPLIED": "proposed", "ANSWERED_UNVERIFIED": "empty",
         "ACTION_UNVERIFIED": "uncertain", "NO_REPLY_RECORDED": "unanswered"}   # an unproven action may have happened
 
 

@@ -28,7 +28,7 @@ class Expression(unittest.TestCase):
 
     def test_nothing_moves_without_evidence(self):
         still = {k for k, e in self.table.items() if not e["moves"]}
-        self.assertEqual(still, {"waiting", "uncertain", "silent"})
+        self.assertEqual(still, {"waiting", "uncertain", "silent", "proposed"})
 
     def test_the_five_moments_are_told_apart(self):
         got = node(LOAD + "console.log(JSON.stringify([A.expressionOf(null,'waiting'),A.expressionOf('ok','ANSWERED'),"
