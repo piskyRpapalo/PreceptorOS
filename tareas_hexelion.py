@@ -143,10 +143,22 @@ def project(records, observed_at, source_cause=None):
             "limits": "Reads journal records handed to it. It stores, claims, retries and authorises nothing."}
     if source_cause or not isinstance(records, list):
         return dict(base, state="NO_DATA", cause=str(source_cause or "records_unreadable")[:80], tasks=[], counts={},
-                    needs_you=0)
-    tasks = [task(r) for r in records[:MAX_TASKS]]
+                    needs_you=0, blocks_new_work=0)
+    shown = records[:MAX_TASKS]
+    # One run, one record. A run id handed twice is a contradictory source: none of its copies is believed.
+    seen = {}
+    for r in shown:
+        rid = r.get("run_id") if type(r) is dict else None
+        if type(rid) is str:
+            seen[rid] = seen.get(rid, 0) + 1
+    tasks = [_no_data(r["run_id"], "duplicate_record") if type(r) is dict and seen.get(r.get("run_id"), 0) > 1
+             else task(r) for r in shown]
     counts = {}
     for t in tasks:
         counts[t["state"]] = counts.get(t["state"], 0) + 1
+    # The journal lets a claim with no known result block every new claim until the host resolves it (LAB #182);
+    # an interruption before authorisation can leave one. Said, never hidden and never cleared from here.
+    blocks = counts.get("NO_RESULT_RECORDED", 0) + counts.get("OUTCOME_UNKNOWN", 0)
     return dict(base, state="MEASURED" if tasks else "NO_DATA", cause=None if tasks else "no_task_recorded",
-                tasks=tasks, counts=dict(sorted(counts.items())), needs_you=counts.get("NEEDS_YOUR_AUTHORIZATION", 0))
+                tasks=tasks, counts=dict(sorted(counts.items())), needs_you=counts.get("NEEDS_YOUR_AUTHORIZATION", 0),
+                blocks_new_work=blocks)

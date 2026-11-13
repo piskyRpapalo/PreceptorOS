@@ -91,8 +91,8 @@ class Wiring(unittest.TestCase):
         self.assertIn('"refused by the fence"', js)
         self.assertIn("voice: clean(r.voice, 24)", js)
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
-        self.assertIn('"/notebook.js?v=11"', sw)
-        self.assertIn("preceptoros-armazon-v182", sw)
+        self.assertIn('"/notebook.js?v=12"', sw)
+        self.assertIn("preceptoros-armazon-v183", sw)
 
 
 if __name__ == "__main__":
