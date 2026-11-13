@@ -253,6 +253,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # test_turnos_hexelion: que paso con cada peticion (META-HARNESS-01); la puerta deja recibo de fallo
           # con su propia voz, se empareja pregunta y respuesta, y nunca se dice que algo sigue corriendo.
           test_turnos_hexelion
+          # test_talk_turn_parity: Talk dice lo que dice el Cuaderno (paridad de autonomia S2): un turno proyectado
+          test_talk_turn_parity
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall

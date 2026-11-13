@@ -161,6 +161,8 @@ def _close(turn, reply):
 
 
 MAX_TURN_B = 1024
+# What a chat reply carries to Talk: the Notebook row's own state, cause and words (autonomy parity), nothing else.
+TALK_FIELDS = ("n", "state", "cause", "sentence", "next")
 
 
 def _bound(turn):

@@ -951,17 +951,23 @@ $("form-chat").addEventListener("submit", async (e) => {
     });
     const d = await r.json();
     esperando.remove();
+    // Autonomy parity: once the question is in the thread, the reply carries its projected turn and Talk's status line
+    // is that turn's sentence and next step, the same words the Notebook card shows. No turn (refused before the
+    // thread) keeps the door's own cause, because then there is no event for any reader.
+    const turno = d && d.turno !== undefined && window.PreceptorNotebook ? window.PreceptorNotebook.turnLine(d.turno)
+      : (d && d.turno !== undefined ? { state: "NO_DATA", cause: "turn_reader_missing", line: "NO_DATA: the turn reader did not load." } : null);
+    $("estado").dataset.state = turno ? turno.state : "";
     const respuesta = d.respuesta;
     const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
     const accion = respuesta && respuesta.tipo === "accion_hexelion" ? respuesta.accion : null;
     if (r.ok && d.estado === "ACCION_LOCAL" && accion && accion.estado === "MEASURED" &&
         typeof accion.herramienta === "string" && typeof accion.texto === "string" && accion.texto.length <= 1600) {
       // An action, not an answer: the native MCP ran it as Hexelion inside its fences. No model, no citations.
-      $("estado").textContent = "Hexelion action · " + accion.herramienta + " · " +
-        (accion.ok ? "done" : "refused or failed") + " · model not invoked";
+      $("estado").textContent = turno ? turno.line
+        : "Hexelion action · " + accion.herramienta + " · NO_DATA: turn not projected · model not invoked";
       modelosWeb.setActiveModel(null, null, "hexelion_action_model_not_invoked");
       const fila = burbuja("Hexelion · action " + accion.herramienta + ": " + accion.texto);
-      fila.lang = "en"; fila.dataset.accion = accion.ok ? "ok" : "refused";
+      fila.lang = "en"; fila.dataset.accion = turno ? turno.state.toLowerCase() : "no_data";
     } else if (r.ok && d.estado === "LECTURA_LOCAL" && local &&
         local.esquema === "preceptoros.energy-read/1" && local.solo_lectura === true &&
         (local.estado === "PARCIAL" || local.estado === "NO_DATA") &&
@@ -969,7 +975,7 @@ $("form-chat").addEventListener("submit", async (e) => {
         typeof local.texto === "string" && local.texto.startsWith("Energy: ") &&
         local.texto.length <= 420) {
       // The local sensor is not the model; no fabricated citations or model timing.
-      $("estado").textContent = "Local energy tool · " + local.estado + " · model not invoked";
+      $("estado").textContent = turno ? turno.line : "Local energy tool · " + local.estado + " · model not invoked";
       modelosWeb.setActiveModel(null, null, "local_energy_tool_model_not_invoked");
       const fila = burbuja("Hexelion · local sensor (model not invoked): " + local.texto);
       fila.lang = "en";
@@ -982,7 +988,7 @@ $("form-chat").addEventListener("submit", async (e) => {
         ? maquina.modelo.trim() : t.chat_modelo_nd;
       const ms = Number.isFinite(maquina.ms) && maquina.ms > 0 ? ` · ${maquina.ms} ms` : "";
       const causaRespuesta = typeof d.causa === "string" && d.causa ? ` · ${d.causa}` : "";
-      $("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
+      $("estado").textContent = turno ? turno.line : `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`;
       modelosWeb.setActiveModel(typeof maquina.modelo === "string" ? maquina.modelo : null,
         maquina.ms, "hexelion_model_name_not_returned");
       const agente = window.PreceptorTeam ? window.PreceptorTeam.label(window.PreceptorTeam.active()) : "";
@@ -990,8 +996,8 @@ $("form-chat").addEventListener("submit", async (e) => {
       respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)));
     } else {
       const causa = typeof d.causa === "string" && d.causa ? d.causa : t.chat_edad_nd;
-      $("estado").textContent = t.chat_sin_respuesta(causa);
-      if (causa === "no_exact_quote_in_sources") { $("estado").textContent = t.chat_sin_cita; burbuja("Hexelion: " + t.chat_sin_cita); }  // found nothing to quote: an answer, not a failure
+      $("estado").textContent = turno ? turno.line : t.chat_sin_respuesta(causa);
+      if (causa === "no_exact_quote_in_sources") { if (!turno) $("estado").textContent = t.chat_sin_cita; burbuja("Hexelion: " + t.chat_sin_cita); }  // found nothing to quote: an answer, not a failure
       modelosWeb.setActiveModel(null, null, causa);
       if (!$("dicho").value.trim()) $("dicho").value = escrito;
     }

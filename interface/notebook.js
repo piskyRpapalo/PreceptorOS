@@ -191,6 +191,28 @@
       }))
     };
   }
+  /* Talk says what this card says (autonomy parity): the chat reply carries the turn turnos_hexelion projected from the
+   * thread, and this one function turns it into Talk's status line. Same state, same sentence, same cause as the card.
+   * Missing, malformed or unknown: NO_DATA with its cause. Talk never words a result of its own. */
+  function turnLine(raw) {
+    const x = raw && typeof raw === "object" ? raw : null;
+    if (!x || !Number.isSafeInteger(x.n)) {
+      const cause = clean(x && x.cause, 80) || "turn_missing";
+      return { state: "NO_DATA", n: null, cause, sentence: "", next: "",
+        line: "NO_DATA: this request has no projected turn (" + cause.replace(/_/g, " ") + "); the Notebook keeps the thread." };
+    }
+    const state = turnStates.includes(x.state) ? x.state : "NO_DATA";
+    if (x.cut === "envelope" && state !== "NO_DATA") {
+      return { state, n: x.n, cause: clean(x.cause, 80), sentence: "", next: "",
+        line: state + ": the full sentence did not fit this reply; the Notebook shows it for request " + x.n + "." };
+    }
+    const sentence = clean(x.sentence, 200), next = clean(x.next, 160);
+    if (state === "NO_DATA" || !sentence) {
+      return { state: "NO_DATA", n: x.n, cause: "turn_unreadable", sentence: "", next: "",
+        line: "NO_DATA: the turn for this request could not be read; the Notebook keeps the thread." };
+    }
+    return { state, n: x.n, cause: clean(x.cause, 80), sentence, next, line: next ? sentence + " " + next : sentence };
+  }
   function turnCard(x) {
     const when = x.asked.replace("T", " ").replace("Z", " UTC");
     const c = card(x.by + " asked " + x.to + " · " + when, x.state, x.sentence);
@@ -262,7 +284,7 @@
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, loadTurns, loadBench });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, loadTurns, loadBench });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();

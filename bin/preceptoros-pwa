@@ -1181,6 +1181,29 @@ class PWA(BaseHTTPRequestHandler):
         # agent asks in «cli», so agent questions never fill the person's thread or the 12-turn view.
         turno = {"n": None, "hilo": "orquesta"}
 
+        def reply(code, payload):
+            # Talk says what the Notebook says (autonomy parity): once the question is in the thread, the reply carries
+            # the turn turnos_hexelion projects from that same thread, so Talk paints its sentence instead of wording
+            # the result itself. Before the question is written there is no turn, and none is invented. The reply
+            # keeps its 1,023 B envelope: the turn gives way first (sentence and next, then the whole turn), never the
+            # answer, so a valid answer is never turned into a 503 by its own receipt.
+            if isinstance(turno["n"], int):
+                lectura = _canales.lee(turno["hilo"], 0, base=_casa.raiz())
+                filas = (_turnos.turns(lectura.get("mensajes") or [])
+                         if isinstance(lectura, dict) and lectura.get("estado") == "MEDIDO" else [])
+                fila = next((t for t in filas if t["n"] == turno["n"]), None)
+                full = ({k: fila[k] for k in _turnos.TALK_FIELDS if k in fila} if fila is not None
+                        else {"state": "NO_DATA", "cause": "turn_not_projected"})
+                cut = dict({k: full[k] for k in ("n", "state", "cause") if k in full}, cut="envelope")
+                for candidate in (full, cut):
+                    try:
+                        _estado_compacto.serializar_objeto(dict(payload, turno=candidate))
+                    except ValueError:
+                        continue
+                    payload = dict(payload, turno=candidate)
+                    break
+            return self._json(code, payload)
+
         def no_data(cause, code=503):
             # A question that got no answer leaves a receipt in the thread (META-HARNESS-01), written by the door,
             # never in Hexelion's voice: Notebook and Lab can then say what happened instead of guessing.
@@ -1189,7 +1212,7 @@ class PWA(BaseHTTPRequestHandler):
                     _canales.di_recibo_puerta(turno["hilo"], turno["n"], cause, base=_casa.raiz())
                 except _canales.CanalRechazado:
                     pass
-            return self._json(code, {"estado": "NO_DATA", "causa": cause,
+            return reply(code, {"estado": "NO_DATA", "causa": cause,
                                      "respuesta": {"estado": "NO_DATA", "causa": cause}})
         # Two doors. The person's window carries a same-host Origin; a rack CLI agent is loopback with NO Origin
         # and must name its voice (checked after parsing). Anything else is refused before the body is read.
@@ -1279,7 +1302,7 @@ class PWA(BaseHTTPRequestHandler):
                             base=_casa.raiz())
             except _canales.CanalRechazado:
                 return no_data("thread_append_refused")
-            return self._json(200, {"estado": "ACCION_LOCAL", "causa": via + ";model_not_invoked",
+            return reply(200, {"estado": "ACCION_LOCAL", "causa": via + ";model_not_invoked",
                                     "respuesta": {"tipo": "accion_hexelion", "accion": accion}})
         # Exact sensor-intent queries use the local measurement tool, never
         # the station model. Keep model citations mandatory in the other path.
@@ -1303,7 +1326,7 @@ class PWA(BaseHTTPRequestHandler):
                                      "estado": lectura["estado"]}, base=_casa.raiz())
             except _canales.CanalRechazado:
                 return no_data("thread_append_refused")
-            return self._json(200, receipt)
+            return reply(200, receipt)
         # Two shelves, one rule: the person's memory first, then the rack + GitHub index
         # (indice_rack, built by bin/indice-rack). Both are exact quotes under the same budget.
         evidence = _indice_rack.unir(_memory_lookup.buscar(text.strip(), self.server.ruta_db),
@@ -1348,7 +1371,7 @@ class PWA(BaseHTTPRequestHandler):
                         base=_casa.raiz())
         except _canales.CanalRechazado:
             return no_data("thread_append_refused")
-        return self._json(200, response)
+        return reply(200, response)
 
     def _hexelion_consulta(self, ruta):
         """Explicit same-origin local lookup; optional advice never executes actions."""
