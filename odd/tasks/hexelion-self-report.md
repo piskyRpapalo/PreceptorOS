@@ -28,8 +28,16 @@ THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, roun
 - **"Needs from you: nothing now (measured)" only over measured zeros:** a fresh, fully read signature list and a
   task reading with `counters.state = MEASURED`. Known decisions with an unknown remainder read as "at least N …;
   others unknown (cause)".
+- **A window is not a census** (Mesa #3 round 8, Cell A review). The task queue is counted only when
+  `counters.state` is MEASURED (an attested complete reading, every row read). Otherwise "Doing" and "How" are
+  NO_DATA with the counters' cause.
+  - When rows are visible, they are said as "at least N task(s) visible; completeness NO_DATA (cause)".
+  - With none visible, it is "no task visible", never "0 tasks".
+  - A legacy projection with `state=MEASURED` but no `counters` is `counters_not_stated`.
 - **The report's own turns are not work.**
-- **The four answers always fit the chat envelope uncut** (560 B). The quoted last request gives way first.
+- **The four answers always fit the chat envelope uncut** (560 B), including the longest wording (a partial window).
+  The quoted last request gives way first, then the reference to it, then lists of message numbers become counts
+  (the refs stay in `refs.turns`).
 - **Acho:** a report with any NO_DATA answer is drawn as missing evidence (`empty` → silent), never the success
   mark. The sentence names the NO_DATA answers.
 
@@ -38,7 +46,8 @@ THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, roun
 | | Before (`main` `18bf0d4`) | After |
 |---|---|---|
 | "What are you doing?" | an ordinary question to the model (no phrase, no reader) | local read, no model |
-| `test_self_report` | 10/10 fail (2 fail, 8 error) | 10/10 pass |
+| `test_self_report` | 10/10 fail (2 fail, 8 error) | 13/13 pass |
+| Round 8 fixtures on `747971d`: 12 visible done + a 13th unresolved; MEASURED without `counters`; positive control | 3/3 fail ("doing" MEASURED; "0 task(s) recorded") | 3/3 pass |
 | Walk step 12b (headless Chrome, isolated server, temp home) | not present | Talk == JSON == Notebook row; Acho silent |
 
 ## NO_DATA
