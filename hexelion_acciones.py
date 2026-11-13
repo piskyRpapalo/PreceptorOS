@@ -42,16 +42,19 @@ ACCIONES = {
     "firmas": "signatures", "signatures": "signatures",
     "lab": "lab",
     "preceptores": "preceptors", "preceptors": "preceptors",
+    "dispositivos": "devices", "devices": "devices",
+    "modelos": "models", "models": "models",
 }
 # Local READS (APP-TALK-E2E-01, 2026-11-13): no MCP, no model, no network. Each one reads a projection an existing
 # producer already writes under <casa>: the signature list (bin/firmas-scraper), the Lab bench (lab_bench.py) and
 # the preceptor heartbeats (notebook/agents.json), through the same readers the Notebook and /api/firmas use.
-LOCALES = ("signatures", "lab", "preceptors")
+LOCALES = ("signatures", "lab", "preceptors", "devices", "models")
 FIRMAS_FRESCAS_S = 1800   # the scraper runs every 10 min; older than 30 min is said as STALE
 # The chat door answers inside a 1,023 B envelope (estado_compacto); the action fields take ~350 B of it. A local
 # read says the most important lines first and is cut, with a mark, at this many UTF-8 bytes.
 TOPE_LOCAL_B = 560
-AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /ejecuta [@worktree] <command> · "
+AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /dispositivos · /modelos · "
+         "/ejecuta [@worktree] <command> · "
          "/escribe @worktree <path> :: <text>")
 
 
@@ -90,6 +93,17 @@ FRASES = {
         "que preceptores estan trabajando", "que preceptores trabajan", "quien esta trabajando", "quien trabaja",
         "which preceptors are working", "who is working", "what are the preceptors doing",
         "que preceptores estao a trabalhar", "quem esta a trabalhar",
+    ),
+    "/dispositivos": (
+        "que dispositivos estan conectados", "que dispositivos hay", "que dispositivos tenemos", "que nodos hay",
+        "que dispositivos estan reservados para acurast",
+        "what devices are connected", "which devices are connected", "what devices do we have", "which nodes are there",
+        "que dispositivos estao ligados", "que dispositivos temos",
+    ),
+    "/modelos": (
+        "que modelos tenemos", "que modelos hay", "modelos disponibles",
+        "what models do we have", "which models do we have", "what models are there",
+        "que modelos temos",
     ),
 }
 _FRASE = {f: orden for orden, frases in FRASES.items() for f in frases}
@@ -331,8 +345,71 @@ def _preceptores(base, now):
     return True, None, linea + actos
 
 
+def _federado(base, now):
+    import federado
+    return federado.from_lab(base, now=now)
+
+
+def _dispositivos(base, now):
+    """The declared devices and the evidence each has. LAB measures; the APP only reads and says. The full machine
+    form is GET /api/federado (the chat answer must fit its envelope)."""
+    vista = _federado(base, now)
+    if vista.get("registry_cause"):
+        return False, vista["registry_cause"], ("I cannot list your devices: the private device registry is "
+                                                 "not readable (%s)." % vista["registry_cause"].replace("_", " "))
+    rack, otros, acurast = [], [], []
+    for d in vista["devices"]:
+        if d["acurast"] or "ACURAST_EXTERNAL" in d["roles"]:
+            acurast.append(d["label"] + (" (parked)" if d["parked"] else ""))
+            continue
+        server = next((e for e in d["evidence"] if e["role"] == "MODEL_SERVER" and d["kind"] == "rack_node"), None)
+        if server is None:
+            otros.append(d["label"] + (" (parked)" if d["parked"] else ""))
+        elif server["state"] == "STALE":
+            rack.append("%s seen %s" % (d["label"], _hace(server.get("age_s"))))
+        elif server["state"] == "VERIFIED":
+            rack.append("%s verified now" % d["label"])
+        else:
+            rack.append("%s no evidence (%s)" % (d["label"], server["cause"].replace("_", " ")))
+    texto = "Devices: %d declared." % len(vista["devices"])
+    if rack:
+        texto += " Model servers (LAB): " + "; ".join(rack) + "."
+    if otros:
+        texto += " Declared only, not pinged: " + ", ".join(otros) + "."
+    if acurast:
+        texto += " Reserved to Acurast, never Hexelion workers: " + ", ".join(acurast) + "."
+    if vista.get("lab_cause"):
+        texto += " LAB evidence: NO_DATA (%s)." % vista["lab_cause"].replace("_", " ")
+    return True, None, texto
+
+
+def _modelos(base, now):
+    """Installed models per node backend, from LAB's re-checked snapshots. Installed is not available."""
+    vista = _federado(base, now)
+    if vista.get("lab_cause"):
+        return False, vista["lab_cause"], ("I cannot say which models we have: LAB node evidence is NO_DATA (%s)."
+                                           % vista["lab_cause"].replace("_", " "))
+    filas, edades, sin = [], [], []
+    for r in vista["backends"]:
+        nombre = r["node"] + ("" if r.get("backend") in (None, "default") else " " + r["backend"])
+        if r["state"] == "NO_DATA":
+            sin.append("%s (%s)" % (nombre, r["cause"].replace("_", " ")))
+            continue
+        filas.append("%s %d/%s" % (nombre, r["models_installed"],
+                                   "NO_DATA" if r["models_resident"] is None else r["models_resident"]))
+        edades.append(r["age_s"] or 0)
+    texto = "Models installed/loaded by node (LAB snapshots, integrity rechecked): " + " · ".join(filas)
+    if edades:
+        texto += (", verified now" if all(r["state"] == "VERIFIED" for r in vista["backends"] if r["state"] != "NO_DATA")
+                  else ", seen %s to %s" % (_hace(min(edades)), _hace(max(edades))))
+    texto += "." + (" No evidence: " + "; ".join(sin) + "." if sin else "")
+    return True, None, texto + " Installed is not available; no inference was run."
+
+
 _LECTORES = {"signatures": (_firmas, "firmas/pendientes.json"), "lab": (_lab, "notebook/bench.json"),
-             "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json")}
+             "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json"),
+             "devices": (_dispositivos, "federado/dispositivos.json + LAB node receipts"),
+             "models": (_modelos, "LAB node receipts")}
 
 
 def cabe(texto, tope=TOPE_LOCAL_B):

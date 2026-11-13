@@ -42,7 +42,7 @@ class EnglishOnlyApp(unittest.TestCase):
     def test_fresh_shell_asset_versions_match_pinned_service_worker(self):
         self.assertIn('src="/app.js?v=28"', self.html)
         self.assertIn('"/app.js?v=28"', self.sw)
-        self.assertIn('preceptoros-armazon-v174', self.sw)
+        self.assertIn('preceptoros-armazon-v175', self.sw)
         self.assertIn('src="/energia_ui.js?v=2"', self.html)
         self.assertIn('"/energia_ui.js?v=2"', self.sw)
 

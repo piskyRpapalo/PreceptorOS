@@ -141,7 +141,7 @@ class LocalEnergyChat(unittest.TestCase):
         sw = (base / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('src="/app.js?v=28"', html)
         self.assertIn('"/app.js?v=28"', sw)
-        self.assertIn("preceptoros-armazon-v174", sw)
+        self.assertIn("preceptoros-armazon-v175", sw)
         self.assertIn('local.esquema === "preceptoros.energy-read/1"', js)
         self.assertIn('respuesta.estado === "MEASURED"', js)
         self.assertIn('Array.isArray(respuesta.fuentes)', js)

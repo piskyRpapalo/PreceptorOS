@@ -1,0 +1,100 @@
+{
+ "schema": "preceptoros.device-registry/1",
+ "_note": "Example only. The real registry lives in <casa>/federado/dispositivos.json and never enters this repository. Labels are the person's own names; ids are anonymous.",
+ "devices": [
+  {
+   "id": "node-a",
+   "kind": "rack_node",
+   "node": "node-a",
+   "label": "node-a",
+   "roles": [
+    "MODEL_SERVER"
+   ]
+  },
+  {
+   "id": "node-b",
+   "kind": "rack_node",
+   "node": "node-b",
+   "label": "node-b",
+   "roles": [
+    "APP_CLIENT",
+    "MODEL_SERVER",
+    "BENCH_WORKER"
+   ]
+  },
+  {
+   "id": "node-c",
+   "kind": "rack_node",
+   "node": "node-c",
+   "label": "node-c",
+   "roles": [
+    "MODEL_SERVER"
+   ]
+  },
+  {
+   "id": "node-d",
+   "kind": "rack_node",
+   "node": "node-d",
+   "label": "node-d",
+   "roles": [
+    "MODEL_SERVER",
+    "SENSOR"
+   ]
+  },
+  {
+   "id": "node-e",
+   "kind": "rack_node",
+   "node": "node-e",
+   "label": "node-e",
+   "roles": [
+    "MODEL_SERVER"
+   ]
+  },
+  {
+   "id": "mobile-1",
+   "kind": "mobile",
+   "label": "mobile-1",
+   "roles": [
+    "APP_CLIENT",
+    "LOCAL_AI"
+   ]
+  },
+  {
+   "id": "mobile-2",
+   "kind": "mobile",
+   "label": "mobile-2",
+   "roles": [
+    "APP_CLIENT",
+    "SENSOR"
+   ]
+  },
+  {
+   "id": "mobile-3",
+   "kind": "mobile",
+   "label": "mobile-3",
+   "roles": [
+    "ACURAST_EXTERNAL"
+   ],
+   "acurast": "unknown",
+   "parked": true
+  },
+  {
+   "id": "mobile-4",
+   "kind": "mobile",
+   "label": "mobile-4",
+   "roles": [
+    "ACURAST_EXTERNAL"
+   ],
+   "acurast": "unknown"
+  },
+  {
+   "id": "mobile-5",
+   "kind": "mobile",
+   "label": "mobile-5",
+   "roles": [
+    "ACURAST_EXTERNAL"
+   ],
+   "acurast": "unknown"
+  }
+ ]
+}
