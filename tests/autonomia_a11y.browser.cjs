@@ -341,6 +341,56 @@ async function waitServer(child) {
     for (const [panel, said] of Object.entries(openSaid)) assert(said.length <= 1, `opening ${panel} spoke ${said.length} lines: ${said}`);
     for (const [panel, where] of Object.entries(focusAfterRefresh)) assert(where === 'kept' || where.startsWith('NO_DATA'), `refresh in ${panel} lost focus to ${where}`);
 
+    // 16-19 · Accessibility proof (measure).
+    const TABS = ['#tab-mando', '#tab-conversacion', '#tab-gobierno', '#tab-cuaderno', '#tab-lab', '#tab-harness', '#tab-puerta', '#tab-modelos', '#tab-ajustes'];
+    const proof = {};
+    // 16 · Forced colours: focus still visible, marks drawn in system colours, line patterns kept.
+    const fc = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    await fc.emulateMedia({ forcedColors: 'active' });
+    await fc.goto(ORIGIN + '/app'); await fc.waitForTimeout(800);
+    proof.forced_focus = {};
+    for (const sel of ['#tab-conversacion', '#enviar', '#dicho', 'button.refrescar']) {
+      await fc.locator(sel).first().focus(); await fc.keyboard.press('Shift+Tab'); await fc.keyboard.press('Tab');
+      proof.forced_focus[sel] = await fc.evaluate(() => { const a = document.activeElement, c = getComputedStyle(a);
+        return { id: a.id || a.className, outline: c.outlineStyle + ' ' + c.outlineWidth, shadow: c.boxShadow }; });
+    }
+    await fc.close();
+    // 17 · Larger screens: no sideways scroll, every tab on screen.
+    proof.sizes = {};
+    for (const [w, h] of [[768, 1024], [1440, 900], [1920, 1080]]) {
+      const big = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion: 'reduce' });
+      await big.goto(ORIGIN + '/app'); await big.waitForTimeout(600);
+      proof.sizes[w + 'x' + h] = await big.evaluate(() => ({ scroll: document.documentElement.scrollWidth,
+        tabsOff: [...document.querySelectorAll('.pestanas [role=tab]')].filter((t) => { const r = t.getBoundingClientRect(); return r.right > innerWidth || r.left < 0 || r.width === 0; }).map((t) => t.id),
+        lineMax: Math.max(...[...document.querySelectorAll('[role=tabpanel]:not([hidden]) p')].map((p) => p.getBoundingClientRect().width)) }));
+      await big.close();
+    }
+    // 18 · Source failures: every reader fails; each panel says so with a cause, never "updated".
+    const down = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    for (const api of ['notebook', 'harness', 'lab', 'lab-rack', 'hexelion/turnos', 'hexelion/tareas', 'lab/bench', 'conversacion', 'estado', 'captura', 'empieza-aqui', 'hitl'])
+      await down.route('**/api/' + api + '*', (r) => r.fulfill({ status: 500, contentType: 'text/plain', body: 'down' }));
+    await down.goto(ORIGIN + '/app'); await down.waitForTimeout(800);
+    proof.failure_text = {};
+    for (const tab of TABS) { await down.locator(tab).click(); await down.waitForTimeout(1200);
+      proof.failure_text[tab.slice(5)] = await down.evaluate(() => [...document.querySelectorAll('[role=tabpanel]:not([hidden]) [role=status], #estado')].map((e) => e.id + ': ' + e.textContent.trim().slice(0, 90))); }
+    await down.close();
+    // 19 · State words as they read across the nine panels (the normal page).
+    proof.state_words = {};
+    for (const tab of TABS) { await page.locator(tab).click(); await page.waitForTimeout(700);
+      const text = await page.evaluate(() => document.querySelector('[role=tabpanel]:not([hidden])').innerText);
+      for (const w of text.match(/\b(NO_DATA|NO DATA|No data|UNKNOWN|Unknown|REFUSED|Refused|VERIFIED|Verified|OBSERVED|MEASURED|STALE|DECLARED)\b/g) || [])
+        proof.state_words[w] = (proof.state_words[w] || 0) + 1; }
+    receipt.checks.proof = proof;
+    for (const [sel, f] of Object.entries(proof.forced_focus)) assert.notEqual(f.outline.split(' ')[0], 'none', `forced colours hide the focus on ${sel}`);
+    for (const [size, m] of Object.entries(proof.sizes)) { assert.equal(m.scroll, Number(size.split('x')[0]), `sideways scroll at ${size}`); assert.deepEqual(m.tabsOff, [], `tabs off screen at ${size}`); }
+    const failed = Object.values(proof.failure_text).flat();
+    assert(failed.includes('estado: NO_DATA: the server answered http 500 without a reading.'), 'a failed answer is not an unreachable server');
+    for (const voice of ['notebook-status', 'lab-estado', 'lab-rack-estado', 'harness-frescura', 'lab-bench-status', 'notebook-tasks-status', 'harness-cli-status', 'hitl-estado'])
+      assert(failed.some((l) => l.startsWith(voice + ': NO_DATA')), `${voice} does not read as NO_DATA when its source fails`);
+    assert(!failed.some((l) => /updated|Read just now/.test(l) && !/NO_DATA/.test(l)), 'a failed reading claimed to be fresh');
+    assert(!failed.some((l) => /\b(No se|Sin consultar|Leyendo|conexion|respuesta_invalida)\b/.test(l)), 'Spanish under failure');
+    assert.deepEqual(Object.keys(proof.state_words).filter((w) => !['NO_DATA', 'DECLARED', 'OBSERVED', 'MEASURED', 'VERIFIED', 'REFUSED', 'UNKNOWN', 'STALE'].includes(w)), [], 'a state word read in a second spelling');
+
     // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.
     // `canal:<thread>` is lab.py's source identifier (data, pinned by test_lab), not prose; it is not matched.
     const spanish = /\b(Bucles|Consultando|aún|comprobando|Zona activa|Hablar|mensajes|Publicar|creación|Identidad|edificio|Redacción|Modelos locales|Canales recientes|Elige|ninguna)\b/;

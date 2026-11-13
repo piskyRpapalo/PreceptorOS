@@ -85,6 +85,61 @@ The walk runs in headless Chrome against its own server (temporary HOME, fake MC
 - English first paint for the Lab and Harness reading lines; " · Bucles:" became " · loops:".
 - Arrows, Home and End are unchanged (walk step 7).
 
+## ACCESSIBILITY-PROOF (delivered after PANEL-FLOW)
+
+Measured in walk steps 16–19 (headless Chrome, its own server, 2026-11-13):
+
+- **Forced colours:** focus stays visible on the tab, Send, the message box and ↻ (outline `auto` or 3 px solid; no
+  focus ring relies on a box shadow). The Acho mark and the card edges switch to system colours and keep their
+  line pattern.
+- **Larger screens:** at 768×1024, 1440×900 and 1920×1080 there is no sideways scroll, all nine tabs are on screen,
+  and the longest panel paragraph is about 650 px wide.
+- **Source failures** (each reader overridden with http 500). Fixed:
+  - Settings said "Read just now from this node." while both of its readings had failed. Its readers now report the
+    failure, and it says `NO_DATA: 2 of 2 readings did not answer`.
+  - The header said "cannot reach the server" when the server had answered with an error. It now says
+    `NO_DATA: the server answered http 500 without a reading.`
+  - Lab, the Lab rack, Harness and the local gate now read `NO_DATA: …` with their cause, as the Notebook already did.
+  - Spanish under failure is gone: the Boundary's reading messages, the tray, and the rack cause codes
+    `local_connection_unavailable` / `invalid_answer`.
+- **State words:** across the nine panels only the canonical forms appear (`NO_DATA`, `DECLARED`, `OBSERVED`). No
+  second spelling was seen ("NO DATA", "No data").
+- **Missing receipts and UNKNOWN:** the uncertain task fixture (step 11) reads the same in Talk and the Notebook, with
+  its references behind a disclosure. `NO_RESULT_RECORDED` and `OUTCOME_UNKNOWN` use the `uncertain` class
+  (ACHO-EXPRESSION). REFUSED and VERIFIED come from the turn table (`fence`/`exec_fail`, `ok`+ACTED).
+
+Open question for the Mesa (lawful default in brackets): the Boundary's signing flow still speaks Spanish
+(«Firmando…», «No firmado: nada hecho.», «PR espera tu firma», «listo para firmar»). [Left untouched: this is the
+Sovereign's signing wording. Only the reading messages were translated.]
+
+Still NO_DATA: a screen reader in use (Orca or TalkBack: no assistive technology ran) · sound heard on a speaker ·
+an on-screen keyboard on a real phone · a dark scheme (the app declares light only).
+
+## Synthesis · what reaches a person, in what order
+
+1. **First:** the active zone and one status line: Talk's `#estado` or the panel's own line. It holds the state word,
+   the cause and what comes next, in that order. Then the Acho mark beside it shows the same thing as a shape. The
+   mark is never the first or only signal.
+2. **A relevant change** is a new turn, a task that waits on you, or a reading that changed its words. **Noise** is
+   the same words again: a re-poll, a thread copy of a draft, section lines while a panel loads, or a focused tab
+   repeated by the zone line. Noise stays visible but silent: dedupe by identity and by changed words, never by a
+   timer.
+3. **Without sight:** the same words in the same order. One live announcement per event. State always in words
+   (the card's state word, the line patterns as text), references behind a disclosure opened with Enter, and focus
+   that stays where the person put it. Sound is optional, off by default, and carries no information that the words
+   don't. What is heard is NO_DATA until a screen reader runs on a device.
+4. **Preceptors and devices:** a card shows only what a receipt attests (harness capability proposal, #278). A
+   connection is drawn only from a fresh probe with its time. Otherwise the card says NO_DATA with the cause, and
+   nothing animates or glows as if it were connected. No card ranks, grants or connects.
+
+## Size limits (kept apart, not unified)
+
+A Notebook task row is under 1,024 B (worst measured 1,005). A LAB host record is under 1,024 B. An MCP line is
+under 1,024 B (`mcp_transport.LIMIT`). The chat envelope is 1,023 B. An HTTP response holds a list of rows and is not
+a row. A thread receipt follows its own canal ceiling. The compact view is the sentence plus the next step; full
+references sit in the "Receipt and references" disclosure. Nothing critical is dropped to fit: an oversize row
+becomes NO_DATA with its cause.
+
 ## Levels kept apart
 
 DOM inspection (measured, headless Chrome) ≠ a screen reader in use (NO_DATA) · Web Audio graph ran ≠ sound heard

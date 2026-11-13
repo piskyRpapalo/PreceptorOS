@@ -20,7 +20,7 @@
   // Vigía: texto (no solo color) y hora local HH:MM.
   function vigia(v) {
     if (!v) return "";
-    const d = new Date(v.ts), hora = isNaN(d) ? "" : " · vigía " + d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    const d = new Date(v.ts), hora = isNaN(d) ? "" : " · watch " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
     const t = v.estado === "listo" ? "✓ listo para firmar" : v.estado === "rojo" ? "✗ rojo: " + ((v.rojos || []).join(", ") || "sin detalle") : v.estado === "firmado" ? "✓ firmado" : "";
     return t ? t + hora : "";
   }
@@ -39,12 +39,12 @@
   function pintarFilas(filas) {
     lista.after(detalle); lista.replaceChildren(); cuenta.textContent = String(filas.length);
     if (filas.length) { cuerpo.hidden = false; cabecera.setAttribute("aria-expanded", "true"); } // open by default when something waits
-    if (!filas.length) { estado.textContent = "No hay PRs pendientes de tu firma."; return; }
+    if (!filas.length) { estado.textContent = "No PRs wait for your signature."; return; }
     estado.textContent = filas.length + (filas.length === 1 ? " PR espera tu firma." : " PRs esperan tu firma.");
     for (const f of filas) {
       const li = el("li"), b = el("button", "hitl-fila");
       b.type = "button"; b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", "hitl-detalle");
-      b.append(el("strong", null, "#" + f.numero + " · " + (f.titulo || "(sin título)")),
+      b.append(el("strong", null, "#" + f.numero + " · " + (f.titulo || "(untitled)")),
         el("span", "pie", (f.cabeza || "") + " · " + (f.estado || "") + " · " + simbolo(f.checks)));
       const vt = vigia(f.vigia); if (vt) b.append(el("span", "hitl-vigia", vt));
       b.addEventListener("click", () => (numero === f.numero ? cerrar() : abrir(f, li, b)));
@@ -52,10 +52,10 @@
     }
   }
   async function cargar() {
-    estado.textContent = "Leyendo los PRs…";
+    estado.textContent = "Reading the PRs…";
     try { const d = await leerJson("/api/hitl"); token = d.token || ""; pintarFilas(d.filas || []);
-      estado.textContent += " · leído " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
-    catch (e) { lista.replaceChildren(); cuenta.textContent = "?"; estado.textContent = "No se pudo leer la lista: " + e.message; }
+      estado.textContent += " · read " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+    catch (e) { lista.replaceChildren(); cuenta.textContent = "?"; estado.textContent = "NO_DATA: the list could not be read (" + e.message + ")."; }
   }
   async function abrir(f, li, b) {
     if (ocupado) return;
@@ -63,11 +63,11 @@
     if (li) { li.appendChild(detalle); b.setAttribute("aria-expanded", "true"); }
     numero = f.numero; resultado.textContent = "";
     $("hitl-detalle-titulo").textContent = "#" + f.numero + " · " + (f.titulo || "");
-    $("hitl-resumen").textContent = "Leyendo el resumen…";
+    $("hitl-resumen").textContent = "Reading the summary…";
     si.disabled = f.checks === "ROJO"; no.disabled = false; detalle.hidden = false;
-    if (f.checks === "ROJO") resultado.textContent = "Hay checks en rojo: no se puede firmar hasta que se arreglen.";
+    if (f.checks === "ROJO") resultado.textContent = "Checks are red: it cannot be signed until they are fixed.";
     try { $("hitl-resumen").textContent = (await leerJson("/api/hitl/" + f.numero)).texto || "(sin resumen)"; }
-    catch (e) { $("hitl-resumen").textContent = "No se pudo leer el resumen: " + e.message; }
+    catch (e) { $("hitl-resumen").textContent = "NO_DATA: the summary could not be read (" + e.message + ")."; }
     porque(f);
     detalle.scrollIntoView({ block: "nearest" });
   }
@@ -78,8 +78,8 @@
     try {
       const r = await fetch("/api/hitl/" + numero, { method: "POST", headers: { "X-Hitl-Token": token }, cache: "no-store" });
       const texto = await r.text();
-      resultado.textContent = r.ok ? texto.trim() : "No firmado (" + r.status + "): " + texto.trim();
-    } catch (e) { resultado.textContent = "No se pudo contactar con la app: " + e.message; }
+      resultado.textContent = r.ok ? texto.trim() : "Not signed (" + r.status + "): " + texto.trim();
+    } catch (e) { resultado.textContent = "NO_DATA: the app did not answer (" + e.message + ")."; }
     finally { ocupado = false; cerrar(); lista.after(detalle); cargar(); }
   }
   // Why is it not advancing? One fixed-order verdict from GET /api/hitl/<n>/why (read-only). The question for

@@ -958,7 +958,7 @@ class PWA(BaseHTTPRequestHandler):
         except subprocess.TimeoutExpired:
             return 124, "tiempo agotado: comprueba el PR con HITL"
         except OSError as e:
-            return 127, "no se pudo ejecutar HITL: " + type(e).__name__
+            return 127, "HITL could not run: " + type(e).__name__
 
     def _hitl_listar(self):
         if not self._es_loopback(self.client_address[0]):
