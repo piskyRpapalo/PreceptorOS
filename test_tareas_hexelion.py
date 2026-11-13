@@ -184,7 +184,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=17"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=19"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):

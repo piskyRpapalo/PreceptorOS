@@ -197,6 +197,10 @@ def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty
     if evidence["origin"] == "SIMULATED":
         sentence = "Simulated run: " + sentence[0].lower() + sentence[1:]
     clase = ACHO.get(state, "empty")
+    # Acho is the flag of verifiable truth (APP-P1-ACHO): the success class needs MEASURED evidence. A simulated run is
+    # a proposal, however right it looks; a claim with no named evidence is silence. Never "verified" from the words.
+    if clase == "ok" and evidence["origin"] != "MEASURED":
+        clase = "proposed" if evidence["origin"] == "SIMULATED" else "empty"
     t = {"run_id": run_id, "state": state, "cause": cause, "sentence": sentence, "next": next_step,
          "reader": "Task %s. %s %s" % (run_id or "unnamed", sentence, next_step), "replayed": bool(replayed),
          # What the row's words rest on: the receipt's origin and its ref, the same for eye, ear and machine.
