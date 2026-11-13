@@ -7,7 +7,7 @@
 (function (root) {
   "use strict";
   const KEY = "preceptoros.acho.sound";
-  const classes = ["ok", "needs_you", "unanswered", "fence", "exec_fail", "empty", "bridge_down"];
+  const classes = ["ok", "needs_you", "unanswered", "fence", "exec_fail", "empty", "bridge_down", "uncertain"];
   const contexts = new WeakMap();
 
   function store(host) { try { return host.localStorage || null; } catch (e) { return null; } }

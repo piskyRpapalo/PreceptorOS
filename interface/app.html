@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/icono-512.png?v=2">
 <link rel="apple-touch-icon" sizes="192x192" href="/assets/icono-192.png?v=2">
 <link rel="manifest" href="/manifest.json">
-<link rel="stylesheet" href="/app.css?v=20">
+<link rel="stylesheet" href="/app.css?v=22">
 <link rel="stylesheet" href="/hitl.css?v=5">
 </head>
 <body>
@@ -18,7 +18,8 @@
   <div class="identidad">
     <h1>PreceptorOS</h1>
     <div class="estado-fila">
-      <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">comprobando…</p>
+      <span class="acho-estado" id="acho-estado" aria-hidden="true"></span>
+      <p class="estado" id="estado" aria-live="polite" data-i18n="comprobando">checking…</p>
       <button id="modelos-toggle" class="modelos-toggle" type="button"
               aria-haspopup="dialog" aria-expanded="false" aria-controls="modelos-menu">
         <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
@@ -90,6 +91,7 @@
           <p class="pie" id="comandos-hexelion-frases">Or just say it, no slash: «how is the rack?» · «what can you do?» · «what did you do?» · «what awaits my signature?» · «lab results» · «which preceptors are working?» · «what devices are connected?» · «what models do we have?» (also in Spanish and Portuguese). These only read.</p>
         </div>
       </details></header>
+    <p class="pie" id="talk-tasks" role="status" aria-live="polite" hidden></p>
     <ol class="hilo" id="hilo" aria-live="polite" aria-label="Shared thread: you, Hexelion and the rack preceptors"></ol>
   </section>
 
@@ -149,11 +151,7 @@
       <summary><h3 id="notebook-reports-title">Reviews · WBR / MBR</h3></summary>
       <div id="notebook-reports" class="notebook-grid"></div>
     </details>
-    <details class="grupo">
-      <summary><h3 id="tx-03">Benchmarks</h3></summary>
-      <p class="pie" id="notebook-bench-status" role="status" aria-live="polite">NO_DATA: the benchmark runs have not been read yet.</p>
-      <div id="notebook-bench" class="notebook-grid"></div>
-    </details>
+    <p class="pie" id="notebook-bench-pointer">Benchmark runs are measurements: they live in Lab.</p>
     <details class="grupo">
       <summary><h3 id="tx-05">Command receipts</h3></summary>
       <div id="notebook-receipts" class="notebook-grid"><p class="pie" id="tx-27">NO_DATA: the Notebook has not been read yet.</p></div>
@@ -171,15 +169,11 @@
 
   <section class="panel" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" aria-label="Lab" hidden>
     <header class="panel-cabecera"><h2 data-i18n="tab_lab" id="h-lab">Lab</h2>
-      <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Consultando el Lab local…</p>
+      <p class="pie" id="lab-estado" role="status" aria-live="polite" data-i18n="lab_cargando">Checking the local Lab…</p>
       <button type="button" class="refrescar" data-refrescar="lab" aria-label="Refresh the Lab" title="Refresh the Lab">↻</button></header>
     <p class="pie" id="lab-rack-estado" role="status" aria-live="polite" hidden></p>
     <a id="lab-rack-enlace" href="#" target="_blank" rel="noopener noreferrer" hidden>Rack Lab</a>
-    <details class="grupo" open>
-      <summary><h3 id="lab-turno-title">Last request to Hexelion</h3></summary>
-      <p class="pie" id="lab-turno-status" role="status" aria-live="polite">NO_DATA: the last request has not been read yet.</p>
-      <div id="lab-turno" class="notebook-grid"></div>
-    </details>
+    <p class="pie" id="lab-turno-pointer">Requests and their answers are kept in the Notebook; Talk shows the latest one.</p>
     <details class="grupo">
       <summary><h3 id="lab-bench-title">Benchmarks · reproducible runs</h3></summary>
       <p class="pie" id="lab-bench-status" role="status" aria-live="polite">NO_DATA: the benchmark runs have not been read yet.</p>
@@ -202,7 +196,7 @@
   </section>
   <section class="panel" id="panel-harness" role="tabpanel" aria-labelledby="tab-harness" tabindex="0" aria-label="Harness" hidden>
     <header class="panel-cabecera"><h2 data-i18n="tab_harness" id="h-harness">Harness</h2>
-      <p class="pie" id="harness-frescura" role="status" aria-live="polite" data-i18n="harness_cargando">Consultando los ciclos locales…</p>
+      <p class="pie" id="harness-frescura" role="status" aria-live="polite" data-i18n="harness_cargando">Reading local cycles…</p>
       <button type="button" class="refrescar" data-refrescar="harness" aria-label="Refresh the loops and the team" title="Refresh the loops and the team">↻</button></header>
     <div class="team" id="team"></div>
     <details class="grupo" id="harness-cli">
@@ -366,14 +360,14 @@
       <div id="creation-voice-downloads"></div>
     </section>
     <section class="tarjeta" aria-labelledby="creation-publish-title">
-      <h3 id="creation-publish-title">Publicar una creación firmada</h3>
-      <p class="pie" id="creation-publish-help">Elige un paquete de creación. Se verifica su firma de autor antes de guardarlo; solo se envía al pulsar el botón.</p>
+      <h3 id="creation-publish-title">Publish a signed creation</h3>
+      <p class="pie" id="creation-publish-help">Choose a creation package. Its author signature is verified before it is kept; nothing is sent until you press the button.</p>
       <form id="creation-publish-form">
-        <label id="creation-publish-label" for="creation-publish-file">Paquete de creación (.json, hasta 25 MiB)</label>
+        <label id="creation-publish-label" for="creation-publish-file">Creation package (.json, up to 25 MiB)</label>
         <input id="creation-publish-file" type="file" accept="application/json,.json" required>
-        <button id="creation-publish-send" type="submit" disabled>Verificar e importar</button>
+        <button id="creation-publish-send" type="submit" disabled>Verify and import</button>
       </form>
-      <p class="pie" id="creation-publish-status" role="status" aria-live="polite">No se ha seleccionado ni enviado ninguna creación.</p>
+      <p class="pie" id="creation-publish-status" role="status" aria-live="polite">No creation chosen or sent.</p>
     </section>
     </details>
     <details class="grupo ajustes-grupo" id="ajustes-nodo">
@@ -442,9 +436,9 @@
     <pre class="payload" id="puerta-documento"></pre>
     <button type="button" id="puerta-copiar-documento" data-i18n="puerta_copiar_documento">Copiar documento fuente</button>
     </details>
-  <section aria-labelledby="tray-heading"><h3 id="tray-heading">Bandeja</h3>
-    <button type="button" id="tray-read">Leer bandeja local</button>
-    <pre id="tray-result" role="status" aria-live="polite">Sin consultar.</pre>
+  <section aria-labelledby="tray-heading"><h3 id="tray-heading">Tray</h3>
+    <button type="button" id="tray-read">Read local tray</button>
+    <pre id="tray-result" role="status" aria-live="polite">Not read yet.</pre>
   </section>
     </details>
   </section>
@@ -465,24 +459,24 @@
   <button class="enviar" id="enviar" type="submit" data-i18n="dilo">Dilo</button>
 </form>
 
-<p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Zona activa: Hablar.</p>
+<p class="sr" id="guion-zona" role="status" aria-live="polite" aria-atomic="true">Active zone: Talk.</p>
 <script src="/zonas.js?v=1"></script>
 <script src="/transicion.js?v=2"></script>
 <script src="/sting.js?v=1"></script>
 <script src="/modelos_web.js?v=3"></script>
 <script src="/insertor.js?v=2"></script>
 <script src="/evidence_chip.js?v=1"></script>
-<script src="/conversacion.js?v=3"></script>
-<script src="/acho_motion.js?v=2"></script>
+<script src="/conversacion.js?v=4"></script>
+<script src="/acho_motion.js?v=3"></script>
 <script src="/team.js?v=2"></script>
-<script src="/hitl.js?v=6"></script>
-<script src="/notebook.js?v=12"></script>
-<script src="/acho_sonido.js?v=1"></script>
-<script src="/app.js?v=33"></script>
+<script src="/hitl.js?v=7"></script>
+<script src="/notebook.js?v=16"></script>
+<script src="/acho_sonido.js?v=2"></script>
+<script src="/app.js?v=38"></script>
 <script src="/creation_voice.js?v=1"></script>
 <script src="/keep_device.js?v=1"></script>
 <script src="/compass.js?v=39"></script>
-<script src="/creation_publish.js?v=1"></script>
+<script src="/creation_publish.js?v=2"></script>
 <script src="/node_building.js?v=1"></script>
 <script src="/node_registration.js?v=1"></script>
 <script>PreceptorNodeRegistration.mount(document);</script>

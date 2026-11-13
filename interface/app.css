@@ -346,7 +346,8 @@ button.anidar:focus-visible { outline: 2px solid var(--vena, #a78bfa); outline-o
 .team-options button[style] { background: var(--agente); }
 .harness-motor summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .agent-badge { --agente: var(--acento); min-width: 44px; min-height: 44px; border-radius: 50%;
-  border: 1px solid var(--agente); background: color-mix(in srgb, var(--agente) 18%, transparent); color: var(--agente); font-size: 1.1rem; }
+  border: 1px solid var(--agente); background: color-mix(in srgb, var(--agente) 18%, transparent); color: var(--ink); font-size: 1.1rem; }
+/* The glyph is the button's visible label: ink on the agent's tint (measured ≥ 4.5:1); the colour stays in border and tint. */
 @media (prefers-reduced-motion: reduce) { .agent, .team-spectrum path { transition: none; } }
 @media (forced-colors: active) { .agent, .agent-badge { border-color: CanvasText; } }
 
@@ -493,3 +494,20 @@ button.ir { min-height: 44px; margin: 6px 0 12px; }
 @media (forced-colors: active) {
   .evidence-chip { forced-color-adjust: none; color: CanvasText; background: Canvas; border-color: CanvasText; }
 }
+
+/* Acho state expression (acho_motion.js express): line pattern + form + tone; never colour alone. */
+.acho-estado { width: 1.6rem; height: 1.6rem; flex: none; display: inline-grid; place-items: center; }
+.acho-estado svg { width: 100%; height: 100%; }
+.acho-estado path { fill: none; stroke-width: .12; stroke-linejoin: round; stroke: var(--ink-soft); }
+.acho-estado[data-tone="ok"] path { stroke: var(--ok); }
+.acho-estado[data-tone="warn"] path { stroke: var(--warn); }
+.acho-estado[data-tone="stop"] path { stroke: var(--stop); }
+.acho-estado[data-line="double"] path { stroke-width: .2; }
+.acho-estado[data-line="dashed"] path { stroke-dasharray: .28 .18; }
+.acho-estado[data-line="dotted"] path { stroke-dasharray: .04 .16; stroke-linecap: round; }
+:is(#panel-cuaderno, .panel) .notebook-card[data-acho="ok"] { border-inline-start: 4px double var(--ok); }
+:is(#panel-cuaderno, .panel) .notebook-card[data-acho="needs_you"] { border-inline-start: 4px solid var(--warn); }
+:is(#panel-cuaderno, .panel) .notebook-card[data-acho="uncertain"] { border-inline-start: 4px dashed var(--warn); }
+:is(#panel-cuaderno, .panel) .notebook-card[data-acho="fence"], :is(#panel-cuaderno, .panel) .notebook-card[data-acho="exec_fail"] { border-inline-start: 4px solid var(--stop); }
+:is(#panel-cuaderno, .panel) .notebook-card[data-acho="empty"], :is(#panel-cuaderno, .panel) .notebook-card[data-acho="unanswered"], :is(#panel-cuaderno, .panel) .notebook-card[data-acho="bridge_down"] { border-inline-start: 4px dotted var(--ink-soft); }
+@media (forced-colors: active) { .acho-estado path { stroke: CanvasText; } :is(#panel-cuaderno, .panel) .notebook-card[data-acho] { border-inline-start-color: CanvasText; } }

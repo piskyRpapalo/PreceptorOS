@@ -69,8 +69,8 @@ class Projection(unittest.TestCase):
         self.assertEqual(C.project(r, NOW, since=50)["messages"], [])
 
     def test_unreadable_thread_is_no_data_with_cause_and_no_last_spoke(self):
-        p = C.project({"estado": "NO_DATA", "causa": "el canal aún no tiene mensajes", "mensajes": []}, NOW)
-        self.assertEqual((p["state"], p["cause"], p["messages"], p["last"]), ("NO_DATA", "el canal aún no tiene mensajes", [], 0))
+        p = C.project({"estado": "NO_DATA", "causa": "channel_has_no_messages", "mensajes": []}, NOW)
+        self.assertEqual((p["state"], p["cause"], p["messages"], p["last"]), ("NO_DATA", "channel_has_no_messages", [], 0))
         self.assertTrue(all(d["last_spoke"].startswith("NO_DATA") for d in p["destinations"]))
         self.assertEqual(C.project(None, NOW)["cause"], "thread_unreadable")
 
@@ -168,10 +168,10 @@ class Shell(unittest.TestCase):
         js = (ROOT / "interface/app.js").read_text(encoding="utf-8")
         conv = (ROOT / "interface/conversacion.js").read_text(encoding="utf-8")
         server = (ROOT / "bin/preceptoros-pwa").read_text(encoding="utf-8")
-        self.assertIn('<script src="/conversacion.js?v=3"></script>', html)
-        self.assertLess(html.index("/insertor.js?v=2"), html.index("/conversacion.js?v=3"))
-        self.assertLess(html.index("/conversacion.js?v=3"), html.index("/app.js?v=33"))
-        self.assertIn('"/conversacion.js?v=3"', sw)
+        self.assertIn('<script src="/conversacion.js?v=4"></script>', html)
+        self.assertLess(html.index("/insertor.js?v=2"), html.index("/conversacion.js?v=4"))
+        self.assertLess(html.index("/conversacion.js?v=4"), html.index("/app.js?v=38"))
+        self.assertIn('"/conversacion.js?v=4"', sw)
         self.assertIn('"/conversacion.js": ("conversacion.js",', server)
         self.assertIn('"interface/conversacion.js"', (ROOT / "version.py").read_text(encoding="utf-8"))
         self.assertIn('id="conv-destinos"', html)

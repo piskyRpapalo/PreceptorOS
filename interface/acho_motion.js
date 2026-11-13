@@ -65,6 +65,39 @@
     raf = root.requestAnimationFrame(step); return () => root.cancelAnimationFrame(raf);
   }
 
+  /* State expression · the same house math says what just happened. One mark per expression: its form (shape), its line
+   * (solid, double, dashed, dotted: survives greyscale and forced colours) and its tone. The class and state come from
+   * the turn or task row (turnos_hexelion / tareas_hexelion); this only draws them, and the words are always on screen.
+   * It moves once, and only for a confirmed result. Waiting, uncertainty and silence never move: there is no evidence
+   * of anything running. Reduced motion: it changes shape without moving. */
+  const expressions = {
+    waiting: { form: "easy", line: "dotted", tone: "quiet", moves: false },
+    answer: { form: "ask_me", line: "solid", tone: "ok", moves: true },
+    verified: { form: "easy", line: "double", tone: "ok", moves: true },
+    needs_you: { form: "steps", line: "solid", tone: "warn", moves: true },
+    uncertain: { form: "free", line: "dashed", tone: "warn", moves: false },
+    refused: { form: "tips", line: "solid", tone: "stop", moves: true },
+    silent: { form: "key_points", line: "dotted", tone: "quiet", moves: false },
+  };
+  function expressionOf(cls, state) {
+    if (!cls) return state === "waiting" ? "waiting" : "silent";   // a hint from Talk, not a data state
+    if (cls === "ok") return state === "ACTED" || state === "DONE_CHECKED" ? "verified" : "answer";
+    if (cls === "fence" || cls === "exec_fail") return "refused";
+    if (cls === "needs_you" || cls === "uncertain") return cls;
+    return "silent";                                      // unanswered, empty, bridge_down, anything unknown
+  }
+  function express(node, cls, state) {
+    if (!node) return null;
+    const name = expressionOf(cls, state), e = expressions[name], v = vector("expression|" + name, e.form);
+    if (node.dataset.expression === name) return name;    // same expression: nothing redraws, nothing moves
+    let svg = node.querySelector("svg");
+    if (!svg) { svg = spectrum(v, "acho-expression", "sky"); node.replaceChildren(svg); svg.querySelector("path").setAttribute("d", path(v)); }
+    else morph(svg, node.achoVector, v, 360);
+    node.achoVector = v; node.dataset.expression = name; node.dataset.line = e.line; node.dataset.tone = e.tone;
+    if (e.moves) gesture(node, v, "touch", 0);
+    return name;
+  }
+
   // Decorate every option the person sees in the panels, once, including the ones painted later.
   const skip = "#team, .pestanas, .team-editor, [data-acho='off']";
   function nameOf(node) { return (node.id || "") + "|" + (node.getAttribute("aria-label") || node.textContent || "").trim().slice(0, 48); }
@@ -160,7 +193,8 @@
     }).observe(lane, { subtree: true, childList: true, attributes: true, attributeFilter: ["hidden"] });
   }
 
-  const API = Object.freeze({ fnv, vector, sample, path, colours, colourOf, tone, still, spectrum, gesture, morph, decorate });
+  const API = Object.freeze({ fnv, vector, sample, path, colours, colourOf, tone, still, spectrum, gesture, morph, decorate,
+    expressions, expressionOf, express });
   root.AchoMotion = API;
   if (doc && doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start); else if (doc) start();
 })(typeof window === "object" ? window : globalThis);

@@ -168,7 +168,7 @@ BRIDGE_CAUSES = frozenset({"mcp_nativo_missing", "mcp_nativo_timeout", "mcp_nati
                            "mcp_reply_invalid", "station_endpoint_not_configured", "station_unavailable",
                            "station_timeout"})
 ACHO = {"ANSWERED": "ok", "ACTED": "ok", "LOCAL_SENSOR": "ok", "REPLIED": "ok", "ANSWERED_UNVERIFIED": "empty",
-        "ACTION_UNVERIFIED": "empty", "NO_REPLY_RECORDED": "unanswered"}
+        "ACTION_UNVERIFIED": "uncertain", "NO_REPLY_RECORDED": "unanswered"}   # an unproven action may have happened
 
 
 def acho_class(turn):
