@@ -184,8 +184,25 @@ def from_folder(folder):
     return out
 
 
+def resolve_ref(repo, ref):
+    """Resolve once to an immutable commit before reading a multi-file receipt."""
+    if (not isinstance(ref, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_./-]{0,199}", ref)
+            or '..' in ref):
+        return None
+    try:
+        result = subprocess.run(["git", "-C", str(repo), "rev-parse", "--verify", ref + "^{commit}"],
+                                capture_output=True, text=True, timeout=5)
+        value = result.stdout.strip()
+        return value if result.returncode == 0 and _COMMIT.fullmatch(value) else None
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
 def from_git(repo, ref, prefix="benchmarks/receipts/"):
     """Read receipt files at `ref` with git ls-tree / git show: the working tree and the index are never touched."""
+    ref = resolve_ref(repo, ref)
+    if ref is None:
+        return []
     listing = subprocess.run(["git", "-C", repo, "ls-tree", "--name-only", ref, prefix], capture_output=True, text=True, timeout=20)
     if listing.returncode != 0:
         return []

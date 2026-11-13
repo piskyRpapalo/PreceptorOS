@@ -367,8 +367,8 @@ def _dispositivos(base, now):
             otros.append(d["label"] + (" (parked)" if d["parked"] else ""))
         elif server["state"] == "STALE":
             rack.append("%s seen %s" % (d["label"], _hace(server.get("age_s"))))
-        elif server["state"] == "VERIFIED":
-            rack.append("%s verified now" % d["label"])
+        elif server["state"] == "OBSERVED":
+            rack.append("%s metadata observed; inference untested" % d["label"])
         else:
             rack.append("%s no evidence (%s)" % (d["label"], server["cause"].replace("_", " ")))
     texto = "Devices: %d declared." % len(vista["devices"])
@@ -400,7 +400,7 @@ def _modelos(base, now):
         edades.append(r["age_s"] or 0)
     texto = "Models installed/loaded by node (LAB snapshots, integrity rechecked): " + " · ".join(filas)
     if edades:
-        texto += (", verified now" if all(r["state"] == "VERIFIED" for r in vista["backends"] if r["state"] != "NO_DATA")
+        texto += (", metadata observed now" if all(r["state"] == "OBSERVED" for r in vista["backends"] if r["state"] != "NO_DATA")
                   else ", seen %s to %s" % (_hace(min(edades)), _hace(max(edades))))
     texto += "." + (" No evidence: " + "; ".join(sin) + "." if sin else "")
     return True, None, texto + " Installed is not available; no inference was run."
