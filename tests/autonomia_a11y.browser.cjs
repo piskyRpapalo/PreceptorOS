@@ -244,7 +244,7 @@ async function waitServer(child) {
     // 11 · An uncertain task, in a real DOM. The server's route stays NO_DATA(p2_mirror_not_built); the browser is handed
     // the projection test_uncertainty_presentation builds (python3 tareas_hexelion on its fixture). Synthetic data.
     const fixture = JSON.parse(require('node:child_process').execFileSync('python3', ['-c',
-      'import json,test_uncertainty_presentation as U; print(json.dumps(U.told(U.event(U.proposal()))))'], { cwd: ROOT }));
+      'import json,test_uncertainty_presentation as U; print(json.dumps(U.told(U.event(U.projection()))))'], { cwd: ROOT }));
     const real = await page.evaluate(async () => (await (await fetch('/api/hexelion/tareas')).json()).cause);
     assert.equal(real, 'p2_mirror_not_built', 'the live route must stay unconnected');
     await page.route('**/api/hexelion/tareas', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
@@ -261,9 +261,14 @@ async function waitServer(child) {
     const t = fixture.tasks[0];
     assert.equal(u.talk, u.status, 'Talk and Notebook say the same line');
     assert(u.talk.includes(t.sentence + ' ' + t.next));
-    for (const ref of [t.uncertainty.task_ref, t.uncertainty.evidence_ref, t.uncertainty.proposal_ref]) assert(u.card.includes(ref));
+    // Compact card first; the full references sit in a closed disclosure that the keyboard can open.
+    assert(!u.card.includes(t.uncertainty.projection_ref), 'full refs belong to the disclosure, not the first view');
+    await page.locator('#notebook-tasks [data-state="OUTCOME_UNKNOWN"] details > summary').focus();
+    await page.keyboard.press('Enter');
+    const opened = await page.locator('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]').innerText();
+    for (const ref of [t.uncertainty.task_ref, t.uncertainty.projection_ref]) assert(opened.includes(ref), 'ref missing after opening');
     assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'needs_you', 0]);
-    assert(!/\b(signed|refunded|released|returned|acknowledged)\b/i.test(u.talk + u.card), 'claims something unseen');
+    assert(!/\b(signed|refunded|released|returned|approved)\b/i.test(u.talk + opened), 'claims something unseen');
     receipt.checks.uncertain_task_same_in_talk_and_notebook = 'SIMULATED_DATA_REAL_DOM';
     await page.unroute('**/api/hexelion/tareas');
 

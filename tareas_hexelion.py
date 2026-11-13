@@ -20,18 +20,19 @@ States:
   NO_RESULT_RECORDED        claimed, and no result is recorded: it may have stopped (never "running")
   NO_DATA                   the record cannot be read; the cause says why
 
-Uncertainty (LAB #186, HUMAN-UNCERTAINTY-01): an OUTCOME_UNKNOWN or NO_RESULT_RECORDED record may carry the
-journal's read-only proposal (`preceptoros.lab.uncertainty-ack/1`, from prepare_unknown_ack). It is told, never
-acted on: exact task, evidence and proposal refs, budget still reserved, no retry, and the one decision that is the
-Sovereign's. The APP cannot see a signature, the budget ledger or the old worker, so it never says the proposal was
-signed, the budget returned or the worker stopped; those stay NO_DATA with their cause. The state stays uncertain
-and still blocks new work. The proposal's own hash is checked by the journal, not here.
+Uncertainty (LAB #188, UNCERTAINTY-PROJECTION-01): an OUTCOME_UNKNOWN or NO_RESULT_RECORDED record may carry the
+host's projection of that claim (`preceptoros.lab.uncertainty-ack/1`, kind=projection). Its `summary` is the one
+sentence every modality says; its `projection_ref` binds the eye, the ear and the JSON to the same record. The APP
+recomputes that ref (integrity, never authority), shows the acknowledgement word the host reported, the retained
+reservation or its NO_DATA cause, no retry and no memory promotion. TTL is 0: it is never cached as currently valid.
+It adds no control, and the state stays uncertain and keeps blocking new work.
 
 A model's words never change a state: states come from typed receipt fields only, and permission is only ever
 reported as missing, never granted. Pure: no network, no clock, no writes.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 
@@ -40,9 +41,9 @@ import audio_feedback as AF
 SCHEMA = "preceptoros.hexelion-tasks/1"
 RECEIPT_SCHEMA = "preceptoros.meta-receipt/1"
 MAX_TASKS = 12
-# One told task is a row of an HTTP projection, not an MCP line or a thread message (those keep 1,024 B). An uncertain
-# task carries three exact 64-hex refs plus its words, measured at 1,198 B worst case (32-char run id), so 1,536 B.
-MAX_TASK_B = 1536
+# One told task is one row of the HTTP projection. The row keeps 1,024 B like the host's own records: an uncertain
+# task carries full refs once in its JSON, 12-hex prefixes in its words (measured in test_uncertainty_presentation).
+MAX_TASK_B = 1024
 _HEX = re.compile(r"^[0-9a-f]{64}$")
 _LABEL = re.compile(r"^[a-z][a-z0-9-]{0,31}$")
 PHASES = frozenset({"complete", "failed", "blocked", "cancelled"})
@@ -72,49 +73,78 @@ NEXT = {
     "NO_DATA": "Fix the record's source; nothing is counted from it.",
 }
 UNCERTAINTY_SCHEMA = "preceptoros.lab.uncertainty-ack/1"
-DECISION = "ACK_UNKNOWN_RETAIN_RESERVATION"
-_PROPOSAL_KEYS = frozenset({"schema", "journal_id", "run_id", "task_ref", "prior_ref", "evidence_ref", "authority_ref",
-                            "observed_at", "decision", "no_retry", "reservation_release", "resolution_ref"})
-# What the APP cannot see is listed as not visible here (NO_DATA), never filled in: a signature, a budget return and
-# the old worker's stop each live with the host.
-NOT_VISIBLE = ("signature", "budget_return", "worker_stop")
+_PROJECTION_KEYS = frozenset({"schema", "kind", "state", "cause", "acknowledgement", "observed_at", "journal_id",
+                              "task_ref", "resolution_ref", "reservation", "ttl_seconds", "no_retry", "promotion",
+                              "summary", "projection_ref"})
+# The acknowledgement word the host reported -> what comes next, and its Acho class. None of them is shown as approval.
+ACKNOWLEDGEMENT = {
+    "HITL_REQUIRED": ("Your decision, on the host: review projection %s; only you can acknowledge it.", "needs_you"),
+    "HUMAN_ACKNOWLEDGED": ("Host reports an acknowledgement (projection %s); re-read, never cached here.", "empty"),
+    "AUTHORITY_NOT_VERIFIED": ("Treat projection %s as not approved; the host could not verify its witness.", "fence"),
+}
+
+
+UNCERTAINTY_TERMS = {"ttl_seconds": 0, "no_retry": True, "promotion": "NOT_AUTHORIZED"}
+
+
+def _canonical_ref(record):
+    """LAB's canonical encoding (bin/dfa06_evidence_bundle.encode) -> sha256: the same ref the host computed."""
+    body = {k: v for k, v in record.items() if k != "projection_ref"}
+    return hashlib.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+                                     allow_nan=False).encode("utf-8")).hexdigest()
+
+
 ACHO = {"DONE_CHECKED": "ok", "NEEDS_YOUR_AUTHORIZATION": "needs_you", "FAILED": "exec_fail"}
 
 
-def _uncertainty(run_id, ref, raw):
-    """The journal's proposal -> what the person needs to decide, or a cause why it cannot be shown."""
-    if type(raw) is not dict or set(raw) != _PROPOSAL_KEYS or raw.get("schema") != UNCERTAINTY_SCHEMA:
+def _uncertainty(ref, raw):
+    """The host's projection -> the facts the row shows, or the cause why it cannot be shown."""
+    if type(raw) is not dict or set(raw) != _PROJECTION_KEYS or raw.get("schema") != UNCERTAINTY_SCHEMA \
+            or raw.get("kind") != "projection":
         return None, "uncertainty_fields_unknown"
-    if raw["run_id"] != run_id or raw["task_ref"] != ref:
+    try:
+        if type(raw["projection_ref"]) is not str or raw["projection_ref"] != _canonical_ref(raw):
+            return None, "uncertainty_ref_mismatch"
+        if len(json.dumps(raw, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) >= 1024:
+            return None, "uncertainty_exceeds_1024_bytes"
+    except (TypeError, ValueError):
+        return None, "uncertainty_fields_unknown"
+    if raw["task_ref"] != ref:
         return None, "uncertainty_for_another_task"
-    if (raw["decision"] != DECISION or raw["no_retry"] is not True or raw["reservation_release"] is not False
-            or any(type(raw[k]) is not str or not _HEX.match(raw[k])
-                   for k in ("prior_ref", "evidence_ref", "authority_ref", "resolution_ref"))):
+    if raw["state"] != "UNKNOWN":
+        return None, "uncertainty_unavailable_on_host"
+    res = raw["reservation"]
+    reservation_ok = type(res) is dict and (
+        (set(res) == {"state", "tokens"} and res["state"] == "RETAINED" and type(res["tokens"]) is int
+         and 0 <= res["tokens"] <= 512)
+        or (set(res) == {"state", "cause"} and res["state"] == "NO_DATA" and type(res["cause"]) is str))
+    if (raw["acknowledgement"] not in ACKNOWLEDGEMENT or not reservation_ok or raw["no_retry"] is not True
+            or raw["promotion"] != "NOT_AUTHORIZED" or raw["ttl_seconds"] != 0
+            or type(raw["summary"]) is not str or not 0 < len(raw["summary"]) <= 200):
         return None, "uncertainty_terms_changed"
-    return {"task_ref": ref, "evidence_ref": raw["evidence_ref"], "proposal_ref": raw["resolution_ref"],
-            "budget": "reserved", "retry": "none", "decides": "sovereign", "not_visible": list(NOT_VISIBLE)}, None
+    return {"projection_ref": raw["projection_ref"], "task_ref": ref, "acknowledgement": raw["acknowledgement"],
+            "reservation": dict(res), "observed_at": raw["observed_at"]}, raw["summary"]
 
 
 def _uncertain(state, run_id, ref, cause, sentence, raw):
     if raw is None:
         return _task(state, run_id, cause, sentence, NEXT[state])
-    u, bad = _uncertainty(run_id, ref, raw)
-    if bad:
-        return _no_data(run_id, bad)
-    sentence += " Budget stays reserved; no retry."
-    nxt = ("Your decision: proposal %s, evidence %s. Only you can acknowledge it, outside this app."
-           % (u["proposal_ref"][:12], u["evidence_ref"][:12]))
-    return _task(state, run_id, cause, sentence, nxt, uncertainty=u)
+    u, said = _uncertainty(ref, raw)
+    if u is None:
+        return _no_data(run_id, said)
+    words, clase = ACKNOWLEDGEMENT[u["acknowledgement"]]
+    # The host's sentence is the sentence, for every modality; the row adds only what comes next.
+    return _task(state, run_id, cause, said, words % u["projection_ref"][:12], uncertainty=u, acho_class=clase)
 
 
-def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None):
+def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None, acho_class=None):
     if replayed and state in ("DONE_CHECKED", "DONE_UNCHECKED", "FAILED"):
         sentence += " The result was recovered after a restart; it was not run again."
-    # A proposal waiting for the Sovereign's own decision is a needs-you cue; the words say which decision.
-    clase = "needs_you" if uncertainty else ACHO.get(state, "empty")
+    clase = acho_class or ACHO.get(state, "empty")
     t = {"run_id": run_id, "state": state, "cause": cause, "sentence": sentence, "next": next_step,
          "reader": "Task %s. %s %s" % (run_id or "unnamed", sentence, next_step), "replayed": bool(replayed),
-         "acho": {"class": clase, "motif": AF.motif_for_class(clase), "sound": "off_until_turned_on", "words": "reader"}}
+         # The class alone decides the cue (audio_feedback.cue_for_turn derives the motif); no task row is played.
+         "acho": {"class": clase, "sound": "off_until_turned_on", "words": "reader"}}
     if uncertainty:
         t["uncertainty"] = uncertainty
     if len(json.dumps(t, ensure_ascii=False).encode("utf-8")) >= MAX_TASK_B:
@@ -189,7 +219,9 @@ def task(record):
 def project(records, observed_at, source_cause=None):
     """The projection Notebook, Talk and the machine read. NO_DATA with cause while no mirror feeds it."""
     base = {"schema": SCHEMA, "observed_at": observed_at,
-            "limits": "Reads journal records handed to it. It stores, claims, retries and authorises nothing."}
+            "limits": "Reads journal records handed to it. It stores, claims, retries and authorises nothing.",
+            # Every uncertainty a row shows was checked to carry these terms; they are said once, not per row.
+            "uncertainty_terms": UNCERTAINTY_TERMS}
     if source_cause or not isinstance(records, list):
         return dict(base, state="NO_DATA", cause=str(source_cause or "records_unreadable")[:80], tasks=[], counts={},
                     needs_you=0, blocks_new_work=0, decisions_for_you=0)
@@ -210,4 +242,4 @@ def project(records, observed_at, source_cause=None):
     blocks = counts.get("NO_RESULT_RECORDED", 0) + counts.get("OUTCOME_UNKNOWN", 0)
     return dict(base, state="MEASURED" if tasks else "NO_DATA", cause=None if tasks else "no_task_recorded",
                 tasks=tasks, counts=dict(sorted(counts.items())), needs_you=counts.get("NEEDS_YOUR_AUTHORIZATION", 0),
-                blocks_new_work=blocks, decisions_for_you=sum(1 for t in tasks if "uncertainty" in t))
+                blocks_new_work=blocks, decisions_for_you=sum(1 for t in tasks if t.get("uncertainty", {}).get("acknowledgement") == "HITL_REQUIRED"))

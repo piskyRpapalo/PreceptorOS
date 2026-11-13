@@ -232,17 +232,25 @@
     });
     const needs = tasks.filter(x => x.state === "NEEDS_YOUR_AUTHORIZATION").length;
     const blocks = tasks.filter(x => x.state === "NO_RESULT_RECORDED" || x.state === "OUTCOME_UNKNOWN").length;
+    // The fixed terms come once with the projection; without them no uncertainty details are shown.
+    const terms = raw.uncertainty_terms || {};
+    if (!(terms.ttl_seconds === 0 && terms.no_retry === true && terms.promotion === "NOT_AUTHORIZED")) tasks.forEach(x => { x.uncertainty = null; });
     return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs, blocks };
   }
-  /* An uncertain task's proposal (journal's read-only record): shown, never acted on. Only exact 64-hex refs and the
-   * fixed terms are accepted; anything else hides the block (the sentence still says the outcome is unknown). */
+  /* An uncertain task's host projection (LAB uncertainty-projection): shown, never acted on. Only exact refs and the
+   * fixed terms are accepted; anything else hides the details (the sentence still says the outcome is unknown). */
   const hex64 = v => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
+  const acknowledgements = ["HITL_REQUIRED", "HUMAN_ACKNOWLEDGED", "AUTHORITY_NOT_VERIFIED"];
   function uncertainty(u) {
-    if (!u || typeof u !== "object" || !hex64(u.task_ref) || !hex64(u.evidence_ref) || !hex64(u.proposal_ref) ||
-        u.budget !== "reserved" || u.retry !== "none" || u.decides !== "sovereign") return null;
-    return { task: u.task_ref, evidence: u.evidence_ref, proposal: u.proposal_ref };
+    if (!u || typeof u !== "object" || !hex64(u.projection_ref) || !hex64(u.task_ref) ||
+        !acknowledgements.includes(u.acknowledgement) || !u.reservation || typeof u.reservation !== "object") return null;
+    const r = u.reservation;
+    const reservation = r.state === "RETAINED" && Number.isInteger(r.tokens) ? "Retained: " + r.tokens + " tokens."
+      : r.state === "NO_DATA" && clean(r.cause, 80) ? "NO_DATA: " + r.cause.replace(/_/g, " ") + "." : "";
+    if (!reservation) return null;
+    return { projection: u.projection_ref, task: u.task_ref, acknowledgement: u.acknowledgement, reservation,
+      observed: clean(u.observed_at, 40) };
   }
-  const notVisible = "Not visible here: a signature, a budget return or the old worker stopping. NO_DATA until the host shows them.";
   function taskSummary(p) {
     if (!p) return "NO_DATA: the tasks could not be read (the app server did not answer).";
     if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
@@ -250,7 +258,8 @@
     const wait = p.blocks ? "New tasks wait: " + p.blocks + (p.blocks === 1 ? " claim has" : " claims have") +
       " no known result, and only the host can resolve " + (p.blocks === 1 ? "it" : "them") + ". " : "";
     const d = p.tasks.find(x => x.uncertainty);
-    const decide = d ? "Decision for you, task " + d.run + ": " + d.sentence + " " + d.next + " " : "";
+    const decide = !d ? "" : (d.uncertainty.acknowledgement === "HITL_REQUIRED" ? "Decision for you, task " : "Uncertain task ") +
+      d.run + ": " + d.sentence + " " + d.next + " ";
     return wait + decide + head + "Last task: " + p.tasks[0].sentence;
   }
   async function loadTasks(listId, statusId) {
@@ -264,10 +273,14 @@
       c.dataset.state = x.state; c.dataset.acho = x.acho;
       if (x.next) field(c, "Next", x.next);
       if (x.uncertainty) {
-        field(c, "Task", x.uncertainty.task); field(c, "Evidence", x.uncertainty.evidence);
-        field(c, "Proposal", x.uncertainty.proposal); field(c, "Budget", "Still reserved.");
-        field(c, "Retry", "None: it will not run again."); field(c, "Who decides", "You, outside this app.");
-        field(c, "Unknown", notVisible);
+        // Compact first; the full references live one disclosure away, never cut.
+        const more = elem("details", "notebook-more");
+        more.append(elem("summary", "", "Receipt and references"));
+        field(more, "Projection", x.uncertainty.projection); field(more, "Task", x.uncertainty.task);
+        field(more, "Acknowledgement (host)", x.uncertainty.acknowledgement);
+        field(more, "Reservation", x.uncertainty.reservation); field(more, "Retry", "None: it will not run again.");
+        field(more, "Memory promotion", "Not authorized."); field(more, "Read at", x.uncertainty.observed + " · valid for this reading only");
+        c.append(more);
       }
       list.append(c);
     });

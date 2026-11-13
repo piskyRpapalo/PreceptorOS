@@ -524,6 +524,8 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         # Delegated tasks (tareas_hexelion.py): the states a journal receipt is told as, not policy names.
         INTRINSECOS |= {"DONE_CHECKED", "DONE_UNCHECKED", "NEEDS_YOUR_AUTHORIZATION", "FAILED", "CANCELLED",
                         "OUTCOME_UNKNOWN", "NO_RESULT_RECORDED"}
+        # Uncertainty projection (LAB uncertainty_views): the host's acknowledgement words and fixed terms, not policies.
+        INTRINSECOS |= {"HITL_REQUIRED", "HUMAN_ACKNOWLEDGED", "AUTHORITY_NOT_VERIFIED", "NOT_AUTHORIZED", "RETAINED"}
         # Evidence chip (evidence_chip.js): the vocabulary of how much a figure can be trusted (VERIFIED,
         # OBSERVED, DECLARED, STALE, NO_DATA, REFUSED) and its Spanish input aliases. States, not policies.
         INTRINSECOS |= {"VERIFIED", "OBSERVED", "DECLARED", "STALE", "NO_DATA", "DATA", "REFUSED", "DENEGADO"}  # DATA is the second word of the visible NO DATA
