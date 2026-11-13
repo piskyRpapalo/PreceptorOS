@@ -11,6 +11,9 @@ Grammar (es/en):
   /estado | /state                              host + house services
   /capacidades | /capabilities                  what Hexelion may do, and why
   /registro [n] | /audit [n]                    last n receipts (1..20)
+  /firmas | /signatures                         what awaits the Sovereign's signature (local read, no MCP)
+  /lab                                          the Lab bench results the Notebook shows (local read, no MCP)
+  /preceptores | /preceptors                    declared preceptor heartbeats + who acted (local read, no MCP)
   /ejecuta [@worktree] <command> | /run ...     one command, inside ~/wt/<worktree> when named
   /escribe @worktree <path> :: <text> | /write  one text file inside that worktree
 """
@@ -36,8 +39,20 @@ ACCIONES = {
     "registro": "audit_last", "audit": "audit_last",
     "ejecuta": "exec", "run": "exec",
     "escribe": "write_file", "write": "write_file",
+    "firmas": "signatures", "signatures": "signatures",
+    "lab": "lab",
+    "preceptores": "preceptors", "preceptors": "preceptors",
 }
-AYUDA = "/estado · /capacidades · /registro [n] · /ejecuta [@worktree] <command> · /escribe @worktree <path> :: <text>"
+# Local READS (APP-TALK-E2E-01, 2026-11-13): no MCP, no model, no network. Each one reads a projection an existing
+# producer already writes under <casa>: the signature list (bin/firmas-scraper), the Lab bench (lab_bench.py) and
+# the preceptor heartbeats (notebook/agents.json), through the same readers the Notebook and /api/firmas use.
+LOCALES = ("signatures", "lab", "preceptors")
+FIRMAS_FRESCAS_S = 1800   # the scraper runs every 10 min; older than 30 min is said as STALE
+# The chat door answers inside a 1,023 B envelope (estado_compacto); the action fields take ~350 B of it. A local
+# read says the most important lines first and is cut, with a mark, at this many UTF-8 bytes.
+TOPE_LOCAL_B = 560
+AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /ejecuta [@worktree] <command> · "
+         "/escribe @worktree <path> :: <text>")
 
 
 # One sentence, no typing (NORTE §4: «si el Soberano es ciego, NO tiene que teclear»). Exact phrases only, and only
@@ -58,6 +73,23 @@ FRASES = {
         "que has hecho", "ultimas acciones", "tus ultimas acciones", "registro de acciones", "que hiciste",
         "what did you do", "last actions", "recent actions", "your last actions",
         "o que fizeste", "ultimas acoes",
+    ),
+    "/firmas": (
+        "que espera mi firma", "que espera de mi firma", "que tengo que firmar", "que falta por firmar",
+        "firmas pendientes", "que hay que firmar",
+        "what awaits my signature", "what needs my signature", "what do i have to sign", "pending signatures",
+        "o que espera a minha assinatura", "o que tenho de assinar", "assinaturas pendentes",
+    ),
+    "/lab": (
+        "que resultados tenemos del laboratorio", "resultados del laboratorio", "resultados del lab",
+        "que dice el laboratorio", "que dice el lab",
+        "lab results", "what are the lab results", "what does the lab say", "laboratory results",
+        "resultados do laboratorio", "o que diz o laboratorio",
+    ),
+    "/preceptores": (
+        "que preceptores estan trabajando", "que preceptores trabajan", "quien esta trabajando", "quien trabaja",
+        "which preceptors are working", "who is working", "what are the preceptors doing",
+        "que preceptores estao a trabalhar", "quem esta a trabalhar",
     ),
 }
 _FRASE = {f: orden for orden, frases in FRASES.items() for f in frases}
@@ -99,7 +131,7 @@ def interpreta(texto):
     resto = resto.strip()
     if tool is None:
         return None, "action_unknown"
-    if tool in ("state", "capabilities"):
+    if tool in ("state", "capabilities") + LOCALES:
         return (tool, {}) if not resto else (None, "action_takes_no_arguments")
     if tool == "audit_last":
         if not resto:
@@ -206,11 +238,137 @@ def resumen(tool, result):
     return _recorta("rc=%s · %s ms\n%s" % (result.get("rc"), result.get("ms"), out.rstrip()))
 
 
-def ejecuta(texto, server=None):
+def _edad(stamp, now):
+    """Seconds since an ISO-8601 UTC stamp, or None."""
+    import datetime as dt
+    try:
+        t = dt.datetime.fromisoformat(str(stamp).replace("Z", "+00:00"))
+        return None if t.tzinfo is None else (now - t).total_seconds()
+    except ValueError:
+        return None
+
+
+def _hace(segundos):
+    if segundos is None or segundos < 0:
+        return "at an unknown time (NO_DATA)"
+    return ("%d min ago" % (segundos // 60)) if segundos < 7200 else ("%d h ago" % (segundos // 3600))
+
+
+def _firmas(base, now):
+    """The same file and checks as GET /api/firmas (bin/firmas-scraper writes it). Never signs, never asks to."""
+    ruta = Path(base) / "firmas" / "pendientes.json"
+    try:
+        if ruta.stat().st_size > 65536:
+            return False, "signatures_unreadable", "I cannot read the signature list (too large)."
+        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        if not isinstance(datos, dict) or datos.get("esquema") != "preceptoros.firmas-pendientes/1":
+            raise ValueError()
+        filas = [f for f in datos.get("filas") or [] if isinstance(f, dict)]
+    except FileNotFoundError:
+        return False, "scraper_not_run", "I cannot say what awaits your signature: the signature list was never written."
+    except (OSError, ValueError, AttributeError):
+        return False, "signatures_unreadable", "I cannot read the signature list."
+    edad = _edad(datos.get("medido"), now)
+    firmar = [f for f in filas if f.get("action") in ("sign", "merge", "retarget")]
+    otras = {}
+    for f in filas:
+        if f not in firmar:
+            otras[f.get("action") or "no_data"] = otras.get(f.get("action") or "no_data", 0) + 1
+    nombres = {"running": "with checks still running", "red": "with red checks", "wait_base": "waiting for their base",
+               "no_data": "without check data"}
+    if firmar:
+        linea = "Waiting for your signature: %d — %s." % (len(firmar), "; ".join(
+            "%s#%s «%s» (checks %s)" % (str(f.get("repo", "?")).split("/")[-1], f.get("n", "?"),
+                                        " ".join(str(f.get("title", "")).split())[:70], f.get("checks", "NO_DATA"))
+            for f in firmar[:3])) + (" (+%d more)" % (len(firmar) - 3) if len(firmar) > 3 else "")
+    else:
+        linea = "Nothing waits for your signature now."
+    if otras:
+        linea += " Not ready yet: " + ", ".join("%d %s" % (k, nombres.get(a, a)) for a, k in sorted(otras.items())) + "."
+    linea += " Signature list measured %s. I never sign for you." % _hace(edad)
+    if edad is None or edad < 0 or edad > FIRMAS_FRESCAS_S:
+        return False, "signatures_stale", "STALE: " + linea
+    return True, None, linea
+
+
+def _lab(base, now):
+    """Lab benchmark runs as the Notebook shows them (lab_bench.py projection, rechecked by notebook_read)."""
+    import notebook_read
+    vista = notebook_read.read(base, now)
+    runs = vista.get("bench") or []
+    if not runs:
+        return False, vista.get("bench_cause") or "no_valid_bench_receipt", \
+            "No Lab result I can show: %s." % (vista.get("bench_cause") or "no_valid_bench_receipt").replace("_", " ")
+    partes = []
+    for r in runs[-1:]:                 # the latest run; the Notebook keeps the others
+        cheq = "fingerprint %s" % str(r.get("fingerprint", "NO_DATA")).lower()
+        partes.append("%s %s: %s (%s)" % (str(r.get("date", ""))[:10], r.get("experiment", "?"), r["sentence"], cheq))
+    return True, None, "Lab, %d run%s; latest: %s Lab projection written %s." % (
+        len(runs), "" if len(runs) == 1 else "s", " ".join(partes), _hace(_edad(vista.get("bench_observed_at"), now)))
+
+
+def _preceptores(base, now):
+    """Who works = a declared heartbeat (notebook/agents.json). Receipts say who ACTED, never who is alive."""
+    import notebook_read
+    vista = notebook_read.read(base, now)
+    agentes = vista.get("agents") or []
+    recientes = {}
+    for r in vista.get("receipts") or []:
+        if r.get("voice") and r.get("status") in ("DECLARED", "VERIFIED"):
+            recientes[r["voice"]] = recientes.get(r["voice"], 0) + 1
+    actos = (" Actions with a receipt in the last 10 min: %s." % ", ".join(
+        "%s %d" % (v, n) for v, n in sorted(recientes.items()))) if recientes else \
+        " No action receipt in the last 10 min."
+    if vista.get("agents_status") != "DECLARADO":
+        causa = vista.get("agents_cause") or "agents_no_data"
+        return False, "agents_" + causa, ("I cannot say which preceptors are working: no preceptor heartbeat is "
+                                          "published (%s). I do not guess from installed tools." % causa.replace("_", " ")
+                                          ) + actos
+    estados = {"OBSERVADO": "heartbeat in the last 10 min", "STALE": "no heartbeat for over 10 min"}
+    linea = "Preceptors (declared heartbeats): " + "; ".join(
+        "%s (%s): %s" % (a["name"], a["role"], estados.get(a["status"], "NO_DATA " + str(a["cause"])))
+        for a in agentes) + "."
+    return True, None, linea + actos
+
+
+_LECTORES = {"signatures": (_firmas, "firmas/pendientes.json"), "lab": (_lab, "notebook/bench.json"),
+             "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json")}
+
+
+def cabe(texto, tope=TOPE_LOCAL_B):
+    """The text, or its first `tope` UTF-8 bytes on a character boundary plus a visible cut mark."""
+    marca = " … (cut to fit the chat)"
+    if len(texto.encode("utf-8")) <= tope:
+        return texto
+    corte = texto.encode("utf-8")[:tope - len(marca.encode("utf-8"))].decode("utf-8", "ignore")
+    return corte.rstrip() + marca
+
+
+def lee_local(tool, base=None, now=None):
+    """One local read. Never raises, never writes, never calls the model or the network."""
+    import datetime as dt
+    if base is None:
+        import casa
+        base = casa.raiz()
+    now = now or dt.datetime.now(dt.timezone.utc)
+    lector, fuente = _LECTORES[tool]
+    t0 = time.monotonic()
+    try:
+        ok, causa, texto = lector(base, now)
+    except Exception:   # a reader bug must still answer with a cause, never a stack trace in the chat
+        ok, causa, texto = False, "local_read_failed", "I could not read %s." % fuente
+    return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": False, "causa": causa,
+            "rc": 0 if ok else 1, "ms": int((time.monotonic() - t0) * 1000), "allowlist_version": None,
+            "via": "lectura_local", "fuente": fuente, "texto": cabe(texto)}
+
+
+def ejecuta(texto, server=None, base=None):
     """Parse, call, summarise. Returns the receipt the chat door sends and writes."""
     tool, args = interpreta(texto)
     if tool is None:
         return {"estado": "NO_DATA", "causa": args, "ayuda": AYUDA}
+    if tool in LOCALES:
+        return lee_local(tool, base)
     r = llama(tool, args, server)
     if r["estado"] != "MEASURED":
         return {"estado": "NO_DATA", "causa": r["causa"], "herramienta": tool}
@@ -218,4 +376,4 @@ def ejecuta(texto, server=None):
     ok = bool(res.get("ok")) and not res.get("denied")
     return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": bool(res.get("denied")),
             "causa": res.get("causa") if res.get("denied") else None, "rc": res.get("rc"), "ms": r["ms"],
-            "allowlist_version": res.get("allowlist_version"), "texto": resumen(tool, res)}
+            "allowlist_version": res.get("allowlist_version"), "via": "mcp_nativo", "texto": resumen(tool, res)}
