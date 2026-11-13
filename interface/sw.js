@@ -124,8 +124,10 @@
 // status line is its sentence (notebook.js v9 turnLine, app.js v30). Cache v179.
 // 2026-11-13 (Acho class per turn): each turn says how it sounds, decided with its sentence; Talk and the Notebook carry
 // it as data-acho; sound stays off (notebook.js v10, app.js v31). Cache v180.
-const Cache = "preceptoros-armazon-v180";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=31", "/notebook.js?v=10", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-13 (delegated tasks): the Notebook paints the delegation journal's tasks as told by the app, read-only; until the
+// journal is connected it says so (notebook.js v11). Cache v181.
+const Cache = "preceptoros-armazon-v181";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=31", "/notebook.js?v=11", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

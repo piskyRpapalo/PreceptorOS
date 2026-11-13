@@ -67,6 +67,7 @@ def project(response: object) -> dict | None:
 ACHO_CLASSES = {
     # class: (pentatonic degree, motif of _STATES)
     "ok": (0, "MEASURED"),
+    "needs_you": (2, "PROPOSED"),
     "unanswered": (1, "PROPOSED"),
     "fence": (2, "STALE"),
     "exec_fail": (3, "STALE"),

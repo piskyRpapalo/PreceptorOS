@@ -64,9 +64,9 @@ class Cue(unittest.TestCase):
                 self.assertEqual(cue["texto"], t["reader"])
                 self.assertEqual((cue["clase"], cue["estado"], cue["sonido"]), (t["acho"]["class"], t["state"], "INACTIVO"))
 
-    def test_six_classes_six_distinct_deterministic_motifs(self):
+    def test_every_class_has_its_own_deterministic_motif(self):
         motifs = {c: json.dumps(AF.motif_for_class(c), sort_keys=True) for c in AF.ACHO_CLASSES}
-        self.assertEqual(len(set(motifs.values())), 6)
+        self.assertEqual(len(set(motifs.values())), len(AF.ACHO_CLASSES))
         self.assertEqual(motifs, {c: json.dumps(AF.motif_for_class(c), sort_keys=True) for c in AF.ACHO_CLASSES})
 
     def test_malformed_turns_have_no_cue(self):
