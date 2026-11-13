@@ -27,7 +27,7 @@ class Cableado(unittest.TestCase):
     def test_el_service_worker_lo_instala_y_sube_la_cache(self):
         sw = leer("interface/sw.js")
         self.assertIn('"/evidence_chip.js?v=1"', sw)
-        self.assertIn("preceptoros-armazon-v181", sw)
+        self.assertIn("preceptoros-armazon-v182", sw)
         self.assertIn("2026-11-13 (evidence chip, visual-coherence commission)", sw)
 
     def test_el_pie_del_hilo_usa_el_componente_y_no_el_texto_crudo(self):
