@@ -142,13 +142,13 @@ class TalkNeverWordsAResultItself(unittest.TestCase):
         self.assertIn("window.PreceptorNotebook.turnLine(d.turno)", js)
         self.assertEqual(js.count("turno ? turno.line"), 4)        # action, energy, model answer, no answer
         self.assertIn('<p class="estado" id="estado" aria-live="polite"', html)
-        self.assertLess(html.index('src="/notebook.js?v=12"'), html.index('src="/app.js?v=32"'))
+        self.assertLess(html.index('src="/notebook.js?v=12"'), html.index('src="/app.js?v=33"'))
 
     def test_the_shell_serves_the_new_scripts_under_a_new_cache(self):
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
-        for asset in ('"/notebook.js?v=12"', '"/app.js?v=32"'):
+        for asset in ('"/notebook.js?v=12"', '"/app.js?v=33"'):
             self.assertIn(asset, sw)
-        self.assertIn('const Cache = "preceptoros-armazon-v183";', sw)
+        self.assertIn('const Cache = "preceptoros-armazon-v184";', sw)
 
 
 if __name__ == "__main__":
