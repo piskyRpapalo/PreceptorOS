@@ -79,14 +79,17 @@ def _close(turn, reply):
     elif voice == "orquestador":
         turn.update(state="LOCAL_SENSOR", evidence="local sensor reading; no model",
                     sentence="A local sensor answered; no model ran.")
-    elif voice == "hexelion" and m.get("via") == "mcp_nativo":
+    elif voice == "hexelion" and m.get("via") in ("mcp_nativo", "lectura_local"):
         tool = str(m.get("herramienta") or "?")[:24]
+        local = m.get("via") == "lectura_local"
+        evidence = "local read of an existing projection; no model" if local else "native MCP receipt; no model"
         if m.get("ok") is True:
-            turn.update(state="ACTED", evidence="native MCP receipt; no model",
-                        sentence="Hexelion ran the action «%s» through the native MCP; no model ran." % tool)
+            turn.update(state="ACTED", evidence=evidence,
+                        sentence=("Hexelion read «%s» from the rack's own records; no model ran." % tool) if local
+                        else ("Hexelion ran the action «%s» through the native MCP; no model ran." % tool))
         else:
             cause = str(m.get("causa") or "rc %s" % m.get("rc"))[:80]
-            turn.update(state="ACTION_REFUSED", cause=cause, evidence="native MCP receipt; no model",
+            turn.update(state="ACTION_REFUSED", cause=cause, evidence=evidence,
                         sentence="Hexelion's action «%s» did not succeed: %s." % (tool, cause))
     elif voice == "hexelion":
         model, ms = m.get("modelo"), _ms(m)
