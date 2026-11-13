@@ -110,6 +110,11 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   2026-11-13 rack: PASS at 492ff58 · levels: synthetic tool SIMULATED · headless Chrome MEASURED · screen reader and
   audio NO_DATA. Findings, not fixed: arrows from the Command tab needed 9 presses to reach Talk (they move from the
   selected panel, not the focused tab); Talk's status line changed 4 times in one turn (what a reader speaks: NO_DATA).
+- S5 proposal (NOT activated; needs a specific Sovereign decision): one read-only `turns` tool in the native MCP
+  server, empty input schema, answering `turnos_hexelion.mcp_summary(turns, tasks)` = last turn's own state, cause
+  and sentence + counts + tasks state, always under the 1,024 B MCP line (sentence gives way first). Prerequisites:
+  allowlist version bump by its owner, H4 provenance log for server-file changes, the 6-tool baseline re-measured.
+  Synthetic tests: `test_mcp_turns_proposal.py`. Server, permissions and tool list unchanged.
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
