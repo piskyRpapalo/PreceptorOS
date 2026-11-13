@@ -1,7 +1,8 @@
 # Acho is the flag of verifiable truth (APP-P1-ACHO)
 
 THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, round 6, CLAIM in Mesa #3
-(#issuecomment-6865305579). Base: APP `main` `60064d7`. Independent of the P0 PR (not chained).
+(#issuecomment-6865305579). First built on `main` `60064d7` (f4436cd, never opened as a PR); replayed onto
+`main` `18bf0d4` after #293 merged, with version pins re-derived from that main.
 
 ## The defect (measured on `60064d7`)
 
@@ -42,8 +43,8 @@ The words are always on screen and in the reader line.
   already not `ok`), 0 after;
 - REPLIED reaching `ok`: before yes, after no.
 
-- `test_acho_truth` on the base code: 7 of 8 fail (the one that passes pins MEASURED evidence reaching `ok`); 8/8
-  after.
+- `test_acho_truth` on `main` `18bf0d4`: 7 of 9 fail (the two that pass pin existing behaviour: MEASURED evidence
+  reaches `ok`; ACTED's words claim execution, not a right output); 9/9 after.
 
 Expression and motif uniqueness are pinned. Walk step 11b renders both marks in headless Chrome: proposed (dashed,
 quiet) and verified differ in their drawn line. A screen reader in use and sound heard stay
