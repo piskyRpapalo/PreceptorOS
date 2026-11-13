@@ -227,19 +227,31 @@
       const state = taskStates.includes(x.state) ? x.state : "NO_DATA";
       const sentence = clean(x.sentence, 240), next = clean(x.next, 160);
       return { run: clean(x.run_id, 32) || "unnamed", state: sentence ? state : "NO_DATA", cause: clean(x.cause, 80),
-        sentence: sentence || "NO_DATA: this task could not be read.", next, acho: state === x.state ? acho(x) : "empty" };
+        sentence: sentence || "NO_DATA: this task could not be read.", next, acho: state === x.state ? acho(x) : "empty",
+        uncertainty: sentence && (state === "OUTCOME_UNKNOWN" || state === "NO_RESULT_RECORDED") ? uncertainty(x.uncertainty) : null };
     });
     const needs = tasks.filter(x => x.state === "NEEDS_YOUR_AUTHORIZATION").length;
     const blocks = tasks.filter(x => x.state === "NO_RESULT_RECORDED" || x.state === "OUTCOME_UNKNOWN").length;
     return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs, blocks };
   }
+  /* An uncertain task's proposal (journal's read-only record): shown, never acted on. Only exact 64-hex refs and the
+   * fixed terms are accepted; anything else hides the block (the sentence still says the outcome is unknown). */
+  const hex64 = v => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
+  function uncertainty(u) {
+    if (!u || typeof u !== "object" || !hex64(u.task_ref) || !hex64(u.evidence_ref) || !hex64(u.proposal_ref) ||
+        u.budget !== "reserved" || u.retry !== "none" || u.decides !== "sovereign") return null;
+    return { task: u.task_ref, evidence: u.evidence_ref, proposal: u.proposal_ref };
+  }
+  const notVisible = "Not visible here: a signature, a budget return or the old worker stopping. NO_DATA until the host shows them.";
   function taskSummary(p) {
     if (!p) return "NO_DATA: the tasks could not be read (the app server did not answer).";
     if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
     const head = p.needs ? p.needs + (p.needs === 1 ? " task needs" : " tasks need") + " your authorization. " : "";
     const wait = p.blocks ? "New tasks wait: " + p.blocks + (p.blocks === 1 ? " claim has" : " claims have") +
       " no known result, and only the host can resolve " + (p.blocks === 1 ? "it" : "them") + ". " : "";
-    return wait + head + "Last task: " + p.tasks[0].sentence;
+    const d = p.tasks.find(x => x.uncertainty);
+    const decide = d ? "Decision for you, task " + d.run + ": " + d.sentence + " " + d.next + " " : "";
+    return wait + decide + head + "Last task: " + p.tasks[0].sentence;
   }
   async function loadTasks(listId, statusId) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
@@ -251,11 +263,28 @@
       const c = card("Task " + x.run, x.state, x.sentence);
       c.dataset.state = x.state; c.dataset.acho = x.acho;
       if (x.next) field(c, "Next", x.next);
+      if (x.uncertainty) {
+        field(c, "Task", x.uncertainty.task); field(c, "Evidence", x.uncertainty.evidence);
+        field(c, "Proposal", x.uncertainty.proposal); field(c, "Budget", "Still reserved.");
+        field(c, "Retry", "None: it will not run again."); field(c, "Who decides", "You, outside this app.");
+        field(c, "Unknown", notVisible);
+      }
       list.append(c);
     });
     const summary = taskSummary(p);
     if (!p || !p.tasks.length) list.append(card("Delegated tasks", "NO_DATA", summary));
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
+    return p;
+  }
+  // Talk says the same summary only when something waits on you or on the host; otherwise it stays quiet.
+  async function talkTasks(statusId) {
+    const status = document.getElementById(statusId);
+    if (!status) return null;
+    let p = null;
+    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch { p = null; }
+    const text = p && (p.blocks || p.needs) ? taskSummary(p) : "";
+    if (spoken[statusId] !== text) { status.textContent = text; spoken[statusId] = text; }
+    status.hidden = !text;
     return p;
   }
   function turnCard(x) {
@@ -329,7 +358,7 @@
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, projectTasks, taskSummary, loadTasks, loadTurns, loadBench });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, projectTasks, taskSummary, loadTasks, talkTasks, loadTurns, loadBench });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();

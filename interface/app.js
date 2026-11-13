@@ -613,7 +613,8 @@ function mostrar(i, opciones = {}) {
 /* One loader per panel (common header, 2026-11-12): opening a panel and pressing its ↻ run the same readers.
  * A panel that reads no source (Command, 3DFabrika, World) has no entry and no button. */
 const cargadores = {
-  conversacion: () => window.PreceptorConversacion && window.PreceptorConversacion.sync(),
+  conversacion: () => Promise.all([window.PreceptorConversacion && window.PreceptorConversacion.sync(),
+    window.PreceptorNotebook ? window.PreceptorNotebook.talkTasks("talk-tasks") : null]),
   gobierno: () => { const b = $("hitl-recargar"); if (b && !b.disabled) b.click(); },
   cuaderno: () => window.PreceptorNotebook && window.PreceptorNotebook.load(),
   lab: () => Promise.all([cargarLab(), cargarLabRack(),

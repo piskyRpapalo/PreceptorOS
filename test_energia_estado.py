@@ -160,7 +160,7 @@ class MiniHtmlEnergyContract(unittest.TestCase):
         self.assertIn('id="energy-json"', html)
         self.assertIn('src="/energia_ui.js?v=2"', html)
         self.assertIn('"/energia_ui.js?v=2"', sw)
-        self.assertIn('preceptoros-armazon-v184', sw)
+        self.assertIn('preceptoros-armazon-v185', sw)
         self.assertIn("/energia_ui.js", PWA.ESTATICOS)
         self.assertIn('cache: "no-store"', js)
         self.assertIn('spoken.textContent = data.texto', js)

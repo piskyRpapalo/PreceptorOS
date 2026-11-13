@@ -58,7 +58,7 @@ class Told(unittest.TestCase):
             self.assertIn(t["sentence"], t["reader"])
             self.assertIn(t["next"], t["reader"])
             self.assertEqual(AF.cue_for_turn(t)["texto"], t["reader"])   # the ear hears the reader's words
-            self.assertLess(len(json.dumps(t, ensure_ascii=False).encode("utf-8")), 1024)
+            self.assertLess(len(json.dumps(t, ensure_ascii=False).encode("utf-8")), K.MAX_TASK_B)
 
     def test_the_person_hears_what_needs_them_and_that_nothing_ran(self):
         t = K.task(rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None)))
@@ -181,7 +181,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=12"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=13"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):

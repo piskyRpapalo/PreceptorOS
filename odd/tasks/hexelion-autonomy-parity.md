@@ -117,6 +117,13 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   and sentence + counts + tasks state, always under the 1,024 B MCP line (sentence gives way first). Prerequisites:
   allowlist version bump by its owner, H4 provenance log for server-file changes, the 6-tool baseline re-measured.
   Synthetic tests: `test_mcp_turns_proposal.py`. Server, permissions and tool list unchanged.
+- Uncertain tasks (HUMAN-UNCERTAINTY-01, LAB #186, presentation only): a record may carry the journal's read-only
+  proposal (`preceptoros.lab.uncertainty-ack/1`). JSON row, Notebook card + status, Talk line (#talk-tasks, shown
+  only when something waits) and Acho cue (`needs_you`) tell: UNKNOWN, exact task/evidence/proposal refs, budget
+  reserved, no retry, the decision is the Sovereign's, outside the app. Signature, budget return and worker stop are
+  `not_visible` (NO_DATA). No ACK/authorise control. Changed terms, forged fields, a proposal on a known outcome →
+  NO_DATA. Per-task bound 1,536 B (measured 1,198 B worst case; MCP lines and thread messages keep 1,024 B).
+  The proposal's hash is the journal's check, not the APP's. Route still NO_DATA(p2_mirror_not_built).
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
