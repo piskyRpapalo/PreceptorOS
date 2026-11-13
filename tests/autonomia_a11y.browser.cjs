@@ -320,9 +320,30 @@ async function waitServer(child) {
     assert.deepEqual(moves, { waiting: 0, uncertain: 0, verified: 1, verified_again: 0 }, 'moves once, only for a confirmed result');
     receipt.checks.acho_expression = moves;
 
+    // 15 · Panel flow: opening a panel speaks once. Its sections keep painting their own lines (visible, readable),
+    // but only the panel's own line is spoken when the reading settles. A refresh keeps focus on its button.
+    const openSaid = {};
+    for (const tab of ['#tab-mando', '#tab-gobierno', '#tab-cuaderno', '#tab-lab', '#tab-harness', '#tab-puerta', '#tab-modelos', '#tab-ajustes', '#tab-conversacion']) {
+      await page.evaluate(() => { window.__said = []; });
+      await page.locator(tab).click(); await page.waitForTimeout(1500);
+      openSaid[tab.slice(5)] = await page.evaluate(() => window.__said.map((x) => x[0]));
+    }
+    receipt.checks.panel_open_announcements = openSaid;
+    const focusAfterRefresh = {};
+    for (const [tab, panel] of [['#tab-cuaderno', 'cuaderno'], ['#tab-lab', 'lab'], ['#tab-harness', 'harness'], ['#tab-ajustes', 'ajustes']]) {
+      await page.locator(tab).click(); await page.waitForTimeout(800);
+      const button = page.locator(`#panel-${panel} button[data-refrescar]`).first();
+      if (!(await button.count())) { focusAfterRefresh[panel] = 'NO_DATA(no_refresh_button)'; continue; }
+      await button.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(1500);
+      focusAfterRefresh[panel] = await page.evaluate(() => { const a = document.activeElement; return a && a.dataset && a.dataset.refrescar ? 'kept' : (a ? a.tagName + '#' + a.id : 'none'); });
+    }
+    receipt.checks.focus_after_refresh = focusAfterRefresh;
+    for (const [panel, said] of Object.entries(openSaid)) assert(said.length <= 1, `opening ${panel} spoke ${said.length} lines: ${said}`);
+    for (const [panel, where] of Object.entries(focusAfterRefresh)) assert(where === 'kept' || where.startsWith('NO_DATA'), `refresh in ${panel} lost focus to ${where}`);
+
     // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.
     // `canal:<thread>` is lab.py's source identifier (data, pinned by test_lab), not prose; it is not matched.
-    const spanish = /\b(aún|comprobando|Zona activa|Hablar|mensajes|Publicar|creación|Identidad|edificio|Redacción|Modelos locales|Canales recientes|Elige|ninguna)\b/;
+    const spanish = /\b(Bucles|Consultando|aún|comprobando|Zona activa|Hablar|mensajes|Publicar|creación|Identidad|edificio|Redacción|Modelos locales|Canales recientes|Elige|ninguna)\b/;
     const leaks = [];
     for (const tab of ['#tab-mando', '#tab-conversacion', '#tab-gobierno', '#tab-cuaderno', '#tab-lab', '#tab-harness', '#tab-puerta', '#tab-modelos', '#tab-ajustes']) {
       await page.locator(tab).click(); await page.waitForTimeout(700);

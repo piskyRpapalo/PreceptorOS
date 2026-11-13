@@ -111,7 +111,9 @@
     ].forEach(([id, value]) => { const target = document.getElementById(id); if (target) target.textContent = value; });
     const button = document.getElementById("notebook-refresh");
     const status = document.getElementById("notebook-status");
-    button.disabled = true;
+    // Busy, never disabled: a disabled button drops the keyboard focus to the page (panel flow).
+    if (button.getAttribute("aria-disabled") === "true") return;
+    button.setAttribute("aria-disabled", "true");
     status.textContent = t.loading;
     const [notesResult, harnessResult] = await Promise.allSettled([
       request("/api/notebook"), request("/api/harness")
@@ -172,8 +174,8 @@
     }
     await loadTurns("notebook-turns", "notebook-turns-status", 12);
     await loadTasks("notebook-tasks", "notebook-tasks-status");
-    status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
-    button.disabled = false;
+    status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · loops: " + loops.cause : "");
+    button.removeAttribute("aria-disabled");
   }
   /* What happened to each request (meta-harness 01). One projection from /api/hexelion/turnos feeds the screen, the
    * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
@@ -368,7 +370,8 @@
   }
   function mount() {
     const refresh = document.getElementById("notebook-refresh");
-    if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
+    // Through the panel flow when the app shell is present, so a refresh speaks once like an opening.
+    if (refresh) refresh.addEventListener("click", () => root.PreceptorPanelFlow ? root.PreceptorPanelFlow.load("cuaderno") : load().catch(() => {}));
   }
   const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, projectTasks, taskSummary, loadTasks, talkTasks, loadTurns, loadBench });
   root.PreceptorNotebook = api;

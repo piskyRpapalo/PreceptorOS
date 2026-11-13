@@ -48,8 +48,6 @@ The walk runs in headless Chrome against its own server (temporary HOME, fake MC
 
 | Finding | Proposed control | Piece |
 |---|---|---|
-| Opening the Notebook speaks 4–5 distinct status lines at once (first open) | one panel summary line; section statuses visible but not live | PANEL-FLOW |
-| Settings has 16 live regions | live only for the control just used | PANEL-FLOW |
 | Harness "Agent questions to Hexelion" is history (the cli thread) | move it to the Notebook as a filter of requests | PANEL-FLOW (needs review: the CLI-thread decree) |
 | The Notebook heading reads "Notebook · Hexelion" in a public product (Hexelion is the private coordinator) | public build says Notebook; private instance only | naming review |
 | Dark scheme is not offered (light only) | NO_DATA until designed; contrast measured per scheme | PANEL-FLOW |
@@ -71,6 +69,21 @@ The walk runs in headless Chrome against its own server (temporary HOME, fake MC
 - **Notebook cards carry the same line pattern** on their start edge. Uncertain is dashed, and the walk measures it
   on the real DOM.
 - Not measured: the tone heard on a speaker (NO_DATA, Web Audio graph only) and what a screen reader says (NO_DATA).
+
+## PANEL-FLOW (delivered after ACHO-EXPRESSION)
+
+- **One voice per reading.** While a reading panel loads (opening it or pressing ↻), its section lines keep painting,
+  visible and readable in place, but stay quiet. When the reading settles, the panel's own line speaks once
+  (Notebook `notebook-status`, Lab `lab-estado`, Harness `harness-frescura`, Settings `ajustes-estado`). Later changes,
+  such as a new task or a control just used, speak as before. Settings keeps one live line per control, and a line
+  speaks only when its control is used.
+- Measured in walk step 15, reopening each panel in headless Chrome. Before: Notebook 3, Lab 4 (the same "Checking the
+  local Lab…" from two regions at once), Harness 2, Settings 4. After: 1 each. The other five panels: 0–1, unchanged.
+- **Focus stays.** The Notebook's ↻ is marked busy (`aria-disabled`) instead of disabled, because a disabled button
+  drops the keyboard focus to the page. It also runs through the same panel flow. After a refresh, focus is on the
+  button in all four reading panels. The before state is NO_DATA: the old walk did not reach that button.
+- English first paint for the Lab and Harness reading lines; " · Bucles:" became " · loops:".
+- Arrows, Home and End are unchanged (walk step 7).
 
 ## Levels kept apart
 

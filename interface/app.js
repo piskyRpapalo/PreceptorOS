@@ -634,11 +634,25 @@ const cargadores = {
     $("ajustes-estado").textContent = fallos ? `NO_DATA: ${fallos} of 2 readings did not answer` : "Read just now from this node.";
   },
 };
+/* Panel flow · one voice per reading. While a reading panel loads, its sections keep painting their own lines (visible,
+ * reachable by reading the panel) but stay quiet; when the reading settles, the panel's own line speaks once, as a new
+ * text node. Later changes (a new task, a control just used) speak as before. Measured in the browser walk, step 15. */
+const vozDelPanel = { cuaderno: "notebook-status", lab: "lab-estado", harness: "harness-frescura", ajustes: "ajustes-estado" };
 function cargarPanel(id) {
   const cargar = cargadores[id];
   if (!cargar) return;
-  try { Promise.resolve(cargar()).catch(() => {}); } catch { /* each reader paints its own NO_DATA */ }
+  const voz = vozDelPanel[id] && $(vozDelPanel[id]), panel = $("panel-" + id);
+  const callados = voz && panel ? [...panel.querySelectorAll('[aria-live="polite"]')] : [];
+  callados.forEach((el) => el.setAttribute("aria-live", "off"));
+  const decir = () => {
+    callados.forEach((el) => el.setAttribute("aria-live", "polite"));
+    if (voz && voz.textContent) voz.replaceChildren(document.createTextNode(voz.textContent));
+  };
+  let lectura;
+  try { lectura = Promise.resolve(cargar()); } catch { lectura = Promise.resolve(); /* each reader paints its own NO_DATA */ }
+  lectura.catch(() => {}).finally(decir);
 }
+window.PreceptorPanelFlow = Object.freeze({ load: cargarPanel });
 document.addEventListener("click", (e) => {
   const boton = e.target.closest && e.target.closest("button.refrescar[data-refrescar]");
   if (boton) cargarPanel(boton.dataset.refrescar);
