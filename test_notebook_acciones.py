@@ -92,7 +92,7 @@ class Wiring(unittest.TestCase):
         self.assertIn("voice: clean(r.voice, 24)", js)
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
         self.assertIn('"/notebook.js?v=7"', sw)
-        self.assertIn("preceptoros-armazon-v173", sw)
+        self.assertIn("preceptoros-armazon-v174", sw)
 
 
 if __name__ == "__main__":

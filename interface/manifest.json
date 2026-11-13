@@ -1,6 +1,6 @@
 {
-  "name": "Hexelion · PreceptorOS",
-  "short_name": "Hexelion",
+  "name": "PreceptorOS",
+  "short_name": "PreceptorOS",
   "start_url": "/app.html",
   "display": "standalone",
   "background_color": "#f4ecda",
