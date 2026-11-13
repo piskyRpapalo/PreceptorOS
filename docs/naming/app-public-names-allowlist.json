@@ -14,6 +14,7 @@
     "/creation_voice.js": "interface/creation_voice.js",
     "/dashboard.css": "interface/desnuda.css",
     "/dashboard.js": "interface/dashboard.js",
+    "/evidence_chip.js": "interface/evidence_chip.js",
     "/energia_ui.js": "interface/energia_ui.js",
     "/face/bubble/army-wave-panel.js": "interface/face/bubble/army-wave-panel.js",
     "/face/bubble/atlas-coord.js": "interface/face/bubble/atlas-coord.js",
