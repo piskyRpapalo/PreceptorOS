@@ -127,6 +127,15 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   Budgets kept apart, each measured: host record < 1,024 B (LAB; fixture max 738 B) · told row < 1,024 B (worst
   1,005 B, 32-char run id; the unused per-row Acho motif removed, the class decides the cue) · MCP line < 1,024 B ·
   chat envelope 1,023 B. Route still NO_DATA(p2_mirror_not_built).
+- Accessibility measures (same walk, 2026-11-13 rack, headless Chrome): nine tabs by ArrowRight/Left (wrap),
+  Home, End, roving tabindex, every panel named · contrast 232 text elements, light, min 5.01:1 after the agent
+  badge glyph fix (was 1.36:1; app.css v21, cache v186); dark NO_DATA(app_declares_light_only) · sound switch by
+  keyboard (Enter opens the group, Tab, Space) on → Web Audio graph ran, off → silent · 420×680: no sideways
+  scroll, Send 60×44 px, box on screen, `interactive-widget=resizes-content` present; on-screen keyboard NO_DATA.
+  Screen reader: NO_DATA until an authorised environment exists.
+- Uncertain task in a real DOM (walk step 11): the browser is handed the fixture projection (route intercepted; the
+  server route still answers NO_DATA(p2_mirror_not_built), asserted). Talk's #talk-tasks = Notebook status, word for
+  word; compact card, full refs after opening its disclosure by keyboard; Acho needs_you; no button. Level: SIMULATED data, real DOM.
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·

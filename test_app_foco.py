@@ -53,5 +53,16 @@ class TabsMoveFromFocus(unittest.TestCase):
         self.assertNotIn("(panelActual + 1) % paneles.length", js)
 
 
+
+class AgentBadgeReadable(unittest.TestCase):
+    """Measured in the isolated browser walk: the badge glyph in the agent's own colour was 1.36:1. Ink on its tint."""
+
+    def test_the_badge_glyph_is_ink(self):
+        css = (Path(__file__).resolve().parent / "interface/app.css").read_text(encoding="utf-8")
+        rule = re.search(r"\.agent-badge \{[^}]*\}", css).group(0)
+        self.assertIn("color: var(--ink)", rule)
+        self.assertNotIn("color: var(--agente)", rule)
+
+
 if __name__ == "__main__":
     unittest.main()
