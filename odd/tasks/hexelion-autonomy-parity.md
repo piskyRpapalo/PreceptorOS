@@ -130,6 +130,9 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   keyboard (Enter opens the group, Tab, Space) on → Web Audio graph ran, off → silent · 420×680: no sideways
   scroll, Send 60×44 px, box on screen, `interactive-widget=resizes-content` present; on-screen keyboard NO_DATA.
   Screen reader: NO_DATA until an authorised environment exists.
+- Uncertain task in a real DOM (walk step 11): the browser is handed the fixture projection (route intercepted; the
+  server route still answers NO_DATA(p2_mirror_not_built), asserted). Talk's #talk-tasks = Notebook status, word for
+  word; card shows the three exact refs; Acho needs_you; no button. Level: SIMULATED data, real DOM.
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·

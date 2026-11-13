@@ -241,6 +241,32 @@ async function waitServer(child) {
     receipt.levels.virtual_keyboard = 'NO_DATA(headless_has_no_on_screen_keyboard)';
     await phone.close();
 
+    // 11 · An uncertain task, in a real DOM. The server's route stays NO_DATA(p2_mirror_not_built); the browser is handed
+    // the projection test_uncertainty_presentation builds (python3 tareas_hexelion on its fixture). Synthetic data.
+    const fixture = JSON.parse(require('node:child_process').execFileSync('python3', ['-c',
+      'import json,test_uncertainty_presentation as U; print(json.dumps(U.told(U.event(U.proposal()))))'], { cwd: ROOT }));
+    const real = await page.evaluate(async () => (await (await fetch('/api/hexelion/tareas')).json()).cause);
+    assert.equal(real, 'p2_mirror_not_built', 'the live route must stay unconnected');
+    await page.route('**/api/hexelion/tareas', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
+    await page.locator('#tab-conversacion').click();
+    await page.waitForFunction(() => !document.querySelector('#talk-tasks').hidden, null, { timeout: 10000 });
+    await page.locator('#tab-cuaderno').click();
+    await page.waitForSelector('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]', { timeout: 10000 });
+    const u = await page.evaluate(() => ({ talk: document.querySelector('#talk-tasks').textContent,
+      talkLive: document.querySelector('#talk-tasks').getAttribute('aria-live'),
+      status: document.querySelector('#notebook-tasks-status').textContent,
+      card: document.querySelector('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]').innerText,
+      acho: document.querySelector('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]').dataset.acho,
+      buttons: [...document.querySelectorAll('#notebook-tasks button, #talk-tasks button')].length }));
+    const t = fixture.tasks[0];
+    assert.equal(u.talk, u.status, 'Talk and Notebook say the same line');
+    assert(u.talk.includes(t.sentence + ' ' + t.next));
+    for (const ref of [t.uncertainty.task_ref, t.uncertainty.evidence_ref, t.uncertainty.proposal_ref]) assert(u.card.includes(ref));
+    assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'needs_you', 0]);
+    assert(!/\b(signed|refunded|released|returned|acknowledged)\b/i.test(u.talk + u.card), 'claims something unseen');
+    receipt.checks.uncertain_task_same_in_talk_and_notebook = 'SIMULATED_DATA_REAL_DOM';
+    await page.unroute('**/api/hexelion/tareas');
+
     // The arrow walk passes through World, whose panel loads the public OpenWorld page by design; anything else fails.
     const declared = ['https://preceptoros.org/openworld/'];
     assert.deepEqual(outside.filter((u) => !declared.includes(u)), [], 'request left the preview origin');
