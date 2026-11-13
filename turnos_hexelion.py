@@ -330,6 +330,11 @@ def self_report(turns_projection, tasks_projection, signatures, is_report=lambda
     counters = kp.get("counters") if isinstance(kp.get("counters"), dict) else {"state": "NO_DATA",
                                                                                  "cause": "counters_not_stated"}
     tasks_read = kp.get("state") == "MEASURED"
+    # A window is not a census: the queue is counted only when the host attested a complete reading and every row
+    # was read (tareas_hexelion counters MEASURED). Otherwise the rows are "at least N visible" with the cause.
+    census = tasks_read and counters.get("state") == "MEASURED"
+    gap = None if census else (counters.get("cause") or "counters_not_stated")
+    visible = len(kp.get("tasks") or [])
 
     # 1 · Doing: only the task reading can say it, and it never says "running".
     if not kp:
@@ -341,9 +346,13 @@ def self_report(turns_projection, tasks_projection, signatures, is_report=lambda
                              % words(kp.get("cause"))}
     else:
         b = kp.get("blocks_new_work")
-        doing = {"state": "MEASURED", "cause": None,
-                 "sentence": "Doing: %d task(s) recorded%s. I never say a process is running."
-                             % (len(kp.get("tasks") or []), "; %d with no known result block new work" % b if b else "")}
+        blocks = "; %s%d block new work (no known result)" % ("" if census else "at least ", b) if b else ""
+        doing = {"state": "MEASURED" if census else "NO_DATA", "cause": gap,
+                 "sentence": ("Doing: %d task(s) recorded (complete reading)%s." % (visible, blocks) if census else
+                              "Doing: at least %d task(s) visible; completeness NO_DATA (%s)%s."
+                              % (visible, words(gap), blocks) if visible else
+                              "Doing: NO_DATA: no task visible; completeness NO_DATA (%s)." % words(gap))
+                             + " I never say a process is running."}
     last = rows[0] if rows else None
     if last:
         doing["sentence"] += " Your last request (message %d): %s" % (last["n"], last["sentence"])
@@ -359,14 +368,18 @@ def self_report(turns_projection, tasks_projection, signatures, is_report=lambda
         achieved = {"state": "MEASURED", "cause": None,
                     "sentence": "Achieved: %d of the last %d requests closed with evidence%s; %s."
                                 % (len(done), len(rows), " (messages %s)" % _ns(done) if done else "",
-                                   "%d task(s) checked" % len(tasks_done) if tasks_read else "tasks NO_DATA")}
+                                   ("%d task(s) checked" % len(tasks_done) if census else
+                                    "at least %d task(s) checked" % len(tasks_done) if tasks_done else
+                                    "tasks NO_DATA (%s)" % words(gap)) if tasks_read else "tasks NO_DATA")}
 
     # 3 · How I know: the projections and refs these answers rest on.
-    how = {"state": "MEASURED" if read else "NO_DATA", "cause": None if read else achieved["cause"],
+    how = {"state": "MEASURED" if read and census else "NO_DATA",
+           "cause": None if read and census else (achieved["cause"] if not read else gap),
            "sentence": "How I know: %s; tasks %s; no model ran for this report." % (
                ("the shared thread, messages %d to %d" % (rows[-1]["n"], rows[0]["n"]) if rows else
                 "the shared thread, no request in it") if read else "the thread NO_DATA",
-               "read" if tasks_read else "NO_DATA (%s)" % words(counters.get("cause") or kp.get("cause")))}
+               "read in full" if census else ("%d visible row(s) only" % visible     # the cause is in Doing
+                                              if tasks_read and visible else "NO_DATA (%s)" % words(gap or kp.get("cause"))))}
 
     # 4 · Needs from you: a clear only over measured zeros; anything unread is said as unknown with its cause.
     ok, s_cause, waiting = signatures
@@ -395,9 +408,16 @@ def self_report(turns_projection, tasks_projection, signatures, is_report=lambda
     answers = {"doing": doing, "achieved": achieved, "how": how, "needs": needs}
     # The chat envelope keeps a local read under 560 B (hexelion_acciones.TOPE_LOCAL_B): the quoted last request gives
     # way first, so the four answers are never cut.
-    if last and len(" ".join(v["sentence"] for v in answers.values()).encode("utf-8")) > 540:
+    size = lambda: len(" ".join(v["sentence"] for v in answers.values()).encode("utf-8"))
+    if last and size() > 540:
         doing["sentence"] = doing["sentence"][:doing["sentence"].index(" Your last request")] + \
             " Your last request is message %d." % last["n"]
+    if last and size() > 540:
+        doing["sentence"] = doing["sentence"][:doing["sentence"].index(" Your last request")]
+    if size() > 540:                     # then lists of message numbers become counts; the refs stay in `refs.turns`
+        achieved["sentence"] = re.sub(r" \(messages [^)]*\)", "", achieved["sentence"])
+        needs["sentence"] = re.sub(r"check message\(s\) [^;.]*? yourself", "check %d message(s) yourself" % len(unclear),
+                                   needs["sentence"])
     refs = {"turns": [t["n"] for t in rows], "tasks_cause": kp.get("cause"), "counters": counters.get("state"),
             "signatures_cause": s_cause}
     body = {"schema": REPORT_SCHEMA, "answers": {k: {"state": v["state"], "cause": v["cause"]} for k, v in answers.items()},

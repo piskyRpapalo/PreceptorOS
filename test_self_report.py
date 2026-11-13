@@ -84,6 +84,37 @@ class NothingUnknownIsSaidAsKnown(unittest.TestCase):
                       report(turns(turn(3, "ACTED")), kp)["text"])
 
 
+class AWindowIsNotACensus(unittest.TestCase):
+    """Mesa #3 round 8 (Cell A review): what is visible is never told as the whole queue."""
+
+    def test_twelve_visible_done_and_a_thirteenth_unresolved(self):
+        kp = K.project(runs(*[rec(receipt())] * 12 + [rec(None)]), STAMP, complete_ref="c" * 64)
+        self.assertEqual((kp["state"], kp["counters"]["cause"]), ("MEASURED", "records_beyond_window"))
+        r = report(turns(turn(3, "ACTED")), kp)
+        for k in ("doing", "how"):
+            self.assertEqual((r["answers"][k]["state"], r["answers"][k]["cause"]), ("NO_DATA", "records_beyond_window"), k)
+        self.assertIn("Doing: at least 12 task(s) visible; completeness NO_DATA (records beyond window)", r["text"])
+        self.assertIn("at least 12 task(s) checked", r["text"])
+        self.assertNotRegex(r["text"], r"(?<!at least )\b12 task\(s\) (recorded|checked)")
+        self.assertEqual(r["answers"]["needs"]["state"], "NO_DATA")
+
+    def test_a_measured_projection_without_counters_is_no_accredited_zero(self):
+        legacy = {"schema": "preceptoros.hexelion-tasks/1", "state": "MEASURED", "cause": None, "tasks": [],
+                  "needs_you": 0, "blocks_new_work": 0, "decisions_for_you": 0}
+        r = report(turns(turn(3, "ACTED")), legacy)
+        self.assertEqual((r["answers"]["doing"]["state"], r["answers"]["doing"]["cause"]), ("NO_DATA", "counters_not_stated"))
+        self.assertNotIn("0 task(s)", r["text"])
+        self.assertIn("completeness NO_DATA (counters not stated)", r["text"])
+        self.assertIsNone(CLEAR.search(r["text"]))
+        self.assertEqual(r["answers"]["how"]["state"], "NO_DATA")
+
+    def test_only_an_attested_complete_reading_counts_the_queue(self):
+        kp = K.project(runs(rec(receipt()), rec(receipt())), STAMP, complete_ref="c" * 64)
+        r = report(turns(turn(3, "ACTED")), kp)
+        self.assertEqual(r["answers"]["doing"]["state"], "MEASURED")
+        self.assertIn("Doing: 2 task(s) recorded (complete reading).", r["text"])
+
+
 class AchievementsCarryEvidence(unittest.TestCase):
     def test_only_closed_with_evidence_counts_and_unchecked_asks_you(self):
         tp = turns(turn(9, "ANSWERED_UNVERIFIED"), turn(8, "REPLIED"), turn(7, "ACTED"), turn(6, "ANSWERED"),
@@ -111,10 +142,12 @@ class OneRefForEveryReader(unittest.TestCase):
         long = "x" * 230
         tp = turns(*[turn(100 - i, s, long) for i, s in enumerate(["NO_REPLY_RECORDED"] + ["ACTION_UNVERIFIED"] * 6
                                                                    + ["ACTED"] * 5)])
-        text = report(tp, sig=(False, "signatures_rows_unreadable", None))["text"]
-        self.assertLessEqual(len(text.encode("utf-8")), A.TOPE_LOCAL_B)
-        self.assertEqual(A.cabe(text), text)
-        self.assertIn("Needs from you:", text)
+        partial = K.project(runs(*[rec(receipt())] * 11 + [rec(None)] * 2), STAMP, complete_ref="c" * 64)
+        for kp in (K.live(STAMP), partial):                      # the longest wording: a partial window
+            text = report(tp, kp, sig=(False, "signatures_rows_unreadable", None))["text"]
+            self.assertLessEqual(len(text.encode("utf-8")), A.TOPE_LOCAL_B)
+            self.assertEqual(A.cabe(text), text)
+            self.assertIn("Needs from you:", text)
 
 
 class ThroughTheDoor(unittest.TestCase):
