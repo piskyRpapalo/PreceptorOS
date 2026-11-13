@@ -118,8 +118,10 @@
 // (app.js v29). Cache v176.
 // 2026-11-13 (evidence chip, visual-coherence commission): the thread shows its evidence state as a shape + word + colour
 // (evidence_chip.js, conversacion.js v3, app.css v20). Cache v177.
-const Cache = "preceptoros-armazon-v177";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=29", "/notebook.js?v=7", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-13 (per-tool receipts, autonomy parity, first slice): an action counts as done only when its tool's own proof is in
+// the receipt; otherwise the Notebook says it is unverified (notebook.js v8). Cache v178.
+const Cache = "preceptoros-armazon-v178";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=29", "/notebook.js?v=8", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

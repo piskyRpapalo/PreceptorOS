@@ -9,12 +9,18 @@ conversacion_comun, and pairs every request with what followed it:
   LOCAL_SENSOR        a local tool answered (energy); no model ran
   NO_ANSWER           the door recorded that no answer came, and its cause
   REPLIED             an addressed rack preceptor wrote back in its own voice
+  ACTED               an action whose receipt carries the proof its tool's contract names (never `ok` alone)
+  ACTION_REFUSED      the fence or the tool said no, with its cause
+  ACTION_UNVERIFIED   an action receipt that does not prove success: missing proof, contradiction or no contract
   NO_REPLY_RECORDED   nothing came back. This screen cannot see a process, so it never says one is running.
 
 Each turn carries one `sentence`: the same words for the screen and the screen reader, built from the same fields
 the machine reads. Pure: no network, no clock of its own, no writes.
 """
 from __future__ import annotations
+
+import json
+import re
 
 import conversacion_comun as C
 
@@ -27,6 +33,7 @@ NEXT = {
     "LOCAL_SENSOR": "Nothing to do: it is a reading, not advice.",
     "ACTED": "Check the result in the thread; anything to merge arrives as a draft HITL PR for you.",
     "ACTION_REFUSED": "Read the cause; the fence held, nothing changed.",
+    "ACTION_UNVERIFIED": "Check the result yourself before relying on it; the receipt does not prove it.",
     "NO_ANSWER": "Fix the cause or ask again later; nothing is working on this request now.",
     "REPLIED": "Read the reply; it is a message, not a permission.",
     "NO_REPLY_RECORDED": "Nothing is recorded as working on it. Ask again, or ask on the Mesa.",
@@ -58,6 +65,49 @@ CAUSES = {
 }
 
 
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+LOCAL_READS = frozenset({"signatures", "lab", "preceptors", "devices", "models"})
+
+
+def _int(v, lo, hi):
+    return type(v) is int and lo <= v <= hi
+
+
+# What each tool's own contract uses to confirm success (measured 2026-11-13 against the native server and
+# hexelion_acciones.evidencia). `ok: true` is never enough on its own: the tool's proof must be in the receipt and
+# agree with it. exec proves with rc == 0; the others carry no rc, so an rc there is a contradiction.
+CONTRACTS = {
+    "exec": lambda m, ev: _int(m.get("rc"), 0, 0) and ev.get("rc", 0) == 0,
+    "write_file": lambda m, ev: m.get("rc") is None and _int(ev.get("bytes"), 0, 1 << 31)
+    and isinstance(ev.get("sha256"), str) and bool(_SHA256.match(ev["sha256"])),
+    "state": lambda m, ev: m.get("rc") is None and _int(ev.get("servicios"), 0, 4096),
+    "capabilities": lambda m, ev: m.get("rc") is None and isinstance(ev.get("allowlist_version"), str)
+    and 0 < len(ev["allowlist_version"]) <= 64,
+    "audit_last": lambda m, ev: m.get("rc") is None and _int(ev.get("n"), 0, 20),
+}
+LOCAL_CONTRACT = lambda m, ev: _int(m.get("rc"), 0, 0) and isinstance(ev.get("fuente"), str) and 0 < len(ev["fuente"]) <= 80
+
+
+def _action(m):
+    """(state, cause) for one action receipt; success only when the tool's own contract confirms it."""
+    tool, ok, local = m.get("herramienta"), m.get("ok"), m.get("via") == "lectura_local"
+    ev = m.get("evidencia") if isinstance(m.get("evidencia"), dict) else {}
+    if type(ok) is not bool:
+        return "ACTION_UNVERIFIED", "receipt_ok_not_boolean"
+    if not ok:
+        if tool == "exec" and type(m.get("rc")) is int and m["rc"] == 0 and not m.get("causa"):
+            return "ACTION_UNVERIFIED", "contradictory_receipt"
+        return "ACTION_REFUSED", str(m.get("causa") or "rc %s" % m.get("rc"))[:80]
+    if m.get("causa"):
+        return "ACTION_UNVERIFIED", "contradictory_receipt"
+    check = (LOCAL_CONTRACT if tool in LOCAL_READS else None) if local else CONTRACTS.get(tool)
+    if check is None:
+        return "ACTION_UNVERIFIED", "no_contract_for_tool"
+    if tool == "exec" and type(m.get("rc")) is int and m["rc"] != 0:
+        return "ACTION_UNVERIFIED", "contradictory_receipt"
+    return ("ACTED", None) if check(m, ev) else ("ACTION_UNVERIFIED", "proof_missing")
+
+
 def _name(voice):
     return C.identity(voice)["name"]
 
@@ -83,14 +133,18 @@ def _close(turn, reply):
         tool = str(m.get("herramienta") or "?")[:24]
         local = m.get("via") == "lectura_local"
         evidence = "local read of an existing projection; no model" if local else "native MCP receipt; no model"
-        if m.get("ok") is True:
+        state, cause = _action(m)
+        if state == "ACTED":
             turn.update(state="ACTED", evidence=evidence,
                         sentence=("Hexelion read «%s» from the rack's own records; no model ran." % tool) if local
                         else ("Hexelion ran the action «%s» through the native MCP; no model ran." % tool))
-        else:
-            cause = str(m.get("causa") or "rc %s" % m.get("rc"))[:80]
+        elif state == "ACTION_REFUSED":
             turn.update(state="ACTION_REFUSED", cause=cause, evidence=evidence,
                         sentence="Hexelion's action «%s» did not succeed: %s." % (tool, cause))
+        else:
+            turn.update(state="ACTION_UNVERIFIED", cause=cause, evidence=evidence,
+                        sentence="Hexelion's action «%s» has a receipt that does not prove success (%s); "
+                                 "it is not counted as done." % (tool, cause.replace("_", " ")))
     elif voice == "hexelion":
         model, ms = m.get("modelo"), _ms(m)
         sources = m.get("fuentes") if isinstance(m.get("fuentes"), list) else []
@@ -104,6 +158,17 @@ def _close(turn, reply):
                         sentence="Words in Hexelion's voice arrived without model or time; they are not evidence.")
     else:
         turn.update(state="REPLIED", sentence="%s replied in its own voice." % _name(voice))
+
+
+MAX_TURN_B = 1024
+
+
+def _bound(turn):
+    """Every turn stays under 1,024 UTF-8 bytes: the quoted question gives way first, never the state or its cause."""
+    size = lambda: len(json.dumps(turn, ensure_ascii=False).encode("utf-8"))
+    while size() >= MAX_TURN_B and turn["question"]:
+        turn["question"] = turn["question"][:max(0, len(turn["question"]) - 40)]
+        turn["question_truncated"] = True
 
 
 def turns(messages, now_iso=""):
@@ -142,6 +207,7 @@ def turns(messages, now_iso=""):
     for t in out:
         t["next"] = NEXT[t["state"]]
         t["reader"] = "%s asked %s. %s %s" % (t["asked_by_name"], t["to_name"], t["sentence"], t["next"])
+        _bound(t)
     return list(reversed(out))[:MAX_TURNS]
 
 

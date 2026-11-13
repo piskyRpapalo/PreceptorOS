@@ -436,7 +436,39 @@ def lee_local(tool, base=None, now=None):
         ok, causa, texto = False, "local_read_failed", "I could not read %s." % fuente
     return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": False, "causa": causa,
             "rc": 0 if ok else 1, "ms": int((time.monotonic() - t0) * 1000), "allowlist_version": None,
-            "via": "lectura_local", "fuente": fuente, "texto": cabe(texto)}
+            "via": "lectura_local", "fuente": fuente, "texto": cabe(texto),
+            "evidencia": {"fuente": fuente} if ok is True else {}}
+
+
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+
+def evidencia(tool, res):
+    """The fields this tool's own contract uses to confirm a result, shaped for the thread; {} when absent or ill-typed.
+
+    Measured 2026-11-13 against the native server: exec proves its result with `rc`; write_file has no rc and proves it
+    with the bytes written and their SHA-256; state, capabilities and audit_last have no rc and prove a read with the
+    field they read. `ok` is never part of the proof. turnos_hexelion judges these; this only carries them.
+    """
+    if not isinstance(res, dict) or res.get("denied") or res.get("ok") is not True:
+        return {}
+    if tool == "exec":
+        rc = res.get("rc")
+        return {"rc": rc} if type(rc) is int else {}
+    if tool == "write_file":
+        n, sha = res.get("bytes"), res.get("sha256")
+        return ({"bytes": n, "sha256": sha} if type(n) is int and n >= 0 and isinstance(sha, str)
+                and _SHA256.match(sha) else {})
+    if tool == "state":
+        units = res.get("servicios")
+        return {"servicios": len(units)} if isinstance(units, list) else {}
+    if tool == "capabilities":
+        v = res.get("allowlist_version")
+        return {"allowlist_version": v} if isinstance(v, str) and 0 < len(v) <= 64 else {}
+    if tool == "audit_last":
+        n, rows = res.get("n"), res.get("recibos")
+        return {"n": n} if type(n) is int and isinstance(rows, list) and n == len(rows) else {}
+    return {}
 
 
 def ejecuta(texto, server=None, base=None):
@@ -453,4 +485,5 @@ def ejecuta(texto, server=None, base=None):
     ok = bool(res.get("ok")) and not res.get("denied")
     return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": bool(res.get("denied")),
             "causa": res.get("causa") if res.get("denied") else None, "rc": res.get("rc"), "ms": r["ms"],
-            "allowlist_version": res.get("allowlist_version"), "via": "mcp_nativo", "texto": resumen(tool, res)}
+            "allowlist_version": res.get("allowlist_version"), "via": "mcp_nativo", "texto": resumen(tool, res),
+            "evidencia": evidencia(tool, res) if ok else {}}

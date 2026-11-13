@@ -1274,6 +1274,7 @@ class PWA(BaseHTTPRequestHandler):
                             maquina={**pregunta, "via": via, "herramienta": accion["herramienta"],
                                      "ok": accion["ok"], "rc": accion["rc"], "ms": accion["ms"],
                                      "causa": accion["causa"], "allowlist_version": accion["allowlist_version"],
+                                     "evidencia": accion.get("evidencia") or {},
                                      **({"frase": accion["frase"]} if accion.get("frase") else {})},
                             base=_casa.raiz())
             except _canales.CanalRechazado:
