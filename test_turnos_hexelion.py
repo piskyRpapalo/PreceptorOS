@@ -199,5 +199,90 @@ class Views(unittest.TestCase):
         self.assertEqual(json.loads(r.stdout), [[1, "NO_DATA", None], [3, "ANSWERED", 4]])
 
 
+SHA = "a" * 64
+
+
+def act(tool, via="mcp_nativo", **m):
+    """One action pair: the person asks, Hexelion's receipt answers. Returns that turn."""
+    rows = T.turns([msg(1, "soberano", "/x"), msg(2, "hexelion", "r", pregunta_n=1, via=via, herramienta=tool, **m)])
+    return rows[0]
+
+
+class PerToolContracts(unittest.TestCase):
+    """HEXELION-PLAN-02 S1: success is confirmed by each tool's own proof, never by `ok: true` alone."""
+
+    def test_each_tool_is_confirmed_by_its_own_contract(self):
+        cases = [("exec", dict(ok=True, rc=0, evidencia={"rc": 0})),
+                 ("exec", dict(ok=True, rc=0)),                     # older receipts: rc is exec's own proof
+                 ("write_file", dict(ok=True, rc=None, evidencia={"bytes": 12, "sha256": SHA})),
+                 ("state", dict(ok=True, rc=None, evidencia={"servicios": 2})),
+                 ("capabilities", dict(ok=True, rc=None, evidencia={"allowlist_version": "s3-2026-11-12"})),
+                 ("audit_last", dict(ok=True, rc=None, evidencia={"n": 5}))]
+        for tool, m in cases:
+            self.assertEqual(act(tool, **m)["state"], "ACTED", tool)
+        self.assertEqual(act("lab", via="lectura_local", ok=True, rc=0, evidencia={"fuente": "notebook/bench.json"})["state"],
+                         "ACTED")
+
+    def test_ok_true_without_the_tools_proof_is_not_done(self):
+        cases = [("exec", dict(ok=True, rc=None)),                  # rc null: exec never ran to an end we can see
+                 ("write_file", dict(ok=True, rc=None)),            # today's thread before S1: no bytes, no hash
+                 ("write_file", dict(ok=True, rc=None, evidencia={"bytes": 12, "sha256": "short"})),
+                 ("state", dict(ok=True, rc=None, evidencia={})),
+                 ("capabilities", dict(ok=True, rc=None, evidencia={"allowlist_version": ""})),
+                 ("audit_last", dict(ok=True, rc=None, evidencia={"n": 99})),
+                 ("lab", dict(via="lectura_local", ok=True, rc=0))]
+        for tool, m in cases:
+            t = act(tool, **m)
+            self.assertEqual((t["state"], t["cause"]), ("ACTION_UNVERIFIED", "proof_missing"), (tool, m))
+            self.assertIn("not counted as done", t["sentence"])
+
+    def test_contradictions_and_coercions_fail_closed(self):
+        cases = [(dict(ok=True, rc=1), "contradictory_receipt"),
+                 (dict(ok=False, rc=0), "contradictory_receipt"),
+                 (dict(ok=True, rc=0, causa="x"), "contradictory_receipt"),
+                 (dict(ok="false", rc=0), "receipt_ok_not_boolean"),
+                 (dict(ok="true", rc=0), "receipt_ok_not_boolean"),
+                 (dict(ok=1, rc=0), "receipt_ok_not_boolean"),
+                 (dict(rc=0), "receipt_ok_not_boolean")]
+        for m, cause in cases:
+            t = act("exec", **m)
+            self.assertEqual((t["state"], t["cause"]), ("ACTION_UNVERIFIED", cause), m)
+        t = act("exec", ok=True, rc=True)                            # a bool is not an rc
+        self.assertEqual(t["state"], "ACTION_UNVERIFIED")
+        self.assertEqual(act("state", ok=True, rc=0, evidencia={"servicios": 1})["state"], "ACTION_UNVERIFIED")
+        self.assertEqual(act("rm_rf", ok=True, rc=0)["cause"], "no_contract_for_tool")
+        self.assertEqual(act("exec", via="lectura_local", ok=True, rc=0, evidencia={"fuente": "f"})["cause"],
+                         "no_contract_for_tool")
+
+    def test_a_refusal_keeps_its_cause_and_every_state_has_its_next_step(self):
+        t = act("exec", ok=False, causa="linea dura: git")
+        self.assertEqual((t["state"], t["cause"]), ("ACTION_REFUSED", "linea dura: git"))
+        u = act("exec", ok=True, rc=None)
+        self.assertEqual(u["next"], T.NEXT["ACTION_UNVERIFIED"])
+        self.assertIn(u["sentence"], u["reader"])
+
+    def test_every_turn_stays_under_1024_bytes(self):
+        t = T.turns([msg(1, "soberano", "ñ" * 600), msg(2, "hexelion-door", pregunta_n=1, causa="z" * 200)])[0]
+        self.assertLess(len(json.dumps(t, ensure_ascii=False).encode("utf-8")), 1024)
+        self.assertEqual(t["state"], "NO_ANSWER")
+
+    def test_the_producer_always_writes_what_the_judge_accepts(self):
+        import hexelion_acciones as A
+        good = {"exec": {"ok": True, "rc": 0, "out": ""},
+                "write_file": {"ok": True, "bytes": 3, "sha256": SHA},
+                "state": {"ok": True, "servicios": [{"unidad": "a", "activo": "active"}]},
+                "capabilities": {"ok": True, "allowlist_version": "s3"},
+                "audit_last": {"ok": True, "n": 1, "recibos": [{}]}}
+        for tool, res in good.items():
+            ev = A.evidencia(tool, res)
+            self.assertEqual(act(tool, ok=True, rc=res.get("rc"), evidencia=ev)["state"], "ACTED", tool)
+        for tool, res in good.items():
+            self.assertEqual(A.evidencia(tool, dict(res, ok="true")), {}, tool)
+            self.assertEqual(A.evidencia(tool, dict(res, denied=True)), {}, tool)
+        self.assertEqual(A.evidencia("exec", {"ok": True, "rc": None}), {})
+        self.assertEqual(A.evidencia("audit_last", {"ok": True, "n": 2, "recibos": [{}]}), {})
+        self.assertEqual(A.evidencia("ping", {"ok": True, "pong": True}), {})
+
+
 if __name__ == "__main__":
     unittest.main()
