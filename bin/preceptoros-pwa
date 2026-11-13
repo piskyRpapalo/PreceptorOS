@@ -390,7 +390,8 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook", "/api/federado") or ruta == "/api/conversacion"):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook") or ruta == "/api/conversacion"
+                or ruta == "/api/federado"):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
