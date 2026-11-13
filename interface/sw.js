@@ -128,8 +128,10 @@
 // journal is connected it says so (notebook.js v11). Cache v181.
 // 2026-11-13 (turn sounds): Settings can turn on a short tone per answered request, off by default and kept in this
 // browser only; the tone follows words already said (acho_sonido.js v1, app.js v32). Cache v182.
-const Cache = "preceptoros-armazon-v182";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=32", "/notebook.js?v=11", "/acho_sonido.js?v=1", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// 2026-11-13 (journal mirror contract): the Notebook says when claims without a known result block new tasks, and a run
+// handed twice is not believed (notebook.js v12). Cache v183.
+const Cache = "preceptoros-armazon-v183";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=20", "/app.js?v=32", "/notebook.js?v=12", "/acho_sonido.js?v=1", "/conversacion.js?v=3", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

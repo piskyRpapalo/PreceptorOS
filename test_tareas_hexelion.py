@@ -31,6 +31,15 @@ def rec(r, **kw):
     return dict({"run_id": "run-1", "task_sha256": REF, "receipt": r}, **kw)
 
 
+def runs(*records):
+    """Several tasks: each record gets its own run id (one run, one record)."""
+    out = []
+    for i, r in enumerate(records, 1):
+        rid = "run-%d" % i
+        out.append(dict(r, run_id=rid, receipt=dict(r["receipt"], run_id=rid) if r["receipt"] else None))
+    return out
+
+
 class Told(unittest.TestCase):
     def test_each_journal_outcome_is_one_state_with_its_words(self):
         cases = [
@@ -55,7 +64,7 @@ class Told(unittest.TestCase):
         t = K.task(rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None)))
         self.assertEqual(t["sentence"], "This task needs your authorization; nothing has run.")
         self.assertIn("a model can never authorize it", t["next"])
-        p = K.project([rec(receipt()), rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None))],
+        p = K.project(runs(rec(receipt()), rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None))),
                       "2026-11-13T12:00:00Z")
         self.assertEqual((p["state"], p["needs_you"], p["counts"]["DONE_CHECKED"]), ("MEASURED", 1, 1))
 
@@ -69,7 +78,7 @@ class Told(unittest.TestCase):
         self.assertIn("it had not started", K.task(rec(receipt("cancelled", "NOT_STARTED", "CANCELLED", "NO_DATA", None)))["sentence"])
 
     def test_nothing_is_ever_said_to_be_running(self):
-        records = [rec(None), rec(receipt("failed", "UNKNOWN", "UNKNOWN", "NO_DATA", None))]
+        records = runs(rec(None), rec(receipt("failed", "UNKNOWN", "UNKNOWN", "NO_DATA", None)))
         text = json.dumps(K.project(records, "t")).lower()
         for word in ("running", "in progress", "working on it"):
             self.assertNotIn(word, text)
@@ -129,7 +138,7 @@ class FailClosed(unittest.TestCase):
         self.assertEqual(len(K.project([rec(None)] * 20, "t")["tasks"]), K.MAX_TASKS)
 
     def test_same_records_same_projection(self):
-        records = [rec(receipt()), rec(None)]
+        records = runs(rec(receipt()), rec(None))
         self.assertEqual(K.project(records, "t"), K.project(records, "t"))
 
 
@@ -150,8 +159,8 @@ class Surfaces(unittest.TestCase):
                          (200, "preceptoros.hexelion-tasks/1", "NO_DATA", "p2_mirror_not_built"))
 
     def test_the_notebook_paints_the_same_states_words_and_class(self):
-        raw = K.project([rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None)), rec(receipt()),
-                         rec(None)], "t")
+        raw = K.project(runs(rec(receipt("blocked", "NOT_STARTED", "PERMISSION", "NO_DATA", None)), rec(receipt()),
+                             rec(None)), "t")
         raw["tasks"].append(dict(raw["tasks"][1], state="RUNNING"))
         got = node("const N=require('./interface/notebook.js');const p=N.projectTasks(%s);"
                    "console.log(JSON.stringify([p.tasks.map(t=>[t.state,t.sentence,t.acho]),p.needs,N.taskSummary(p),"
@@ -162,7 +171,8 @@ class Surfaces(unittest.TestCase):
             self.assertEqual(row, [t["state"], t["sentence"], t["acho"]["class"]])
         self.assertEqual(rows[3][0::2], ["NO_DATA", "empty"])
         self.assertEqual(needs, 1)
-        self.assertTrue(summary.startswith("1 task needs your authorization. Last task: This task needs your authorization"))
+        self.assertTrue(summary.startswith("New tasks wait: 1 claim has no known result, and only the host can resolve it. "
+                                           "1 task needs your authorization. Last task: This task needs your authorization"))
         self.assertEqual(empty, "NO_DATA: p2 mirror not built.")
         self.assertTrue(down.startswith("NO_DATA: "))
         self.assertIsNone(wrong)
@@ -171,7 +181,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=11"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=12"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):

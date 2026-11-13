@@ -230,13 +230,16 @@
         sentence: sentence || "NO_DATA: this task could not be read.", next, acho: state === x.state ? acho(x) : "empty" };
     });
     const needs = tasks.filter(x => x.state === "NEEDS_YOUR_AUTHORIZATION").length;
-    return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs };
+    const blocks = tasks.filter(x => x.state === "NO_RESULT_RECORDED" || x.state === "OUTCOME_UNKNOWN").length;
+    return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs, blocks };
   }
   function taskSummary(p) {
     if (!p) return "NO_DATA: the tasks could not be read (the app server did not answer).";
     if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
     const head = p.needs ? p.needs + (p.needs === 1 ? " task needs" : " tasks need") + " your authorization. " : "";
-    return head + "Last task: " + p.tasks[0].sentence;
+    const wait = p.blocks ? "New tasks wait: " + p.blocks + (p.blocks === 1 ? " claim has" : " claims have") +
+      " no known result, and only the host can resolve " + (p.blocks === 1 ? "it" : "them") + ". " : "";
+    return wait + head + "Last task: " + p.tasks[0].sentence;
   }
   async function loadTasks(listId, statusId) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);

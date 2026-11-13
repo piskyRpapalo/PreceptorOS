@@ -263,6 +263,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_hexelion_autonomia_e2e
           # test_acho_sonido: tono por turno apagado hasta que la persona lo enciende; nunca sin las palabras
           test_acho_sonido
+          # test_p2_mirror_contract: lo que el futuro espejo del diario P2 debe entregar; la APP no inventa tareas ni permisos
+          test_p2_mirror_contract
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall

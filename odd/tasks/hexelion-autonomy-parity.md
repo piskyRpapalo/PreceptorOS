@@ -99,6 +99,17 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   screen reader and audio: NO_DATA.
 - S3b turn sounds: Settings switch, off by default, kept in this browser only; Talk plays the turn's motif only when
   the turn has its sentence. Physical audio heard on a device: NO_DATA(not_exercised).
+- NEXT-C mirror contract: `test_p2_mirror_contract.py` is the yardstick for Codex CLI's adapter (known, uncertain,
+  permission, restart, duplicate, absent, contradictory, interruption before authorisation). A run handed twice is not
+  believed; claims without a known result are `blocks_new_work` and the Notebook says new tasks wait. Still
+  NO_DATA(p2_mirror_not_built): the APP is not connected to the journal.
+- NEXT-A/B browser walk: `tests/autonomia_a11y.browser.cjs` starts its own server (throw-away HOME, port 18740,
+  fake MCP, no model), checks served assets byte-equal to the checkout, keyboard reach of Talk, focus kept, Talk =
+  Notebook = machine sentence and Acho class, state in words, no repeat on refresh, sound off, reduced motion. Run:
+  `NODE_PATH=<playwright-core dir> CHROME_PATH=/usr/bin/google-chrome node tests/autonomia_a11y.browser.cjs`.
+  2026-11-13 rack: PASS at 492ff58 · levels: synthetic tool SIMULATED · headless Chrome MEASURED · screen reader and
+  audio NO_DATA. Findings, not fixed: arrows from the Command tab needed 9 presses to reach Talk (they move from the
+  selected panel, not the focused tab); Talk's status line changed 4 times in one turn (what a reader speaks: NO_DATA).
 - Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
   S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
