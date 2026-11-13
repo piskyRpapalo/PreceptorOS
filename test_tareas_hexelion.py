@@ -20,7 +20,10 @@ def receipt(phase="complete", outcome="KNOWN", failure="NONE", gate="EXTERNAL_GA
     r = {"schema": "preceptoros.meta-receipt/1", "task_id": "t1", "run_id": "run-1", "specialist": "coder",
          "model_version": "f" * 64, "source": "rack", "phase": phase, "observed_at": "2026-11-13T12:00:00Z",
          "measurement": {"tokens": 10, "output_sha256": OUT, "grade": grade} if grade else None,
-         "failure_class": failure, "confidence_basis": "synthetic", "next_action": "review_receipt",
+         # LAB delegation.verify: a measurement carries a basis; no measurement carries NO_DATA. The SIMULATED
+         # path (basis "synthetic") is exercised by name in test_host_truth.
+         "failure_class": failure, "confidence_basis": "protocol_roundtrip" if grade else "NO_DATA",
+         "next_action": "review_receipt",
          "approval_state": gate, "task_sha256": REF, "approval_ref": GATE if gate == "EXTERNAL_GATE" else None,
          "outcome": outcome, "receipt_ref": "a" * 64}
     r.update(extra)
@@ -181,7 +184,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=16"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=17"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):

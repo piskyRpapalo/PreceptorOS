@@ -1,0 +1,285 @@
+{
+ "packets": {
+  "host_clock_invalid": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "host_clock_invalid",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": null,
+     "projection_ref": "b6fde74ba3a39f1eee0608748caaab859679a34849f383e4e1c96af49148201f",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "b6fde74ba3a39f1eee0608748caaab859679a34849f383e4e1c96af49148201f"
+   },
+   "speech": {
+    "state_ref": "b6fde74ba3a39f1eee0608748caaab859679a34849f383e4e1c96af49148201f",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "b6fde74ba3a39f1eee0608748caaab859679a34849f383e4e1c96af49148201f",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "journal_absent": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "source_unavailable_or_unsafe",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4"
+   },
+   "speech": {
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "journal_corrupt": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "source_unavailable_or_unsafe",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4"
+   },
+   "speech": {
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "5a75c3b6a8a19183ebd62215c1910f81a27da13ceee24a97344c5f4f26287af4",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "local_source_not_attested": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "local_source_not_attested",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "09cf9315548a615a81d80414693510001b7c0c22d370cfb3c1dd4fce0d42fe53",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "09cf9315548a615a81d80414693510001b7c0c22d370cfb3c1dd4fce0d42fe53"
+   },
+   "speech": {
+    "state_ref": "09cf9315548a615a81d80414693510001b7c0c22d370cfb3c1dd4fce0d42fe53",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "09cf9315548a615a81d80414693510001b7c0c22d370cfb3c1dd4fce0d42fe53",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "source_busy_wal": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "source_busy_or_wal_not_supported",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "0ab6ab08ba7484b563422d69a18270c44ee41fe2b12c7f6b98aeb19817fdc119",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "0ab6ab08ba7484b563422d69a18270c44ee41fe2b12c7f6b98aeb19817fdc119"
+   },
+   "speech": {
+    "state_ref": "0ab6ab08ba7484b563422d69a18270c44ee41fe2b12c7f6b98aeb19817fdc119",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "0ab6ab08ba7484b563422d69a18270c44ee41fe2b12c7f6b98aeb19817fdc119",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "source_not_allowlisted": {
+   "machine": {
+    "record": {
+     "acknowledgement": "NO_DATA",
+     "cause": "source_not_allowlisted",
+     "journal_id": null,
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "d9c5d9ba30c767ad982425560e1058118feef3ceeb493f36a402a9b07eb46075",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "cause": "source_unavailable",
+      "state": "NO_DATA"
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "NO_DATA",
+     "summary": "Uncertain execution state is unavailable; check the host source.",
+     "task_ref": null,
+     "ttl_seconds": 0
+    },
+    "state_ref": "d9c5d9ba30c767ad982425560e1058118feef3ceeb493f36a402a9b07eb46075"
+   },
+   "speech": {
+    "state_ref": "d9c5d9ba30c767ad982425560e1058118feef3ceeb493f36a402a9b07eb46075",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   },
+   "text": {
+    "state_ref": "d9c5d9ba30c767ad982425560e1058118feef3ceeb493f36a402a9b07eb46075",
+    "summary": "Uncertain execution state is unavailable; check the host source."
+   }
+  },
+  "synthetic_ack_not_verified": {
+   "machine": {
+    "record": {
+     "acknowledgement": "AUTHORITY_NOT_VERIFIED",
+     "cause": "execution_outcome_unknown",
+     "journal_id": "ebddb637d5efd23bfd6da377ee52f37e17458a6c9d0c783f4eb0c1914d0ecc21",
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "1bbec3a9c604379b8c7c1ef6d9c88ff51686d5f16a211f22f147d0265d38a46c",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "state": "RETAINED",
+      "tokens": 64
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "UNKNOWN",
+     "summary": "Outcome unknown; acknowledgement or worker fence cannot be verified. Token reservation is retained.",
+     "task_ref": "3b3e2b68b804ad0c170113ecc609fa90ec99a3193b31f19b4246e98b3ecc2036",
+     "ttl_seconds": 0
+    },
+    "state_ref": "1bbec3a9c604379b8c7c1ef6d9c88ff51686d5f16a211f22f147d0265d38a46c"
+   },
+   "speech": {
+    "state_ref": "1bbec3a9c604379b8c7c1ef6d9c88ff51686d5f16a211f22f147d0265d38a46c",
+    "summary": "Outcome unknown; acknowledgement or worker fence cannot be verified. Token reservation is retained."
+   },
+   "text": {
+    "state_ref": "1bbec3a9c604379b8c7c1ef6d9c88ff51686d5f16a211f22f147d0265d38a46c",
+    "summary": "Outcome unknown; acknowledgement or worker fence cannot be verified. Token reservation is retained."
+   }
+  },
+  "unknown_hitl_required": {
+   "machine": {
+    "record": {
+     "acknowledgement": "HITL_REQUIRED",
+     "cause": "execution_outcome_unknown",
+     "journal_id": "ebddb637d5efd23bfd6da377ee52f37e17458a6c9d0c783f4eb0c1914d0ecc21",
+     "kind": "projection",
+     "no_retry": true,
+     "observed_at": "2026-11-12T00:00:00Z",
+     "projection_ref": "cb2bf4b8b8f3ba3c8d25675badbded39d7f3243ffcf2884a7e7208e45fa0cd55",
+     "promotion": "NOT_AUTHORIZED",
+     "reservation": {
+      "state": "RETAINED",
+      "tokens": 64
+     },
+     "resolution_ref": null,
+     "schema": "preceptoros.lab.uncertainty-ack/1",
+     "state": "UNKNOWN",
+     "summary": "Outcome unknown; human review and a worker fence are required. Token reservation is retained.",
+     "task_ref": "3b3e2b68b804ad0c170113ecc609fa90ec99a3193b31f19b4246e98b3ecc2036",
+     "ttl_seconds": 0
+    },
+    "state_ref": "cb2bf4b8b8f3ba3c8d25675badbded39d7f3243ffcf2884a7e7208e45fa0cd55"
+   },
+   "speech": {
+    "state_ref": "cb2bf4b8b8f3ba3c8d25675badbded39d7f3243ffcf2884a7e7208e45fa0cd55",
+    "summary": "Outcome unknown; human review and a worker fence are required. Token reservation is retained."
+   },
+   "text": {
+    "state_ref": "cb2bf4b8b8f3ba3c8d25675badbded39d7f3243ffcf2884a7e7208e45fa0cd55",
+    "summary": "Outcome unknown; human review and a worker fence are required. Token reservation is retained."
+   }
+  }
+ },
+ "provenance": {
+  "lab_commit": "51782ea8490d5d76f47a0c02eb00b4f46d7b3d15",
+  "producer": "meta_harness.readonly_mirror.ReadOnlyMirror.read",
+  "source_sha256": {
+   "delegation.py": "658b3bab05b90d4949f49bd171026516af7350566082caa5f56b87c6c485d2c0",
+   "execution_journal.py": "d6521b435de010e647403ad2a019e9b9fab4e23bb3049d4ce5ac970f6b2f4550",
+   "host_witness.py": "a03934353555a482b9e0fd1d4e5bc2a94bc7a21303d63f6f7daad9c22c13a0b1",
+   "readonly_mirror.py": "071c0828d67bcd6200c657ea067e21b4607aedff5b00f5ec84bf4a22123b74f2",
+   "uncertainty_views.py": "c7d4331ab6649c34b6371d9b4ea06c5711746aef43afba5e2be6d39ea1d472f9"
+  },
+  "stamp": "2026-11-12T00:00:00Z",
+  "witness": "SYNTHETIC (tests fixture)"
+ },
+ "task": {
+  "run_id": "run-one",
+  "task_sha256": "3b3e2b68b804ad0c170113ecc609fa90ec99a3193b31f19b4246e98b3ecc2036"
+ }
+}
