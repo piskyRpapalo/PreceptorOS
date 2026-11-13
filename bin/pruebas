@@ -281,6 +281,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_host_truth
           # test_false_clear: ningun cero sin lectura completa atestada; Talk solo calla ante un cero medido
           test_false_clear
+          # test_self_report: las cuatro preguntas desde turnos, tareas y firmas; NO_DATA con causa, sin motor nuevo
+          test_self_report
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall

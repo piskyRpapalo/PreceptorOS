@@ -301,6 +301,15 @@ def _counters(values, cause, complete_ref=None):
                 counters={"state": "MEASURED", "cause": None, "complete_ref": complete_ref, "known_counts_are": "exact"})
 
 
+# What the live route serves today: no P2 mirror feeds APP yet (it is Codex CLI's and the host's). One place, so the
+# route and the self-report can never read different sources.
+LIVE_CAUSE = "p2_mirror_not_built"
+
+
+def live(observed_at):
+    return project(None, observed_at, source_cause=LIVE_CAUSE)
+
+
 def project(records, observed_at, source_cause=None, complete_ref=None):
     """The projection Notebook, Talk and the machine read. NO_DATA with cause while no mirror feeds it."""
     base = {"schema": SCHEMA, "observed_at": observed_at,
