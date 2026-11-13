@@ -957,7 +957,10 @@ $("form-chat").addEventListener("submit", async (e) => {
     const turno = d && d.turno !== undefined && window.PreceptorNotebook ? window.PreceptorNotebook.turnLine(d.turno)
       : (d && d.turno !== undefined ? { state: "NO_DATA", cause: "turn_reader_missing", line: "NO_DATA: the turn reader did not load." } : null);
     $("estado").dataset.state = turno ? turno.state : "";
-    $("estado").dataset.acho = turno ? turno.acho : "";   // how this turn sounds; sound itself stays off (no opt-in yet)
+    $("estado").dataset.acho = turno ? turno.acho : "";   // how this turn sounds
+    // The tone follows the words: only a turn with its sentence (already in the aria-live line) may sound, and only if
+    // the person turned sounds on in Settings. A cut or missing turn stays silent.
+    if (turno && turno.sentence && window.PreceptorAchoSonido) window.PreceptorAchoSonido.play(d.turno.acho).catch(() => {});
     const respuesta = d.respuesta;
     const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
     const accion = respuesta && respuesta.tipo === "accion_hexelion" ? respuesta.accion : null;

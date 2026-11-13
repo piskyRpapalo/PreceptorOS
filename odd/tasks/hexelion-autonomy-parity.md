@@ -87,6 +87,20 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
 - 2026-11-13 · PLAN-02 approved by the Sovereign in session; S0 and S1 built; S2+ wait for review.
 - 2026-11-13 · Sovereign corrections folded in: S1 judges per tool, never `ok` alone; the thread is the visible
   history, the recovery store is Codex CLI's to verify.
+- 2026-11-13 · Sovereign FIRMO S0 #273 / S1 #274 (merged); build authorised without stopping per slice.
+- S2 Talk parity: the chat reply carries the projected turn; Talk's aria-live line is notebook.js `turnLine`. The
+  1,023 B reply envelope holds: the turn gives way (`cut: envelope`), never the answer.
+- S3a Acho: class per turn decided with its sentence (`waiting` renamed `unanswered`: nothing is said to be running);
+  `audio_feedback.cue_for_turn` speaks the reader's words. Sound playback: NO_DATA(sound_opt_in_not_built) → S3b.
+  Grok's mapper not imported: NO_DATA(p1_contract_unstable).
+- S4a tasks: `tareas_hexelion` tells LAB #182 `meta-receipt/1` records; route and Notebook section say
+  NO_DATA(p2_mirror_not_built). Who hands the journal's records to the APP is Codex CLI's (H3).
+- S6: deterministic walk, EVIDENCE LEVEL SIMULATED (fake MCP + journal test double). Service, real journal, device
+  screen reader and audio: NO_DATA.
+- S3b turn sounds: Settings switch, off by default, kept in this browser only; Talk plays the turn's motif only when
+  the turn has its sentence. Physical audio heard on a device: NO_DATA(not_exercised).
+- Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
+  S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
   screen_reader_on_device(not_exercised) · mcp_8_tool_window(no_audit_of_file_restore) ·
   federated_semantic_integrity(H1_open) · grok_receipt_fail_closed(H2_open).

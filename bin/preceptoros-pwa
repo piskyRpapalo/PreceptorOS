@@ -276,6 +276,7 @@ ESTATICOS = {
     "/notebook.js": ("notebook.js", "application/javascript; charset=utf-8"),
     "/conversacion.js": ("conversacion.js", "application/javascript; charset=utf-8"),
     "/evidence_chip.js": ("evidence_chip.js", "application/javascript; charset=utf-8"),
+    "/acho_sonido.js": ("acho_sonido.js", "application/javascript; charset=utf-8"),
     "/firmas.js": ("firmas.js", "application/javascript; charset=utf-8"),
     "/hitl.js": ("hitl.js", "application/javascript; charset=utf-8"),
     "/hitl.css": ("hitl.css", "text/css; charset=utf-8"),
