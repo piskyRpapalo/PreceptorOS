@@ -222,6 +222,26 @@ class LocalReads(unittest.TestCase):
         self.assertEqual([m["voz"] for m in msgs], ["soberano", "hexelion"] * 2)   # each question keeps its answer
         self.assertEqual([m["maquina"]["pregunta_n"] for m in msgs[1::2]], [msgs[0]["n"], msgs[2]["n"]])
 
+    def test_the_longest_answers_still_fit_the_chat_envelope(self):
+        # The test door replaces _json, so the server's 1,023 B envelope is applied here by hand.
+        import estado_compacto
+        self.firmas("2026-11-13T09:25:00Z", [{"repo": "owner/repository-%d" % i, "n": 9000 + i, "title": "HITL · «é» " * 12,
+                                              "checks": "green", "action": a}
+                                             for i, a in enumerate(["sign"] * 30 + ["running", "red", "wait_base"] * 3)])
+        with mock.patch.object(A, "_edad", side_effect=lambda s, now: 300.0):
+            out = self.person("¿Qué espera mi firma?")["body"]
+        estado_compacto.serializar_objeto(out)                     # raises if the reply would not fit
+        texto = out["respuesta"]["accion"]["texto"]
+        self.assertIn("(+27 more)", texto)
+        self.assertLessEqual(len(texto.encode("utf-8")), A.TOPE_LOCAL_B)
+        self.assertEqual(A.cabe("x" * 900)[-24:], " … (cut to fit the chat)")
+        import notebook_read
+        run = {"date": "2026-11-12", "experiment": "e" * 80, "fingerprint": "RECHECKED", "sentence": "s" * 900}
+        with mock.patch.object(notebook_read, "read", return_value={"bench": [run] * 6, "bench_cause": None,
+                                                                    "bench_observed_at": "2026-11-13T09:20:00Z"}):
+            out = self.person("lab results")["body"]
+        estado_compacto.serializar_objeto(out)
+
     def test_an_old_or_missing_signature_list_is_said_not_hidden(self):
         self.firmas("2026-11-12T09:00:00Z", [])
         acc = self.person("/firmas")["body"]["respuesta"]["accion"]
@@ -245,7 +265,7 @@ class LocalReads(unittest.TestCase):
                 "bench": [run], "bench_cause": None, "bench_observed_at": "2026-11-13T09:20:00Z"}):
             acc = A.lee_local("lab", self.base)
         self.assertTrue(acc["ok"])
-        self.assertIn("2026-11-12 public-throughput-v1: qwen3:1.7b generated 30.1 tokens/s", acc["texto"])
+        self.assertIn("latest: 2026-11-12 public-throughput-v1: qwen3:1.7b generated 30.1 tokens/s", acc["texto"])
         self.assertIn("(fingerprint rechecked)", acc["texto"])
 
     def test_preceptors_without_heartbeats_never_guess_and_say_who_acted(self):

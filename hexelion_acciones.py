@@ -48,6 +48,9 @@ ACCIONES = {
 # the preceptor heartbeats (notebook/agents.json), through the same readers the Notebook and /api/firmas use.
 LOCALES = ("signatures", "lab", "preceptors")
 FIRMAS_FRESCAS_S = 1800   # the scraper runs every 10 min; older than 30 min is said as STALE
+# The chat door answers inside a 1,023 B envelope (estado_compacto); the action fields take ~350 B of it. A local
+# read says the most important lines first and is cut, with a mark, at this many UTF-8 bytes.
+TOPE_LOCAL_B = 560
 AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /ejecuta [@worktree] <command> · "
          "/escribe @worktree <path> :: <text>")
 
@@ -277,7 +280,7 @@ def _firmas(base, now):
         linea = "Waiting for your signature: %d — %s." % (len(firmar), "; ".join(
             "%s#%s «%s» (checks %s)" % (str(f.get("repo", "?")).split("/")[-1], f.get("n", "?"),
                                         " ".join(str(f.get("title", "")).split())[:70], f.get("checks", "NO_DATA"))
-            for f in firmar[:6]))
+            for f in firmar[:3])) + (" (+%d more)" % (len(firmar) - 3) if len(firmar) > 3 else "")
     else:
         linea = "Nothing waits for your signature now."
     if otras:
@@ -297,10 +300,10 @@ def _lab(base, now):
         return False, vista.get("bench_cause") or "no_valid_bench_receipt", \
             "No Lab result I can show: %s." % (vista.get("bench_cause") or "no_valid_bench_receipt").replace("_", " ")
     partes = []
-    for r in runs[-3:]:
+    for r in runs[-1:]:                 # the latest run; the Notebook keeps the others
         cheq = "fingerprint %s" % str(r.get("fingerprint", "NO_DATA")).lower()
         partes.append("%s %s: %s (%s)" % (str(r.get("date", ""))[:10], r.get("experiment", "?"), r["sentence"], cheq))
-    return True, None, "Lab, %d run%s: %s Lab projection written %s." % (
+    return True, None, "Lab, %d run%s; latest: %s Lab projection written %s." % (
         len(runs), "" if len(runs) == 1 else "s", " ".join(partes), _hace(_edad(vista.get("bench_observed_at"), now)))
 
 
@@ -332,6 +335,15 @@ _LECTORES = {"signatures": (_firmas, "firmas/pendientes.json"), "lab": (_lab, "n
              "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json")}
 
 
+def cabe(texto, tope=TOPE_LOCAL_B):
+    """The text, or its first `tope` UTF-8 bytes on a character boundary plus a visible cut mark."""
+    marca = " … (cut to fit the chat)"
+    if len(texto.encode("utf-8")) <= tope:
+        return texto
+    corte = texto.encode("utf-8")[:tope - len(marca.encode("utf-8"))].decode("utf-8", "ignore")
+    return corte.rstrip() + marca
+
+
 def lee_local(tool, base=None, now=None):
     """One local read. Never raises, never writes, never calls the model or the network."""
     import datetime as dt
@@ -347,7 +359,7 @@ def lee_local(tool, base=None, now=None):
         ok, causa, texto = False, "local_read_failed", "I could not read %s." % fuente
     return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": False, "causa": causa,
             "rc": 0 if ok else 1, "ms": int((time.monotonic() - t0) * 1000), "allowlist_version": None,
-            "via": "lectura_local", "fuente": fuente, "texto": _recorta(texto)}
+            "via": "lectura_local", "fuente": fuente, "texto": cabe(texto)}
 
 
 def ejecuta(texto, server=None, base=None):
