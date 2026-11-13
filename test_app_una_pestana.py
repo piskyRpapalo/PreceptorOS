@@ -72,8 +72,9 @@ class CarcasaUnaPestana(unittest.TestCase):
         self.assertNotIn('id="estado-chat-lab"', html + js)
         self.assertNotIn("Each turn takes minutes on a phone. It has not frozen.", js)
         self.assertNotIn("Local orchestrator ready.", js)
-        self.assertIn('$("estado").textContent = `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`', js)
-        self.assertIn('$("estado").textContent = t.chat_sin_respuesta(causa)', js)
+        # Autonomy parity: the projected turn speaks first; the door's own words remain only when no turn exists.
+        self.assertIn('$("estado").textContent = turno ? turno.line : `${t.chat_modelo(modelo)}${ms}${causaRespuesta}`', js)
+        self.assertIn('$("estado").textContent = turno ? turno.line : t.chat_sin_respuesta(causa)', js)
         self.assertIn('respuesta.fuentes.forEach((f) => burbuja(t.chat_fuente(f.id, f.updated_at, f.sha256)))', js)
 
     def test_talk_no_confunde_motor_antiguo_y_conserva_borrador(self):
