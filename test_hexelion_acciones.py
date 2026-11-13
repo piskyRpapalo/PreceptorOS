@@ -208,6 +208,20 @@ class LocalReads(unittest.TestCase):
         self.assertEqual(turn["state"], "ACTED")
         self.assertIn("no model ran", turn["sentence"])
 
+    def test_asking_twice_is_idempotent_reads_never_write_their_source(self):
+        self.firmas("2026-11-13T09:25:00Z", [{"repo": "o/app", "n": 1, "title": "HITL", "checks": "green",
+                                              "action": "sign"}])
+        fuente = Path(self.base) / "firmas" / "pendientes.json"
+        antes = (fuente.read_bytes(), fuente.stat().st_mtime_ns)
+        with mock.patch.object(A, "_edad", side_effect=lambda s, now: 300.0):
+            uno = self.person("What awaits my signature?")["body"]["respuesta"]["accion"]
+            dos = self.person("What awaits my signature?")["body"]["respuesta"]["accion"]
+        self.assertEqual((uno["texto"], uno["ok"], uno["causa"]), (dos["texto"], dos["ok"], dos["causa"]))
+        self.assertEqual((fuente.read_bytes(), fuente.stat().st_mtime_ns), antes)
+        msgs = self.thread()
+        self.assertEqual([m["voz"] for m in msgs], ["soberano", "hexelion"] * 2)   # each question keeps its answer
+        self.assertEqual([m["maquina"]["pregunta_n"] for m in msgs[1::2]], [msgs[0]["n"], msgs[2]["n"]])
+
     def test_an_old_or_missing_signature_list_is_said_not_hidden(self):
         self.firmas("2026-11-12T09:00:00Z", [])
         acc = self.person("/firmas")["body"]["respuesta"]["accion"]
