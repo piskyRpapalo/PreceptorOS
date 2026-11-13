@@ -101,12 +101,14 @@ async function waitServer(child) {
       await page.keyboard.press('ArrowRight'); presses++;
     }
     assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-conversacion', 'Talk not reachable by arrows');
+    assert.equal(presses, 1, 'arrows must move from the focused tab (Command -> Talk is one press)');
     receipt.checks.arrow_presses_to_talk = presses;
     assert.equal(await page.locator('#tab-conversacion').getAttribute('aria-selected'), 'true');
     await page.locator('#dicho').focus();
     await page.keyboard.type('/estado');
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'enviar');
+    const liveBefore = await page.evaluate(() => (window.__live['estado'] || []).length);
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelector('#estado').dataset.state === 'ACTED', null, { timeout: 15000 });
     const focusAfter = await page.evaluate(() => document.activeElement && document.activeElement.id);
@@ -119,6 +121,9 @@ async function waitServer(child) {
       acho: document.querySelector('#estado').dataset.acho }));
     assert.equal(talk.line, machine.sentence + ' ' + machine.next);
     assert.equal(talk.acho, machine.acho.class);
+    const turnLive = await page.evaluate((n) => (window.__live['estado'] || []).slice(n), liveBefore);
+    assert.deepEqual(turnLive, [talk.line], 'one turn must change Talk status exactly once, to the turn line');
+    receipt.checks.talk_status_changes_per_turn = turnLive.length;
     await page.locator('#tab-cuaderno').click();
     const cardSel = '#notebook-turns [data-n="' + machine.n + '"]';
     await page.waitForSelector(cardSel, { timeout: 10000 });
@@ -139,6 +144,7 @@ async function waitServer(child) {
     assert.equal(after, before, 'status line re-announced without a change');
     receipt.checks.no_repeat_on_refresh = true;
     receipt.checks.talk_status_mutations = await page.evaluate(() => (window.__live['estado'] || []).length);
+    receipt.checks.talk_status_sequence = await page.evaluate(() => (window.__live['estado'] || []).map((t) => t.slice(0, 60)));
 
     // 6 · Sound stays off by default; reduced motion keeps the panel sting silent.
     const sound = await page.evaluate(async () => [await window.PreceptorAchoSonido.play({ class: 'ok',

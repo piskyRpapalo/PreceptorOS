@@ -108,8 +108,10 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   Notebook = machine sentence and Acho class, state in words, no repeat on refresh, sound off, reduced motion. Run:
   `NODE_PATH=<playwright-core dir> CHROME_PATH=/usr/bin/google-chrome node tests/autonomia_a11y.browser.cjs`.
   2026-11-13 rack: PASS at 492ff58 · levels: synthetic tool SIMULATED · headless Chrome MEASURED · screen reader and
-  audio NO_DATA. Findings, not fixed: arrows from the Command tab needed 9 presses to reach Talk (they move from the
-  selected panel, not the focused tab); Talk's status line changed 4 times in one turn (what a reader speaks: NO_DATA).
+  audio NO_DATA. Findings: arrows moved from the open panel, not the focused tab (fixed: app.js v33, one press from
+  Command to Talk); Talk's status changed 4 times = 3 at page load + exactly 1 per turn (now asserted). Open, not
+  fixed: the load text flashes Spanish «comprobando…» before English, and a fresh home without memory.db shows
+  «cannot reach the server» although the server answers.
 - S5 proposal (NOT activated; needs a specific Sovereign decision): one read-only `turns` tool in the native MCP
   server, empty input schema, answering `turnos_hexelion.mcp_summary(turns, tasks)` = last turn's own state, cause
   and sentence + counts + tasks state, always under the 1,024 B MCP line (sentence gives way first). Prerequisites:

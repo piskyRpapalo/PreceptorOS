@@ -42,5 +42,16 @@ class Language(unittest.TestCase):
         self.assertNotIn("pensando", h)
 
 
+
+class TabsMoveFromFocus(unittest.TestCase):
+    """WAI-ARIA tabs: arrow keys move from the tab that has focus, not from the open panel."""
+
+    def test_arrows_count_from_the_focused_tab(self):
+        js = (Path(__file__).resolve().parent / "interface/app.js").read_text(encoding="utf-8")
+        self.assertIn('if (e.key === "ArrowRight") siguiente = (n + 1) % paneles.length;', js)
+        self.assertIn('if (e.key === "ArrowLeft") siguiente = (n + paneles.length - 1) % paneles.length;', js)
+        self.assertNotIn("(panelActual + 1) % paneles.length", js)
+
+
 if __name__ == "__main__":
     unittest.main()
