@@ -28,11 +28,13 @@
     words.className = "hilo-texto";
     words.textContent = m.text + (m.cut ? " …" : "");
     li.appendChild(words);
-    const foot = [m.t.replace("T", " ").replace("Z", " UTC"), m.seal];
-    if (m.model) foot.push(m.model);
     const meta = doc.createElement("span");
     meta.className = "hilo-meta";
-    meta.textContent = foot.join(" · ");
+    meta.textContent = m.t.replace("T", " ").replace("Z", " UTC") + " · ";
+    // The seal is the evidence state of this message: a shape, one word and the colour, from the shared chip.
+    const evidencia = root.PreceptorEvidence ? root.PreceptorEvidence.make(doc, m.seal) : doc.createTextNode(String(m.seal || "NO_DATA"));
+    meta.appendChild(evidencia);
+    if (m.model) meta.appendChild(doc.createTextNode(" · " + m.model));
     li.appendChild(meta);
     (Array.isArray(m.sources) ? m.sources : []).forEach((s) => {
       const src = doc.createElement("span");

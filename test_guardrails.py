@@ -521,6 +521,9 @@ class G2_FicherosDeInterfazLimpios(unittest.TestCase):
         INTRINSECOS |= {"DECLARED"}
         # Hexelion actions from Talk (2026-11-12): the door's reply state and the two action turn states, not policy names.
         INTRINSECOS |= {"ACCION_LOCAL", "ACTED", "ACTION_REFUSED"}
+        # Evidence chip (evidence_chip.js): the vocabulary of how much a figure can be trusted (VERIFIED,
+        # OBSERVED, DECLARED, STALE, NO_DATA, REFUSED) and its Spanish input aliases. States, not policies.
+        INTRINSECOS |= {"VERIFIED", "OBSERVED", "DECLARED", "STALE", "NO_DATA", "DATA", "REFUSED", "DENEGADO"}  # DATA is the second word of the visible NO DATA
         for fichero in self.ficheros():
             contenido = fichero.read_text(encoding="utf-8")
             for nombrada in re.findall(r"\b[A-Z][A-Z_]{3,}\b", contenido):

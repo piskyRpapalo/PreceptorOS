@@ -479,3 +479,17 @@ button.ir { min-height: 44px; margin: 6px 0 12px; }
 .comandos-lista button { width: 100%; min-height: 44px; text-align: left; padding: .35rem .5rem; margin: 2px 0;
   border: 1px solid var(--line); border-radius: var(--radio); background: var(--paper); color: var(--ink); cursor: pointer; }
 .comandos-lista button:focus-visible { outline: 3px solid var(--acento); outline-offset: 1px; }
+
+/* Evidence chip (evidence_chip.js). Shape + word + colour; the border keeps the chip visible when colour is
+ * removed (forced-colors, greyscale). Static: no motion, so reduced-motion needs nothing here. */
+.evidence-chip { display: inline-flex; align-items: center; gap: .3rem; padding: .05rem .45rem;
+  border: 1.5px solid currentColor; border-radius: 999px; font-weight: 600; font-size: .7rem; letter-spacing: .02em;
+  line-height: 1.4; vertical-align: baseline; }
+.evidence-chip .evidence-glyph { font-size: .8em; line-height: 1; }
+.evidence-chip.evidence-ok { color: var(--ok); background: var(--ok-soft); }
+.evidence-chip.evidence-warn { color: var(--warn); background: var(--warn-soft); }
+.evidence-chip.evidence-quiet { color: var(--ink-soft); background: transparent; border-style: dashed; }
+.evidence-chip.evidence-stop { color: var(--stop); background: var(--stop-soft); }
+@media (forced-colors: active) {
+  .evidence-chip { forced-color-adjust: none; color: CanvasText; background: Canvas; border-color: CanvasText; }
+}
