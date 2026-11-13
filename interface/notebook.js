@@ -229,7 +229,8 @@
       const sentence = clean(x.sentence, 240), next = clean(x.next, 160);
       return { run: clean(x.run_id, 32) || "unnamed", state: sentence ? state : "NO_DATA", cause: clean(x.cause, 80),
         sentence: sentence || "NO_DATA: this task could not be read.", next, acho: state === x.state ? acho(x) : "empty",
-        uncertainty: sentence && (state === "OUTCOME_UNKNOWN" || state === "NO_RESULT_RECORDED") ? uncertainty(x.uncertainty) : null };
+        uncertainty: sentence && (state === "OUTCOME_UNKNOWN" || state === "NO_RESULT_RECORDED") ? uncertainty(x.uncertainty) : null,
+        evidence: evidence(x.evidence) };
     });
     const needs = tasks.filter(x => x.state === "NEEDS_YOUR_AUTHORIZATION").length;
     const blocks = tasks.filter(x => x.state === "NO_RESULT_RECORDED" || x.state === "OUTCOME_UNKNOWN").length;
@@ -241,6 +242,17 @@
   /* An uncertain task's host projection (LAB uncertainty-projection): shown, never acted on. Only exact refs and the
    * fixed terms are accepted; anything else hides the details (the sentence still says the outcome is unknown). */
   const hex64 = v => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
+  // What a row's words rest on, in the receipt contract's words: MEASURED, SIMULATED or NO_DATA, and its full ref.
+  const origins = ["MEASURED", "SIMULATED", "NO_DATA"];
+  function evidence(e) {
+    if (!e || typeof e !== "object" || !origins.includes(e.origin)) return "NO_DATA: no evidence named.";
+    return e.origin + (hex64(e.ref) ? " · receipt " + e.ref : e.origin === "NO_DATA" ? "" : " · NO_DATA: receipt ref missing");
+  }
+  // A failed reading names who failed: an answer that is not a reading is not a silent server (accessibility proof).
+  function failed(what, e) {
+    const m = e && /^http_(\d{3})$/.exec(String(e.message || ""));
+    return "NO_DATA: " + what + " could not be read (the app server " + (m ? "answered http " + m[1] : "did not answer") + ").";
+  }
   const acknowledgements = ["HITL_REQUIRED", "HUMAN_ACKNOWLEDGED", "AUTHORITY_NOT_VERIFIED"];
   function uncertainty(u) {
     if (!u || typeof u !== "object" || !hex64(u.projection_ref) || !hex64(u.task_ref) ||
@@ -252,8 +264,8 @@
     return { projection: u.projection_ref, task: u.task_ref, acknowledgement: u.acknowledgement, reservation,
       observed: clean(u.observed_at, 40) };
   }
-  function taskSummary(p) {
-    if (!p) return "NO_DATA: the tasks could not be read (the app server did not answer).";
+  function taskSummary(p, why) {
+    if (!p) return why || failed("the tasks", null);
     if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
     const head = p.needs ? p.needs + (p.needs === 1 ? " task needs" : " tasks need") + " your authorization. " : "";
     const wait = p.blocks ? "New tasks wait: " + p.blocks + (p.blocks === 1 ? " claim has" : " claims have") +
@@ -266,26 +278,27 @@
   async function loadTasks(listId, statusId) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
-    let p = null;
-    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch { p = null; }
+    let p = null, why = null;
+    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch (e) { p = null; why = failed("the tasks", e); }
     list.replaceChildren();
     (p ? p.tasks : []).forEach(x => {
       const c = card("Task " + x.run, x.state, x.sentence);
       c.dataset.state = x.state; c.dataset.acho = x.acho;
       if (x.next) field(c, "Next", x.next);
+      // Compact first; the evidence and full references live one disclosure away, never cut.
+      const more = elem("details", "notebook-more");
+      more.append(elem("summary", "", "Receipt and references"));
+      field(more, "Evidence", x.evidence);
+      c.append(more);
       if (x.uncertainty) {
-        // Compact first; the full references live one disclosure away, never cut.
-        const more = elem("details", "notebook-more");
-        more.append(elem("summary", "", "Receipt and references"));
         field(more, "Projection", x.uncertainty.projection); field(more, "Task", x.uncertainty.task);
         field(more, "Acknowledgement (host)", x.uncertainty.acknowledgement);
         field(more, "Reservation", x.uncertainty.reservation); field(more, "Retry", "None: it will not run again.");
         field(more, "Memory promotion", "Not authorized."); field(more, "Read at", x.uncertainty.observed + " · valid for this reading only");
-        c.append(more);
       }
       list.append(c);
     });
-    const summary = taskSummary(p);
+    const summary = taskSummary(p, why);
     // Empty: the status line already says so (no NO_DATA card repeating it).
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return p;
@@ -296,6 +309,7 @@
     if (!status) return null;
     let p = null;
     try { p = projectTasks(await request("/api/hexelion/tareas")); } catch { p = null; }
+    // Talk stays quiet unless something waits on you or on the host; a failed reading is told in the Notebook.
     const text = p && (p.blocks || p.needs) ? taskSummary(p) : "";
     if (spoken[statusId] !== text) { status.textContent = text; spoken[statusId] = text; }
     status.hidden = !text;
@@ -335,11 +349,12 @@
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
     let d = raw;
-    if (!d) { try { d = await request("/api/notebook"); } catch { d = null; } }
+    let why = null;
+    if (!d) { try { d = await request("/api/notebook"); } catch (e) { d = null; why = failed("the benchmark reading", e); } }
     const runs = d && Array.isArray(d.bench) ? d.bench.filter((r) => r && typeof r === "object") : [];
     list.replaceChildren();
     let summary;
-    if (!d) summary = "NO_DATA: the benchmark reading did not answer (app server).";
+    if (!d) summary = why || failed("the benchmark reading", null);
     else if (!runs.length) summary = "NO_DATA: " + (clean(d.bench_cause, 72) || "no benchmark receipt read yet");
     else {
       runs.slice().reverse().forEach((r) => list.append(benchCard(r)));
@@ -353,11 +368,11 @@
   async function loadTurns(listId, statusId, limit, thread) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
-    let p = null;
-    try { p = projectTurns(await request("/api/hexelion/turnos" + (thread === "cli" ? "?thread=cli" : ""))); } catch { p = null; }
+    let p = null, why = null;
+    try { p = projectTurns(await request("/api/hexelion/turnos" + (thread === "cli" ? "?thread=cli" : ""))); } catch (e) { p = null; why = failed("the requests", e); }
     list.replaceChildren();
     let summary;
-    if (!p) summary = "NO_DATA: the requests could not be read (the app server did not answer).";
+    if (!p) summary = why || failed("the requests", null);
     else if (!p.turns.length) summary = "NO_DATA: " + (p.cause || (thread === "cli" ? "no agent has asked Hexelion yet" : "no request in the shared thread yet"));
     else {
       p.turns.slice(0, limit).forEach(x => list.append(turnCard(x)));

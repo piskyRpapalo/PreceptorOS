@@ -256,10 +256,12 @@ async function waitServer(child) {
     await phone.close();
 
     // 11 · An uncertain task, in a real DOM. The server's route stays NO_DATA(p2_mirror_not_built); the browser is handed
-    // the projection test_uncertainty_presentation builds (python3 tareas_hexelion on its fixture). Synthetic data.
+    // APP's projection of the packet LAB's own P2 mirror produced on a synthetic journal (tests/fixtures, LAB 51782ea).
     const fixture = JSON.parse(require('node:child_process').execFileSync('python3', ['-c',
-      'import json,test_uncertainty_presentation as U; print(json.dumps(U.told(U.event(U.projection()))))'], { cwd: ROOT }));
+      'import json,test_host_truth as H,tareas_hexelion as K; print(json.dumps(K.project([H.unknown_record(H.packet("unknown_hitl_required"))], H.STAMP)))'], { cwd: ROOT }));
+    const t0 = Date.now();
     const real = await page.evaluate(async () => (await (await fetch('/api/hexelion/tareas')).json()).cause);
+    receipt.checks.task_route_read_ms = Date.now() - t0;
     assert.equal(real, 'p2_mirror_not_built', 'the live route must stay unconnected');
     await page.route('**/api/hexelion/tareas', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
     await page.locator('#tab-conversacion').click();
@@ -280,10 +282,16 @@ async function waitServer(child) {
     await page.locator('#notebook-tasks [data-state="OUTCOME_UNKNOWN"] details > summary').focus();
     await page.keyboard.press('Enter');
     const opened = await page.locator('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]').innerText();
-    for (const ref of [t.uncertainty.task_ref, t.uncertainty.projection_ref]) assert(opened.includes(ref), 'ref missing after opening');
+    for (const ref of [t.uncertainty.task_ref, t.uncertainty.projection_ref, t.evidence.ref]) assert(opened.includes(ref), 'ref missing after opening');
+    // One reference, three readers: the machine row, the card the eye opens and the line the ear hears agree.
+    assert(opened.includes('Evidence') && opened.includes(t.evidence.origin), 'the card does not name its evidence');
+    assert.equal(u.talk.includes(t.uncertainty.projection_ref.slice(0, 12)), false, 'hex read aloud');
     assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'uncertain', 0]);
     assert(!/\b(signed|refunded|released|returned|approved)\b/i.test(u.talk + opened), 'claims something unseen');
-    receipt.checks.uncertain_task_same_in_talk_and_notebook = 'SIMULATED_DATA_REAL_DOM';
+    receipt.checks.uncertain_task_same_in_talk_and_notebook = 'LAB_PRODUCER_SYNTHETIC_JOURNAL_REAL_DOM';
+    receipt.levels.e2e_synthetic_source = 'MEASURED(lab_readonly_mirror_on_synthetic_journal)';
+    receipt.levels.e2e_real_receipt = 'NO_DATA(no_attested_host_source_or_app_transport)';
+    receipt.levels.e2e_live_service = 'NO_DATA(route_unconnected_p2_mirror_not_built; live 8742 not touched)';
     const border = await page.$eval('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]', (c) => getComputedStyle(c).borderInlineStartStyle);
     assert.equal(border, 'dashed', 'uncertainty is drawn as a dashed line, not by colour alone');
     await page.unroute('**/api/hexelion/tareas');

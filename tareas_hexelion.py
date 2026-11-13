@@ -79,9 +79,10 @@ _PROJECTION_KEYS = frozenset({"schema", "kind", "state", "cause", "acknowledgeme
 # The acknowledgement word the host reported -> what comes next. None of them is shown as approval; the Acho class
 # stays the state's own (`uncertain`): the outcome is unknown whatever was acknowledged.
 ACKNOWLEDGEMENT = {
-    "HITL_REQUIRED": "Your decision, on the host: review projection %s; only you can acknowledge it.",
-    "HUMAN_ACKNOWLEDGED": "Host reports an acknowledgement (projection %s); re-read, never cached here.",
-    "AUTHORITY_NOT_VERIFIED": "Treat projection %s as not approved; the host could not verify its witness.",
+    # Spoken without the hex ref (noise to the ear); the full ref is in the row's machine fields and the card's details.
+    "HITL_REQUIRED": "Your decision: only you can acknowledge it, on the host.",
+    "HUMAN_ACKNOWLEDGED": "Host reports an acknowledgement; re-read it there.",
+    "AUTHORITY_NOT_VERIFIED": "Treat it as not approved: its witness is unverified.",
 }
 
 
@@ -100,8 +101,47 @@ ACHO = {"DONE_CHECKED": "ok", "NEEDS_YOUR_AUTHORIZATION": "needs_you", "FAILED":
         "OUTCOME_UNKNOWN": "uncertain", "NO_RESULT_RECORDED": "uncertain"}
 
 
-def _uncertainty(ref, raw):
+# How the evidence behind a row was produced, in the receipt contract's own words (LAB delegation.verify and
+# improvement.py: a synthetic basis is SIMULATED, a measurement on a public reference or a protocol round trip is
+# MEASURED, no measurement is NO_DATA). The row says it in words too; a simulation never reads as a real run.
+ACHO_TERMS = {"sound": "off_until_turned_on", "words": "reader"}
+ORIGIN = {"public_deterministic_reference": "MEASURED", "protocol_roundtrip": "MEASURED", "synthetic": "SIMULATED",
+          "NO_DATA": "NO_DATA"}
+_CAUSE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+_VIEWS = {"text", "speech", "machine"}
+STALE_AFTER_S = 5   # TTL 0: the mirror is read when the route answers; more than clock skew apart is another reading
+
+
+def _instant(value):
+    import datetime as _dt
+    if type(value) is not str or not re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$", value):
+        return None
+    try:
+        return _dt.datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+    except ValueError:
+        return None
+
+
+def _unwrap(raw):
+    """LAB's views packet (text, speech, machine) -> its record, only if all three bind the same ref and words."""
+    if type(raw) is not dict or set(raw) != _VIEWS:
+        return raw, None
+    t, sp, m = raw["text"], raw["speech"], raw["machine"]
+    if not all(type(v) is dict for v in (t, sp, m)) or set(t) != {"state_ref", "summary"} \
+            or set(sp) != {"state_ref", "summary"} or set(m) != {"state_ref", "record"} or type(m["record"]) is not dict:
+        return None, "views_fields_unknown"
+    if not (t["state_ref"] == sp["state_ref"] == m["state_ref"] == m["record"].get("projection_ref")):
+        return None, "views_bind_different_refs"
+    if not (t["summary"] == sp["summary"] == m["record"].get("summary")):
+        return None, "views_say_different_words"
+    return m["record"], None
+
+
+def _uncertainty(ref, raw, read_at=None):
     """The host's projection -> the facts the row shows, or the cause why it cannot be shown."""
+    raw, broken = _unwrap(raw)
+    if broken:
+        return None, broken
     if type(raw) is not dict or set(raw) != _PROJECTION_KEYS or raw.get("schema") != UNCERTAINTY_SCHEMA \
             or raw.get("kind") != "projection":
         return None, "uncertainty_fields_unknown"
@@ -112,10 +152,17 @@ def _uncertainty(ref, raw):
             return None, "uncertainty_exceeds_1024_bytes"
     except (TypeError, ValueError):
         return None, "uncertainty_fields_unknown"
+    # The host could not vouch for its own reading: its cause is the cause (LAB ReadOnlyMirror._missing), never
+    # "another task" because a NO_DATA projection names no task.
+    if raw["state"] == "NO_DATA" and raw["task_ref"] is None:
+        return None, raw["cause"] if type(raw["cause"]) is str and _CAUSE.match(raw["cause"]) else "host_cause_invalid"
     if raw["task_ref"] != ref:
         return None, "uncertainty_for_another_task"
     if raw["state"] != "UNKNOWN":
         return None, "uncertainty_unavailable_on_host"
+    seen, now = _instant(raw["observed_at"]), _instant(read_at)
+    if read_at is not None and (seen is None or now is None or abs(now - seen) > STALE_AFTER_S):
+        return None, "uncertainty_projection_stale"
     res = raw["reservation"]
     reservation_ok = type(res) is dict and (
         (set(res) == {"state", "tokens"} and res["state"] == "RETAINED" and type(res["tokens"]) is int
@@ -129,25 +176,34 @@ def _uncertainty(ref, raw):
             "reservation": dict(res), "observed_at": raw["observed_at"]}, raw["summary"]
 
 
-def _uncertain(state, run_id, ref, cause, sentence, raw):
+def _uncertain(state, run_id, ref, cause, sentence, raw, read_at=None, evidence=None):
     if raw is None:
-        return _task(state, run_id, cause, sentence, NEXT[state])
-    u, said = _uncertainty(ref, raw)
+        return _task(state, run_id, cause, sentence, NEXT[state], evidence=evidence)
+    u, said = _uncertainty(ref, raw, read_at)
     if u is None:
-        return _no_data(run_id, said)
+        # The receipt's own uncertainty stands: UNKNOWN stays UNKNOWN and still blocks new work. Only the host's
+        # projection is set aside, with its cause, and nothing of it is shown as current.
+        return _task(state, run_id, said, sentence,
+                     "The host's projection could not be used (%s); check the host journal. Do not retry." %
+                     said.replace("_", " "), evidence=evidence)
     # The host's sentence is the sentence, for every modality; the row adds only what comes next.
-    return _task(state, run_id, cause, said, ACKNOWLEDGEMENT[u["acknowledgement"]] % u["projection_ref"][:12],
-                 uncertainty=u)
+    return _task(state, run_id, cause, said, ACKNOWLEDGEMENT[u["acknowledgement"]], uncertainty=u, evidence=evidence)
 
 
-def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None):
+def _task(state, run_id, cause, sentence, next_step, replayed=False, uncertainty=None, evidence=None):
     if replayed and state in ("DONE_CHECKED", "DONE_UNCHECKED", "FAILED"):
         sentence += " The result was recovered after a restart; it was not run again."
+    evidence = evidence or {"origin": "NO_DATA", "ref": None}
+    if evidence["origin"] == "SIMULATED":
+        sentence = "Simulated run: " + sentence[0].lower() + sentence[1:]
     clase = ACHO.get(state, "empty")
     t = {"run_id": run_id, "state": state, "cause": cause, "sentence": sentence, "next": next_step,
          "reader": "Task %s. %s %s" % (run_id or "unnamed", sentence, next_step), "replayed": bool(replayed),
+         # What the row's words rest on: the receipt's origin and its ref, the same for eye, ear and machine.
+         "evidence": evidence,
          # The class alone decides the cue (audio_feedback.cue_for_turn derives the motif); no task row is played.
-         "acho": {"class": clase, "sound": "off_until_turned_on", "words": "reader"}}
+         # Sound and words are the same for every row: said once, at the projection level (ACHO_TERMS).
+         "acho": {"class": clase}}
     if uncertainty:
         t["uncertainty"] = uncertainty
     if len(json.dumps(t, ensure_ascii=False).encode("utf-8")) >= MAX_TASK_B:
@@ -161,7 +217,7 @@ def _no_data(run_id, cause):
                  NEXT["NO_DATA"])
 
 
-def task(record):
+def task(record, read_at=None):
     """One journal record -> one told task. Anything malformed is NO_DATA with its cause, never a guess."""
     if type(record) is not dict:
         return _no_data(None, "record_not_an_object")
@@ -178,9 +234,14 @@ def task(record):
     raw_u = record.get("uncertainty")
     if receipt is None:
         return _uncertain("NO_RESULT_RECORDED", run_id, ref, "claim_without_receipt",
-                          "This task was claimed and no result is recorded; it may have stopped.", raw_u)
+                          "This task was claimed and no result is recorded; it may have stopped.", raw_u, read_at)
     if type(receipt) is not dict or receipt.get("schema") != RECEIPT_SCHEMA:
         return _no_data(run_id, "receipt_schema_unknown")
+    if receipt.get("confidence_basis") not in ORIGIN or type(receipt.get("receipt_ref")) is not str \
+            or not _HEX.match(receipt["receipt_ref"]) \
+            or (receipt.get("measurement") is None) != (receipt["confidence_basis"] == "NO_DATA"):
+        return _no_data(run_id, "receipt_evidence_unknown")
+    evidence = {"origin": ORIGIN[receipt["confidence_basis"]], "ref": receipt["receipt_ref"]}
     if receipt.get("run_id") != run_id or receipt.get("task_sha256") != ref:
         return _no_data(run_id, "receipt_for_another_task")
     phase, outcome, failure = receipt.get("phase"), receipt.get("outcome"), receipt.get("failure_class")
@@ -199,24 +260,26 @@ def task(record):
             return _no_data(run_id, "completion_without_its_evidence")
         if m["grade"] == "PASS":
             return _task("DONE_CHECKED", run_id, None, "This task finished and its output passed its check.",
-                         NEXT["DONE_CHECKED"], replayed)
+                         NEXT["DONE_CHECKED"], replayed, evidence=evidence)
         if m["grade"] == "NOT_EVALUATED":
             return _task("DONE_UNCHECKED", run_id, "output_not_evaluated",
-                         "This task finished, but nobody evaluated its output.", NEXT["DONE_UNCHECKED"], replayed)
+                         "This task finished, but nobody evaluated its output.", NEXT["DONE_UNCHECKED"], replayed, evidence=evidence)
         return _no_data(run_id, "completion_with_a_failed_grade")
     if outcome == "UNKNOWN" and phase != "cancelled":
         return _uncertain("OUTCOME_UNKNOWN", run_id, ref, failure.lower(),
-                          "This task may have run, and its outcome is unknown.", raw_u)
+                          "This task may have run, and its outcome is unknown.", raw_u, read_at, evidence)
     if phase == "cancelled":
         started = "; it may have started" if outcome == "UNKNOWN" else "; it had not started" if outcome == "NOT_STARTED" else ""
-        return _task("CANCELLED", run_id, "cancelled", "This task was cancelled%s." % started, NEXT["CANCELLED"])
+        return _task("CANCELLED", run_id, "cancelled", "This task was cancelled%s." % started, NEXT["CANCELLED"],
+                     evidence=evidence)
     if failure == "PERMISSION":
         if outcome != "NOT_STARTED":
             return _no_data(run_id, "permission_block_after_start")
         return _task("NEEDS_YOUR_AUTHORIZATION", run_id, "permission",
-                     "This task needs your authorization; nothing has run.", NEXT["NEEDS_YOUR_AUTHORIZATION"])
+                     "This task needs your authorization; nothing has run.", NEXT["NEEDS_YOUR_AUTHORIZATION"],
+                     evidence=evidence)
     return _task("FAILED", run_id, failure.lower(),
-                 "This task stopped: %s." % failure.lower().replace("_", " "), FAILURE_NEXT[failure], replayed)
+                 "This task stopped: %s." % failure.lower().replace("_", " "), FAILURE_NEXT[failure], replayed, evidence=evidence)
 
 
 def project(records, observed_at, source_cause=None):
@@ -224,7 +287,7 @@ def project(records, observed_at, source_cause=None):
     base = {"schema": SCHEMA, "observed_at": observed_at,
             "limits": "Reads journal records handed to it. It stores, claims, retries and authorises nothing.",
             # Every uncertainty a row shows was checked to carry these terms; they are said once, not per row.
-            "uncertainty_terms": UNCERTAINTY_TERMS}
+            "uncertainty_terms": UNCERTAINTY_TERMS, "acho_terms": ACHO_TERMS}
     if source_cause or not isinstance(records, list):
         return dict(base, state="NO_DATA", cause=str(source_cause or "records_unreadable")[:80], tasks=[], counts={},
                     needs_you=0, blocks_new_work=0, decisions_for_you=0)
@@ -236,7 +299,7 @@ def project(records, observed_at, source_cause=None):
         if type(rid) is str:
             seen[rid] = seen.get(rid, 0) + 1
     tasks = [_no_data(r["run_id"], "duplicate_record") if type(r) is dict and seen.get(r.get("run_id"), 0) > 1
-             else task(r) for r in shown]
+             else task(r, observed_at) for r in shown]
     counts = {}
     for t in tasks:
         counts[t["state"]] = counts.get(t["state"], 0) + 1

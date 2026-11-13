@@ -95,7 +95,9 @@ class OneRecordEverywhere(unittest.TestCase):
                                             "observed_at": "2026-11-13T12:00:00Z"})
         self.assertEqual(self.raw["uncertainty_terms"], {"ttl_seconds": 0, "no_retry": True,
                                                          "promotion": "NOT_AUTHORIZED"})
-        self.assertIn(self.p["projection_ref"][:12], t["next"])
+        # The full ref travels in the machine fields and the card's details; the ear is spared the hex.
+        self.assertEqual(t["uncertainty"]["projection_ref"], self.p["projection_ref"])
+        self.assertNotIn(self.p["projection_ref"][:12], t["next"])
         self.assertEqual((self.raw["blocks_new_work"], self.raw["decisions_for_you"]), (1, 1))
 
     def test_every_row_keeps_the_1024_byte_row_budget(self):
@@ -136,7 +138,7 @@ class OneRecordEverywhere(unittest.TestCase):
             got = surfaces(raw)
             self.assertIn("Uncertain task", got["talk"])
             self.assertNotIn("Decision for you", got["talk"])
-        self.assertIn("never cached", told(event(projection("HUMAN_ACKNOWLEDGED")))["tasks"][0]["next"])
+        self.assertIn("re-read it there", told(event(projection("HUMAN_ACKNOWLEDGED")))["tasks"][0]["next"])
         self.assertIn("not approved", told(event(projection("AUTHORITY_NOT_VERIFIED")))["tasks"][0]["next"])
 
     def test_no_surface_presents_an_approval_or_a_refund(self):
@@ -171,24 +173,24 @@ class ProjectionNegatives(unittest.TestCase):
         return t["state"], t["cause"]
 
     def test_a_record_that_does_not_match_its_ref_is_not_shown(self):
-        self.assertEqual(self.cause(event(projection(rehash=False))), ("NO_DATA", "uncertainty_ref_mismatch"))
+        self.assertEqual(self.cause(event(projection(rehash=False))), ("OUTCOME_UNKNOWN", "uncertainty_ref_mismatch"))
         tampered = projection()
         tampered["acknowledgement"] = "HUMAN_ACKNOWLEDGED"              # promoted without re-hashing
-        self.assertEqual(self.cause(event(tampered)), ("NO_DATA", "uncertainty_ref_mismatch"))
+        self.assertEqual(self.cause(event(tampered)), ("OUTCOME_UNKNOWN", "uncertainty_ref_mismatch"))
 
     def test_changed_terms_are_refused_even_when_rehashed(self):
         for over in ({"no_retry": False}, {"promotion": "AUTHORIZED"}, {"ttl_seconds": 60},
                      {"acknowledgement": "APPROVED"}, {"reservation": {"state": "RELEASED", "tokens": 0}},
                      {"reservation": {"state": "RETAINED", "tokens": 9999}}, {"summary": ""}):
-            self.assertEqual(self.cause(event(projection(**over))), ("NO_DATA", "uncertainty_terms_changed"), over)
+            self.assertEqual(self.cause(event(projection(**over))), ("OUTCOME_UNKNOWN", "uncertainty_terms_changed"), over)
 
     def test_other_shapes_are_refused(self):
-        self.assertEqual(self.cause(event(projection(task_ref="f" * 64))), ("NO_DATA", "uncertainty_for_another_task"))
-        self.assertEqual(self.cause(event(projection(state="NO_DATA"))), ("NO_DATA", "uncertainty_unavailable_on_host"))
-        self.assertEqual(self.cause(event(projection(kind="ack"))), ("NO_DATA", "uncertainty_fields_unknown"))
-        self.assertEqual(self.cause(event(dict(projection(), signed=True))), ("NO_DATA", "uncertainty_fields_unknown"))
+        self.assertEqual(self.cause(event(projection(task_ref="f" * 64))), ("OUTCOME_UNKNOWN", "uncertainty_for_another_task"))
+        self.assertEqual(self.cause(event(projection(state="NO_DATA"))), ("OUTCOME_UNKNOWN", "uncertainty_unavailable_on_host"))
+        self.assertEqual(self.cause(event(projection(kind="ack"))), ("OUTCOME_UNKNOWN", "uncertainty_fields_unknown"))
+        self.assertEqual(self.cause(event(dict(projection(), signed=True))), ("OUTCOME_UNKNOWN", "uncertainty_fields_unknown"))
         self.assertEqual(self.cause(event(projection(summary="é" * 200, cause="x" * 700))),
-                         ("NO_DATA", "uncertainty_exceeds_1024_bytes"))
+                         ("OUTCOME_UNKNOWN", "uncertainty_exceeds_1024_bytes"))
         self.assertEqual(self.cause(dict(event(projection()), acknowledged=True)), ("NO_DATA", "record_fields_unknown"))
 
     def test_a_projection_never_rides_a_known_outcome(self):
@@ -212,7 +214,10 @@ class ProjectionNegatives(unittest.TestCase):
         raw["uncertainty_terms"]["promotion"] = "AUTHORIZED"
         got = surfaces(raw)
         self.assertIsNone(got["parsed"])
-        self.assertNotIn("details", got["tags"])
+        # The disclosure stays (it names the receipt's evidence); no projection detail is inside it.
+        self.assertNotIn("Projection", got["card"])
+        self.assertNotIn("Acknowledgement (host)", got["card"])
+        self.assertIn("Evidence", got["card"])
         self.assertIn("Outcome unknown", got["card"])
 
 
