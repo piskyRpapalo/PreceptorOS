@@ -884,8 +884,16 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// Disabling the focused «Say it» drops focus to <body>; a keyboard or screen-reader user would lose their place
+// after every question (measured 2026-11-13, headless, 360 px). Give focus back only when it was lost.
+function devolverFoco(volverA) {
+  if (document.activeElement === document.body || document.activeElement === null) {
+    (volverA && volverA.isConnected && volverA !== document.body ? volverA : $("dicho")).focus({ preventScroll: true });
+  }
+}
 $("form-chat").addEventListener("submit", async (e) => {
   e.preventDefault();
+  const volverA = document.activeElement;
   const escrito = $("dicho").value.trim();
   if (!escrito) return;
   const conversacion = window.PreceptorConversacion;
@@ -904,6 +912,7 @@ $("form-chat").addEventListener("submit", async (e) => {
     $("enviar").disabled = true;
     const sent = await conversacion.send(ruta.para, ruta.texto);
     $("enviar").disabled = false;
+    devolverFoco(volverA);
     if (sent.ok) {
       $("estado").textContent = `Delivered to the shared thread for ${conversacion.name(ruta.para)} · message ${sent.n} · no reply is promised`;
       conversacion.sync({ replaceLocal: true });
@@ -932,7 +941,8 @@ $("form-chat").addEventListener("submit", async (e) => {
   $("dicho").value = "";
   burbuja(escrito, "mio");
   $("enviar").disabled = true;
-  const esperando = burbuja("pensando… en un teléfono esto son minutos", "espera");
+  const esperando = burbuja("thinking… on a phone this can take minutes", "espera");
+  esperando.lang = "en";
   try {
     const r = await fetch("/api/hexelion/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -992,6 +1002,7 @@ $("form-chat").addEventListener("submit", async (e) => {
     if (!$("dicho").value.trim()) $("dicho").value = escrito;
   }
   $("enviar").disabled = false;
+  devolverFoco(volverA);
   if (window.PreceptorConversacion) window.PreceptorConversacion.sync({ replaceLocal: true });
 });
 /* «?» commands: a tap writes the command in the box; the person still presses Dilo. */
