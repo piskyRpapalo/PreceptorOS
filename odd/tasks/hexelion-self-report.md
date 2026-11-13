@@ -1,7 +1,9 @@
 # The four questions (APP-P3 · self-report)
 
 THE MARCH feature document · Claude Code (Opus 5.5) · 2026-11-13. Cell A, round 7, CLAIM in Mesa #3
-(#issuecomment-6866246151). Base: APP `main` `18bf0d4`. Not chained to the Acho PR.
+(#issuecomment-6866246151). Built on `main` `18bf0d4` (branch `claude/hexelion-self-report-20261113`, kept, never
+opened as a PR). Replayed in round 9 onto `main` `0747a2d` (Acho truth, #294, merged) in a fresh branch; the only
+conflict was the suite list in `bin/pruebas` (both lines kept). Nothing force-pushed.
 
 **«What are you doing, what have you achieved, how do you know, what do you need from me?»**
 
