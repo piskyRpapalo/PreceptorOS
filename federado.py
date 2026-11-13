@@ -9,7 +9,7 @@ whose model parts are pinned by SHA-256 and whose rebuilt snapshot must match `s
   * joins them with the person's private device registry (<casa>/federado/dispositivos.json: names stay off-repo),
   * says per device which roles are DECLARED and which have evidence, and which are reserved to Acurast.
 
-States: VERIFIED (integrity + age within ceiling) · STALE (integrity, too old) · DECLARED (registry only) ·
+States: OBSERVED (metadata within ceiling) · STALE (integrity, too old) · DECLARED (registry only) ·
 NO_DATA(cause). A hash proves integrity, not authenticity. An installed model is not an available model, and a
 snapshot is never a dispatch grant. No network, no device access, no selector, no telemetry.
 """
@@ -18,6 +18,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import re
 from pathlib import Path
@@ -52,31 +53,56 @@ def _json(raw):
                 raise ValueError("duplicate_key")
             out[k] = v
         return out
-    return json.loads(raw.decode("utf-8"), object_pairs_hook=unique)
+    if not isinstance(raw, bytes) or len(raw) >= 16384:
+        raise ValueError("source_byte_limit")
+    def invalid(_):
+        raise ValueError("nonfinite_json")
+    def finite(value):
+        parsed = float(value)
+        if not math.isfinite(parsed):
+            raise ValueError("nonfinite_json")
+        return parsed
+    return json.loads(raw.decode("utf-8"), object_pairs_hook=unique,
+                      parse_constant=invalid, parse_float=finite)
 
 
-def rebuild(manifest_raw, files):
+def rebuild(manifest_raw, files, *, name=None):
     """(snapshot, None) or (None, cause). `files` maps receipt file name -> raw bytes."""
     try:
         doc = _json(manifest_raw)
     except (UnicodeError, ValueError, RecursionError):
         return None, "manifest_invalid_json"
     if not isinstance(doc, dict) or doc.get("schema") != MANIFEST_SCHEMA or not isinstance(doc.get("header"), dict) \
-            or not isinstance(doc.get("parts"), list) or not _SHA.fullmatch(str(doc.get("snapshot_ref", ""))):
+            or not isinstance(doc.get("parts"), list) or len(doc["parts"]) > 26 \
+            or type(doc.get("model_count")) is not int or not 0 <= doc["model_count"] <= 256 \
+            or not _SHA.fullmatch(str(doc.get("snapshot_ref", ""))):
         return None, "manifest_schema"
-    models = []
+    models, seen = [], set()
     for part in doc["parts"]:
-        if not isinstance(part, dict) or part.get("file") not in files:
+        if (not isinstance(part, dict) or set(part) != {"file", "sha256", "count"}
+                or type(part.get("file")) is not str or part["file"] in seen
+                or type(part.get("count")) is not int or not 0 <= part["count"] <= 256):
+            return None, "part_manifest_invalid"
+        if name and not re.fullmatch(re.escape(name[:-5]) + r"-models-[1-9][0-9]*\.json", part["file"]):
+            return None, "part_identity_mismatch"
+        seen.add(part["file"])
+        if part.get("file") not in files:
             return None, "part_missing"
         raw = files[part["file"]]
+        if not isinstance(raw, bytes) or len(raw) >= 16384:
+            return None, "part_byte_limit"
         if hashlib.sha256(raw).hexdigest() != part.get("sha256"):
             return None, "part_hash_mismatch"
         try:
             rows = _json(raw)
         except (UnicodeError, ValueError, RecursionError):
             return None, "part_invalid_json"
-        if not isinstance(rows, list) or len(rows) != part.get("count"):
+        if (not isinstance(rows, list) or len(rows) != part.get("count")
+                or len(models) + len(rows) > 256):
             return None, "part_count_mismatch"
+        if any(type(row) is not dict or any(type(row.get(k)) is not str or not _SHA.fullmatch(row[k])
+               for k in ("model_ref", "model_version")) for row in rows):
+            return None, "model_identity_invalid"
         models.extend(rows)
     if len(models) != doc.get("model_count"):
         return None, "model_count_mismatch"
@@ -88,15 +114,15 @@ def rebuild(manifest_raw, files):
 
 def freshness(snapshot, now):
     try:
-        seen = dt.datetime.fromisoformat(snapshot["observed_at"])
+        seen = dt.datetime.fromisoformat(snapshot["observed_at"].replace("Z", "+00:00"))
         if seen.utcoffset() is None:
             return no_data("timezone_required"), None
         age = (now - seen).total_seconds()
-    except (KeyError, TypeError, ValueError):
+    except (KeyError, TypeError, ValueError, AttributeError):
         return no_data("observed_at_invalid"), None
     if age < 0:
         return no_data("future_observation"), age
-    return ({"state": "VERIFIED", "cause": "integrity_and_age_within_ceiling"} if age <= MAX_AGE_S else
+    return ({"state": "OBSERVED", "cause": "metadata_snapshot_only"} if age <= MAX_AGE_S else
             {"state": "STALE", "cause": "observation_expired"}), age
 
 
@@ -119,18 +145,40 @@ def backends(files, now):
         node, backend = m.group(1), m.group(2) or "default"
         if backend.startswith("models"):
             continue
-        snapshot, cause = rebuild(files[name], files)
+        snapshot, cause = rebuild(files[name], files, name=name)
         row = {"node": node, "backend": backend, "file": name}
         if snapshot is None:
             rows.append(dict(row, **no_data(cause)))
             continue
+        if snapshot.get("node") != node:
+            rows.append(dict(row, **no_data("node_identity_mismatch")))
+            continue
+        if snapshot.get("catalog_state") not in ("VERIFIED", "OBSERVED"):
+            rows.append(dict(row, **no_data("catalog_not_observed")))
+            continue
+        resident = snapshot.get('resident_count')
+        if type(resident) is int and (resident < 0 or resident > len(snapshot['models'])):
+            rows.append(dict(row, **no_data('resident_catalog_contradiction')))
+            continue
         state, age = freshness(snapshot, now)
         models = snapshot.get("models") or []
+        version = snapshot.get('backend_version')
+        version = version.get('value') if isinstance(version, dict) else None
+        version = version if isinstance(version, str) and re.fullmatch(r'\d+\.\d+\.\d+[a-z0-9.+-]{0,32}', version) else None
         row.update(state, observed_at=snapshot.get("observed_at"), age_s=None if age is None else int(age),
-                   host=_host(snapshot), backend_version=(snapshot.get("backend_version") or {}).get("value"),
+                   host=_host(snapshot), backend_version=version,
                    catalog_state=snapshot.get("catalog_state"), models_installed=len(models),
-                   models_resident=snapshot.get("resident_count") if isinstance(snapshot.get("resident_count"), int) else None,
-                   admission=snapshot.get("admission"))
+                   models_resident=snapshot.get("resident_count") if type(snapshot.get("resident_count")) is int
+                       and 0 <= snapshot['resident_count'] <= 256 else None,
+                   source_ref=digest(snapshot), verification={"state": "VERIFIED", "scope": "receipt_integrity_only"},
+                   inference=no_data("no_independent_task_witness"),
+                   admission=no_data("no_independent_task_resource_witness"))
+        try:
+            row['expires_at'] = ((dt.datetime.fromisoformat(snapshot['observed_at'].replace('Z', '+00:00'))
+                                 + dt.timedelta(seconds=MAX_AGE_S)).isoformat() if age is not None else None)
+        except (OverflowError, ValueError, TypeError, AttributeError):
+            rows.append(dict(row, **no_data('observed_at_invalid')))
+            continue
         rows.append(row)
     seen = {r["node"] for r in rows}
     rows += [{"node": n, "backend": None, **no_data("no_lab_receipt")} for n in NODES if n not in seen]
@@ -175,10 +223,11 @@ def _role(device, role, by_node):
         return {"role": role, "state": "DECLARED", "cause": "reserved_to_acurast_not_a_hexelion_worker"}
     if role == "MODEL_SERVER" and device["kind"] == "rack_node":
         rows = by_node.get(device["node"]) or []
-        best = next((r for s in ("VERIFIED", "STALE") for r in rows if r["state"] == s), None)
+        best = next((r for s in ("OBSERVED", "STALE") for r in rows if r["state"] == s), None)
         if best:
             return {"role": role, "state": best["state"], "cause": best["cause"], "observed_at": best["observed_at"],
-                    "age_s": best["age_s"]}
+                    "age_s": best["age_s"], "source_ref": best['source_ref'], "expires_at": best['expires_at'],
+                    "verification": best['verification'], "inference": best['inference']}
         return {"role": role, **no_data(rows[0]["cause"] if rows else "no_lab_receipt")}
     return {"role": role, "state": "DECLARED", "cause": "no_producer_for_this_role"}
 
@@ -206,8 +255,10 @@ def from_lab(base, repo=None, ref=None, now=None):
     import lab_bench
     repo = repo or os.environ.get("PRECEPTOROS_LAB_REPO") or str(Path.home() / "lab")
     ref = ref or os.environ.get("PRECEPTOROS_LAB_REF") or "origin/main"
-    files = dict(lab_bench.from_git(repo, ref))
-    view = project(files, base, now, source={"ref": ref, "files": len(files)})
+    commit = lab_bench.resolve_ref(repo, ref)
+    files = dict(lab_bench.from_git(repo, commit)) if commit else {}
+    view = project(files, base, now, source={"ref": ref, "commit_sha": commit,
+                                           "files": len(files), "state": "OBSERVED" if commit else "NO_DATA"})
     if not any(_MANIFEST.fullmatch(n) for n in files):
         view["lab_cause"] = "lab_federated_not_on_ref" if files else "lab_clone_or_ref_missing"
     return view

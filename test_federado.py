@@ -17,7 +17,7 @@ NOW = dt.datetime(2026, 11, 13, 10, 0, 0, tzinfo=dt.timezone.utc)
 
 def receipts(node="node-b", backend=None, seen=NOW - dt.timedelta(seconds=30), models=2, resident=0, **header):
     """One LAB manifest + its model part, as federated_node_snapshot writes them."""
-    rows = [{"model_ref": "%064x" % i, "state": "VERIFIED"} for i in range(models)]
+    rows = [{"model_ref": "%064x" % i, "model_version": "%064x" % (i+1), "state": "VERIFIED"} for i in range(models)]
     head = {"schema": F.SNAPSHOT_SCHEMA, "node": node, "observed_at": seen.isoformat(), "max_age_seconds": 120,
             "host": {"architecture": "x86_64", "cpu_count": 4, "memory_bytes": {"MemTotal": 8, "MemAvailable": 4}},
             "backend_version": {"state": "DECLARED", "value": "0.40.3"}, "catalog_state": "VERIFIED",
@@ -48,10 +48,13 @@ DEVICES = [
 
 
 class Integrity(unittest.TestCase):
-    def test_a_fresh_receipt_is_verified_and_an_old_one_stale_by_our_ceiling_not_its_own(self):
+    def test_fresh_metadata_is_observed_and_an_old_one_stale_by_our_ceiling_not_its_own(self):
         rows = F.backends(receipts(), NOW)
         b = next(r for r in rows if r["node"] == "node-b")
-        self.assertEqual((b["state"], b["models_installed"], b["models_resident"]), ("VERIFIED", 2, 0))
+        self.assertEqual((b["state"], b["models_installed"], b["models_resident"]), ("OBSERVED", 2, 0))
+        self.assertEqual(b['verification'],{'state':'VERIFIED','scope':'receipt_integrity_only'})
+        self.assertEqual(b['inference']['state'],'NO_DATA')
+        self.assertEqual(b['expires_at'],(NOW+dt.timedelta(seconds=90)).isoformat())
         old = receipts(seen=NOW - dt.timedelta(hours=1), max_age_seconds=10 ** 9)   # a receipt cannot extend its life
         self.assertEqual(next(r for r in F.backends(old, NOW) if r["node"] == "node-b")["state"], "STALE")
 
@@ -73,11 +76,65 @@ class Integrity(unittest.TestCase):
         self.assertEqual([r["backend"] for r in rows if r["node"] == "node-c"], ["primary", "secondary"])
         self.assertEqual(next(r for r in rows if r["node"] == "node-a")["cause"], "no_lab_receipt")
 
+    def test_failed_catalog_does_not_become_a_verified_server(self):
+        for value in ('NO_DATA', None, 'STALE'):
+            row=next(r for r in F.backends(receipts(catalog_state=value),NOW) if r['node']=='node-b')
+            self.assertEqual((row['state'],row['cause']),('NO_DATA','catalog_not_observed'))
+
+    def test_resident_count_cannot_contradict_the_catalog(self):
+        row=next(r for r in F.backends(receipts(models=1,resident=2),NOW) if r['node']=='node-b')
+        self.assertEqual((row['state'],row['cause']),('NO_DATA','resident_catalog_contradiction'))
+
+    def test_renamed_or_cross_node_receipts_never_change_attribution(self):
+        files=receipts();manifest=files.pop('20261113-federated-node-b.json')
+        files['20261113-federated-node-c.json']=manifest
+        row=next(r for r in F.backends(files,NOW) if r['node']=='node-c')
+        self.assertEqual((row['state'],row['cause']),('NO_DATA','part_identity_mismatch'))
+        files=receipts(node='node-c');name='20261113-federated-node-c.json'
+        doc=json.loads(files[name]);doc['header']['node']='node-b'
+        models=json.loads(files[doc['parts'][0]['file']])
+        doc['snapshot_ref']=F.digest(dict(doc['header'],models=models));files[name]=json.dumps(doc).encode()
+        row=next(r for r in F.backends(files,NOW) if r['node']=='node-c')
+        self.assertEqual(row['cause'],'node_identity_mismatch')
+
+    def test_nonfinite_json_duplicate_parts_and_boolean_counts_are_refused(self):
+        for raw in (b'{"x":NaN}',b'{"x":1e999}',b'{"x":1,"x":2}'):
+            with self.assertRaises(ValueError):F._json(raw)
+        files=receipts();name='20261113-federated-node-b.json';doc=json.loads(files[name])
+        doc['parts']*=2;doc['model_count']=4
+        files[name]=json.dumps(doc).encode()
+        self.assertEqual(next(r for r in F.backends(files,NOW) if r['node']=='node-b')['cause'],'part_manifest_invalid')
+        doc['model_count']=True;files[name]=json.dumps(doc).encode()
+        self.assertEqual(next(r for r in F.backends(files,NOW) if r['node']=='node-b')['cause'],'manifest_schema')
+
+    def test_metadata_claim_cannot_grant_inference_or_admission(self):
+        files=receipts(admission={'state':'VERIFIED','allowed':True})
+        row=next(r for r in F.backends(files,NOW) if r['node']=='node-b')
+        self.assertEqual(row['admission']['state'],'NO_DATA')
+        self.assertEqual(row['inference']['state'],'NO_DATA')
+        self.assertEqual(row['state'],'OBSERVED')
+
+    def test_invalid_time_or_oversized_manifest_cannot_crash_or_be_fresh(self):
+        files=receipts(seen=NOW)
+        name='20261113-federated-node-b.json';doc=json.loads(files[name]);doc['header']['observed_at']='invalid'
+        models=json.loads(files[doc['parts'][0]['file']]);doc['snapshot_ref']=F.digest(dict(doc['header'],models=models))
+        files[name]=json.dumps(doc).encode()
+        self.assertEqual(next(r for r in F.backends(files,NOW) if r['node']=='node-b')['state'],'NO_DATA')
+        files[name]=b' '*16384
+        self.assertEqual(next(r for r in F.backends(files,NOW) if r['node']=='node-b')['cause'],'manifest_invalid_json')
+        for stamp in (None, 123, '9999-12-31T23:59:59+00:00'):
+            files=receipts(seen=NOW);doc=json.loads(files[name]);doc['header']['observed_at']=stamp
+            models=json.loads(files[doc['parts'][0]['file']]);doc['snapshot_ref']=F.digest(dict(doc['header'],models=models))
+            files[name]=json.dumps(doc).encode()
+            self.assertEqual(next(r for r in F.backends(files,NOW) if r['node']=='node-b')['state'],'NO_DATA')
+
 
 class Registry(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.base = self.tmp.name
+        resolver=mock.patch('lab_bench.resolve_ref',return_value='a'*40)
+        resolver.start();self.addCleanup(resolver.stop)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -87,7 +144,7 @@ class Registry(unittest.TestCase):
         view = F.project(receipts(), self.base, NOW)
         dev = {d["id"]: d for d in view["devices"]}
         ev = {e["role"]: e["state"] for e in dev["node-b"]["evidence"]}
-        self.assertEqual(ev, {"APP_CLIENT": "DECLARED", "MODEL_SERVER": "VERIFIED"})
+        self.assertEqual(ev, {"APP_CLIENT": "DECLARED", "MODEL_SERVER": "OBSERVED"})
         self.assertEqual(dev["node-a"]["evidence"][0]["state"], "NO_DATA")
         self.assertEqual({e["state"] for e in dev["mobile-1"]["evidence"]}, {"DECLARED"})
         self.assertEqual(dev["mobile-3"]["evidence"][0]["cause"], "reserved_to_acurast_not_a_hexelion_worker")
@@ -125,13 +182,13 @@ class Talk(Registry):
         registry(self.base, DEVICES)
         acc = self.lee("devices", receipts())
         self.assertTrue(acc["ok"])
-        self.assertIn("Model servers (LAB): node-b verified now; node-a no evidence (no lab receipt).", acc["texto"])
+        self.assertIn("Model servers (LAB): node-b metadata observed; inference untested; node-a no evidence (no lab receipt).", acc["texto"])
         self.assertIn("Declared only, not pinged: mobile-1.", acc["texto"])
         self.assertIn("Reserved to Acurast, never Hexelion workers: mobile-3, mobile-4 (parked).", acc["texto"])
 
     def test_models_says_installed_is_not_available_and_no_lab_evidence_is_no_data(self):
         acc = self.lee("models", receipts(models=3, resident=1))
-        self.assertIn("node-b 3/1, verified now.", acc["texto"])
+        self.assertIn("node-b 3/1, metadata observed now.", acc["texto"])
         self.assertIn("No evidence: node-a (no lab receipt);", acc["texto"])
         self.assertIn("Installed is not available; no inference was run.", acc["texto"])
         acc = self.lee("models", {"20261112-bench.json": b"{}"})
@@ -174,7 +231,7 @@ class Talk(Registry):
         with mock.patch("lab_bench.from_git", return_value=[]) as g, \
                 mock.patch.dict(os.environ, {"PRECEPTOROS_LAB_REPO": "/r", "PRECEPTOROS_LAB_REF": "origin/main"}):
             F.from_lab(self.base)
-        g.assert_called_once_with("/r", "origin/main")
+        g.assert_called_once_with("/r", "a"*40)
 
 
 if __name__ == "__main__":
