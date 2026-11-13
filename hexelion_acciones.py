@@ -277,7 +277,8 @@ def _firmas(base, now):
         datos = json.loads(ruta.read_text(encoding="utf-8"))
         if not isinstance(datos, dict) or datos.get("esquema") != "preceptoros.firmas-pendientes/1":
             raise ValueError()
-        filas = [f for f in datos.get("filas") or [] if isinstance(f, dict)]
+        crudas = datos.get("filas") or []
+        filas = [f for f in crudas if isinstance(f, dict)]
     except FileNotFoundError:
         return False, "scraper_not_run", "I cannot say what awaits your signature: the signature list was never written."
     except (OSError, ValueError, AttributeError):
@@ -295,6 +296,9 @@ def _firmas(base, now):
             "%s#%s «%s» (checks %s)" % (str(f.get("repo", "?")).split("/")[-1], f.get("n", "?"),
                                         " ".join(str(f.get("title", "")).split())[:70], f.get("checks", "NO_DATA"))
             for f in firmar[:3])) + (" (+%d more)" % (len(firmar) - 3) if len(firmar) > 3 else "")
+    elif len(filas) != len(crudas) or edad is None or edad < 0 or edad > FIRMAS_FRESCAS_S:
+        # An empty list is a clear only when it is fresh and every row was read (APP-P0-TRUTH).
+        linea = "I cannot confirm that your signature list is empty."
     else:
         linea = "Nothing waits for your signature now."
     if otras:
@@ -302,6 +306,8 @@ def _firmas(base, now):
     linea += " Signature list measured %s. I never sign for you." % _hace(edad)
     if edad is None or edad < 0 or edad > FIRMAS_FRESCAS_S:
         return False, "signatures_stale", "STALE: " + linea
+    if len(filas) != len(crudas):
+        return False, "signatures_rows_unreadable", linea + " %d row(s) of the list could not be read." % (len(crudas) - len(filas))
     return True, None, linea
 
 

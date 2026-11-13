@@ -263,9 +263,27 @@ async function waitServer(child) {
     const real = await page.evaluate(async () => (await (await fetch('/api/hexelion/tareas')).json()).cause);
     receipt.checks.task_route_read_ms = Date.now() - t0;
     assert.equal(real, 'p2_mirror_not_built', 'the live route must stay unconnected');
+    // 10b · No zero is tranquillity (APP-P0-TRUTH). The live route has no source: its counters are null with the
+    // route's cause, and Talk says that cause in the Notebook's words instead of keeping a quiet "all is well".
+    const live = await page.evaluate(async () => (await (await fetch('/api/hexelion/tareas')).json()));
+    assert.deepEqual([live.needs_you, live.blocks_new_work, live.decisions_for_you, live.counters.state, live.counters.cause],
+      [null, null, null, 'NO_DATA', 'p2_mirror_not_built'], 'an unobserved zero reached the machine');
+    await page.locator('#tab-conversacion').click();
+    await page.waitForFunction(() => /p2 mirror not built/.test(document.querySelector('#talk-tasks').textContent), null, { timeout: 10000 });
+    await page.locator('#tab-cuaderno').click();
+    await page.waitForFunction(() => /p2 mirror not built/.test((document.querySelector('#notebook-tasks-status') || {}).textContent || ''), null, { timeout: 10000 });
+    const clear = await page.evaluate(() => ({ talk: document.querySelector('#talk-tasks').textContent,
+      hidden: document.querySelector('#talk-tasks').hidden, status: document.querySelector('#notebook-tasks-status').textContent,
+      live: document.querySelector('#talk-tasks').getAttribute('aria-live') }));
+    assert.equal(clear.hidden, false, 'Talk kept quiet over an unobserved zero');
+    assert.equal(clear.talk, clear.status, 'Talk and the Notebook word the unknown differently');
+    assert.equal(clear.live, 'polite');
+    assert(!/nothing (else )?(needs|waits|requires)|no (task|decision)s? (needs|waits|for you)|all clear|no task recorded/i.test(clear.talk), 'a clear was said');
+    receipt.checks.no_false_clear_live_route = 'MEASURED(headless_chrome; counters null; talk == notebook)';
     await page.route('**/api/hexelion/tareas', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
     await page.locator('#tab-conversacion').click();
-    await page.waitForFunction(() => !document.querySelector('#talk-tasks').hidden, null, { timeout: 10000 });
+    // Talk is never quiet over an unknown now (10b), so wait for this reading's own words, not for visibility.
+    await page.waitForFunction(() => /^New tasks wait/.test(document.querySelector('#talk-tasks').textContent), null, { timeout: 10000 });
     await page.locator('#tab-cuaderno').click();
     await page.waitForSelector('#notebook-tasks [data-state="OUTCOME_UNKNOWN"]', { timeout: 10000 });
     const u = await page.evaluate(() => ({ talk: document.querySelector('#talk-tasks').textContent,

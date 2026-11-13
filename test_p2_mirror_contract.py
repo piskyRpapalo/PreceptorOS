@@ -28,7 +28,7 @@ class MirrorContract(unittest.TestCase):
     def test_known_result(self):
         p = told(*runs(rec(receipt()), rec(receipt("failed", "NOT_STARTED", "TRANSPORT", "NO_DATA", None))))
         self.assertEqual([t["state"] for t in p["tasks"]], ["DONE_CHECKED", "FAILED"])
-        self.assertEqual((p["blocks_new_work"], p["needs_you"]), (0, 0))
+        self.assertEqual((p["blocks_new_work"], p["needs_you"]), (None, None))   # unattested: unknown, not 0 (test_false_clear)
 
     def test_uncertain_result_blocks_new_work_and_is_never_done(self):
         p = told(*runs(rec(None), rec(receipt("failed", "UNKNOWN", "UNKNOWN", "NO_DATA", None))))
@@ -71,7 +71,7 @@ class MirrorContract(unittest.TestCase):
     def test_absent_source(self):
         for cause in ("p2_mirror_not_built", "journal_file_missing"):
             p = K.project(None, NOW, source_cause=cause)
-            self.assertEqual((p["state"], p["cause"], p["tasks"], p["blocks_new_work"]), ("NO_DATA", cause, [], 0))
+            self.assertEqual((p["state"], p["cause"], p["tasks"], p["blocks_new_work"]), ("NO_DATA", cause, [], None))
         self.assertEqual(K.project("not a list", NOW)["cause"], "records_unreadable")
 
     def test_contradictory_records(self):

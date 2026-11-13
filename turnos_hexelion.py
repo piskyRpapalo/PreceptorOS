@@ -275,8 +275,13 @@ def mcp_summary(projection, tasks=None):
            "counts": projection.get("counts") or {},
            "last": ({k: last.get(k) for k in ("n", "state", "cause", "sentence")} if last else None)}
     if isinstance(tasks, dict) and tasks.get("schema") == "preceptoros.hexelion-tasks/1":
-        out["tasks"] = {"state": tasks.get("state"), "cause": tasks.get("cause"),
-                        "needs_you": tasks.get("needs_you"), "blocks_new_work": tasks.get("blocks_new_work")}
+        # The counters' own state travels with them: a null is unknown, never zero (tareas_hexelion.COUNTERS, APP-P0-TRUTH).
+        c = tasks.get("counters") if isinstance(tasks.get("counters"), dict) else \
+            {"state": "NO_DATA", "cause": "counters_not_stated", "complete_ref": None, "known_counts_are": "at_least"}
+        known = c.get("state") == "MEASURED"
+        out["tasks"] = {"state": tasks.get("state"), "cause": tasks.get("cause"), "counters": c,
+                        "needs_you": tasks.get("needs_you") if known else (tasks.get("needs_you") or None),
+                        "blocks_new_work": tasks.get("blocks_new_work") if known else (tasks.get("blocks_new_work") or None)}
     else:
         out["tasks"] = {"state": "NO_DATA", "cause": "tasks_projection_missing"}
     if _mcp_line(out) >= MCP_LINE_B and out["last"]:

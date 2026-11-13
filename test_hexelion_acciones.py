@@ -246,7 +246,7 @@ class LocalReads(unittest.TestCase):
         self.firmas("2026-11-12T09:00:00Z", [])
         acc = self.person("/firmas")["body"]["respuesta"]["accion"]
         self.assertEqual((acc["ok"], acc["causa"]), (False, "signatures_stale"))
-        self.assertTrue(acc["texto"].startswith("STALE: Nothing waits for your signature now."))
+        self.assertTrue(acc["texto"].startswith("STALE: I cannot confirm that your signature list is empty."))
         (Path(self.base) / "firmas" / "pendientes.json").unlink()
         acc = self.person("/firmas")["body"]["respuesta"]["accion"]
         self.assertEqual((acc["ok"], acc["causa"]), (False, "scraper_not_run"))
@@ -308,8 +308,8 @@ class Shell(unittest.TestCase):
         self.assertIn('#comandos-hexelion [data-comando]', app)
         self.assertIn('"ACTED", "ACTION_REFUSED"', (ROOT / "interface/notebook.js").read_text(encoding="utf-8"))
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
-        self.assertIn("preceptoros-armazon-v191", sw)
-        for asset in ('"/app.js?v=38"', '"/app.css?v=22"', '"/notebook.js?v=17"'):
+        self.assertIn("preceptoros-armazon-v192", sw)
+        for asset in ('"/app.js?v=38"', '"/app.css?v=22"', '"/notebook.js?v=18"'):
             self.assertIn(asset, sw)
 
 

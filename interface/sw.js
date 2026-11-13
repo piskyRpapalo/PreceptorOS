@@ -144,9 +144,10 @@
 // 2026-11-13 (accessibility proof): failures read as NO_DATA with their cause; the header tells a failed answer from
 // an unreachable server; Boundary reading messages and the tray in English (app.js v38, hitl.js v7). Cache v190.
 // 2026-11-13 (host truth): each task card names its evidence (origin and full receipt ref); a failed reading tells
-// an http error from a silent server (notebook.js v17). Cache v191.
-const Cache = "preceptoros-armazon-v191";
-const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=22", "/app.js?v=38", "/notebook.js?v=17", "/acho_sonido.js?v=2", "/conversacion.js?v=4", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=3", "/team.js?v=2", "/hitl.js?v=7", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=2", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
+// an http error from a silent server (notebook.js v17). An unattested zero is unknown, never "nothing needs you";
+// Talk is quiet only over a measured zero (notebook.js v18). Cache v192.
+const Cache = "preceptoros-armazon-v192";
+const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=22", "/app.js?v=38", "/notebook.js?v=18", "/acho_sonido.js?v=2", "/conversacion.js?v=4", "/evidence_chip.js?v=1", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=3", "/team.js?v=2", "/hitl.js?v=7", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=2", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
                  // quedó en legacy; la estructura mínima no carga ese CSS.

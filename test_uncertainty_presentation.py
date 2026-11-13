@@ -130,14 +130,16 @@ class OneRecordEverywhere(unittest.TestCase):
         self.assertIn(self.p["summary"], cue["texto"])
 
     def test_each_acknowledgement_is_said_as_the_host_said_it(self):
-        for ack, acho in (("HUMAN_ACKNOWLEDGED", "uncertain"), ("AUTHORITY_NOT_VERIFIED", "uncertain")):
+        # Reported acknowledged: not a decision seen here, and an unattested zero is unknown (test_false_clear).
+        # Unverified authority: the decision stays the person's, in the JSON and in words.
+        for ack, decisions, said in (("HUMAN_ACKNOWLEDGED", None, "Uncertain task"),
+                                     ("AUTHORITY_NOT_VERIFIED", 1, "Decision for you")):
             raw = told(event(projection(ack)))
             t = raw["tasks"][0]
             self.assertEqual((t["sentence"], t["acho"]["class"], raw["decisions_for_you"], raw["blocks_new_work"]),
-                             (TEXT[ack] + " Token reservation is retained.", acho, 0, 1))
+                             (TEXT[ack] + " Token reservation is retained.", "uncertain", decisions, 1))
             got = surfaces(raw)
-            self.assertIn("Uncertain task", got["talk"])
-            self.assertNotIn("Decision for you", got["talk"])
+            self.assertIn(said, got["talk"])
         self.assertIn("re-read it there", told(event(projection("HUMAN_ACKNOWLEDGED")))["tasks"][0]["next"])
         self.assertIn("not approved", told(event(projection("AUTHORITY_NOT_VERIFIED")))["tasks"][0]["next"])
 
@@ -163,7 +165,7 @@ class OneRecordEverywhere(unittest.TestCase):
         h.path, h.client_address, out = "/api/hexelion/tareas", ("127.0.0.1", 1), {}
         h._json = lambda code, body: out.update(code=code, body=body)
         PWA.PWA._tareas_leer(h)
-        self.assertEqual((out["body"]["cause"], out["body"]["decisions_for_you"]), ("p2_mirror_not_built", 0))
+        self.assertEqual((out["body"]["cause"], out["body"]["decisions_for_you"]), ("p2_mirror_not_built", None))
 
 
 class ProjectionNegatives(unittest.TestCase):
@@ -202,7 +204,7 @@ class ProjectionNegatives(unittest.TestCase):
         p = told(event())
         t = p["tasks"][0]
         self.assertEqual((t["state"], t["acho"]["class"], p["decisions_for_you"], p["blocks_new_work"]),
-                         ("OUTCOME_UNKNOWN", "uncertain", 0, 1))
+                         ("OUTCOME_UNKNOWN", "uncertain", None, 1))
 
     def test_a_claim_with_no_receipt_can_carry_it(self):
         t = told(event(projection(), unknown_receipt=False))["tasks"][0]
