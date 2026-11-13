@@ -26,6 +26,10 @@ import unittest
 
 
 import adaptador_registro as ar
+from datetime import datetime, timezone, timedelta
+
+def _recent_ts():
+    return (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
 
 # Backend de referencia completo
 BACKEND_REF = {
@@ -175,7 +179,7 @@ class TestP4_StaleTelemetry(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123, "temp_max_c": 65},
+            "medicion": {"ram_pico_mb": 20123, "temp_max_c": 65, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])

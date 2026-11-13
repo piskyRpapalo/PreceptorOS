@@ -21,6 +21,12 @@ import unittest
 
 
 import adaptador_registro as ar
+from datetime import datetime, timezone, timedelta
+
+# Helper: generate a recent timestamp for test measurements
+def _recent_ts():
+    """Return an ISO 8601 timestamp from 1 day ago (well within 30-day threshold)."""
+    return (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
 
 # Backend de referencia: Ollama con qwen3-coder:30b
 BACKEND_REF = {
@@ -46,6 +52,7 @@ ADA_COMPATIBLE = {
     "medicion": {
         "ram_pico_mb": 20123,
         "temp_max_c": 83.8,
+        "timestamp": _recent_ts(),
     },
 }
 
@@ -126,7 +133,7 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
     def test_10_compatible_por_nombre(self):
         """Adaptador con nombre de base que coincide es compatible."""
         self.reg.registrar("laya-v1", "safety", ADA_COMPATIBLE["base_model"],
-                           ADA_COMPATIBLE["peft_config"])
+                           ADA_COMPATIBLE["peft_config"], ADA_COMPATIBLE["medicion"])
         resultado = self.reg.es_compatible("laya-v1", BACKEND_REF)
         self.assertEqual(resultado["estado"], "COMPATIBLE")
 
@@ -138,8 +145,10 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(resultado["estado"], "COMPATIBLE")
 
@@ -151,8 +160,10 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
                 "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(resultado["estado"], "INCOMPATIBLE")
         self.assertIn("SHA-256 contradictorio", resultado["causa"])
@@ -164,8 +175,10 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
             "peft_config": {
                 "target_modules": ["q_proj", "attn.wq", "attn.wk"],
             },
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(resultado["estado"], "INCOMPATIBLE")
         self.assertIn("módulos objetivo no reconocidos", resultado["causa"])
@@ -175,7 +188,7 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
         ada = {
             "base_model": ADA_COMPATIBLE["base_model"],
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 99999},
+            "medicion": {"ram_pico_mb": 99999, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -191,8 +204,10 @@ class TestCompatibilidadDeterminista(unittest.TestCase):
                 "target_modules": ["q_proj"],
                 "dtype": "bfloat16",  # training precision
             },
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         backend = dict(BACKEND_REF)
         backend["cuantizacion"] = "Q4_K_M"  # inference quantization
         resultado = self.reg.es_compatible("x-v1", backend)
@@ -289,8 +304,10 @@ class TestCasosAdversariales(unittest.TestCase):
                 "sha256": "000000000000000000000000000000000000000000000000000000000000dead",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         # R1: SHA contradictorio → INCOMPATIBLE
         self.assertEqual(resultado["estado"], "INCOMPATIBLE")
@@ -318,8 +335,10 @@ class TestCasosAdversariales(unittest.TestCase):
                 "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(resultado["estado"], "INCOMPATIBLE")
         self.assertIn("SHA-256 contradictorio", resultado["causa"])
@@ -334,7 +353,7 @@ class TestCasosAdversariales(unittest.TestCase):
             "peft_config": {
                 "target_modules": ["q_proj", "attn.wq", "unknown_module"],
             },
-            "medicion": {"ram_pico_mb": 999999},
+            "medicion": {"ram_pico_mb": 999999, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -369,7 +388,7 @@ class TestEstadoDeLectura(unittest.TestCase):
     def test_31_estado_todos_con_backend(self):
         """estado_todos() con backend_info incluye compatibilidad y backend."""
         self.reg.registrar("laya-v1", "safety", ADA_COMPATIBLE["base_model"],
-                           ADA_COMPATIBLE["peft_config"])
+                           ADA_COMPATIBLE["peft_config"], ADA_COMPATIBLE["medicion"])
         estado = self.reg.estado_todos(BACKEND_REF)
         self.assertIn("backend", estado)
         self.assertEqual(estado["backend"]["nombre"], "ollama")

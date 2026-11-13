@@ -304,7 +304,11 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           # La voz nunca firma sola: dice, confirma, y delega en instalar-pc;
           # sin Piper ni espeak cae a texto y NO_DATA nunca bloquea. Entra en
           # su MISMO commit: el guardian de test_superficie no admite otra cosa.
-          test_instalar_pc_voz)
+          test_instalar_pc_voz
+          # LoRA adapter compatibility registry (MULTI-LORA-APP-01).
+          # Deterministic rejection of malformed and unverified evidence.
+          tests.test_adaptador_registro tests.test_final_gate_p1_p8
+          tests.test_hardening_r1_r6 tests.test_regression_5_defects)
 PROPIAS=(cara estudios frente_e idioma manifest memory tono)
 
 for s in "${UNITTEST[@]}"; do suite_unittest "$s"; done

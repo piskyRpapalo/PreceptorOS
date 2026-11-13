@@ -26,6 +26,10 @@ import unittest
 
 
 import adaptador_registro as ar
+from datetime import datetime, timezone, timedelta
+
+def _recent_ts():
+    return (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
 
 VALID_SHA = "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad"
 
@@ -126,8 +130,10 @@ class TestDefect1_MalformedSHA(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(
             resultado["estado"],
@@ -196,8 +202,10 @@ class TestDefect2_InventedLoaderCapabilities(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(
             resultado["estado"],
@@ -213,8 +221,10 @@ class TestDefect2_InventedLoaderCapabilities(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         backend = dict(BACKEND_REF)
         backend["loader_capabilities"] = ["gguf", "magic_format"]
         resultado = self.reg.es_compatible("x-v1", backend)
@@ -287,7 +297,11 @@ class TestDefect3_StaleTelemetry(unittest.TestCase):
         )
 
     def test_telemetry_without_timestamp_is_ok(self):
-        """Telemetry without timestamp → treated as current (no rejection)."""
+        """Telemetry without timestamp → NO_DATA(measurement_timestamp_missing).
+
+        A measurement dict without a timestamp cannot prove the data is current.
+        This is NO_DATA, not COMPATIBLE.
+        """
         ada = {
             "base_model": {
                 "name": "Qwen/Qwen3-Coder-30B",
@@ -297,7 +311,7 @@ class TestDefect3_StaleTelemetry(unittest.TestCase):
             "medicion": {
                 "ram_pico_mb": 20123,
                 "temp_max_c": 65,
-                # No timestamp — should not be rejected
+                # No timestamp — cannot verify freshness
             },
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
@@ -305,9 +319,10 @@ class TestDefect3_StaleTelemetry(unittest.TestCase):
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         self.assertEqual(
             resultado["estado"],
-            "COMPATIBLE",
-            f"Telemetry without timestamp should be COMPATIBLE: {resultado}",
+            "NO_DATA",
+            f"Telemetry without timestamp should be NO_DATA: {resultado}",
         )
+        self.assertIn("timestamp", resultado.get("causa", "").lower())
 
 
 class TestDefect4_NegativeRAM(unittest.TestCase):
@@ -332,7 +347,7 @@ class TestDefect4_NegativeRAM(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": -100},
+            "medicion": {"ram_pico_mb": -100, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -351,7 +366,7 @@ class TestDefect4_NegativeRAM(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123},
+            "medicion": {"ram_pico_mb": 20123, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -372,7 +387,7 @@ class TestDefect4_NegativeRAM(unittest.TestCase):
                 "sha256": VALID_SHA,
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123},
+            "medicion": {"ram_pico_mb": 20123, "timestamp": _recent_ts()},
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -485,6 +500,113 @@ class TestDefect5_TargetModulesTypeError(unittest.TestCase):
             )
         except TypeError as e:
             self.fail(f"Defect 5: dict target_modules raised TypeError: {e}")
+
+
+class TestTelemetryGaps(unittest.TestCase):
+    """Regression tests for the three telemetry validation gaps.
+
+    These ensure that malformed timestamps, missing timestamps, and missing
+    measurement objects all produce NO_DATA rather than COMPATIBLE.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.reg = ar.Registro(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_malformed_timestamp_produces_no_data(self):
+        """Malformed timestamp string → NO_DATA(measurement_timestamp_malformed)."""
+        ada = {
+            "base_model": {
+                "name": "Qwen/Qwen3-Coder-30B",
+                "sha256": VALID_SHA,
+            },
+            "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {
+                "ram_pico_mb": 20123,
+                "timestamp": "not-a-real-timestamp",  # malformed
+            },
+        }
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
+        resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
+        self.assertEqual(
+            resultado["estado"],
+            "NO_DATA",
+            f"Malformed timestamp should be NO_DATA: {resultado}",
+        )
+        self.assertIn("timestamp_malformed", resultado.get("causa", ""))
+
+    def test_missing_timestamp_produces_no_data(self):
+        """Measurement dict without timestamp → NO_DATA(measurement_timestamp_missing)."""
+        ada = {
+            "base_model": {
+                "name": "Qwen/Qwen3-Coder-30B",
+                "sha256": VALID_SHA,
+            },
+            "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {
+                "ram_pico_mb": 20123,
+                # No timestamp key
+            },
+        }
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
+        resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
+        self.assertEqual(
+            resultado["estado"],
+            "NO_DATA",
+            f"Missing timestamp should be NO_DATA: {resultado}",
+        )
+        self.assertIn("timestamp_missing", resultado.get("causa", ""))
+
+    def test_missing_medicion_produces_no_data(self):
+        """No measurement object at all → NO_DATA(medicion_missing)."""
+        ada = {
+            "base_model": {
+                "name": "Qwen/Qwen3-Coder-30B",
+                "sha256": VALID_SHA,
+            },
+            "peft_config": {"target_modules": ["q_proj"]},
+            # No medición at all
+        }
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
+        self.assertEqual(
+            resultado["estado"],
+            "NO_DATA",
+            f"Missing medición should be NO_DATA: {resultado}",
+        )
+        self.assertIn("medicion_missing", resultado.get("causa", ""))
+
+    def test_non_dict_medicion_produces_no_data(self):
+        """medicion as a string → NO_DATA(medicion_malformed)."""
+        ruta = os.path.join(self.tmp.name, ar.NOMBRE_REGISTRO)
+        datos = {
+            "esquema": ar.ESQUEMA,
+            "adaptadores": {
+                "x-v1": {
+                    "rol": "code",
+                    "base_model": {
+                        "name": "Qwen/Qwen3-Coder-30B",
+                        "sha256": VALID_SHA,
+                    },
+                    "peft_config": {"target_modules": ["q_proj"]},
+                    "medicion": "some_string",  # not a dict
+                }
+            },
+        }
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(datos, f)
+        resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
+        self.assertEqual(
+            resultado["estado"],
+            "NO_DATA",
+            f"Non-dict medición should be NO_DATA: {resultado}",
+        )
+        self.assertIn("medicion_malformed", resultado.get("causa", ""))
 
 
 if __name__ == "__main__":

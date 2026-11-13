@@ -350,7 +350,10 @@ class Registro:
         # ------------------------------------------------------------------
         # 4. Recursos — RAM disponible (R4)
         # ------------------------------------------------------------------
-        medida = ada.get("medicion") or {}
+        raw_medicion_early = ada.get("medicion")
+        medida = {}
+        if isinstance(raw_medicion_early, dict):
+            medida = raw_medicion_early
         ram_pico = medida.get("ram_pico_mb")
         # R4: Usar 'in' para detectar presencia, no truthiness
         ram_disponible_presente = "ram_disponible_mb" in backend_info
@@ -373,23 +376,36 @@ class Registro:
             # Sin evidencia de RAM disponible → NO_DATA
             causas_no_data.append("ram_evidence_missing")
 
-        # Defect 3 fix: stale telemetry check
-        # If medición has a timestamp, verify it's not too old
-        if isinstance(medida, dict) and "timestamp" in medida:
-            ts_str = medida["timestamp"]
-            try:
-                # Parse ISO 8601 timestamp
-                ts_str_clean = str(ts_str).replace("Z", "+00:00")
-                ts = datetime.fromisoformat(ts_str_clean)
-                if ts.tzinfo is None:
-                    ts = ts.replace(tzinfo=timezone.utc)
-                now = datetime.now(timezone.utc)
-                age = now - ts
-                if age > timedelta(days=TELEMETRY_MAX_AGE_DAYS):
-                    causas_no_data.append("stale_telemetry")
-            except (ValueError, TypeError):
-                # Unparseable timestamp — treat as no timestamp (don't reject)
-                pass
+        # Telemetry validation: medición with a valid, current timestamp is
+        # required to prove operational eligibility. Static catalog compatibility
+        # is not evidence that an adapter can actually run now.
+        raw_medicion = ada.get("medicion")
+        if raw_medicion is None:
+            # Gap 3: No measurement object at all — cannot verify eligibility
+            causas_no_data.append("medicion_missing")
+        elif not isinstance(raw_medicion, dict):
+            # Malformed medición object
+            causas_no_data.append("medicion_malformed")
+        else:
+            # medición is a dict — now check for timestamp
+            if "timestamp" not in raw_medicion:
+                # Gap 2: Measurement exists but has no timestamp — cannot verify freshness
+                causas_no_data.append("measurement_timestamp_missing")
+            else:
+                ts_str = raw_medicion["timestamp"]
+                try:
+                    # Parse ISO 8601 timestamp
+                    ts_str_clean = str(ts_str).replace("Z", "+00:00")
+                    ts = datetime.fromisoformat(ts_str_clean)
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                    now = datetime.now(timezone.utc)
+                    age = now - ts
+                    if age > timedelta(days=TELEMETRY_MAX_AGE_DAYS):
+                        causas_no_data.append("stale_telemetry")
+                except (ValueError, TypeError):
+                    # Gap 1: Malformed timestamp — cannot parse, reject explicitly
+                    causas_no_data.append("measurement_timestamp_malformed")
 
         # NOTA: La precisión de entrenamiento (bf16/fp32) vs cuantización
         # de inferencia (Q4_K_M) NO es motivo de rechazo. Es una decisión

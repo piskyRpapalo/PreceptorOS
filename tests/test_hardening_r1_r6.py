@@ -25,6 +25,10 @@ import unittest
 
 
 import adaptador_registro as ar
+from datetime import datetime, timezone, timedelta
+
+def _recent_ts():
+    return (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
 
 # Backend de referencia con SHA verificado y loader_capabilities
 BACKEND_REF = {
@@ -74,8 +78,10 @@ class TestR1_ContradictorySHA256(unittest.TestCase):
                 "sha256": OTHER_SHA,  # SHA diferente al backend
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         # El SHA contradictorio debe anular la coincidencia de nombre
         self.assertEqual(
@@ -96,8 +102,10 @@ class TestR1_ContradictorySHA256(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         resultado = self.reg.es_compatible("x-v1", BACKEND_REF)
         # SHA exacto = identidad verificada
         self.assertEqual(resultado["estado"], "COMPATIBLE")
@@ -202,8 +210,10 @@ class TestR3_UnverifiedBackendSupport(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         backend_con_loader = {
             "nombre": "ollama",
             "modelo": "qwen3-coder:30b",
@@ -239,7 +249,7 @@ class TestR4_ZeroAvailableRAM(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123},  # Requisito positivo
+            "medicion": {"ram_pico_mb": 20123, "timestamp": _recent_ts()},  # Requisito positivo
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -262,7 +272,7 @@ class TestR4_ZeroAvailableRAM(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123},  # Requisito medido
+            "medicion": {"ram_pico_mb": 20123, "timestamp": _recent_ts()},  # Requisito medido
         }
         self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
                            ada["medicion"])
@@ -325,8 +335,10 @@ class TestR5_ModelNameImpersonation(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
+            "medicion": {"timestamp": _recent_ts()},
         }
-        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"])
+        self.reg.registrar("x-v1", "code", ada["base_model"], ada["peft_config"],
+                           ada["medicion"])
         backend_con_loader = dict(BACKEND_REF)
         backend_con_loader["loader_capabilities"] = ["gguf"]
         resultado = self.reg.es_compatible("x-v1", backend_con_loader)
@@ -358,7 +370,7 @@ class TestR6_DestructiveExport(unittest.TestCase):
                 "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
             },
             "peft_config": {"target_modules": ["q_proj"]},
-            "medicion": {"ram_pico_mb": 20123},
+            "medicion": {"ram_pico_mb": 20123, "timestamp": _recent_ts()},
         }
         self.reg.registrar("laya-v1", "safety", ada["base_model"], ada["peft_config"],
                            ada["medicion"],
