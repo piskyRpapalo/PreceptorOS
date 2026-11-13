@@ -950,6 +950,8 @@ $("form-chat").addEventListener("submit", async (e) => {
   burbuja(escrito, "mio");
   $("enviar").disabled = true;
   const esperando = burbuja("thinking… on a phone this can take minutes", "espera");
+  // Waiting is drawn still: nothing is known to be running until the turn says so.
+  if (window.AchoMotion) window.AchoMotion.express($("acho-estado"), null, "waiting");
   esperando.lang = "en";
   try {
     const r = await fetch("/api/hexelion/chat", {
@@ -966,6 +968,7 @@ $("form-chat").addEventListener("submit", async (e) => {
       : (d && d.turno !== undefined ? { state: "NO_DATA", cause: "turn_reader_missing", line: "NO_DATA: the turn reader did not load." } : null);
     $("estado").dataset.state = turno ? turno.state : "";
     $("estado").dataset.acho = turno ? turno.acho : "";   // how this turn sounds
+    if (window.AchoMotion) window.AchoMotion.express($("acho-estado"), turno && turno.sentence ? turno.acho : null, turno ? turno.state : "");
     // The tone follows the words: only a turn with its sentence (already in the aria-live line) may sound, and only if
     // the person turned sounds on in Settings. A cut or missing turn stays silent.
     if (turno && turno.sentence && window.PreceptorAchoSonido) window.PreceptorAchoSonido.play(d.turno.acho).catch(() => {});

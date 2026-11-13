@@ -52,9 +52,25 @@ The walk runs in headless Chrome against its own server (temporary HOME, fake MC
 | Settings has 16 live regions | live only for the control just used | PANEL-FLOW |
 | Harness "Agent questions to Hexelion" is history (the cli thread) | move it to the Notebook as a filter of requests | PANEL-FLOW (needs review: the CLI-thread decree) |
 | The Notebook heading reads "Notebook · Hexelion" in a public product (Hexelion is the private coordinator) | public build says Notebook; private instance only | naming review |
-| Acho has no distinct uncertainty class (`unknown`) | `uncertain` class with its own shape and motif, from the same row | ACHO-EXPRESSION |
 | Dark scheme is not offered (light only) | NO_DATA until designed; contrast measured per scheme | PANEL-FLOW |
 | What a screen reader actually speaks | NO_DATA until Orca/TalkBack runs in an authorised environment | ACCESSIBILITY-PROOF |
+
+## ACHO-EXPRESSION (delivered after VISUAL-COHERENCE)
+
+- **Uncertainty has its own class: `uncertain`.** A claim that may have run is neither a failure (`exec_fail`) nor a
+  silence (`empty`). It is used by `OUTCOME_UNKNOWN`, `NO_RESULT_RECORDED` (tasks) and `ACTION_UNVERIFIED` (turns),
+  whatever the host acknowledged. Its sound is distinct: the highest degree with vibrato (`audio_feedback`). Sound
+  stays off until the person turns it on.
+- **One mark beside Talk's status line** (`#acho-estado`, `aria-hidden`: the words are already in `#estado`), drawn
+  by `acho_motion.express` from the turn's own class and state. Seven expressions, each with its own form plus line
+  (solid, double, dashed or dotted), so they read without colour and in forced colours: waiting, answer, verified,
+  needs you, uncertain, refused, silent.
+- **Nothing moves without evidence.** Waiting, uncertain and silent never move. The others move once, on change
+  only. Reduced motion changes the shape without moving. Measured in walk step 14: waiting 0, uncertain 0,
+  verified 1, verified again 0 animations. With reduced motion, 0 running.
+- **Notebook cards carry the same line pattern** on their start edge. Uncertain is dashed, and the walk measures it
+  on the real DOM.
+- Not measured: the tone heard on a speaker (NO_DATA, Web Audio graph only) and what a screen reader says (NO_DATA).
 
 ## Levels kept apart
 
