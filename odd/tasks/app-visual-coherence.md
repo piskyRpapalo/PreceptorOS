@@ -115,6 +115,31 @@ Sovereign's signing wording. Only the reading messages were translated.]
 Still NO_DATA: a screen reader in use (Orca or TalkBack: no assistive technology ran) · sound heard on a speaker ·
 an on-screen keyboard on a real phone · a dark scheme (the app declares light only).
 
+## Synthesis · what reaches a person, in what order
+
+1. **First:** the active zone and one status line: Talk's `#estado` or the panel's own line. It holds the state word,
+   the cause and what comes next, in that order. Then the Acho mark beside it shows the same thing as a shape. The
+   mark is never the first or only signal.
+2. **A relevant change** is a new turn, a task that waits on you, or a reading that changed its words. **Noise** is
+   the same words again: a re-poll, a thread copy of a draft, section lines while a panel loads, or a focused tab
+   repeated by the zone line. Noise stays visible but silent: dedupe by identity and by changed words, never by a
+   timer.
+3. **Without sight:** the same words in the same order. One live announcement per event. State always in words
+   (the card's state word, the line patterns as text), references behind a disclosure opened with Enter, and focus
+   that stays where the person put it. Sound is optional, off by default, and carries no information that the words
+   don't. What is heard is NO_DATA until a screen reader runs on a device.
+4. **Preceptors and devices:** a card shows only what a receipt attests (harness capability proposal, #278). A
+   connection is drawn only from a fresh probe with its time. Otherwise the card says NO_DATA with the cause, and
+   nothing animates or glows as if it were connected. No card ranks, grants or connects.
+
+## Size limits (kept apart, not unified)
+
+A Notebook task row is under 1,024 B (worst measured 1,005). A LAB host record is under 1,024 B. An MCP line is
+under 1,024 B (`mcp_transport.LIMIT`). The chat envelope is 1,023 B. An HTTP response holds a list of rows and is not
+a row. A thread receipt follows its own canal ceiling. The compact view is the sentence plus the next step; full
+references sit in the "Receipt and references" disclosure. Nothing critical is dropped to fit: an oversize row
+becomes NO_DATA with its cause.
+
 ## Levels kept apart
 
 DOM inspection (measured, headless Chrome) ≠ a screen reader in use (NO_DATA) · Web Audio graph ran ≠ sound heard
