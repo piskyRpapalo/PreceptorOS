@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import re
 
+import audio_feedback as AF
 import conversacion_comun as C
 
 SCHEMA = "preceptoros.hexelion-turns/1"
@@ -160,9 +161,29 @@ def _close(turn, reply):
         turn.update(state="REPLIED", sentence="%s replied in its own voice." % _name(voice))
 
 
+# Acho (autonomy parity): how a turn sounds is decided here, with its sentence, so ear and eye cannot disagree. The
+# class names are the ones Grok's toolkit proposes (acho-from-action/1); that mapper is not imported while its
+# contract is open (P1, NO_DATA(p1_contract_unstable)), so the class comes from the turn's own state only.
+BRIDGE_CAUSES = frozenset({"mcp_nativo_missing", "mcp_nativo_timeout", "mcp_nativo_unrunnable", "mcp_s3_not_installed",
+                           "mcp_reply_invalid", "station_endpoint_not_configured", "station_unavailable",
+                           "station_timeout"})
+ACHO = {"ANSWERED": "ok", "ACTED": "ok", "LOCAL_SENSOR": "ok", "REPLIED": "ok", "ANSWERED_UNVERIFIED": "empty",
+        "ACTION_UNVERIFIED": "empty", "NO_REPLY_RECORDED": "unanswered"}
+
+
+def acho_class(turn):
+    """The Acho class of one turn; anything not in the table is `empty` (never a success sound)."""
+    state, cause = turn.get("state"), str(turn.get("cause") or "")
+    if state == "ACTION_REFUSED":
+        return "exec_fail" if cause.startswith("rc ") else "fence"
+    if state == "NO_ANSWER":
+        return "bridge_down" if cause in BRIDGE_CAUSES else "empty"
+    return ACHO.get(state, "empty")
+
+
 MAX_TURN_B = 1024
 # What a chat reply carries to Talk: the Notebook row's own state, cause and words (autonomy parity), nothing else.
-TALK_FIELDS = ("n", "state", "cause", "sentence", "next")
+TALK_FIELDS = ("n", "state", "cause", "sentence", "next", "acho")
 
 
 def _bound(turn):
@@ -209,6 +230,9 @@ def turns(messages, now_iso=""):
     for t in out:
         t["next"] = NEXT[t["state"]]
         t["reader"] = "%s asked %s. %s %s" % (t["asked_by_name"], t["to_name"], t["sentence"], t["next"])
+        clase = acho_class(t)
+        t["acho"] = {"class": clase, "motif": AF.motif_for_class(clase), "sound": "off_until_turned_on",
+                     "words": "reader"}
         _bound(t)
     return list(reversed(out))[:MAX_TURNS]
 

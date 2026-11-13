@@ -178,6 +178,9 @@
   /* What happened to each request (meta-harness 01). One projection from /api/hexelion/turnos feeds the screen, the
    * screen reader and the machine: the card's words are the turn's `sentence` and `next`, its data-state is the
    * machine state, and the status line speaks only when the summary changed (no announcement on every refresh). */
+  // Acho classes (autonomy parity): how a turn sounds, decided by turnos_hexelion with its sentence. Unknown -> empty.
+  const achoClasses = ["ok", "unanswered", "fence", "exec_fail", "empty", "bridge_down"];
+  function acho(x) { const c = x && x.acho && x.acho.class; return achoClasses.includes(c) ? c : "empty"; }
   const turnStates = ["ANSWERED", "ANSWERED_UNVERIFIED", "LOCAL_SENSOR", "ACTED", "ACTION_REFUSED", "ACTION_UNVERIFIED", "NO_ANSWER", "REPLIED", "NO_REPLY_RECORDED"];
   function projectTurns(raw) {
     if (!raw || raw.schema !== "preceptoros.hexelion-turns/1" || !Array.isArray(raw.turns)) return null;
@@ -187,7 +190,8 @@
         n: x.n, state: turnStates.includes(x.state) ? x.state : "NO_DATA", asked: clean(x.asked_at, 24),
         by: clean(x.asked_by_name, 24), to: clean(x.to_name, 24), question: clean(x.question, 160),
         sentence: clean(x.sentence, 200), next: clean(x.next, 160), who: clean(x.answered_by_name, 24),
-        evidence: clean(x.evidence, 60), cause: clean(x.cause, 80), answer: Number.isSafeInteger(x.answer_n) ? x.answer_n : null
+        evidence: clean(x.evidence, 60), cause: clean(x.cause, 80), answer: Number.isSafeInteger(x.answer_n) ? x.answer_n : null,
+        acho: turnStates.includes(x.state) ? acho(x) : "empty"
       }))
     };
   }
@@ -198,25 +202,25 @@
     const x = raw && typeof raw === "object" ? raw : null;
     if (!x || !Number.isSafeInteger(x.n)) {
       const cause = clean(x && x.cause, 80) || "turn_missing";
-      return { state: "NO_DATA", n: null, cause, sentence: "", next: "",
+      return { state: "NO_DATA", n: null, cause, sentence: "", next: "", acho: "empty",
         line: "NO_DATA: this request has no projected turn (" + cause.replace(/_/g, " ") + "); the Notebook keeps the thread." };
     }
     const state = turnStates.includes(x.state) ? x.state : "NO_DATA";
     if (x.cut === "envelope" && state !== "NO_DATA") {
-      return { state, n: x.n, cause: clean(x.cause, 80), sentence: "", next: "",
+      return { state, n: x.n, cause: clean(x.cause, 80), sentence: "", next: "", acho: "empty",
         line: state + ": the full sentence did not fit this reply; the Notebook shows it for request " + x.n + "." };
     }
     const sentence = clean(x.sentence, 200), next = clean(x.next, 160);
     if (state === "NO_DATA" || !sentence) {
-      return { state: "NO_DATA", n: x.n, cause: "turn_unreadable", sentence: "", next: "",
+      return { state: "NO_DATA", n: x.n, cause: "turn_unreadable", sentence: "", next: "", acho: "empty",
         line: "NO_DATA: the turn for this request could not be read; the Notebook keeps the thread." };
     }
-    return { state, n: x.n, cause: clean(x.cause, 80), sentence, next, line: next ? sentence + " " + next : sentence };
+    return { state, n: x.n, cause: clean(x.cause, 80), sentence, next, acho: acho(x), line: next ? sentence + " " + next : sentence };
   }
   function turnCard(x) {
     const when = x.asked.replace("T", " ").replace("Z", " UTC");
     const c = card(x.by + " asked " + x.to + " · " + when, x.state, x.sentence);
-    c.dataset.n = String(x.n); c.dataset.state = x.state;
+    c.dataset.n = String(x.n); c.dataset.state = x.state; c.dataset.acho = x.acho;
     c.append(elem("p", "notebook-fact", "«" + x.question + "»"));
     field(c, "Answered by", x.who || "nobody recorded");
     field(c, "Evidence", x.evidence || "none");
@@ -284,7 +288,7 @@
     const refresh = document.getElementById("notebook-refresh");
     if (refresh) refresh.addEventListener("click", () => load().catch(() => {}));
   }
-  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, loadTurns, loadBench });
+  const api = Object.freeze({ load, projectNotebook, projectHarness, projectTurns, turnLine, achoClasses, loadTurns, loadBench });
   root.PreceptorNotebook = api;
   if (typeof module === "object" && module.exports) module.exports = api;
   if (typeof document !== "undefined") mount();

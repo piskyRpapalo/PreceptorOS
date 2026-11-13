@@ -59,3 +59,42 @@ def project(response: object) -> dict | None:
         "texto": text,
         "causa": cause,
     }
+
+
+# Acho for Hexelion turns (autonomy parity). The class comes from turnos_hexelion, which decides it with the turn's
+# sentence; this only gives it the shared cue form. The words are the turn's `reader`, never new ones, so the ear hears
+# what the screen reader reads. Sound stays off until the person turns it on, exactly as for the orchestrator cues.
+ACHO_CLASSES = {
+    # class: (pentatonic degree, motif of _STATES)
+    "ok": (0, "MEASURED"),
+    "unanswered": (1, "PROPOSED"),
+    "fence": (2, "STALE"),
+    "exec_fail": (3, "STALE"),
+    "empty": (3, "NO_DATA"),
+    "bridge_down": (4, "NO_DATA"),
+}
+
+
+def motif_for_class(clase: object) -> dict | None:
+    """The cue's motif for one Acho class; None for anything outside the closed table."""
+    if type(clase) is not str or clase not in ACHO_CLASSES:
+        return None
+    degree, motif = ACHO_CLASSES[clase]
+    ratio, index, duration, vibrato, _label = _STATES[motif]
+    carrier = _round_hundred(220 * math.pow(2, _PENTATONIC[degree] / 12))
+    return {"portadora": carrier, "moduladora": _round_hundred(carrier * ratio), "indice": index,
+            "dur": duration, "vibrato": vibrato}
+
+
+def cue_for_turn(turn: object) -> dict | None:
+    """One turn of preceptoros.hexelion-turns -> its cue; None when the turn or its Acho class is malformed."""
+    if type(turn) is not dict:
+        return None
+    acho, reader = turn.get("acho"), turn.get("reader")
+    if type(acho) is not dict or type(reader) is not str or not reader:
+        return None
+    motivo = motif_for_class(acho.get("class"))
+    if motivo is None:
+        return None
+    return {"clase": acho["class"], "estado": turn.get("state"), "sonido": "INACTIVO",
+            "sonido_causa": "sound is off until you turn it on", "motivo": motivo, "texto": reader}

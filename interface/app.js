@@ -957,6 +957,7 @@ $("form-chat").addEventListener("submit", async (e) => {
     const turno = d && d.turno !== undefined && window.PreceptorNotebook ? window.PreceptorNotebook.turnLine(d.turno)
       : (d && d.turno !== undefined ? { state: "NO_DATA", cause: "turn_reader_missing", line: "NO_DATA: the turn reader did not load." } : null);
     $("estado").dataset.state = turno ? turno.state : "";
+    $("estado").dataset.acho = turno ? turno.acho : "";   // how this turn sounds; sound itself stays off (no opt-in yet)
     const respuesta = d.respuesta;
     const local = respuesta && respuesta.tipo === "energia_local" ? respuesta.lectura : null;
     const accion = respuesta && respuesta.tipo === "accion_hexelion" ? respuesta.accion : null;
