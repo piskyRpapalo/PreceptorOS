@@ -67,6 +67,44 @@ class LaSiembraEsAtomica(unittest.TestCase):
         G.ruta_politicas()
         self.assertEqual(propio.read_text(encoding="utf-8"), "{}")
 
+    def casa(self):
+        return Path(self.tmp.name) / ".preceptoros"
+
+    def restos(self):
+        return sorted(p.name for p in self.casa().iterdir() if p.name.startswith(".policies.")) if self.casa().exists() else []
+
+    def test_un_arranque_normal_siembra_lee_y_repite_igual(self):
+        politicas = G._cargar_politicas()
+        destino = self.casa() / "policies.json"
+        self.assertEqual(json.loads(destino.read_text(encoding="utf-8")),
+                         json.loads(G.DEFECTO_PATH.read_text(encoding="utf-8")))
+        antes = destino.stat().st_mtime_ns
+        self.assertEqual(G._cargar_politicas(), politicas)                 # segundo arranque: lee, no vuelve a sembrar
+        self.assertEqual(destino.stat().st_mtime_ns, antes)
+        self.assertEqual(self.restos(), [])
+
+    def test_una_copia_que_falla_a_medias_no_deja_fichero_ni_finge_exito(self):
+        def disco_lleno(src, dst, *a, **kw):
+            datos = Path(src).read_bytes()
+            Path(dst).write_bytes(datos[: len(datos) // 2])
+            raise OSError(28, "No space left on device")
+
+        with mock.patch.object(shutil, "copy2", disco_lleno):
+            with self.assertRaises(G.PoliticasInvalidas):
+                G._cargar_politicas()
+        self.assertFalse((self.casa() / "policies.json").exists())        # nada a medias en el sitio de las politicas
+        self.assertEqual(self.restos(), [])
+        G._cargar_politicas()                                              # el siguiente arranque siembra entero
+
+    def test_sin_enlaces_duros_se_para_sin_pisar_ni_dejar_restos(self):
+        # Un sistema de ficheros sin enlaces duros: se para (PoliticasInvalidas) en vez de renombrar encima. Renombrar
+        # podria pisar un fichero aparecido en el hueco; la decision de admitirlo es del Soberano (odd/tasks).
+        with mock.patch.object(Path, "hardlink_to", side_effect=OSError(1, "Operation not permitted")):
+            with self.assertRaises(G.PoliticasInvalidas):
+                G._cargar_politicas()
+        self.assertFalse((self.casa() / "policies.json").exists())
+        self.assertEqual(self.restos(), [])
+
 
 if __name__ == "__main__":
     unittest.main()
