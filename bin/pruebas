@@ -259,6 +259,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_acho_turnos
           # test_tareas_hexelion: tareas del diario P2 contadas una vez para ojo, oido y maquina; nada se guarda ni se concede
           test_tareas_hexelion
+          # test_hexelion_autonomia_e2e: recorrido SIMULADO crear->autorizar->actuar->interrumpir->reanudar una vez, seis superficies
+          test_hexelion_autonomia_e2e
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall
