@@ -307,6 +307,25 @@ async function waitServer(child) {
     assert.deepEqual([u.talkLive, u.acho, u.buttons], ['polite', 'uncertain', 0]);
     assert(!/\b(signed|refunded|released|returned|approved)\b/i.test(u.talk + opened), 'claims something unseen');
     receipt.checks.uncertain_task_same_in_talk_and_notebook = 'LAB_PRODUCER_SYNTHETIC_JOURNAL_REAL_DOM';
+    // 11b · SIMULATED != VERIFIED, rendered: a simulated task's row and Acho mark are `proposed`, never `verified`.
+    const sim = JSON.parse(require('node:child_process').execFileSync('python3', ['-c',
+      'import json,tareas_hexelion as K,test_tareas_hexelion as R; print(json.dumps(K.task(R.rec(R.receipt(confidence_basis="synthetic")))))'], { cwd: ROOT }));
+    assert.equal(sim.acho.class, 'proposed', 'a simulated run reached the success class');
+    const marks = await page.evaluate((rows) => rows.map(([c, s]) => { const n = document.createElement('span');
+      n.className = 'acho-estado'; document.body.append(n); const e = window.AchoMotion.express(n, c, s);
+      const out = [e, n.dataset.line, n.dataset.tone, getComputedStyle(n.querySelector('path')).strokeDasharray]; n.remove(); return out; }),
+      [[sim.acho.class, sim.state], ['ok', 'DONE_CHECKED']]);
+    assert.deepEqual(marks[0].slice(0, 3), ['proposed', 'dashed', 'quiet']);
+    assert.equal(marks[1][0], 'verified');
+    assert.notEqual(marks[0][3], marks[1][3], 'the proposed and verified lines look the same');
+    // Reduced motion keeps the fact: the same mark and line, no movement.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const still = await page.evaluate(() => { const n = document.createElement('span'); n.className = 'acho-estado';
+      document.body.append(n); const e = window.AchoMotion.express(n, 'proposed', 'DONE_CHECKED');
+      const out = [e, n.dataset.line, n.dataset.tone]; n.remove(); return out; });
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    assert.deepEqual(still, marks[0].slice(0, 3), 'reduced motion changed the fact');
+    receipt.checks.simulated_never_verified = 'MEASURED(headless_chrome; rendered marks differ in line)';
     receipt.levels.e2e_synthetic_source = 'MEASURED(lab_readonly_mirror_on_synthetic_journal)';
     receipt.levels.e2e_real_receipt = 'NO_DATA(no_attested_host_source_or_app_transport)';
     receipt.levels.e2e_live_service = 'NO_DATA(route_unconnected_p2_mirror_not_built; live 8742 not touched)';

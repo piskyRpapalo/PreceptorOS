@@ -75,6 +75,8 @@ ACHO_CLASSES = {
     "bridge_down": (4, "NO_DATA"),
     # It may have happened, and nobody can say: a wavering tone (vibrato) on the highest degree, heard nowhere else.
     "uncertain": (4, "PROPOSED"),
+    # Proposed or simulated: a result nobody has measured. The proposal motif on its own degree; never the measured one.
+    "proposed": (3, "PROPOSED"),
 }
 
 
