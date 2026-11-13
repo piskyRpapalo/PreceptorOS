@@ -136,8 +136,8 @@ class FailClosed(unittest.TestCase):
 
     def test_no_feed_is_no_data_with_its_cause(self):
         p = K.project(None, "2026-11-13T12:00:00Z", source_cause="p2_mirror_not_built")
-        self.assertEqual((p["state"], p["cause"], p["tasks"], p["needs_you"]), ("NO_DATA", "p2_mirror_not_built", [], 0))
-        self.assertEqual(K.project([], "t")["cause"], "no_task_recorded")
+        self.assertEqual((p["state"], p["cause"], p["tasks"], p["needs_you"]), ("NO_DATA", "p2_mirror_not_built", [], None))
+        self.assertEqual(K.project([], "t")["cause"], "no_task_in_this_reading")
         self.assertEqual(len(K.project([rec(None)] * 20, "t")["tasks"]), K.MAX_TASKS)
 
     def test_same_records_same_projection(self):
@@ -176,7 +176,8 @@ class Surfaces(unittest.TestCase):
         self.assertEqual(needs, 1)
         self.assertTrue(summary.startswith("New tasks wait: 1 claim has no known result, and only the host can resolve it. "
                                            "1 task needs your authorization. Last task: This task needs your authorization"))
-        self.assertEqual(empty, "NO_DATA: p2 mirror not built.")
+        self.assertTrue(summary.endswith(" NO_DATA: whether any other task needs you or blocks new work is unknown (uncertainty unread)."))
+        self.assertEqual(empty, "NO_DATA: p2 mirror not built. Whether any task needs you or blocks new work is unknown.")
         self.assertTrue(down.startswith("NO_DATA: "))
         self.assertIsNone(wrong)
 
@@ -184,7 +185,7 @@ class Surfaces(unittest.TestCase):
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         self.assertIn('<p class="pie" id="notebook-tasks-status" role="status" aria-live="polite">', html)
         self.assertIn('<div id="notebook-tasks" class="notebook-grid"></div>', html)
-        self.assertIn('"/notebook.js?v=17"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
+        self.assertIn('"/notebook.js?v=18"', (ROOT / "interface/sw.js").read_text(encoding="utf-8"))
         nb = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         self.assertIn('await loadTasks("notebook-tasks", "notebook-tasks-status");', nb)
         for word in ("authorize(", "grant(", "POST"):

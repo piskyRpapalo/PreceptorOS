@@ -237,7 +237,15 @@
     // The fixed terms come once with the projection; without them no uncertainty details are shown.
     const terms = raw.uncertainty_terms || {};
     if (!(terms.ttl_seconds === 0 && terms.no_retry === true && terms.promotion === "NOT_AUTHORIZED")) tasks.forEach(x => { x.uncertainty = null; });
-    return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs, blocks };
+    // A zero is said only over a reading the host attested complete and every row of which was read here too
+    // (the counters contract in tareas_hexelion). Otherwise the counts are "at least", and the cause is said with them.
+    const c = raw.counters && typeof raw.counters === "object" ? raw.counters : null;
+    const whole = raw.tasks.length <= 12 && tasks.length === raw.tasks.length && !tasks.some(x => x.state === "NO_DATA");
+    const counted = !!c && c.state === "MEASURED" && hex64(c.complete_ref) && whole;
+    const countersCause = counted ? null : (c && c.state !== "MEASURED" && clean(c.cause, 80)) ||
+      (c ? "rows_unreadable" : "counters_not_stated");
+    return { state: raw.state === "MEASURED" ? "MEASURED" : "NO_DATA", cause: clean(raw.cause, 80), tasks, needs, blocks,
+      counted, countersCause };
   }
   /* An uncertain task's host projection (LAB uncertainty-projection): shown, never acted on. Only exact refs and the
    * fixed terms are accepted; anything else hides the details (the sentence still says the outcome is unknown). */
@@ -264,22 +272,35 @@
     return { projection: u.projection_ref, task: u.task_ref, acknowledgement: u.acknowledgement, reservation,
       observed: clean(u.observed_at, 40) };
   }
+  const words = (code) => String(code || "no cause given").replace(/_/g, " ");
   function taskSummary(p, why) {
     if (!p) return why || failed("the tasks", null);
-    if (!p.tasks.length) return "NO_DATA: " + (p.cause || "no task recorded").replace(/_/g, " ") + ".";
+    const unknown = "whether any other task needs you or blocks new work is unknown (" + words(p.countersCause) + ").";
+    if (!p.tasks.length) {
+      if (p.counted) return "Measured: no task needs you or blocks new work.";
+      const said = p.cause && p.cause !== p.countersCause ? words(p.cause) + ", and " : "";
+      return "NO_DATA: " + said + words(p.countersCause) + ". Whether any task needs you or blocks new work is unknown.";
+    }
     const head = p.needs ? p.needs + (p.needs === 1 ? " task needs" : " tasks need") + " your authorization. " : "";
     const wait = p.blocks ? "New tasks wait: " + p.blocks + (p.blocks === 1 ? " claim has" : " claims have") +
       " no known result, and only the host can resolve " + (p.blocks === 1 ? "it" : "them") + ". " : "";
     const d = p.tasks.find(x => x.uncertainty);
-    const decide = !d ? "" : (d.uncertainty.acknowledgement === "HITL_REQUIRED" ? "Decision for you, task " : "Uncertain task ") +
+    // An acknowledgement the host cannot verify leaves the decision with you, as the machine counts it.
+    const yours = d && ["HITL_REQUIRED", "AUTHORITY_NOT_VERIFIED"].includes(d.uncertainty.acknowledgement);
+    const decide = !d ? "" : (yours ? "Decision for you, task " : "Uncertain task ") +
       d.run + ": " + d.sentence + " " + d.next + " ";
-    return wait + decide + head + "Last task: " + p.tasks[0].sentence;
+    const clear = p.counted && !p.blocks && !p.needs ? "Measured: no task needs you or blocks new work. " : "";
+    return wait + decide + head + clear + "Last task: " + p.tasks[0].sentence + (p.counted ? "" : " NO_DATA: " + unknown);
   }
+  // A reading that started earlier never repaints over one that started later: the old is never shown as current.
+  const asked = {};
   async function loadTasks(listId, statusId) {
     const list = document.getElementById(listId), status = document.getElementById(statusId);
     if (!list) return null;
+    const mine = asked[listId] = (asked[listId] || 0) + 1;
     let p = null, why = null;
     try { p = projectTasks(await request("/api/hexelion/tareas")); } catch (e) { p = null; why = failed("the tasks", e); }
+    if (asked[listId] !== mine) return null;
     list.replaceChildren();
     (p ? p.tasks : []).forEach(x => {
       const c = card("Task " + x.run, x.state, x.sentence);
@@ -303,14 +324,16 @@
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return p;
   }
-  // Talk says the same summary only when something waits on you or on the host; otherwise it stays quiet.
+  // Talk says the same summary as the Notebook. Its silence means one thing only: a measured reading in which nothing
+  // waits on you or on the host. A failed or uncounted reading is said, never left as a quiet "all is well".
   async function talkTasks(statusId) {
     const status = document.getElementById(statusId);
     if (!status) return null;
-    let p = null;
-    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch { p = null; }
-    // Talk stays quiet unless something waits on you or on the host; a failed reading is told in the Notebook.
-    const text = p && (p.blocks || p.needs) ? taskSummary(p) : "";
+    const mine = asked[statusId] = (asked[statusId] || 0) + 1;
+    let p = null, why = null;
+    try { p = projectTasks(await request("/api/hexelion/tareas")); } catch (e) { p = null; why = failed("the tasks", e); }
+    if (asked[statusId] !== mine) return null;
+    const text = p && p.counted && !p.blocks && !p.needs ? "" : taskSummary(p, why);
     if (spoken[statusId] !== text) { status.textContent = text; spoken[statusId] = text; }
     status.hidden = !text;
     return p;

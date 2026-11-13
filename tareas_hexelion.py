@@ -282,15 +282,34 @@ def task(record, read_at=None):
                  "This task stopped: %s." % failure.lower().replace("_", " "), FAILURE_NEXT[failure], replayed, evidence=evidence)
 
 
-def project(records, observed_at, source_cause=None):
+# A counter is a number only where it was observed (APP-P0-TRUTH, 2026-11-13). A positive count is what the reading
+# saw: at least that many. A zero says "nothing needs you", so it is said only when the reading is attested complete
+# by the host (`complete_ref`, the ref of its completeness witness) and every row in it was read. Otherwise the zero
+# is null and `counters` says NO_DATA with its cause. No host supplies a completeness witness yet: the live route
+# says NO_DATA(p2_mirror_not_built), and APP never makes one up.
+COUNTERS = ("needs_you", "blocks_new_work", "decisions_for_you")
+_HEX64 = re.compile(r"^[0-9a-f]{64}$")
+# An acknowledgement the host cannot verify is no acknowledgement: the decision stays the person's.
+DECISION_ACKS = ("HITL_REQUIRED", "AUTHORITY_NOT_VERIFIED")
+
+
+def _counters(values, cause, complete_ref=None):
+    if cause:
+        return dict({k: (values.get(k) or None) for k in COUNTERS},
+                    counters={"state": "NO_DATA", "cause": cause, "complete_ref": None, "known_counts_are": "at_least"})
+    return dict({k: values.get(k, 0) for k in COUNTERS},
+                counters={"state": "MEASURED", "cause": None, "complete_ref": complete_ref, "known_counts_are": "exact"})
+
+
+def project(records, observed_at, source_cause=None, complete_ref=None):
     """The projection Notebook, Talk and the machine read. NO_DATA with cause while no mirror feeds it."""
     base = {"schema": SCHEMA, "observed_at": observed_at,
             "limits": "Reads journal records handed to it. It stores, claims, retries and authorises nothing.",
             # Every uncertainty a row shows was checked to carry these terms; they are said once, not per row.
             "uncertainty_terms": UNCERTAINTY_TERMS, "acho_terms": ACHO_TERMS}
     if source_cause or not isinstance(records, list):
-        return dict(base, state="NO_DATA", cause=str(source_cause or "records_unreadable")[:80], tasks=[], counts={},
-                    needs_you=0, blocks_new_work=0, decisions_for_you=0)
+        cause = str(source_cause or "records_unreadable")[:80]
+        return dict(base, state="NO_DATA", cause=cause, tasks=[], counts={}, **_counters({}, cause))
     shown = records[:MAX_TASKS]
     # One run, one record. A run id handed twice is a contradictory source: none of its copies is believed.
     seen = {}
@@ -306,6 +325,16 @@ def project(records, observed_at, source_cause=None):
     # The journal lets a claim with no known result block every new claim until the host resolves it (LAB #182);
     # an interruption before authorisation can leave one. Said, never hidden and never cleared from here.
     blocks = counts.get("NO_RESULT_RECORDED", 0) + counts.get("OUTCOME_UNKNOWN", 0)
-    return dict(base, state="MEASURED" if tasks else "NO_DATA", cause=None if tasks else "no_task_recorded",
-                tasks=tasks, counts=dict(sorted(counts.items())), needs_you=counts.get("NEEDS_YOUR_AUTHORIZATION", 0),
-                blocks_new_work=blocks, decisions_for_you=sum(1 for t in tasks if t.get("uncertainty", {}).get("acknowledgement") == "HITL_REQUIRED"))
+    decisions = sum(1 for t in tasks if t.get("uncertainty", {}).get("acknowledgement") in DECISION_ACKS)
+    # Why a zero here would not be observed, most specific first.
+    unread = [t for t in tasks if t["state"] in ("NO_RESULT_RECORDED", "OUTCOME_UNKNOWN") and "uncertainty" not in t]
+    cause = ("records_beyond_window" if len(records) > MAX_TASKS else
+             "rows_unreadable" if counts.get("NO_DATA") else
+             "uncertainty_unread" if unread else
+             "completeness_not_attested" if not (type(complete_ref) is str and _HEX64.match(complete_ref)) else None)
+    attested_empty = not tasks and cause is None
+    return dict(base, state="MEASURED" if tasks or attested_empty else "NO_DATA",
+                cause=None if tasks or attested_empty else "no_task_in_this_reading",
+                tasks=tasks, counts=dict(sorted(counts.items())),
+                **_counters({"needs_you": counts.get("NEEDS_YOUR_AUTHORIZATION", 0), "blocks_new_work": blocks,
+                             "decisions_for_you": decisions}, cause, complete_ref))
