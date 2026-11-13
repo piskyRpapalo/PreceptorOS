@@ -69,7 +69,6 @@
   <section class="panel" id="panel-conversacion" role="tabpanel" aria-labelledby="tab-conversacion" tabindex="0" aria-label="Talk">
     <header class="panel-cabecera"><h2 class="sr" id="h-conversacion">Talk</h2>
       <p class="pie conv-destinos" id="conv-destinos" role="status" aria-live="polite">NO_DATA: the shared thread has not been read yet.</p>
-      <p class="pie" id="talk-tasks" role="status" aria-live="polite" hidden></p>
       <button type="button" class="refrescar" data-refrescar="conversacion" aria-label="Refresh the shared thread" title="Refresh the shared thread">↻</button>
       <details class="comandos" id="comandos-hexelion">
         <summary class="refrescar" id="comandos-hexelion-abrir" aria-label="Hexelion commands" title="Hexelion commands">?</summary>
@@ -91,6 +90,7 @@
           <p class="pie" id="comandos-hexelion-frases">Or just say it, no slash: «how is the rack?» · «what can you do?» · «what did you do?» · «what awaits my signature?» · «lab results» · «which preceptors are working?» · «what devices are connected?» · «what models do we have?» (also in Spanish and Portuguese). These only read.</p>
         </div>
       </details></header>
+    <p class="pie" id="talk-tasks" role="status" aria-live="polite" hidden></p>
     <ol class="hilo" id="hilo" aria-live="polite" aria-label="Shared thread: you, Hexelion and the rack preceptors"></ol>
   </section>
 
