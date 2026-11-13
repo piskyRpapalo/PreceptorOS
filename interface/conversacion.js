@@ -45,13 +45,16 @@
     return li;
   }
 
+  // One announcement per change: a live line is written only when its words change (same words = silence).
+  function say(el, text) { if (el && el.textContent !== text) el.textContent = text; }
+
   function paintDestinations(list) {
     const out = doc.getElementById("conv-destinos");
     if (!out || !Array.isArray(list)) return;
     const tags = (f) => list.filter(f).map((d) => "@" + d.id).join(" ");
-    out.textContent = "Answers here: " + tags((d) => d.route === "station") +
+    say(out, "Answers here: " + tags((d) => d.route === "station") +
       " · Reads the thread: " + tags((d) => d.route === "thread") +
-      " · NO_DATA, no transport: " + tags((d) => !d.addressable);
+      " · NO_DATA, no transport: " + tags((d) => !d.addressable));
     out.title = list.map((d) => "@" + d.id + ": " + d.transport).join("\n");
   }
 
@@ -68,10 +71,14 @@
       (d.destinations || []).forEach((x) => { routes[x.id] = x.route; names[x.id] = x.name; });
       paintDestinations(d.destinations);
       if (d.state !== "MEASURED") {
-        if (status) status.textContent = "NO_DATA: " + (d.cause || "the shared thread could not be read");
+        say(status, "NO_DATA: " + String(d.cause || "the shared thread could not be read").replace(/_/g, " ") + ".");
         return d;
       }
-      if (opts && opts.replaceLocal) list.querySelectorAll("li.local").forEach((li) => li.remove());
+      // Drafts this window drew were already announced. Their thread copies replace them quietly (identity:
+      // the copy's words are in a draft), so the same words never enter the live log twice; new words still do.
+      const drafts = opts && opts.replaceLocal ? [...list.querySelectorAll("li.local")] : [];
+      const draftWords = drafts.map((li) => li.textContent);
+      drafts.forEach((li) => li.remove());
       const fresh = (d.messages || []).filter((m) => Number.isSafeInteger(m.n) && m.n > seen &&
         !list.querySelector('li[data-n="' + m.n + '"]'));
       if (fresh.length) {
@@ -82,14 +89,19 @@
           li.textContent = d.hidden + " earlier messages are in the thread and not shown here.";
           list.appendChild(li);
         }
-        fresh.forEach((m) => list.appendChild(row(m)));
+        fresh.forEach((m) => {
+          const li = row(m);
+          const k = m.text ? draftWords.findIndex((w) => w.includes(m.text)) : -1;
+          if (k >= 0) { draftWords.splice(k, 1); li.setAttribute("aria-live", "off"); li.dataset.copyOf = "draft"; }
+          list.appendChild(li);
+        });
         list.removeAttribute("aria-busy");
         list.lastElementChild.scrollIntoView({ block: "end" });
       }
       seen = Math.max(seen, d.last || 0);
       return d;
     } catch {
-      if (status) status.textContent = "NO_DATA: the shared thread did not answer; your words stay in this window only.";
+      say(status, "NO_DATA: the shared thread did not answer; your words stay in this window only.");
       return null;
     } finally {
       busy = false;

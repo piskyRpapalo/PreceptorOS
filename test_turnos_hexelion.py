@@ -104,8 +104,8 @@ class Pairing(unittest.TestCase):
     def test_projection_and_its_no_data(self):
         p = T.project({"estado": "MEDIDO", "mensajes": [msg(1, "soberano")]}, NOW)
         self.assertEqual((p["schema"], p["state"], p["counts"]), ("preceptoros.hexelion-turns/1", "MEASURED", {"NO_REPLY_RECORDED": 1}))
-        self.assertEqual(T.project({"estado": "NO_DATA", "causa": "el canal aún no tiene mensajes"}, NOW)["cause"],
-                         "el canal aún no tiene mensajes")
+        self.assertEqual(T.project({"estado": "NO_DATA", "causa": "channel_has_no_messages"}, NOW)["cause"],
+                         "channel_has_no_messages")
         self.assertEqual(T.project({"estado": "MEDIDO", "mensajes": []}, NOW)["cause"], "no_request_in_thread")
         self.assertEqual(json.dumps(T.project({"estado": "MEDIDO", "mensajes": [msg(1, "soberano")]}, NOW)),
                          json.dumps(T.project({"estado": "MEDIDO", "mensajes": [msg(1, "soberano")]}, NOW)))
@@ -175,13 +175,14 @@ class Door(unittest.TestCase):
 
 
 class Views(unittest.TestCase):
-    def test_notebook_and_lab_render_the_same_turn_without_moving_focus_or_sound(self):
+    def test_the_notebook_keeps_requests_without_moving_focus_or_sound(self):
+        """Visual coherence (2026-11-13): requests and answers have one home, the Notebook; Lab points there."""
         html = (ROOT / "interface/app.html").read_text(encoding="utf-8")
         js = (ROOT / "interface/notebook.js").read_text(encoding="utf-8")
         app = (ROOT / "interface/app.js").read_text(encoding="utf-8")
-        for ident in ("notebook-turns", "notebook-turns-status", "lab-turno", "lab-turno-status"):
+        for ident in ("notebook-turns", "notebook-turns-status", "lab-turno-pointer"):
             self.assertIn('id="%s"' % ident, html)
-        self.assertIn('loadTurns("lab-turno", "lab-turno-status", 1)', app)
+        self.assertNotIn('loadTurns("lab-turno"', app)
         self.assertIn('loadTurns("notebook-turns", "notebook-turns-status", 12)', js)
         block = js[js.index("const turnStates"):js.index("function mount()")]
         self.assertIn("card(x.by + \" asked \" + x.to", block)

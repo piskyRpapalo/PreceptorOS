@@ -86,6 +86,20 @@ async function waitServer(child) {
       const Real = window.AudioContext;
       window.AudioContext = function () { window.__audioMade++; return new Real(); };
       window.__live = {};
+      // What a screen reader would be handed: words added to a visible, effective live region (aria-live="off" on
+      // a nearer element silences it). Text replaced by the same text is not new words.
+      window.__said = [];
+      const effective = (el) => { const r = el && el.closest('[aria-live]'); return r && r.getAttribute('aria-live') !== 'off' ? r : null; };
+      new MutationObserver((ms) => { for (const m of ms) {
+        const el = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+        const nodes = m.type === 'characterData' ? [m.target] : [...m.addedNodes];
+        for (const n of nodes) {
+          const host = n.nodeType === 1 ? n : n.parentElement || el;
+          const region = effective(host);
+          if (!region || region.closest('[hidden]') || getComputedStyle(region).display === 'none') continue;
+          const words = (n.textContent || '').trim();
+          if (words) window.__said.push([region.id || region.className, words]);
+        } } }).observe(document, { subtree: true, childList: true, characterData: true });
       new MutationObserver((ms) => { for (const m of ms) {
         const el = m.target.nodeType === 1 ? m.target : m.target.parentElement;
         const live = el && el.closest('[aria-live]');
@@ -271,6 +285,35 @@ async function waitServer(child) {
     assert(!/\b(signed|refunded|released|returned|approved)\b/i.test(u.talk + opened), 'claims something unseen');
     receipt.checks.uncertain_task_same_in_talk_and_notebook = 'SIMULATED_DATA_REAL_DOM';
     await page.unroute('**/api/hexelion/tareas');
+
+    // 12 · One announcement per event. A Talk turn hands each message's words to a reader once: the person's draft,
+    // the reply, the turn line; the thread's copies of drafts arrive quietly; unchanged lines stay silent.
+    await page.locator('#tab-conversacion').click(); await page.waitForTimeout(500);
+    await page.evaluate(() => { window.__said = []; });
+    await page.locator('#dicho').fill('/estado'); await page.locator('#enviar').click();
+    await page.waitForFunction(() => document.querySelector('#estado').dataset.state === 'ACTED', null, { timeout: 15000 });
+    await page.waitForTimeout(2500);
+    const said = await page.evaluate(() => window.__said);
+    // A repeat is an announcement that carries words already announced in this turn (a copy wrapped in metadata counts).
+    const core = (w) => w.replace(/^Hexelion · [a-z ]+?: /, '').replace(/^Hexelion: /, '');
+    const repeats = said.filter((x, j) => said.slice(0, j).some((y) => core(y[1]).length >= 4 && x[1].includes(core(y[1]))));
+    const replyWords = (await page.evaluate(async () => (await (await fetch('/api/hexelion/turnos')).json()).turns[0].sentence));
+    assert(said.some((x) => x[0] === 'estado' && x[1].startsWith(replyWords)), 'the turn line was not announced');
+    assert.deepEqual(repeats, [], 'the same words were announced twice in one turn');
+    assert(!said.some((x) => x[0] === 'conv-destinos'), 'unchanged destinations re-announced');
+    receipt.checks.turn_announcements = said.map((x) => x[0]);
+
+    // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.
+    // `canal:<thread>` is lab.py's source identifier (data, pinned by test_lab), not prose; it is not matched.
+    const spanish = /\b(aún|comprobando|Zona activa|Hablar|mensajes|Publicar|creación|Identidad|edificio|Redacción|Modelos locales|Canales recientes|Elige|ninguna)\b/;
+    const leaks = [];
+    for (const tab of ['#tab-mando', '#tab-conversacion', '#tab-gobierno', '#tab-cuaderno', '#tab-lab', '#tab-harness', '#tab-puerta', '#tab-modelos', '#tab-ajustes']) {
+      await page.locator(tab).click(); await page.waitForTimeout(700);
+      const text = await page.evaluate(() => document.querySelector('[role=tabpanel]:not([hidden])').innerText + ' ' + document.querySelector('#estado').textContent);
+      for (const line of text.split('\n')) if (spanish.test(line)) leaks.push(tab + ': ' + line.trim().slice(0, 60));
+    }
+    assert.deepEqual(leaks, [], 'Spanish prose visible in the English app');
+    receipt.checks.spanish_visible = 0;
 
     // The arrow walk passes through World, whose panel loads the public OpenWorld page by design; anything else fails.
     const declared = ['https://preceptoros.org/openworld/'];

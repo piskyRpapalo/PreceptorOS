@@ -569,10 +569,15 @@ const modelosWeb = window.PreceptorModelosWeb.mount({
 const insertor = window.PreceptorInsertor;
 
 /* --- reorganización · zonas en una sola pestaña ----------------------- */
+let enfocandoPestana = false;   // set by mostrar(): the tab itself is receiving focus
 function actualizarGuionZona() {
   const zona = paneles[panelActual];
   const boton = document.querySelector(`[data-panel="${zona.id}"]`);
-  $("guion-zona").textContent = `${t.zona_activa} ${boton.textContent.trim()}.`;
+  const linea = `${t.zona_activa} ${boton.textContent.trim()}.`;
+  // A focused tab is already spoken by the screen reader ("Talk, tab, selected"); saying the zone again would be the
+  // same event twice. The line speaks only when the zone changed some other way (a link, a swipe, the address).
+  if (enfocandoPestana || document.activeElement === boton || $("guion-zona").textContent === linea) return;
+  $("guion-zona").textContent = linea;
 }
 function mostrar(i, opciones = {}) {
   const indiceAnterior = panelActual;
@@ -587,6 +592,7 @@ function mostrar(i, opciones = {}) {
   if (indiceAnterior !== panelActual && $("ayuda-efimera") && !$("ayuda-efimera").hidden) {
     cerrarAyuda(false);
   }
+  enfocandoPestana = !!opciones.enfocar;
   actualizarGuionZona();
   if (indiceAnterior !== panelActual && window.PreceptorSting) {
     window.PreceptorSting.tocar().catch(() => {});
@@ -618,7 +624,6 @@ const cargadores = {
   gobierno: () => { const b = $("hitl-recargar"); if (b && !b.disabled) b.click(); },
   cuaderno: () => window.PreceptorNotebook && window.PreceptorNotebook.load(),
   lab: () => Promise.all([cargarLab(), cargarLabRack(),
-    window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("lab-turno", "lab-turno-status", 1) : null,
     window.PreceptorNotebook ? window.PreceptorNotebook.loadBench("lab-bench", "lab-bench-status") : null]),
   harness: () => Promise.all([cargarHarness(), window.PreceptorTeam ? window.PreceptorTeam.load() : null,
     window.PreceptorNotebook ? window.PreceptorNotebook.loadTurns("harness-cli-turns", "harness-cli-status", 6, "cli") : null]),
@@ -834,10 +839,11 @@ async function estado() {
     const r = await fetch("/api/estado");
     const d = await r.json();
     const cuenta = d && d.turnos;
+    // The server answered: say what it said (its cause), never "cannot reach the server".
     $("estado").textContent = cuenta && Number.isSafeInteger(cuenta.turnos) &&
       Number.isSafeInteger(cuenta.consentidos)
       ? t.memoria(cuenta.turnos, cuenta.consentidos)
-      : "NO_DATA: memory_counts_not_verified";
+      : "NO_DATA: " + String((d && d.causa) || (r.ok ? "memory_counts_not_verified" : "http_" + r.status)).replace(/_/g, " ") + ".";
   } catch {
     $("estado").textContent = t.sin_servidor;
   }

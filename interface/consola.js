@@ -499,7 +499,7 @@
         art.appendChild(d);
         lista.appendChild(art);
       });
-      if (!(r.mensajes || []).length) lista.appendChild(el("p", "consola-nd", ND + " · el canal aún no tiene mensajes"));
+      if (!(r.mensajes || []).length) lista.appendChild(el("p", "consola-nd", ND + " · channel has no messages"));
     }
 
     function carga() {

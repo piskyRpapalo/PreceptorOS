@@ -1134,7 +1134,7 @@ class ExportacionNodoContracto(unittest.TestCase):
         self.assertIn('"/node_building.js?v=1"', sw)
         self.assertGreaterEqual(int(__import__('re').search(r'preceptoros-armazon-v(\d+)', sw).group(1)), 121)
         self.assertIn('if ruta == "/api/creaciones"', server)
-        self.assertIn('/creation_publish.js?v=1', html)
+        self.assertIn('/creation_publish.js?v=2', html)
 
 
 class PwaNodeBuildingBoundary(unittest.TestCase):

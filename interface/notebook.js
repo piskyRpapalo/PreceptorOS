@@ -172,7 +172,6 @@
     }
     await loadTurns("notebook-turns", "notebook-turns-status", 12);
     await loadTasks("notebook-tasks", "notebook-tasks-status");
-    await loadBench("notebook-bench", "notebook-bench-status", notesResult.status === "fulfilled" ? notesResult.value : null);
     status.textContent = (notes ? t.updated : t.error) + (loops.cause ? " · Bucles: " + loops.cause : "");
     button.disabled = false;
   }
@@ -285,7 +284,7 @@
       list.append(c);
     });
     const summary = taskSummary(p);
-    if (!p || !p.tasks.length) list.append(card("Delegated tasks", "NO_DATA", summary));
+    // Empty: the status line already says so (no NO_DATA card repeating it).
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return p;
   }
@@ -345,7 +344,7 @@
       summary = runs.length + " run" + (runs.length === 1 ? "" : "s") + " from the Lab, fingerprints re-checked here. Read " +
         clean(d.bench_observed_at, 24).replace("T", " ").replace("Z", " UTC") + ". Each card says what was not measured.";
     }
-    if (!runs.length) list.append(card("Benchmarks", "NO_DATA", summary));
+    // Empty: the status line already says so; a card repeating it would be the same sentence twice.
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return runs;
   }
@@ -363,7 +362,7 @@
       const last = p.turns[0];
       summary = "Last request: " + last.by + " asked " + last.to + ". " + last.sentence;
     }
-    if (!p || !p.turns.length) list.append(card("Requests", "NO_DATA", summary));
+    // Empty: the status line already says so (no NO_DATA card repeating it).
     if (status && spoken[statusId] !== summary) { status.textContent = summary; spoken[statusId] = summary; }
     return p;
   }
