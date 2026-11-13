@@ -173,11 +173,32 @@ def ruta_politicas():
         return destino
     if not DEFECTO_PATH.is_file():
         raise PoliticasInvalidas("falta el molde de políticas del producto")
-    try:
-        shutil.copy2(DEFECTO_PATH, destino)
-    except OSError:
-        raise PoliticasInvalidas(f"no tengo permiso para escribir en {destino}") from None
-    return destino
+    # La siembra es atomica: quien lee ve o ningun fichero o el fichero entero, nunca una copia a medias. Antes,
+    # varios primeros usos a la vez (8 escritores del canal en una casa nueva) podian leer el fichero mientras otro
+    # lo copiaba: «configuración de políticas mal formada» y una escritura rechazada (test_canales, 2026-11-13).
+    # Se copia a un temporal reservado en la misma carpeta y se enlaza: el enlace nunca sobrescribe; si otro sembro
+    # antes, queda el suyo, que sale del mismo molde. Solo pathlib y shutil (IMPORTS_PERMITIDOS).
+    for i in range(64):
+        tmp = base / f".policies.siembra.{i}"
+        try:
+            with tmp.open("xb"):                      # reserva el nombre; otro proceso toma el siguiente
+                pass
+        except FileExistsError:
+            continue
+        except OSError:
+            raise PoliticasInvalidas(f"no tengo permiso para escribir en {destino}") from None
+        try:
+            shutil.copy2(DEFECTO_PATH, tmp)
+            try:
+                destino.hardlink_to(tmp)
+            except FileExistsError:
+                pass
+        except OSError:
+            raise PoliticasInvalidas(f"no tengo permiso para escribir en {destino}") from None
+        finally:
+            tmp.unlink(missing_ok=True)
+        return destino
+    raise PoliticasInvalidas("no pude reservar un temporal para sembrar las políticas")
 
 
 def _cargar_politicas():
