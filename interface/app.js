@@ -641,7 +641,7 @@ document.querySelectorAll(".pestanas [role=tab]").forEach((b, n) => {
   b.addEventListener("click", () => mostrar(n));
   b.addEventListener("keydown", (e) => {
     let siguiente = null;
-    // Arrows move from the tab that has focus (WAI-ARIA tabs), not from whichever panel happens to be open.
+    // Arrows move from the tab that has focus (the tabs pattern), not from whichever panel happens to be open.
     if (e.key === "ArrowRight") siguiente = (n + 1) % paneles.length;
     if (e.key === "ArrowLeft") siguiente = (n + paneles.length - 1) % paneles.length;
     if (e.key === "Home") siguiente = 0;
