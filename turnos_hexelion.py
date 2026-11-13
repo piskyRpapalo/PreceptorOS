@@ -250,3 +250,38 @@ def project(lectura, now_iso):
         counts[t["state"]] = counts.get(t["state"], 0) + 1
     return dict(base, state="MEASURED" if rows else "NO_DATA", cause=None if rows else "no_request_in_thread",
                 turns=rows, counts=dict(sorted(counts.items())))
+
+
+# Proposal for S5 (not wired; the native MCP server is unchanged): the compact answer a read-only `turns` tool would
+# give. An MCP line must stay under 1,024 B (mcp_transport.LIMIT) once wrapped in JSON-RPC, so the summary carries the
+# last turn's own state, cause and sentence plus the counts, and gives way (sentence first) rather than grow.
+STATUS_SCHEMA = "preceptoros.hexelion-status/1"
+MCP_LINE_B = 1024
+
+
+def _mcp_line(summary):
+    reply = {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": json.dumps(
+        summary, ensure_ascii=False, separators=(",", ":"), sort_keys=True)}]}}
+    return len(json.dumps(reply, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")) + 1
+
+
+def mcp_summary(projection, tasks=None):
+    """projection (preceptoros.hexelion-turns/1) [+ tasks projection] -> a summary that fits one MCP line."""
+    if not isinstance(projection, dict) or projection.get("schema") != SCHEMA:
+        return {"schema": STATUS_SCHEMA, "state": "NO_DATA", "cause": "turns_projection_invalid"}
+    rows = projection.get("turns") if isinstance(projection.get("turns"), list) else []
+    last = rows[0] if rows and isinstance(rows[0], dict) else None
+    out = {"schema": STATUS_SCHEMA, "state": projection.get("state"), "cause": projection.get("cause"),
+           "counts": projection.get("counts") or {},
+           "last": ({k: last.get(k) for k in ("n", "state", "cause", "sentence")} if last else None)}
+    if isinstance(tasks, dict) and tasks.get("schema") == "preceptoros.hexelion-tasks/1":
+        out["tasks"] = {"state": tasks.get("state"), "cause": tasks.get("cause"),
+                        "needs_you": tasks.get("needs_you"), "blocks_new_work": tasks.get("blocks_new_work")}
+    else:
+        out["tasks"] = {"state": "NO_DATA", "cause": "tasks_projection_missing"}
+    if _mcp_line(out) >= MCP_LINE_B and out["last"]:
+        out["last"] = {k: out["last"][k] for k in ("n", "state", "cause")}
+        out["last"]["sentence_cut"] = "mcp_line"
+    if _mcp_line(out) >= MCP_LINE_B:
+        out = {"schema": STATUS_SCHEMA, "state": "NO_DATA", "cause": "summary_exceeds_mcp_line"}
+    return out
