@@ -85,6 +85,7 @@ import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
 import pr_blockers as _pr_blockers
 import notebook_read as _notebook_read
+import notebook_receipts as _notebook_receipts
 import conversacion_comun as _conversacion
 import turnos_hexelion as _turnos
 import indice_rack as _indice_rack
@@ -507,6 +508,8 @@ class PWA(BaseHTTPRequestHandler):
         if ruta == "/api/harness":
             return self._harness_leer()
         if ruta == "/api/notebook":
+            # Re-project the MCP receipts first, so the Notebook shows Hexelion's last action, not an 08:00 snapshot.
+            _notebook_receipts.refresh(_casa.raiz())
             return self._json(200, _notebook_read.read(_casa.raiz()))
         if ruta == "/api/conversacion":
             return self._conversacion_leer()

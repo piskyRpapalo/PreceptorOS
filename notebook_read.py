@@ -150,7 +150,8 @@ def _receipts(obj, now):
             if type(value) is not int or not low <= value <= high:
                 return [], "receipt_invalid"
             record[name] = value
-        record["result"] = "ok" if record["rc"] == 0 else "failed"
+        record.update(P.optional({"voice": raw.get("voice"), "denied": raw.get("denied")}))
+        record["result"] = P.result(record)
         if raw.get("result") != record["result"] or raw.get("receipt_sha256") != P._digest(record):
             return [], "receipt_fingerprint_mismatch"
         record["receipt_sha256"] = raw["receipt_sha256"]

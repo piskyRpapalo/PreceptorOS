@@ -56,7 +56,8 @@
       })),
       receiptsCause: clean(raw.receipts_cause, 72),
       receipts: (Array.isArray(raw.receipts) ? raw.receipts : []).filter(r => r && typeof r === "object").slice(-20).map(r => ({
-        tool: clean(r.tool, 24), result: r.result === "ok" ? "ok" : "failed",
+        tool: clean(r.tool, 24), result: ["ok", "refused"].includes(r.result) ? r.result : "failed",
+        voice: clean(r.voice, 24),
         status: ["DECLARED", "STALE"].includes(r.status) ? r.status : "NO_DATA", cause: clean(r.cause, 72),
         ms: Number.isSafeInteger(r.ms) ? r.ms : null, bytes: Number.isSafeInteger(r.out_bytes) ? r.out_bytes : null,
         stamp: clean(r.measured_at, 40), receipt: clean(r.receipt_sha256, 64)
@@ -163,7 +164,8 @@
         const last = rows[rows.length - 1];
         const c = card(t.receipts + " · " + rows.length, last.status, t.receiptsNote);
         rows.slice(-6).reverse().forEach(r => c.append(elem("p", "notebook-fact",
-          [r.stamp.replace("T", " ").replace("Z", " UTC"), r.tool, r.result, r.ms === null ? "NO_DATA" : r.ms + " ms",
+          [r.stamp.replace("T", " ").replace("Z", " UTC"), (r.voice ? r.voice + " · " : "") + r.tool,
+            r.result === "refused" ? "refused by the fence" : r.result, r.ms === null ? "NO_DATA" : r.ms + " ms",
             r.bytes === null ? "NO_DATA" : r.bytes + " B", r.status, r.receipt.slice(0, 12)].join(" · "))));
         xList.append(c);
       } else xList.append(card(t.receipts, "NO_DATA", notes ? notes.receiptsCause || "no_valid_receipt" : "notebook_endpoint_unavailable"));
