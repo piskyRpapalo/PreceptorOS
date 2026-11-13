@@ -283,6 +283,8 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_false_clear
           # test_acho_truth: SIMULATED != VERIFIED; seis hechos, seis marcas (forma, linea, palabras, motivo)
           test_acho_truth
+          # test_self_report: las cuatro preguntas desde turnos, tareas y firmas; NO_DATA con causa, sin motor nuevo
+          test_self_report
           # test_hexelion_recall: una etiqueta o una palabra de mas ya no esconden la memoria (respaldo por palabras,
           # declarado); una cita exacta pero ajena no cuenta como respuesta (quote_not_relevant).
           test_hexelion_recall

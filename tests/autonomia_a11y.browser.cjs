@@ -436,6 +436,27 @@ async function waitServer(child) {
     assert(!failed.some((l) => /\b(No se|Sin consultar|Leyendo|conexion|respuesta_invalida)\b/.test(l)), 'Spanish under failure');
     assert.deepEqual(Object.keys(proof.state_words).filter((w) => !['NO_DATA', 'DECLARED', 'OBSERVED', 'MEASURED', 'VERIFIED', 'REFUSED', 'UNKNOWN', 'STALE'].includes(w)), [], 'a state word read in a second spelling');
 
+    // 12b · The four questions (APP-P3): asked in Talk with words, answered from the app's own records (no model, no
+    // MCP), recorded as one turn. Talk's status, the thread, the Notebook row, Acho and the JSON say the same report.
+    await page.locator('#tab-conversacion').click();
+    await page.locator('#dicho').fill('What are you doing?'); await page.locator('#enviar').click();
+    await page.waitForFunction(() => /four questions/.test(document.querySelector('#estado').textContent), null, { timeout: 15000 });
+    await page.waitForTimeout(1500);
+    const rep = await page.evaluate(async () => { const t = (await (await fetch('/api/hexelion/turnos')).json()).turns[0];
+      return { t, estado: document.querySelector('#estado').textContent, state: document.querySelector('#estado').dataset.state,
+        acho: document.querySelector('#acho-estado').dataset.expression, thread: document.querySelector('#hilo').textContent }; });
+    assert.deepEqual([rep.t.state, rep.t.cause, rep.state], ['ACTED', 'report_has_no_data', 'ACTED']);
+    assert(rep.estado.startsWith(rep.t.sentence), 'Talk status and the JSON row word the report differently');
+    assert.equal(rep.acho, 'silent', 'a report of missing evidence drew a success mark');
+    for (const part of ['Doing: NO_DATA', 'Achieved:', 'How I know:', 'Needs from you:'])
+      assert(rep.thread.includes(part), 'Talk lacks: ' + part);
+    assert(!/nothing (now|needs|waits)|all clear/i.test(rep.thread.slice(rep.thread.lastIndexOf('Doing:'))), 'a clear was said');
+    await page.locator('#tab-cuaderno').click();
+    await page.waitForFunction((s) => [...document.querySelectorAll('#notebook-turns [data-state="ACTED"]')]
+      .some((c) => c.textContent.includes(s)), rep.t.sentence, { timeout: 10000 });
+    receipt.checks.self_report_e2e = 'MEASURED(headless_chrome; isolated server; temp home; talk == json == notebook; acho silent)';
+    await page.locator('#tab-conversacion').click();
+
     // 13 · English only, first paint included: no Spanish words visible in any of the nine panels.
     // `canal:<thread>` is lab.py's source identifier (data, pinned by test_lab), not prose; it is not matched.
     const spanish = /\b(Bucles|Consultando|aún|comprobando|Zona activa|Hablar|mensajes|Publicar|creación|Identidad|edificio|Redacción|Modelos locales|Canales recientes|Elige|ninguna)\b/;

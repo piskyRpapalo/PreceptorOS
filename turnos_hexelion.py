@@ -19,6 +19,7 @@ the machine reads. Pure: no network, no clock of its own, no writes.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 
@@ -67,7 +68,7 @@ CAUSES = {
 
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
-LOCAL_READS = frozenset({"signatures", "lab", "preceptors", "devices", "models"})
+LOCAL_READS = frozenset({"signatures", "lab", "preceptors", "devices", "models", "report"})
 
 
 def _int(v, lo, hi):
@@ -135,7 +136,17 @@ def _close(turn, reply):
         local = m.get("via") == "lectura_local"
         evidence = "local read of an existing projection; no model" if local else "native MCP receipt; no model"
         state, cause = _action(m)
-        if state == "ACTED":
+        if state == "ACTED" and local and tool == "report":
+            # The self-report: the read ran under its contract; what it found is said answer by answer.
+            ev = m.get("evidencia") if isinstance(m.get("evidencia"), dict) else {}
+            got = ev.get("informe") if isinstance(ev.get("informe"), dict) else {}
+            answers = {k: got.get(k) if got.get(k) in ("MEASURED", "NO_DATA") else "NO_DATA" for k in REPORT_ANSWERS}
+            missing = [k for k in REPORT_ANSWERS if answers[k] != "MEASURED"]
+            turn.update(state="ACTED", evidence=evidence, answers=answers,
+                        cause="report_has_no_data" if missing else None,
+                        sentence="Hexelion answered the four questions from its own records; no model ran."
+                                 + (" NO_DATA: %s." % ", ".join(missing) if missing else ""))
+        elif state == "ACTED":
             turn.update(state="ACTED", evidence=evidence,
                         sentence=("Hexelion read «%s» from the rack's own records; no model ran." % tool) if local
                         else ("Hexelion ran the action «%s» through the native MCP; no model ran." % tool))
@@ -179,6 +190,8 @@ def acho_class(turn):
         return "exec_fail" if cause.startswith("rc ") else "fence"
     if state == "NO_ANSWER":
         return "bridge_down" if cause in BRIDGE_CAUSES else "empty"
+    if state == "ACTED" and cause == "report_has_no_data":
+        return "empty"           # the report ran, but what it reports is missing evidence: never the success mark
     return ACHO.get(state, "empty")
 
 
@@ -291,3 +304,104 @@ def mcp_summary(projection, tasks=None):
     if _mcp_line(out) >= MCP_LINE_B:
         out = {"schema": STATUS_SCHEMA, "state": "NO_DATA", "cause": "summary_exceeds_mcp_line"}
     return out
+
+
+# The four questions (APP-P3, Mesa #3 round 7): «what are you doing, what have you achieved, how do you know, what do
+# you need from me?». One projection over the turns, the tasks reading and the signature list the door already reads.
+# No engine, no agent state of its own: every answer names the projection it rests on, and an answer it cannot read
+# is NO_DATA with that projection's cause. It never says a process is running and never turns an unknown into zero.
+REPORT_SCHEMA = "preceptoros.hexelion-self-report/1"
+REPORT_ANSWERS = ("doing", "achieved", "how", "needs")
+ACHIEVED = ("ACTED", "ANSWERED", "LOCAL_SENSOR")      # each carries its own contract's evidence; REPLIED is a proposal
+
+
+def _ns(rows):
+    return ", ".join(str(t["n"]) for t in rows[:4]) + (" and %d more" % (len(rows) - 4) if len(rows) > 4 else "")
+
+
+def self_report(turns_projection, tasks_projection, signatures, is_report=lambda q: False):
+    """(turns /1, tasks /1, (ok, cause, n_waiting|None)) -> the four answers, each {state, sentence, refs}."""
+    tp = turns_projection if isinstance(turns_projection, dict) and turns_projection.get("schema") == SCHEMA else {}
+    kp = tasks_projection if isinstance(tasks_projection, dict) and \
+        tasks_projection.get("schema") == "preceptoros.hexelion-tasks/1" else {}
+    rows = [t for t in (tp.get("turns") or []) if isinstance(t, dict) and not is_report(t.get("question"))]
+    read = tp.get("state") == "MEASURED"
+    words = lambda code: str(code or "no cause given").replace("_", " ")
+    counters = kp.get("counters") if isinstance(kp.get("counters"), dict) else {"state": "NO_DATA",
+                                                                                 "cause": "counters_not_stated"}
+    tasks_read = kp.get("state") == "MEASURED"
+
+    # 1 · Doing: only the task reading can say it, and it never says "running".
+    if not kp:
+        doing = {"state": "NO_DATA", "cause": "tasks_projection_missing",
+                 "sentence": "Doing: NO_DATA: I cannot read my tasks. I never say a process is running."}
+    elif not tasks_read:
+        doing = {"state": "NO_DATA", "cause": kp.get("cause"),
+                 "sentence": "Doing: NO_DATA: I cannot see my tasks (%s). I never say a process is running."
+                             % words(kp.get("cause"))}
+    else:
+        b = kp.get("blocks_new_work")
+        doing = {"state": "MEASURED", "cause": None,
+                 "sentence": "Doing: %d task(s) recorded%s. I never say a process is running."
+                             % (len(kp.get("tasks") or []), "; %d with no known result block new work" % b if b else "")}
+    last = rows[0] if rows else None
+    if last:
+        doing["sentence"] += " Your last request (message %d): %s" % (last["n"], last["sentence"])
+
+    # 2 · Achieved: requests closed with their own contract's evidence; simulated or unchecked results do not count.
+    done = [t for t in rows if t.get("state") in ACHIEVED]
+    tasks_done = [t for t in (kp.get("tasks") or []) if t.get("state") == "DONE_CHECKED"
+                  and (t.get("evidence") or {}).get("origin") == "MEASURED"]
+    if not read:
+        achieved = {"state": "NO_DATA", "cause": tp.get("cause") or "turns_projection_invalid",
+                    "sentence": "Achieved: NO_DATA (%s)." % words(tp.get("cause") or "turns_projection_invalid")}
+    else:
+        achieved = {"state": "MEASURED", "cause": None,
+                    "sentence": "Achieved: %d of the last %d requests closed with evidence%s; %s."
+                                % (len(done), len(rows), " (messages %s)" % _ns(done) if done else "",
+                                   "%d task(s) checked" % len(tasks_done) if tasks_read else "tasks NO_DATA")}
+
+    # 3 · How I know: the projections and refs these answers rest on.
+    how = {"state": "MEASURED" if read else "NO_DATA", "cause": None if read else achieved["cause"],
+           "sentence": "How I know: %s; tasks %s; no model ran for this report." % (
+               ("the shared thread, messages %d to %d" % (rows[-1]["n"], rows[0]["n"]) if rows else
+                "the shared thread, no request in it") if read else "the thread NO_DATA",
+               "read" if tasks_read else "NO_DATA (%s)" % words(counters.get("cause") or kp.get("cause")))}
+
+    # 4 · Needs from you: a clear only over measured zeros; anything unread is said as unknown with its cause.
+    ok, s_cause, waiting = signatures
+    parts, known = [], True
+    if ok and isinstance(waiting, int):
+        parts.append("%d wait(s) for your signature" % waiting if waiting else "no signature waits")
+    else:
+        known = False
+        parts.append("signatures unknown (%s)" % words(s_cause))
+    if counters.get("state") == "MEASURED":
+        n = (kp.get("needs_you") or 0) + (kp.get("decisions_for_you") or 0)
+        if n:
+            parts.append("%d task decision(s) yours" % n)
+    else:
+        known = False
+        seen = (kp.get("needs_you") or 0) + (kp.get("decisions_for_you") or 0)
+        parts.append(("at least %d task decision(s) yours; others " % seen if seen else "task decisions ")
+                     + "unknown (%s)" % words(counters.get("cause")))
+    unclear = [t for t in rows if t.get("state") in ("ACTION_UNVERIFIED", "ANSWERED_UNVERIFIED")]
+    if unclear:
+        parts.append("check message(s) %s yourself" % _ns(unclear))
+    clear = known and not unclear and all(p.startswith("no ") for p in parts)
+    needs = {"state": "MEASURED" if known else "NO_DATA", "cause": None if known else "needs_partly_unknown",
+             "sentence": ("Needs from you: nothing now (measured)." if clear else "Needs from you: " + "; ".join(parts) + ".")}
+
+    answers = {"doing": doing, "achieved": achieved, "how": how, "needs": needs}
+    # The chat envelope keeps a local read under 560 B (hexelion_acciones.TOPE_LOCAL_B): the quoted last request gives
+    # way first, so the four answers are never cut.
+    if last and len(" ".join(v["sentence"] for v in answers.values()).encode("utf-8")) > 540:
+        doing["sentence"] = doing["sentence"][:doing["sentence"].index(" Your last request")] + \
+            " Your last request is message %d." % last["n"]
+    refs = {"turns": [t["n"] for t in rows], "tasks_cause": kp.get("cause"), "counters": counters.get("state"),
+            "signatures_cause": s_cause}
+    body = {"schema": REPORT_SCHEMA, "answers": {k: {"state": v["state"], "cause": v["cause"]} for k, v in answers.items()},
+            "refs": refs, "text": " ".join(v["sentence"] for v in answers.values())}
+    body["report_ref"] = hashlib.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True,
+                                                   separators=(",", ":")).encode("utf-8")).hexdigest()
+    return body

@@ -1146,7 +1146,7 @@ class PWA(BaseHTTPRequestHandler):
         if not self._es_loopback(self.client_address[0]):
             return self._json(403, {"state": "NO_DATA", "cause": "loopback_only"})
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        return self._json(200, _tareas.project(None, now, source_cause="p2_mirror_not_built"))
+        return self._json(200, _tareas.live(now))
 
     def _conversacion_enviar(self):
         """The person addresses one rack preceptor. The message goes to the shared thread with `para`; nobody is

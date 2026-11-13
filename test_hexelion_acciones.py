@@ -136,7 +136,7 @@ class Phrases(Door):
             self.assertIsNone(A.frase(other), other)
         tools = {A.interpreta(order)[0] for order in A.FRASES}
         self.assertEqual(tools, {"state", "capabilities", "audit_last",           # never exec or write_file
-                                 "signatures", "lab", "preceptors", "devices", "models"})
+                                 "signatures", "lab", "preceptors", "devices", "models", "report"})
 
     def test_the_person_says_a_phrase_and_hexelion_acts_and_the_thread_keeps_the_words(self):
         out = self.person("¿Cómo está el rack?")

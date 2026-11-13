@@ -14,6 +14,7 @@ Grammar (es/en):
   /firmas | /signatures                         what awaits the Sovereign's signature (local read, no MCP)
   /lab                                          the Lab bench results the Notebook shows (local read, no MCP)
   /preceptores | /preceptors                    declared preceptor heartbeats + who acted (local read, no MCP)
+  /informe | /report                            what I am doing, have achieved, how I know, what I need from you
   /ejecuta [@worktree] <command> | /run ...     one command, inside ~/wt/<worktree> when named
   /escribe @worktree <path> :: <text> | /write  one text file inside that worktree
 """
@@ -44,16 +45,17 @@ ACCIONES = {
     "preceptores": "preceptors", "preceptors": "preceptors",
     "dispositivos": "devices", "devices": "devices",
     "modelos": "models", "models": "models",
+    "informe": "report", "report": "report",
 }
 # Local READS (APP-TALK-E2E-01, 2026-11-13): no MCP, no model, no network. Each one reads a projection an existing
 # producer already writes under <casa>: the signature list (bin/firmas-scraper), the Lab bench (lab_bench.py) and
 # the preceptor heartbeats (notebook/agents.json), through the same readers the Notebook and /api/firmas use.
-LOCALES = ("signatures", "lab", "preceptors", "devices", "models")
+LOCALES = ("signatures", "lab", "preceptors", "devices", "models", "report")
 FIRMAS_FRESCAS_S = 1800   # the scraper runs every 10 min; older than 30 min is said as STALE
 # The chat door answers inside a 1,023 B envelope (estado_compacto); the action fields take ~350 B of it. A local
 # read says the most important lines first and is cut, with a mark, at this many UTF-8 bytes.
 TOPE_LOCAL_B = 560
-AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /dispositivos · /modelos · "
+AYUDA = ("/estado · /capacidades · /registro [n] · /firmas · /lab · /preceptores · /dispositivos · /modelos · /informe · "
          "/ejecuta [@worktree] <command> · "
          "/escribe @worktree <path> :: <text>")
 
@@ -99,6 +101,11 @@ FRASES = {
         "que dispositivos estan reservados para acurast",
         "what devices are connected", "which devices are connected", "what devices do we have", "which nodes are there",
         "que dispositivos estao ligados", "que dispositivos temos",
+    ),
+    "/informe": (
+        "que estas haciendo", "que haces", "que has conseguido", "como lo sabes", "que necesitas de mi",
+        "what are you doing", "what have you achieved", "how do you know", "what do you need from me",
+        "o que estas a fazer", "o que conseguiste", "como sabes", "o que precisas de mim",
     ),
     "/modelos": (
         "que modelos tenemos", "que modelos hay", "modelos disponibles",
@@ -412,10 +419,31 @@ def _modelos(base, now):
     return True, None, texto + " Installed is not available; no inference was run."
 
 
+def _informe(base, now):
+    """The four questions, from the turns, the tasks reading and the signature list (turnos_hexelion.self_report).
+    Reads only what the Notebook and the routes already read; the report's own turns are left out of its answers."""
+    import canales
+    import conversacion_comun
+    import tareas_hexelion
+    import turnos_hexelion
+    stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    turns = turnos_hexelion.project(canales.lee(conversacion_comun.THREAD, 0, base=base), stamp)
+    ok, cause, text = _firmas(base, now)
+    m = re.match(r"Waiting for your signature: (\d+)", text) if ok else None
+    waiting = int(m.group(1)) if m else (0 if ok and text.startswith("Nothing waits for your signature now.") else None)
+
+    def is_report(q):
+        return frase(q or "") == "/informe" or interpreta(q or "")[0] == "report"
+    r = turnos_hexelion.self_report(turns, tareas_hexelion.live(stamp), (ok, cause, waiting), is_report)
+    return True, None, r["text"], {"informe": {k: v["state"] for k, v in r["answers"].items()},
+                                   "report_ref": r["report_ref"]}
+
+
 _LECTORES = {"signatures": (_firmas, "firmas/pendientes.json"), "lab": (_lab, "notebook/bench.json"),
              "preceptors": (_preceptores, "notebook/agents.json + notebook/receipts.json"),
              "devices": (_dispositivos, "federado/dispositivos.json + LAB node receipts"),
-             "models": (_modelos, "LAB node receipts")}
+             "models": (_modelos, "LAB node receipts"),
+             "report": (lambda base, now: _informe(base, now), "thread + tasks reading + firmas/pendientes.json")}
 
 
 def cabe(texto, tope=TOPE_LOCAL_B):
@@ -437,13 +465,13 @@ def lee_local(tool, base=None, now=None):
     lector, fuente = _LECTORES[tool]
     t0 = time.monotonic()
     try:
-        ok, causa, texto = lector(base, now)
+        ok, causa, texto, *extra = lector(base, now)
     except Exception:   # a reader bug must still answer with a cause, never a stack trace in the chat
-        ok, causa, texto = False, "local_read_failed", "I could not read %s." % fuente
+        ok, causa, texto, extra = False, "local_read_failed", "I could not read %s." % fuente, []
     return {"estado": "MEASURED", "herramienta": tool, "ok": ok, "denegada": False, "causa": causa,
             "rc": 0 if ok else 1, "ms": int((time.monotonic() - t0) * 1000), "allowlist_version": None,
             "via": "lectura_local", "fuente": fuente, "texto": cabe(texto),
-            "evidencia": {"fuente": fuente} if ok is True else {}}
+            "evidencia": dict({"fuente": fuente}, **(extra[0] if extra else {})) if ok is True else {}}
 
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
