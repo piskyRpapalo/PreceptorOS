@@ -1244,10 +1244,14 @@ class PWA(BaseHTTPRequestHandler):
         pregunta = {"pregunta_n": turno["n"]} if turno["n"] is not None else {}
         # «/…» is an ACTION (Sovereign 2026-11-12: Hexelion executes and proposes, never asks for signatures). The
         # person types it; the native MCP server runs it as voice hexelion inside its fences. The model is not asked.
-        if _hexelion_acciones.es_accion(text):
+        # A spoken phrase can name a READ action exactly («¿cómo está el rack?» -> /estado): one sentence, no typing.
+        orden = text if _hexelion_acciones.es_accion(text) else (_hexelion_acciones.frase(text) if persona else None)
+        if orden:
             if not persona:   # a rack CLI agent has its own tools; it never acts through Hexelion's hands
                 return no_data("actions_person_only", 403)
-            accion = _hexelion_acciones.ejecuta(text)
+            accion = _hexelion_acciones.ejecuta(orden)
+            if orden is not text:
+                accion["frase"] = orden
             if accion["estado"] != "MEASURED":
                 return no_data(accion["causa"], 400 if accion.get("ayuda") else 503)
             try:
@@ -1255,7 +1259,8 @@ class PWA(BaseHTTPRequestHandler):
                             sello="MEDIDO" if accion["ok"] else "NO_DATA", rol="Hexelion action via MCP nativo (not model)",
                             maquina={**pregunta, "via": "mcp_nativo", "herramienta": accion["herramienta"],
                                      "ok": accion["ok"], "rc": accion["rc"], "ms": accion["ms"],
-                                     "causa": accion["causa"], "allowlist_version": accion["allowlist_version"]},
+                                     "causa": accion["causa"], "allowlist_version": accion["allowlist_version"],
+                                     **({"frase": accion["frase"]} if accion.get("frase") else {})},
                             base=_casa.raiz())
             except _canales.CanalRechazado:
                 return no_data("thread_append_refused")

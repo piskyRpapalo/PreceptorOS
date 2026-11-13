@@ -107,7 +107,8 @@
 // (notebook.js v5, app.js v27). Cache v169.
 // 2026-11-12 (actions): «/…» in Talk is a Hexelion action through the native MCP; «?» lists the commands
 // (notebook.js v6, app.js v28, app.css v19). Cache v170.
-const Cache = "preceptoros-armazon-v170";
+// 2026-11-12 (phrases): a few exact spoken sentences name the read-only actions; «?» says so. Only the shell. Cache v171.
+const Cache = "preceptoros-armazon-v171";
 const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=19", "/app.js?v=28", "/notebook.js?v=6", "/conversacion.js?v=2", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental
