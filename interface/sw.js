@@ -113,7 +113,8 @@
 // 2026-11-13 (talk E2E): «?» lists three more read actions (signatures, Lab, preceptors). Only the shell. Cache v173.
 // 2026-11-13 (install identity): the installed app is named PreceptorOS (name and short_name); Hexelion stays the
 // brain inside Talk. The manifest is served cache-first, so only a new cache lets installs read it. Cache v174.
-const Cache = "preceptoros-armazon-v174";
+// 2026-11-13 (federated view): «?» lists /dispositivos and /modelos (LAB node receipts + private registry). Shell only. Cache v175.
+const Cache = "preceptoros-armazon-v175";
 const Armazon = ["/assets/icono-192.png?v=2", "/assets/icono-512.png?v=2", "/assets/icono-512-maskable.png?v=2", "/", "/app", "/app.html", "/app.css?v=19", "/app.js?v=28", "/notebook.js?v=7", "/conversacion.js?v=2", "/energia_ui.js?v=2", "/modelos_web.js?v=3", "/keep_device.js?v=1", "/acho_motion.js?v=2", "/team.js?v=2", "/hitl.js?v=6", "/hitl.css?v=5", "/insertor.js?v=2", "/creation_publish.js?v=1", "/creation_voice.js?v=1", "/node_registration.js?v=1", "/node_building.js?v=1", "/zonas.js?v=1",
                  "/transicion.js?v=2", "/sting.js?v=1", "/manifest.json",
                  // La brújula conserva su módulo y SVG. La hoja ornamental

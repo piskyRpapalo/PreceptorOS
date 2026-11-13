@@ -136,7 +136,7 @@ class Phrases(Door):
             self.assertIsNone(A.frase(other), other)
         tools = {A.interpreta(order)[0] for order in A.FRASES}
         self.assertEqual(tools, {"state", "capabilities", "audit_last",           # never exec or write_file
-                                 "signatures", "lab", "preceptors"})
+                                 "signatures", "lab", "preceptors", "devices", "models"})
 
     def test_the_person_says_a_phrase_and_hexelion_acts_and_the_thread_keeps_the_words(self):
         out = self.person("¿Cómo está el rack?")
@@ -308,7 +308,7 @@ class Shell(unittest.TestCase):
         self.assertIn('#comandos-hexelion [data-comando]', app)
         self.assertIn('"ACTED", "ACTION_REFUSED"', (ROOT / "interface/notebook.js").read_text(encoding="utf-8"))
         sw = (ROOT / "interface/sw.js").read_text(encoding="utf-8")
-        self.assertIn("preceptoros-armazon-v174", sw)
+        self.assertIn("preceptoros-armazon-v175", sw)
         for asset in ('"/app.js?v=28"', '"/app.css?v=19"', '"/notebook.js?v=7"'):
             self.assertIn(asset, sw)
 

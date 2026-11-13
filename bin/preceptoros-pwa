@@ -84,6 +84,7 @@ import hexelion_proxy as _hexelion_proxy                     # noqa: E402
 import hexelion_book as _hexelion_book                       # noqa: E402
 import team as _team
 import pr_blockers as _pr_blockers
+import federado as _federado                                  # noqa: E402
 import notebook_read as _notebook_read
 import notebook_receipts as _notebook_receipts
 import conversacion_comun as _conversacion
@@ -389,7 +390,7 @@ class PWA(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "private, max-age=60, must-revalidate")
         self.send_header("Content-Length", str(len(crudo)))
         if (ruta.startswith("/api/nodo/") or
-                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook") or ruta == "/api/conversacion"):
+                ruta.startswith("/api/hexelion/") or ruta in ("/api/bandeja", "/api/energia", "/api/notebook", "/api/federado") or ruta == "/api/conversacion"):
             self.send_header("Cache-Control", "no-store")
         if (ruta == "/api/orquestador" and
                 self.headers.get("Origin") == ORIGEN_WEB_ORQUESTADOR):
@@ -507,6 +508,9 @@ class PWA(BaseHTTPRequestHandler):
             return self._creacion_asset(ruta)
         if ruta == "/api/harness":
             return self._harness_leer()
+        if ruta == "/api/federado":
+            # The machine form of «what devices / what models»: LAB node receipts re-checked + the private registry.
+            return self._json(200, _federado.from_lab(_casa.raiz()))
         if ruta == "/api/notebook":
             # Re-project the MCP receipts first, so the Notebook shows Hexelion's last action, not an 08:00 snapshot.
             _notebook_receipts.refresh(_casa.raiz())

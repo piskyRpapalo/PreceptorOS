@@ -161,7 +161,7 @@ UNITTEST=(test_bandeja_lectura test_herencia_web test_app_una_pestana test_keep_
           test_rutas_unicas test_fabrika3d test_notebook_reports
           # Every suite is counted separately; test_superficie catches omissions.
           test_huella test_metricas test_energia_estado test_energia_intencion test_app_english_freeze test_herramientas test_empieza_aqui test_soberano
-          test_importar test_medidas test_cifras test_compliance test_icons_emblem test_app_identidad
+          test_importar test_medidas test_cifras test_compliance test_icons_emblem test_app_identidad test_federado
           # test_linea y test_normas: el registro encadenado y la tabla de
           # anclas legislativas. Entran en su mismo commit. La primera lleva
           # dentro la prueba del SABOTEADOR --se manipula una fila por debajo y
