@@ -97,6 +97,10 @@ S0 is docs-only (standing THE MARCH FIRMO). Each later slice: directed tests, `p
   NO_DATA(p2_mirror_not_built). Who hands the journal's records to the APP is Codex CLI's (H3).
 - S6: deterministic walk, EVIDENCE LEVEL SIMULATED (fake MCP + journal test double). Service, real journal, device
   screen reader and audio: NO_DATA.
+- S3b turn sounds: Settings switch, off by default, kept in this browser only; Talk plays the turn's motif only when
+  the turn has its sentence. Physical audio heard on a device: NO_DATA(not_exercised).
+- Open for others: P1 Acho/MCP contract (Codex Web, interim) · P2 mirror of journal records into the APP (Codex CLI) ·
+  S5 read-only MCP tool (Sovereign decision).
 - NO_DATA register: persistent_recovery_E2E(P2_not_built) · recovery_store_not_verified(H3_open) · physical_voice_E2E(not_exercised) ·
   screen_reader_on_device(not_exercised) · mcp_8_tool_window(no_audit_of_file_restore) ·
   federated_semantic_integrity(H1_open) · grok_receipt_fail_closed(H2_open).
